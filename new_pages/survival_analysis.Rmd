@@ -15,16 +15,13 @@ The target of inference for survival analysis is then the time between an origin
 
 It is usually expressed through the **_survival probability_** which is the probability that the event of interest has not occurred by a duration *t*.
 
-
 **_Censoring_**: Censoring occurs when at the end of follow-up, some of the individuals have not had the event of interest, and thus their true time to event is unknown. 
 We will mostly focus on right censoring (which occurs when we are missing information for a subject after a certain point in time) here but for more details on censoring and survival analysis in general, you can see references. 
 
 
-```{r echo=F, eval=F, out.width = "80%", out.height="80%", fig.align = "center"}
- 
-#Add a figure from the following chunks for the last version of the page
-#do not forget to save the output figure in "images"
-# knitr::include_graphics(here::here("images", "survanalysis.png"))
+```{r echo=F, out.width = "80%", out.height="80%", fig.align = "center"}
+
+knitr::include_graphics(here::here("images", "different_survival_measures.png"))
 
 ```  
 
