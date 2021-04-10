@@ -104,4 +104,102 @@ Once you get an idea for what is possible, it's also helpful to map out what you
 
 ## Building a UI 
 
-When building our app, its easier to work on the UI first so we can see what we're making.
+When building our app, its easier to work on the UI first so we can see what we're making, and not risk the app failing because of any server errors. As mentioned previously, its often good to use a template when working on the UI. There are a number of standard layouts that can be used with shiny that are available from the base shiny package, but it's worth noting that there are also a number of package extensions such as `shinydashboard`. We'll use an example from base shiny to start with. 
+
+A shiny UI is generally defined as a series of nested functions, in the following order
+
+1. A function defining the general layout (the most basic is `fluidPage()`, but more are available)
+2. Panels within the layout such as:
+     - a sidebar (`sidebarPanel()`)
+     - a "main" panel (`mainPanel()`)
+     - a tab (`tabPanel()`)
+     - a generic "column" (`column()`)
+3. Widgets and outputs - these can confer inputs to the server (widgets) or outputs from the server (outputs)
+     - Widgets generally are styled as `xxxInput()` e.g. `selectInput()`
+     - Outputs are generally styled as `xxxOutput()` e.g. `plotOutput()`
+
+It's worth stating again that these can't be visualised easily in an abstract way, so it's best to look at an example! Lets consider making a basic app that visualises our malaria facility count data by district. This data has a lot of differnet parameters, so it would be great if the end user could apply some filters to see the data by age group/district as they see fit! We can use a very simple shiny layout to start - the sidebar layout. This is a layout where widgets are placed in a sidebar on the left, and the plot is placed on the right.
+
+Lets plan our app - we can start with a selector that lets us choose the district where we want to visualise data, and another to let us visualise the age group we are interested in. We'll aim to use these filters to show an epicurve that reflects these parameters. So for this we need:
+
+1. Two dropdown menus that let us choose the district we want, and the age group we're interested in. 
+2. An area where we can show our resulting epicurve.
+
+This might look something like this:
+
+```{r, eval = FALSE}
+
+ui <- fluidPage(
+
+  titlePanel("Malaria facility visualisation app"),
+
+  sidebarLayout(
+
+    sidebarPanel(
+         # selector for district
+         selectInput(
+              inputId = "select_district",
+              label = "Select district",
+              choices = c(
+                   "All",
+                   "Spring",
+                   "Bolo",
+                   "Dingo",
+                   "Barnard"
+              ),
+              selected = "All",
+              multiple = TRUE
+         ),
+         # selector for age group
+         selectInput(
+              inputId = "select_agegroup",
+              label = "Select age group",
+              choices = c(
+                   "All ages" = "malaria_tot",
+                   "0-4 yrs" = "malaria_rdt_0-4",
+                   "5-14 yrs" = "malaria_rdt_5-14",
+                   "15+ yrs" = "malaria_rdt_15"
+              ), 
+              selected = "All",
+              multiple = TRUE
+         ),
+
+    ),
+
+    mainPanel(
+      # epicurve goes here
+      plotOutput("malaria_epicurve")
+    )
+    
+  )
+)
+
+
+```
+
+
+This layout looks something like this - note that there will be no plot if there is no server to render it, but our inputs are working!
+
+
+
+This is a good opportunity to discuss how widgets work - note that each widget is accepting an `inputId`, a `label`, and a series of other options that are specific to the widget type. This `inputId` is extremely important - these are the IDs that are used to pass information from the UI to the server. For this reason, they *must be unique*. You should make an effort to name them something sensible, and specific to what they are interacting with in cases of larger apps.
+
+You should read documentation carefully for full details on what each of these widgets do. Widgets will pass specific types of data to the server depending on the widget type, and this needs to be fully understood. For example, `selectInput()` will pass a character type to the server:
+
+- If we select _Spring_ for the first widget here, it will pass the character object `"Spring"` to the server. 
+- If we select two items from the dropdown menu, they will come through as a vector (e.g. `c("Spring", "Bolo")`).
+
+Other widgets will pass different types of object to the server! For example:
+
+- `numericInput()` will pass a numeric type object to the server
+- `checkboxInput()` will pass a logical type object to the server
+
+It's also worth noting the named vector used for the age data here. For many widgets, using a named vector as the choices will display the names of the objects, but pass the contents of the vector to the server. I.e. here we can select _15+_ and it will pass `"malaria_rdt_15"` to the server - which happens to be the name of the column we're interested in!
+
+
+There are loads of widgets that you can use to do lots of things with your app. Widgets also allow you to upload files into your app, and download outputs. There are also some excellent shiny extensions that give you access to more widgets than base shiny - `shinyWidgets` is a great example of this. To look at some examples you can look at the following links:
+
+- [base shiny widget gallery](https://shiny.rstudio.com/gallery/widget-gallery.html)
+- [shinyWidgets gallery](https://github.com/dreamRs/shinyWidgets)
+
+
