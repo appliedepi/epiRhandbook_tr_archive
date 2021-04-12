@@ -161,7 +161,7 @@ ui <- fluidPage(
                    "15+ yrs" = "malaria_rdt_15"
               ), 
               selected = "All",
-              multiple = TRUE
+              multiple = FALSE
          ),
 
     ),
@@ -203,3 +203,208 @@ There are loads of widgets that you can use to do lots of things with your app. 
 - [shinyWidgets gallery](https://github.com/dreamRs/shinyWidgets)
 
 
+
+## Loading data into our app
+
+The next step in our development is getting a server up and running. To do this however, we need to get some data into our app, and figure out all the calculations we're going to do. A shiny app is not straightforward to debug, as it's often not clear where errors are coming from, so it's ideal to get all our data processing and visualisation code working before we start making the server itself.
+
+So given we want to make an app that shows epi curves that change based on user input, we should think about what code we would need to run this in a normal R script. We'll need to:
+
+1. Load our packages
+2. Load our data
+3. Transform our data
+4. Develop a _function_ to visualise our data based on user inputs
+
+This list is pretty straightforward, and shouldn't be too hard to do. It's now important to think about which parts of this process need to *be done only once* and which parts need to *run in response to user inputs*. This is because shiny apps generally run some code before running, which is only performed once. It will help our app's performance if as much of our code can be moved to this section. For this example, we only need to load our data/packages and do basic transformations once, so we can put that code *outside the server*. This means the only thing we'll need in the server is the code to visualise our data. Lets develop all of these componenets in a script first. However, since we're visualising our data with a function, we can also put the code _for the function_ outside the server so our function is in the environment when the app runs!
+
+First lets load our data. Since we're working with a new project, and we want to make it clean, we can create a new directory called data, and add our malaria data in there. We can run this code below in a testing script we will eventually delete when we clean up the structure of our app.
+
+```{r, echo = TRUE}
+pacman::p_load("tidyverse", "lubridate")
+
+# read data
+malaria_data <- rio::import(here::here("data", "facility_count_data.rds")) %>% 
+  as_tibble()
+
+print(malaria_data)
+
+
+```
+It will be easier to work with this data if we use tidy data standards, so we should also transform into a longer data format, where age group is a column, and cases is another column. We can do this easily using what we've learned in the xxx section:
+
+
+```{r, echo = TRUE}
+
+malaria_data <- malaria_data %>%
+  select(-newid) %>%
+  pivot_longer(cols = starts_with("malaria_"), names_to = "age_group", values_to = "cases_reported")
+
+print(malaria_data)
+
+```
+
+And with that we've finished preparing our data! This crosses items 1, 2, and 3 off our list of things to develop for our "testing R script". The last, and most difficult task will be building a function to produce an epicurve based on user defined parameters. As mentioned previously, it's *highly recommended* that anyone learning shiny first look at the section on functional programming to understand how this works!
+
+When defining out function, it might be hard to think about what parameters we want to include. For functional programming with shiny, every relevent parameter will generally have a widget associated with it, so thinking about this is usually quite easy! For example in our current app, we want to be able to filter by province, and have a widget for this, so we can add a province parameter to reflect this. We *don't* have any app functionality to filter by facility (for now), so we don't need to add this as a parameter. Lets start by making a function with three parameters:
+
+1. The core dataset
+2. The district of choice
+3. The age group of choice
+
+```{r}
+
+plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot") {
+  
+  if (!("All" %in% district)) {
+    data <- data %>%
+      filter(District %in% district)
+    
+    plot_title_district <- stringr::str_glue("{paste0(district, collapse = ",")} districts")
+    
+  } else {
+    
+    plot_title_district <- "all districts"
+    
+  }
+  
+  # if no remaining data, return NULL
+  if (nrow(data) == 0) {
+    
+    return(NULL)
+  }
+  
+  data <- data %>%
+    filter(age_group == agegroup)
+  
+  
+  # if no remaining data, return NULL
+  if (nrow(data) == 0) {
+    
+    return(NULL)
+  }
+  
+  if (agegroup == "malaria_tot") {
+      agegroup_title <- "All ages"
+  } else {
+    agegroup_title <- stringr::str_glue("{str_remove(agegroup, 'malaria_rdt')} years")
+  }
+  
+  
+  ggplot(data, aes(x = data_date, y = cases_reported)) +
+    geom_bar(stat = "identity", fill = "darkred") +
+    theme_minimal() +
+    labs(
+      x = "date",
+      y = "number of cases",
+      title = stringr::str_glue("Malaria cases - {plot_title_district}"),
+      subtitle = 
+    )
+  
+  
+  
+}
+
+```
+
+
+We won't go into great detail about this function, as it's relatively simple in how it works. One thing to note however, is we handle errors by returning `NULL` when it would otherwise give an error. This is because when a shiny server produces a `NULL` object instead of a plot object, nothing will be shown in the ui! This is important, as otherwise errors will often cause your app to stop working.
+
+Let's test our function!
+
+```{r, echo = TRUE, warning = FALSE}
+
+plot_epicurve(malaria_data, district = "Bolo", agegroup = "malaria_rdt_0-4")
+
+```
+
+With our function working, we now have to understand how this all is going to fit into our shiny app. We mentioned the concept of _startup code_ before, but lets look at how we can actually incorporate this into the structure of our app. There are two ways we can do this!
+
+1. Put this code in your _app.R_ file at the start of the script
+2. Create a new file in your directory called _global.R_, and put the startup code in this file.
+
+It's worth noting at this point that it's generally easier, especially with bigger apps, to use the second file structure, as it lets you separate your file structure in a simple way. Lets fully develop a this global.R script now. Here is what it could look like:
+
+
+```{r, eval = F}
+# global.R script
+
+pacman::p_load("tidyverse", "lubridate", "shiny")
+
+# read data
+malaria_data <- rio::import(here::here("data", "facility_count_data.rds")) %>% 
+  as_tibble()
+
+
+malaria_data <- malaria_data %>%
+  select(-newid) %>%
+  pivot_longer(cols = starts_with("malaria_"), names_to = "age_group", values_to = "cases_reported")
+
+
+
+plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot") {
+  
+  if (!("All" %in% district)) {
+    data <- data %>%
+      filter(District %in% district)
+    
+    plot_title_district <- stringr::str_glue("{paste0(district, collapse = ",")} districts")
+    
+  } else {
+    
+    plot_title_district <- "all districts"
+    
+  }
+  
+  # if no remaining data, return NULL
+  if (nrow(data) == 0) {
+    
+    return(NULL)
+  }
+  
+  data <- data %>%
+    filter(age_group == agegroup)
+  
+  
+  # if no remaining data, return NULL
+  if (nrow(data) == 0) {
+    
+    return(NULL)
+  }
+  
+  if (agegroup == "malaria_tot") {
+      agegroup_title <- "All ages"
+  } else {
+    agegroup_title <- stringr::str_glue("{str_remove(agegroup, 'malaria_rdt')} years")
+  }
+  
+  
+  ggplot(data, aes(x = data_date, y = cases_reported)) +
+    geom_bar(stat = "identity", fill = "darkred") +
+    theme_minimal() +
+    labs(
+      x = "date",
+      y = "number of cases",
+      title = stringr::str_glue("Malaria cases - {plot_title_district}"),
+      subtitle = 
+    )
+  
+  
+  
+}
+
+
+
+```
+
+
+Easy! One great feature of shiny is that it will understand what files named _app.R_, _server.R_, _ui.R_, and _global.R_ are for, so there is no need to connect them to each other via any code. So just by having this code in _global.R_ it will run before we start our app!. We should also note that it would improve our apps organisation if we moved this function to its own file - this will be especially helpful as apps become larger. To do this, we could make another directory called _funcs_, and put this function in as a file called _plot_epicurve.R_. We could then read this function in via the following command in _global.R_
+
+```{r, eval = F}
+
+source(here::here("funcs", "plot_epicurve.R"), local = TRUE)
+
+```
+
+Note that you should *always* specify `local = TRUE` in shiny apps, since it will affect sourcing when/if the app is published on a server. 
+
+## Developing an app server
