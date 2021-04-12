@@ -379,8 +379,8 @@ knitr::include_graphics(here::here("images", "download_csv_raw.png"))
 You may not be able to view the "Raw" data for some files (e.g. .xlsx, .rds, .nwk, .shp)  
 
 1) Go to the Github repo, locate the file of interest, and click on it  
-2) Click the "Download" button, as shown below  
-3) Save the file on your computer, and import it into R  
+2) Right click the "Raw" button, and click "Copy Link Address" (if in Chrome)
+3) Use the URL in the `import()` R command, as with the csv  
 
 
 ```{r out.height = "50%", fig.align = "center", echo=F}
