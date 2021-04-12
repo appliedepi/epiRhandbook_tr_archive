@@ -162,7 +162,7 @@ ui <- fluidPage(
               ), 
               selected = "All",
               multiple = FALSE
-         ),
+         )
 
     ),
 
@@ -408,3 +408,180 @@ source(here::here("funcs", "plot_epicurve.R"), local = TRUE)
 Note that you should *always* specify `local = TRUE` in shiny apps, since it will affect sourcing when/if the app is published on a server. 
 
 ## Developing an app server
+
+Now that we have most of our code, we just have to develop our server. This is the final piece of our app, and is probably the hardest to understand. The server is a large R function, but its helpful to think of it as a series of smaller functions, or tasks that the app can perform. It's important to understand that these functions are not executed in a linear order. There is an order to them, but it's not fully necessary to understand when starting out with shiny. At a very basic level, these tasks or functions will activate when there is a change in user inputs that affects them, *unless the developer has set them up so they behave differently*. Again, this is all quite abstract, but lets first go through the three basic types of shiny _objects_
+
+1. Reactive sources - this is another term for user inputs. The shiny server has access to the outputs from the UI through the widgets we've programmed. Every time the values for these are changed, this is passed down to the server.
+
+2. Reactive conductors - these are objects that exist *only* inside the shiny server. We don't actually need these for simple apps, but they produce objects that can only be seen inside the server, and used in other operations. They generally depend on reactive sources.
+
+3. Endpoints - these are outputs that are passed from the server to the UI. In our example, this would be the epi curve we are producing. 
+
+With this in mind lets construct our server step by step. We'll show our UI code again here just for reference:
+
+```{r, eval = FALSE}
+
+ui <- fluidPage(
+
+  titlePanel("Malaria facility visualisation app"),
+
+  sidebarLayout(
+
+    sidebarPanel(
+         # selector for district
+         selectInput(
+              inputId = "select_district",
+              label = "Select district",
+              choices = c(
+                   "All",
+                   "Spring",
+                   "Bolo",
+                   "Dingo",
+                   "Barnard"
+              ),
+              selected = "All",
+              multiple = TRUE
+         ),
+         # selector for age group
+         selectInput(
+              inputId = "select_agegroup",
+              label = "Select age group",
+              choices = c(
+                   "All ages" = "malaria_tot",
+                   "0-4 yrs" = "malaria_rdt_0-4",
+                   "5-14 yrs" = "malaria_rdt_5-14",
+                   "15+ yrs" = "malaria_rdt_15"
+              ), 
+              selected = "All",
+              multiple = FALSE
+         )
+
+    ),
+
+    mainPanel(
+      # epicurve goes here
+      plotOutput("malaria_epicurve")
+    )
+    
+  )
+)
+
+
+```
+
+From this code UI we have:
+
+- Two inputs:
+  - District selector (with an inputId of `select_district`)
+  - Age group selector (with an inputId of `select_agegroup`)
+- One output:
+  - The epicurve (with an outputId of `malaria_epicurve`)
+
+As stated previously, these unique names we have assigned to our inputs and outputs are crucial. They *must be unique* and are used to pass information between the ui and server. In our server, we access our inputs via the syntax `input$input_name` and outputs and passed to the ui through the syntax `output$output_name` Lets have a look at an example, because again this is hard to understand otherwise!
+
+```{r, eval = FALSE}
+
+server <- function(input, output, session) {
+  
+  output$malaria_epicurve <- renderPlot(
+    plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup)
+  )
+  
+}
+
+
+```
+
+
+The server for a simple app like this is actually quite straightforward! You'll notice that the server is a function with three parameters - `input`, `output`, and `session` - this isn't that important to understand for now, but its important to stick to this setup! In our server we only have one task - this renders a plot based on our function we made earlier, and the inputs from the server. Notice how the names of the input and output objects correspond exactly to those in the ui.
+
+To understand the basics of how the server reacts to user inputs, you should note that the output will know (through the underlying package) when inputs change, and rerun this function to create a plot every time they change. Note that we also use the `renderPlot()` function here - this is one of a family of class specific functions that pass those objects to an output. There are a number of functions that behave similar, but you need to ensure the function matches the class of object you're passing to the ui! For example:
+
+- `renderText()` - send text to the ui
+- `renderDataTable` - send an interactive table to the ui.
+
+Remember that these need to match the output function used in the ui - so `renderPlot()` is paired with `plotOutput()`, and `renderText()` is matched with `textOutput()`. 
+
+So we've finally made a functioning app! We can run this by pressing the Run App button on the top right of the script window in Rstudio. *ADD SOMETHING ON DOWNLOADING A ZIP FILE OF THE APP MAYBE?* 
+
+## Adding more functionality
+
+At this point we've finally got a running app, but we have very little functionality. We also haven't really scratched the surface of what shiny can do, so there's a lot more to learn about! Lets continue to build our existing app by adding some extra features. Some things that could be nice to add could be: 
+
+1. Some explanatory text 
+2. A download button for our plot - this would provide the user with a high quality version of the image that they're generating in the app
+3. A selector for specific facilities, and maybe one for dates as well
+4. Another dashboard page - this could show summary statistics for the full scope of the data.
+
+This is a lot to add, but we can use it to learn about a bunch of different shiny featues on the way. There is so much to learn about shiny (it can get *very* advanced, but its hopefully the case that once users have a better idea of how to use it they can become more comfortable using external learning sources as well).
+
+ADD IN SECTION ON ADDING TEXT p() etc.
+
+
+
+Lets move on to the second of the three features. A download button is a fairly common thing to add to an app and is fairly easy to make. We need to add another Widget to our ui, and we need to add another output to our server to attach to it. We can also introduce *reactive conductors* in this example!
+
+Lets update our ui first - this is easy as shiny comes with a widget called `downloadButton()` - lets give it an inputId and a label.
+
+```{r, eval = FALSE}
+
+ui <- fluidPage(
+
+  titlePanel("Malaria facility visualisation app"),
+
+  sidebarLayout(
+
+    sidebarPanel(
+         # selector for district
+         selectInput(
+              inputId = "select_district",
+              label = "Select district",
+              choices = c(
+                   "All",
+                   "Spring",
+                   "Bolo",
+                   "Dingo",
+                   "Barnard"
+              ),
+              selected = "All",
+              multiple = TRUE
+         ),
+         # selector for age group
+         selectInput(
+              inputId = "select_agegroup",
+              label = "Select age group",
+              choices = c(
+                   "All ages" = "malaria_tot",
+                   "0-4 yrs" = "malaria_rdt_0-4",
+                   "5-14 yrs" = "malaria_rdt_5-14",
+                   "15+ yrs" = "malaria_rdt_15"
+              ), 
+              selected = "All",
+              multiple = FALSE
+         ),
+         # horizontal line
+         hr(),
+         downloadButton(
+           inputId = "download_epicurve",
+           label = "Download plot"
+         )
+
+    ),
+
+    mainPanel(
+      # epicurve goes here
+      plotOutput("malaria_epicurve")
+    )
+    
+  )
+)
+
+
+```
+ 
+ Note that we've also added in a `hr()` tag - this adds a horizontal line separating our control widgets from our download widgets.
+
+
+
+
+
