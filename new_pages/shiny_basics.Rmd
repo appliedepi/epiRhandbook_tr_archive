@@ -579,9 +579,102 @@ ui <- fluidPage(
 
 ```
  
- Note that we've also added in a `hr()` tag - this adds a horizontal line separating our control widgets from our download widgets.
+Note that we've also added in a `hr()` tag - this adds a horizontal line separating our control widgets from our download widgets. This is another one of the HTML tags that we discussed previously.
+
+Now that we have our ui ready, we need to add the server component. Downloads are done in the server with the `downloadHandler()` function. Similar to our plot, we need to attach it to an output that has the same inputId as the download button. This function takes two arguments - `filename` and `content` - these are both functions. As you might be able to guess, `filename` is used to specify the name of the downloaded file, and `content` is used to specify what should be downloaded. `content` contain a function that you would use to save data locally - so if you were downloading a csv file you could use `rio::export()`. Since we're downloading a plot, we'll use `ggplot2::ggsave()`. Lets look at how we would program this (we won't add it to the server yet). 
+
+```{r, eval = FALSE}
+
+server <- function(input, output, session) {
+  
+  output$malaria_epicurve <- renderPlot(
+    plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup)
+  )
+  
+  output$download_epicurve <- downloadHandler(
+    filename = function() {
+      stringr::str_glue("malaria_epicurve_{input$select_district}.png")
+    },
+    
+    content = function(file) {
+      ggsave(file, 
+             plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup),
+             width = 8, height = 5, dpi = 300)
+    }
+    
+  )
+  
+}
+
+
+```
+
+
+Note that the `content` function always takes a `file` argument, which we put where the output file name is specified. You might also notice that we're repeating code here - we are using our `plot_epicurve()` function twice in this server, once for the download and once for the image displayed in the app. While this wont massively affect performance, this means that the code to generate this plot will have to be run when the user changes the widgets specifying the district and age group, *and* again when you want to download the plot. In larger apps, suboptimal decisions like this one will slow things down more and more, so it's good to learn how to make our app more efficient in this sense. What would make more sense is if we had a way to run the epicurve code when the districts/age groups are changes, *and let that be used by* the renderPlot() and downloadHandler() functions. This is where reactive conductors come in! 
+
+Reactive conductors are objects that are created in the shiny server in a *reactive* way, but are not outputted - they can just be used by other parts of the server. There are a number of different kinds of *reactive conductors*, but we'll go through the basic two.
+
+1.`reactive()` - this is the most basic reactive conductor - it will react whenever any inputs used inside of it change (so our district/age group widgets)
+2. `eventReactive()`- this rective conductor works the same as `reactive()`, except that the user can specify which inputs cause it to rerun. This is useful if your reactive conductor takes a long time to process, but this will be explained more later.
+
+Lets look at the two examples:
+
+```{r, eval = FALSE}
+
+malaria_plot_r <- reactive({
+  
+  plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup)
+  
+})
+
+
+# only runs when the district selector changes!
+malaria_plot_er <- eventReactive(input$select_district, {
+  
+  plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup)
+  
+})
 
 
 
+```
+
+When we use the `eventReactive()` setup, we can specify which inputs cause this chunk of code to run - this isn't very useful to us at the moment, so we can leave it for now. Note that you can include multiple inputs with `c()`
+
+Lets look at how we can integrate this into our server code:
 
 
+```{r, eval = FALSE}
+
+server <- function(input, output, session) {
+  
+  malaria_plot <- reactive({
+    plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup)
+  })
+  
+  
+  
+  output$malaria_epicurve <- renderPlot(
+    malaria_plot()
+  )
+  
+  output$download_epicurve <- downloadHandler(
+    
+    filename = function() {
+      stringr::str_glue("malaria_epicurve_{input$select_district}.png")
+    },
+    
+    content = function(file) {
+      ggsave(file, 
+             malaria_plot(),
+             width = 8, height = 5, dpi = 300)
+    }
+    
+  )
+  
+}
+
+
+```
+
+You can see we're just calling on the output of our reactive we've defined in both our download and plot rendering functions. One thing to note that often trips people up is you have to use the outputs of reactives as if they were functions - so you *must add empty brackets at the end of them* (i.e. `malaria_plot()` is correct, and `malaria_plot` is not). Now that we've added this solution our app is a little tidyer, faster, and easier to change since all our code that runs the epicurve function is in one place. Great!
