@@ -250,7 +250,497 @@ shinyApp(ui = ui, server = server)</code></pre>
 </div>
 <div id="building-a-ui" class="section level2">
 <h2>Building a UI</h2>
-<p>When building our app, its easier to work on the UI first so we can see what we’re making.</p>
+<p>When building our app, its easier to work on the UI first so we can see what we’re making, and not risk the app failing because of any server errors. As mentioned previously, its often good to use a template when working on the UI. There are a number of standard layouts that can be used with shiny that are available from the base shiny package, but it’s worth noting that there are also a number of package extensions such as <code>shinydashboard</code>. We’ll use an example from base shiny to start with.</p>
+<p>A shiny UI is generally defined as a series of nested functions, in the following order</p>
+<ol style="list-style-type: decimal">
+<li>A function defining the general layout (the most basic is <code>fluidPage()</code>, but more are available)</li>
+<li>Panels within the layout such as:
+<ul>
+<li>a sidebar (<code>sidebarPanel()</code>)</li>
+<li>a “main” panel (<code>mainPanel()</code>)</li>
+<li>a tab (<code>tabPanel()</code>)</li>
+<li>a generic “column” (<code>column()</code>)</li>
+</ul></li>
+<li>Widgets and outputs - these can confer inputs to the server (widgets) or outputs from the server (outputs)
+<ul>
+<li>Widgets generally are styled as <code>xxxInput()</code> e.g. <code>selectInput()</code></li>
+<li>Outputs are generally styled as <code>xxxOutput()</code> e.g. <code>plotOutput()</code></li>
+</ul></li>
+</ol>
+<p>It’s worth stating again that these can’t be visualised easily in an abstract way, so it’s best to look at an example! Lets consider making a basic app that visualises our malaria facility count data by district. This data has a lot of differnet parameters, so it would be great if the end user could apply some filters to see the data by age group/district as they see fit! We can use a very simple shiny layout to start - the sidebar layout. This is a layout where widgets are placed in a sidebar on the left, and the plot is placed on the right.</p>
+<p>Lets plan our app - we can start with a selector that lets us choose the district where we want to visualise data, and another to let us visualise the age group we are interested in. We’ll aim to use these filters to show an epicurve that reflects these parameters. So for this we need:</p>
+<ol style="list-style-type: decimal">
+<li>Two dropdown menus that let us choose the district we want, and the age group we’re interested in.</li>
+<li>An area where we can show our resulting epicurve.</li>
+</ol>
+<p>This might look something like this:</p>
+<pre class="r"><code>ui &lt;- fluidPage(
+
+  titlePanel(&quot;Malaria facility visualisation app&quot;),
+
+  sidebarLayout(
+
+    sidebarPanel(
+         # selector for district
+         selectInput(
+              inputId = &quot;select_district&quot;,
+              label = &quot;Select district&quot;,
+              choices = c(
+                   &quot;All&quot;,
+                   &quot;Spring&quot;,
+                   &quot;Bolo&quot;,
+                   &quot;Dingo&quot;,
+                   &quot;Barnard&quot;
+              ),
+              selected = &quot;All&quot;,
+              multiple = TRUE
+         ),
+         # selector for age group
+         selectInput(
+              inputId = &quot;select_agegroup&quot;,
+              label = &quot;Select age group&quot;,
+              choices = c(
+                   &quot;All ages&quot; = &quot;malaria_tot&quot;,
+                   &quot;0-4 yrs&quot; = &quot;malaria_rdt_0-4&quot;,
+                   &quot;5-14 yrs&quot; = &quot;malaria_rdt_5-14&quot;,
+                   &quot;15+ yrs&quot; = &quot;malaria_rdt_15&quot;
+              ), 
+              selected = &quot;All&quot;,
+              multiple = FALSE
+         )
+
+    ),
+
+    mainPanel(
+      # epicurve goes here
+      plotOutput(&quot;malaria_epicurve&quot;)
+    )
+    
+  )
+)</code></pre>
+<p>This layout looks something like this - note that there will be no plot if there is no server to render it, but our inputs are working!</p>
+<p>This is a good opportunity to discuss how widgets work - note that each widget is accepting an <code>inputId</code>, a <code>label</code>, and a series of other options that are specific to the widget type. This <code>inputId</code> is extremely important - these are the IDs that are used to pass information from the UI to the server. For this reason, they <em>must be unique</em>. You should make an effort to name them something sensible, and specific to what they are interacting with in cases of larger apps.</p>
+<p>You should read documentation carefully for full details on what each of these widgets do. Widgets will pass specific types of data to the server depending on the widget type, and this needs to be fully understood. For example, <code>selectInput()</code> will pass a character type to the server:</p>
+<ul>
+<li>If we select <em>Spring</em> for the first widget here, it will pass the character object <code>&quot;Spring&quot;</code> to the server.</li>
+<li>If we select two items from the dropdown menu, they will come through as a vector (e.g. <code>c(&quot;Spring&quot;, &quot;Bolo&quot;)</code>).</li>
+</ul>
+<p>Other widgets will pass different types of object to the server! For example:</p>
+<ul>
+<li><code>numericInput()</code> will pass a numeric type object to the server</li>
+<li><code>checkboxInput()</code> will pass a logical type object to the server</li>
+</ul>
+<p>It’s also worth noting the named vector used for the age data here. For many widgets, using a named vector as the choices will display the names of the objects, but pass the contents of the vector to the server. I.e. here we can select <em>15+</em> and it will pass <code>&quot;malaria_rdt_15&quot;</code> to the server - which happens to be the name of the column we’re interested in!</p>
+<p>There are loads of widgets that you can use to do lots of things with your app. Widgets also allow you to upload files into your app, and download outputs. There are also some excellent shiny extensions that give you access to more widgets than base shiny - <code>shinyWidgets</code> is a great example of this. To look at some examples you can look at the following links:</p>
+<ul>
+<li><a href="https://shiny.rstudio.com/gallery/widget-gallery.html">base shiny widget gallery</a></li>
+<li><a href="https://github.com/dreamRs/shinyWidgets">shinyWidgets gallery</a></li>
+</ul>
+</div>
+<div id="loading-data-into-our-app" class="section level2">
+<h2>Loading data into our app</h2>
+<p>The next step in our development is getting a server up and running. To do this however, we need to get some data into our app, and figure out all the calculations we’re going to do. A shiny app is not straightforward to debug, as it’s often not clear where errors are coming from, so it’s ideal to get all our data processing and visualisation code working before we start making the server itself.</p>
+<p>So given we want to make an app that shows epi curves that change based on user input, we should think about what code we would need to run this in a normal R script. We’ll need to:</p>
+<ol style="list-style-type: decimal">
+<li>Load our packages</li>
+<li>Load our data</li>
+<li>Transform our data</li>
+<li>Develop a <em>function</em> to visualise our data based on user inputs</li>
+</ol>
+<p>This list is pretty straightforward, and shouldn’t be too hard to do. It’s now important to think about which parts of this process need to <em>be done only once</em> and which parts need to <em>run in response to user inputs</em>. This is because shiny apps generally run some code before running, which is only performed once. It will help our app’s performance if as much of our code can be moved to this section. For this example, we only need to load our data/packages and do basic transformations once, so we can put that code <em>outside the server</em>. This means the only thing we’ll need in the server is the code to visualise our data. Lets develop all of these componenets in a script first. However, since we’re visualising our data with a function, we can also put the code <em>for the function</em> outside the server so our function is in the environment when the app runs!</p>
+<p>First lets load our data. Since we’re working with a new project, and we want to make it clean, we can create a new directory called data, and add our malaria data in there. We can run this code below in a testing script we will eventually delete when we clean up the structure of our app.</p>
+<pre class="r"><code>pacman::p_load(&quot;tidyverse&quot;, &quot;lubridate&quot;)
+
+# read data
+malaria_data &lt;- rio::import(here::here(&quot;data&quot;, &quot;facility_count_data.rds&quot;)) %&gt;% 
+  as_tibble()
+
+print(malaria_data)</code></pre>
+<pre><code>## # A tibble: 3,038 x 10
+##    location_name data_date  submitted_date Province District `malaria_rdt_0-4`
+##    &lt;chr&gt;         &lt;date&gt;     &lt;date&gt;         &lt;chr&gt;    &lt;chr&gt;                &lt;int&gt;
+##  1 Facility 1    2019-06-13 2019-06-14     North    Spring                  11
+##  2 Facility 2    2019-06-13 2019-06-14     North    Bolo                    11
+##  3 Facility 3    2019-06-13 2019-06-14     North    Dingo                    8
+##  4 Facility 4    2019-06-13 2019-06-14     North    Bolo                    16
+##  5 Facility 5    2019-06-13 2019-06-14     North    Bolo                     9
+##  6 Facility 6    2019-06-13 2019-06-14     North    Dingo                    3
+##  7 Facility 6    2019-06-12 2019-06-14     North    Dingo                    4
+##  8 Facility 5    2019-06-12 2019-06-14     North    Bolo                    15
+##  9 Facility 5    2019-06-11 2019-06-14     North    Bolo                    11
+## 10 Facility 5    2019-06-10 2019-06-14     North    Bolo                    19
+## # ... with 3,028 more rows, and 4 more variables: malaria_rdt_5-14 &lt;int&gt;,
+## #   malaria_rdt_15 &lt;int&gt;, malaria_tot &lt;int&gt;, newid &lt;int&gt;</code></pre>
+<p>It will be easier to work with this data if we use tidy data standards, so we should also transform into a longer data format, where age group is a column, and cases is another column. We can do this easily using what we’ve learned in the xxx section:</p>
+<pre class="r"><code>malaria_data &lt;- malaria_data %&gt;%
+  select(-newid) %&gt;%
+  pivot_longer(cols = starts_with(&quot;malaria_&quot;), names_to = &quot;age_group&quot;, values_to = &quot;cases_reported&quot;)
+
+print(malaria_data)</code></pre>
+<pre><code>## # A tibble: 12,152 x 7
+##    location_name data_date  submitted_date Province District age_group       
+##    &lt;chr&gt;         &lt;date&gt;     &lt;date&gt;         &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;           
+##  1 Facility 1    2019-06-13 2019-06-14     North    Spring   malaria_rdt_0-4 
+##  2 Facility 1    2019-06-13 2019-06-14     North    Spring   malaria_rdt_5-14
+##  3 Facility 1    2019-06-13 2019-06-14     North    Spring   malaria_rdt_15  
+##  4 Facility 1    2019-06-13 2019-06-14     North    Spring   malaria_tot     
+##  5 Facility 2    2019-06-13 2019-06-14     North    Bolo     malaria_rdt_0-4 
+##  6 Facility 2    2019-06-13 2019-06-14     North    Bolo     malaria_rdt_5-14
+##  7 Facility 2    2019-06-13 2019-06-14     North    Bolo     malaria_rdt_15  
+##  8 Facility 2    2019-06-13 2019-06-14     North    Bolo     malaria_tot     
+##  9 Facility 3    2019-06-13 2019-06-14     North    Dingo    malaria_rdt_0-4 
+## 10 Facility 3    2019-06-13 2019-06-14     North    Dingo    malaria_rdt_5-14
+## # ... with 12,142 more rows, and 1 more variable: cases_reported &lt;int&gt;</code></pre>
+<p>And with that we’ve finished preparing our data! This crosses items 1, 2, and 3 off our list of things to develop for our “testing R script”. The last, and most difficult task will be building a function to produce an epicurve based on user defined parameters. As mentioned previously, it’s <em>highly recommended</em> that anyone learning shiny first look at the section on functional programming to understand how this works!</p>
+<p>When defining out function, it might be hard to think about what parameters we want to include. For functional programming with shiny, every relevent parameter will generally have a widget associated with it, so thinking about this is usually quite easy! For example in our current app, we want to be able to filter by province, and have a widget for this, so we can add a province parameter to reflect this. We <em>don’t</em> have any app functionality to filter by facility (for now), so we don’t need to add this as a parameter. Lets start by making a function with three parameters:</p>
+<ol style="list-style-type: decimal">
+<li>The core dataset</li>
+<li>The district of choice</li>
+<li>The age group of choice</li>
+</ol>
+<pre class="r"><code>plot_epicurve &lt;- function(data, district = &quot;All&quot;, agegroup = &quot;malaria_tot&quot;) {
+  
+  if (!(&quot;All&quot; %in% district)) {
+    data &lt;- data %&gt;%
+      filter(District %in% district)
+    
+    plot_title_district &lt;- stringr::str_glue(&quot;{paste0(district, collapse = &quot;,&quot;)} districts&quot;)
+    
+  } else {
+    
+    plot_title_district &lt;- &quot;all districts&quot;
+    
+  }
+  
+  # if no remaining data, return NULL
+  if (nrow(data) == 0) {
+    
+    return(NULL)
+  }
+  
+  data &lt;- data %&gt;%
+    filter(age_group == agegroup)
+  
+  
+  # if no remaining data, return NULL
+  if (nrow(data) == 0) {
+    
+    return(NULL)
+  }
+  
+  if (agegroup == &quot;malaria_tot&quot;) {
+      agegroup_title &lt;- &quot;All ages&quot;
+  } else {
+    agegroup_title &lt;- stringr::str_glue(&quot;{str_remove(agegroup, &#39;malaria_rdt&#39;)} years&quot;)
+  }
+  
+  
+  ggplot(data, aes(x = data_date, y = cases_reported)) +
+    geom_bar(stat = &quot;identity&quot;, fill = &quot;darkred&quot;) +
+    theme_minimal() +
+    labs(
+      x = &quot;date&quot;,
+      y = &quot;number of cases&quot;,
+      title = stringr::str_glue(&quot;Malaria cases - {plot_title_district}&quot;),
+      subtitle = 
+    )
+  
+  
+  
+}</code></pre>
+<p>We won’t go into great detail about this function, as it’s relatively simple in how it works. One thing to note however, is we handle errors by returning <code>NULL</code> when it would otherwise give an error. This is because when a shiny server produces a <code>NULL</code> object instead of a plot object, nothing will be shown in the ui! This is important, as otherwise errors will often cause your app to stop working.</p>
+<p>Let’s test our function!</p>
+<pre class="r"><code>plot_epicurve(malaria_data, district = &quot;Bolo&quot;, agegroup = &quot;malaria_rdt_0-4&quot;)</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
+<p>With our function working, we now have to understand how this all is going to fit into our shiny app. We mentioned the concept of <em>startup code</em> before, but lets look at how we can actually incorporate this into the structure of our app. There are two ways we can do this!</p>
+<ol style="list-style-type: decimal">
+<li>Put this code in your <em>app.R</em> file at the start of the script</li>
+<li>Create a new file in your directory called <em>global.R</em>, and put the startup code in this file.</li>
+</ol>
+<p>It’s worth noting at this point that it’s generally easier, especially with bigger apps, to use the second file structure, as it lets you separate your file structure in a simple way. Lets fully develop a this global.R script now. Here is what it could look like:</p>
+<pre class="r"><code># global.R script
+
+pacman::p_load(&quot;tidyverse&quot;, &quot;lubridate&quot;, &quot;shiny&quot;)
+
+# read data
+malaria_data &lt;- rio::import(here::here(&quot;data&quot;, &quot;facility_count_data.rds&quot;)) %&gt;% 
+  as_tibble()
+
+
+malaria_data &lt;- malaria_data %&gt;%
+  select(-newid) %&gt;%
+  pivot_longer(cols = starts_with(&quot;malaria_&quot;), names_to = &quot;age_group&quot;, values_to = &quot;cases_reported&quot;)
+
+
+
+plot_epicurve &lt;- function(data, district = &quot;All&quot;, agegroup = &quot;malaria_tot&quot;) {
+  
+  if (!(&quot;All&quot; %in% district)) {
+    data &lt;- data %&gt;%
+      filter(District %in% district)
+    
+    plot_title_district &lt;- stringr::str_glue(&quot;{paste0(district, collapse = &quot;,&quot;)} districts&quot;)
+    
+  } else {
+    
+    plot_title_district &lt;- &quot;all districts&quot;
+    
+  }
+  
+  # if no remaining data, return NULL
+  if (nrow(data) == 0) {
+    
+    return(NULL)
+  }
+  
+  data &lt;- data %&gt;%
+    filter(age_group == agegroup)
+  
+  
+  # if no remaining data, return NULL
+  if (nrow(data) == 0) {
+    
+    return(NULL)
+  }
+  
+  if (agegroup == &quot;malaria_tot&quot;) {
+      agegroup_title &lt;- &quot;All ages&quot;
+  } else {
+    agegroup_title &lt;- stringr::str_glue(&quot;{str_remove(agegroup, &#39;malaria_rdt&#39;)} years&quot;)
+  }
+  
+  
+  ggplot(data, aes(x = data_date, y = cases_reported)) +
+    geom_bar(stat = &quot;identity&quot;, fill = &quot;darkred&quot;) +
+    theme_minimal() +
+    labs(
+      x = &quot;date&quot;,
+      y = &quot;number of cases&quot;,
+      title = stringr::str_glue(&quot;Malaria cases - {plot_title_district}&quot;),
+      subtitle = 
+    )
+  
+  
+  
+}</code></pre>
+<p>Easy! One great feature of shiny is that it will understand what files named <em>app.R</em>, <em>server.R</em>, <em>ui.R</em>, and <em>global.R</em> are for, so there is no need to connect them to each other via any code. So just by having this code in <em>global.R</em> it will run before we start our app!. We should also note that it would improve our apps organisation if we moved this function to its own file - this will be especially helpful as apps become larger. To do this, we could make another directory called <em>funcs</em>, and put this function in as a file called <em>plot_epicurve.R</em>. We could then read this function in via the following command in <em>global.R</em></p>
+<pre class="r"><code>source(here::here(&quot;funcs&quot;, &quot;plot_epicurve.R&quot;), local = TRUE)</code></pre>
+<p>Note that you should <em>always</em> specify <code>local = TRUE</code> in shiny apps, since it will affect sourcing when/if the app is published on a server.</p>
+</div>
+<div id="developing-an-app-server" class="section level2">
+<h2>Developing an app server</h2>
+<p>Now that we have most of our code, we just have to develop our server. This is the final piece of our app, and is probably the hardest to understand. The server is a large R function, but its helpful to think of it as a series of smaller functions, or tasks that the app can perform. It’s important to understand that these functions are not executed in a linear order. There is an order to them, but it’s not fully necessary to understand when starting out with shiny. At a very basic level, these tasks or functions will activate when there is a change in user inputs that affects them, <em>unless the developer has set them up so they behave differently</em>. Again, this is all quite abstract, but lets first go through the three basic types of shiny <em>objects</em></p>
+<ol style="list-style-type: decimal">
+<li><p>Reactive sources - this is another term for user inputs. The shiny server has access to the outputs from the UI through the widgets we’ve programmed. Every time the values for these are changed, this is passed down to the server.</p></li>
+<li><p>Reactive conductors - these are objects that exist <em>only</em> inside the shiny server. We don’t actually need these for simple apps, but they produce objects that can only be seen inside the server, and used in other operations. They generally depend on reactive sources.</p></li>
+<li><p>Endpoints - these are outputs that are passed from the server to the UI. In our example, this would be the epi curve we are producing.</p></li>
+</ol>
+<p>With this in mind lets construct our server step by step. We’ll show our UI code again here just for reference:</p>
+<pre class="r"><code>ui &lt;- fluidPage(
+
+  titlePanel(&quot;Malaria facility visualisation app&quot;),
+
+  sidebarLayout(
+
+    sidebarPanel(
+         # selector for district
+         selectInput(
+              inputId = &quot;select_district&quot;,
+              label = &quot;Select district&quot;,
+              choices = c(
+                   &quot;All&quot;,
+                   &quot;Spring&quot;,
+                   &quot;Bolo&quot;,
+                   &quot;Dingo&quot;,
+                   &quot;Barnard&quot;
+              ),
+              selected = &quot;All&quot;,
+              multiple = TRUE
+         ),
+         # selector for age group
+         selectInput(
+              inputId = &quot;select_agegroup&quot;,
+              label = &quot;Select age group&quot;,
+              choices = c(
+                   &quot;All ages&quot; = &quot;malaria_tot&quot;,
+                   &quot;0-4 yrs&quot; = &quot;malaria_rdt_0-4&quot;,
+                   &quot;5-14 yrs&quot; = &quot;malaria_rdt_5-14&quot;,
+                   &quot;15+ yrs&quot; = &quot;malaria_rdt_15&quot;
+              ), 
+              selected = &quot;All&quot;,
+              multiple = FALSE
+         )
+
+    ),
+
+    mainPanel(
+      # epicurve goes here
+      plotOutput(&quot;malaria_epicurve&quot;)
+    )
+    
+  )
+)</code></pre>
+<p>From this code UI we have:</p>
+<ul>
+<li>Two inputs:
+<ul>
+<li>District selector (with an inputId of <code>select_district</code>)</li>
+<li>Age group selector (with an inputId of <code>select_agegroup</code>)</li>
+</ul></li>
+<li>One output:
+<ul>
+<li>The epicurve (with an outputId of <code>malaria_epicurve</code>)</li>
+</ul></li>
+</ul>
+<p>As stated previously, these unique names we have assigned to our inputs and outputs are crucial. They <em>must be unique</em> and are used to pass information between the ui and server. In our server, we access our inputs via the syntax <code>input$input_name</code> and outputs and passed to the ui through the syntax <code>output$output_name</code> Lets have a look at an example, because again this is hard to understand otherwise!</p>
+<pre class="r"><code>server &lt;- function(input, output, session) {
+  
+  output$malaria_epicurve &lt;- renderPlot(
+    plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup)
+  )
+  
+}</code></pre>
+<p>The server for a simple app like this is actually quite straightforward! You’ll notice that the server is a function with three parameters - <code>input</code>, <code>output</code>, and <code>session</code> - this isn’t that important to understand for now, but its important to stick to this setup! In our server we only have one task - this renders a plot based on our function we made earlier, and the inputs from the server. Notice how the names of the input and output objects correspond exactly to those in the ui.</p>
+<p>To understand the basics of how the server reacts to user inputs, you should note that the output will know (through the underlying package) when inputs change, and rerun this function to create a plot every time they change. Note that we also use the <code>renderPlot()</code> function here - this is one of a family of class specific functions that pass those objects to an output. There are a number of functions that behave similar, but you need to ensure the function matches the class of object you’re passing to the ui! For example:</p>
+<ul>
+<li><code>renderText()</code> - send text to the ui</li>
+<li><code>renderDataTable</code> - send an interactive table to the ui.</li>
+</ul>
+<p>Remember that these need to match the output function used in the ui - so <code>renderPlot()</code> is paired with <code>plotOutput()</code>, and <code>renderText()</code> is matched with <code>textOutput()</code>.</p>
+<p>So we’ve finally made a functioning app! We can run this by pressing the Run App button on the top right of the script window in Rstudio. <em>ADD SOMETHING ON DOWNLOADING A ZIP FILE OF THE APP MAYBE?</em></p>
+</div>
+<div id="adding-more-functionality" class="section level2">
+<h2>Adding more functionality</h2>
+<p>At this point we’ve finally got a running app, but we have very little functionality. We also haven’t really scratched the surface of what shiny can do, so there’s a lot more to learn about! Lets continue to build our existing app by adding some extra features. Some things that could be nice to add could be:</p>
+<ol style="list-style-type: decimal">
+<li>Some explanatory text</li>
+<li>A download button for our plot - this would provide the user with a high quality version of the image that they’re generating in the app</li>
+<li>A selector for specific facilities, and maybe one for dates as well</li>
+<li>Another dashboard page - this could show summary statistics for the full scope of the data.</li>
+</ol>
+<p>This is a lot to add, but we can use it to learn about a bunch of different shiny featues on the way. There is so much to learn about shiny (it can get <em>very</em> advanced, but its hopefully the case that once users have a better idea of how to use it they can become more comfortable using external learning sources as well).</p>
+<p>ADD IN SECTION ON ADDING TEXT p() etc.</p>
+<p>Lets move on to the second of the three features. A download button is a fairly common thing to add to an app and is fairly easy to make. We need to add another Widget to our ui, and we need to add another output to our server to attach to it. We can also introduce <em>reactive conductors</em> in this example!</p>
+<p>Lets update our ui first - this is easy as shiny comes with a widget called <code>downloadButton()</code> - lets give it an inputId and a label.</p>
+<pre class="r"><code>ui &lt;- fluidPage(
+
+  titlePanel(&quot;Malaria facility visualisation app&quot;),
+
+  sidebarLayout(
+
+    sidebarPanel(
+         # selector for district
+         selectInput(
+              inputId = &quot;select_district&quot;,
+              label = &quot;Select district&quot;,
+              choices = c(
+                   &quot;All&quot;,
+                   &quot;Spring&quot;,
+                   &quot;Bolo&quot;,
+                   &quot;Dingo&quot;,
+                   &quot;Barnard&quot;
+              ),
+              selected = &quot;All&quot;,
+              multiple = TRUE
+         ),
+         # selector for age group
+         selectInput(
+              inputId = &quot;select_agegroup&quot;,
+              label = &quot;Select age group&quot;,
+              choices = c(
+                   &quot;All ages&quot; = &quot;malaria_tot&quot;,
+                   &quot;0-4 yrs&quot; = &quot;malaria_rdt_0-4&quot;,
+                   &quot;5-14 yrs&quot; = &quot;malaria_rdt_5-14&quot;,
+                   &quot;15+ yrs&quot; = &quot;malaria_rdt_15&quot;
+              ), 
+              selected = &quot;All&quot;,
+              multiple = FALSE
+         ),
+         # horizontal line
+         hr(),
+         downloadButton(
+           inputId = &quot;download_epicurve&quot;,
+           label = &quot;Download plot&quot;
+         )
+
+    ),
+
+    mainPanel(
+      # epicurve goes here
+      plotOutput(&quot;malaria_epicurve&quot;)
+    )
+    
+  )
+)</code></pre>
+<p>Note that we’ve also added in a <code>hr()</code> tag - this adds a horizontal line separating our control widgets from our download widgets. This is another one of the HTML tags that we discussed previously.</p>
+<p>Now that we have our ui ready, we need to add the server component. Downloads are done in the server with the <code>downloadHandler()</code> function. Similar to our plot, we need to attach it to an output that has the same inputId as the download button. This function takes two arguments - <code>filename</code> and <code>content</code> - these are both functions. As you might be able to guess, <code>filename</code> is used to specify the name of the downloaded file, and <code>content</code> is used to specify what should be downloaded. <code>content</code> contain a function that you would use to save data locally - so if you were downloading a csv file you could use <code>rio::export()</code>. Since we’re downloading a plot, we’ll use <code>ggplot2::ggsave()</code>. Lets look at how we would program this (we won’t add it to the server yet).</p>
+<pre class="r"><code>server &lt;- function(input, output, session) {
+  
+  output$malaria_epicurve &lt;- renderPlot(
+    plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup)
+  )
+  
+  output$download_epicurve &lt;- downloadHandler(
+    filename = function() {
+      stringr::str_glue(&quot;malaria_epicurve_{input$select_district}.png&quot;)
+    },
+    
+    content = function(file) {
+      ggsave(file, 
+             plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup),
+             width = 8, height = 5, dpi = 300)
+    }
+    
+  )
+  
+}</code></pre>
+<p>Note that the <code>content</code> function always takes a <code>file</code> argument, which we put where the output file name is specified. You might also notice that we’re repeating code here - we are using our <code>plot_epicurve()</code> function twice in this server, once for the download and once for the image displayed in the app. While this wont massively affect performance, this means that the code to generate this plot will have to be run when the user changes the widgets specifying the district and age group, <em>and</em> again when you want to download the plot. In larger apps, suboptimal decisions like this one will slow things down more and more, so it’s good to learn how to make our app more efficient in this sense. What would make more sense is if we had a way to run the epicurve code when the districts/age groups are changes, <em>and let that be used by</em> the renderPlot() and downloadHandler() functions. This is where reactive conductors come in!</p>
+<p>Reactive conductors are objects that are created in the shiny server in a <em>reactive</em> way, but are not outputted - they can just be used by other parts of the server. There are a number of different kinds of <em>reactive conductors</em>, but we’ll go through the basic two.</p>
+<p>1.<code>reactive()</code> - this is the most basic reactive conductor - it will react whenever any inputs used inside of it change (so our district/age group widgets) 2. <code>eventReactive()</code>- this rective conductor works the same as <code>reactive()</code>, except that the user can specify which inputs cause it to rerun. This is useful if your reactive conductor takes a long time to process, but this will be explained more later.</p>
+<p>Lets look at the two examples:</p>
+<pre class="r"><code>malaria_plot_r &lt;- reactive({
+  
+  plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup)
+  
+})
+
+
+# only runs when the district selector changes!
+malaria_plot_er &lt;- eventReactive(input$select_district, {
+  
+  plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup)
+  
+})</code></pre>
+<p>When we use the <code>eventReactive()</code> setup, we can specify which inputs cause this chunk of code to run - this isn’t very useful to us at the moment, so we can leave it for now. Note that you can include multiple inputs with <code>c()</code></p>
+<p>Lets look at how we can integrate this into our server code:</p>
+<pre class="r"><code>server &lt;- function(input, output, session) {
+  
+  malaria_plot &lt;- reactive({
+    plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup)
+  })
+  
+  
+  
+  output$malaria_epicurve &lt;- renderPlot(
+    malaria_plot()
+  )
+  
+  output$download_epicurve &lt;- downloadHandler(
+    
+    filename = function() {
+      stringr::str_glue(&quot;malaria_epicurve_{input$select_district}.png&quot;)
+    },
+    
+    content = function(file) {
+      ggsave(file, 
+             malaria_plot(),
+             width = 8, height = 5, dpi = 300)
+    }
+    
+  )
+  
+}</code></pre>
+<p>You can see we’re just calling on the output of our reactive we’ve defined in both our download and plot rendering functions. One thing to note that often trips people up is you have to use the outputs of reactives as if they were functions - so you <em>must add empty brackets at the end of them</em> (i.e. <code>malaria_plot()</code> is correct, and <code>malaria_plot</code> is not). Now that we’ve added this solution our app is a little tidyer, faster, and easier to change since all our code that runs the epicurve function is in one place. Great!</p>
 </div>
 </div>
 
