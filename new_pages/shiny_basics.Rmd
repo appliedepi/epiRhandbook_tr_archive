@@ -297,7 +297,7 @@ plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot") {
       x = "date",
       y = "number of cases",
       title = stringr::str_glue("Malaria cases - {plot_title_district}"),
-      subtitle = 
+      subtitle = agegroup_title
     )
   
   
@@ -510,7 +510,7 @@ At this point we've finally got a running app, but we have very little functiona
 
 1. Some explanatory text 
 2. A download button for our plot - this would provide the user with a high quality version of the image that they're generating in the app
-3. A selector for specific facilities, and maybe one for dates as well
+3. A selector for specific facilities
 4. Another dashboard page - this could show summary statistics for the full scope of the data.
 
 This is a lot to add, but we can use it to learn about a bunch of different shiny featues on the way. There is so much to learn about shiny (it can get *very* advanced, but its hopefully the case that once users have a better idea of how to use it they can become more comfortable using external learning sources as well).
@@ -677,4 +677,258 @@ server <- function(input, output, session) {
 
 ```
 
-You can see we're just calling on the output of our reactive we've defined in both our download and plot rendering functions. One thing to note that often trips people up is you have to use the outputs of reactives as if they were functions - so you *must add empty brackets at the end of them* (i.e. `malaria_plot()` is correct, and `malaria_plot` is not). Now that we've added this solution our app is a little tidyer, faster, and easier to change since all our code that runs the epicurve function is in one place. Great!
+You can see we're just calling on the output of our reactive we've defined in both our download and plot rendering functions. One thing to note that often trips people up is you have to use the outputs of reactives as if they were functions - so you *must add empty brackets at the end of them* (i.e. `malaria_plot()` is correct, and `malaria_plot` is not). Now that we've added this solution our app is a little tidyer, faster, and easier to change since all our code that runs the epicurve function is in one place.
+
+
+Lets move on to our next feature - a selector for specific facilities. We'll implement another parameter into our function so we can pass this as an argument from our code. Lets look at doing this first - it just operates off the same principles as the other parameters we've set up. Lets update and test our function.
+
+
+```{r, echo = TRUE}
+
+plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot", facility = "All") {
+  
+  if (!("All" %in% district)) {
+    data <- data %>%
+      filter(District %in% district)
+    
+    plot_title_district <- stringr::str_glue("{paste0(district, collapse = ",")} districts")
+    
+  } else {
+    
+    plot_title_district <- "all districts"
+    
+  }
+  
+  # if no remaining data, return NULL
+  if (nrow(data) == 0) {
+    
+    return(NULL)
+  }
+  
+  data <- data %>%
+    filter(age_group == agegroup)
+  
+  
+  # if no remaining data, return NULL
+  if (nrow(data) == 0) {
+    
+    return(NULL)
+  }
+  
+  if (agegroup == "malaria_tot") {
+      agegroup_title <- "All ages"
+  } else {
+    agegroup_title <- stringr::str_glue("{str_remove(agegroup, 'malaria_rdt')} years")
+  }
+  
+    if (!("All" %in% facility)) {
+    data <- data %>%
+      filter(location_name == facility)
+    
+    plot_title_facility <- facility
+    
+  } else {
+    
+    plot_title_facility <- "all facilities"
+    
+  }
+  
+  # if no remaining data, return NULL
+  if (nrow(data) == 0) {
+    
+    return(NULL)
+  }
+
+  
+  
+  ggplot(data, aes(x = data_date, y = cases_reported)) +
+    geom_bar(stat = "identity", fill = "darkred") +
+    theme_minimal() +
+    labs(
+      x = "date",
+      y = "number of cases",
+      title = stringr::str_glue("Malaria cases - {plot_title_district}; {plot_title_facility}"),
+      subtitle = agegroup_title
+    )
+  
+  
+  
+}
+
+
+plot_epicurve(malaria_data, district = "Spring", agegroup = "malaria_rdt_0-4", facility = "Facility 1")
+
+```
+
+
+With all the facilites in our data, it isn't very clear which facilities correspond to which districts - and the end user won't know either. This might make using the app quite unintuitive. For this reason, should make the facility options in the UI change dynamically as the user changes the district - so one filters the other! Since we have so many variables that we're using in the options, we might also want to generate some of our options for the ui our _global.R_ file _from the data_. For example, we can add this code chunk to _global.R_ after we've read our data in:
+
+
+
+```{r, eval = FALSE, message =  FALSE}
+
+all_districts <- unique(malaria_data$District)
+
+# data frame of location names by district
+facility_list <- malaria_data %>%
+  group_by(location_name, District) %>%
+  summarise() %>% 
+  ungroup()
+
+```
+
+We can pass these new variables to the ui without any issue, since they are globally visible by both the server and the ui! Lets update our UI:
+
+
+```{r, eval = FALSE}
+
+
+ui <- fluidPage(
+
+  titlePanel("Malaria facility visualisation app"),
+
+  sidebarLayout(
+
+    sidebarPanel(
+         # selector for district
+         selectInput(
+              inputId = "select_district",
+              label = "Select district",
+              choices = all_districts,
+              selected = "All",
+              multiple = TRUE
+         ),
+         # selector for age group
+         selectInput(
+              inputId = "select_agegroup",
+              label = "Select age group",
+              choices = c(
+                   "All ages" = "malaria_tot",
+                   "0-4 yrs" = "malaria_rdt_0-4",
+                   "5-14 yrs" = "malaria_rdt_5-14",
+                   "15+ yrs" = "malaria_rdt_15"
+              ), 
+              selected = "All",
+              multiple = FALSE
+         ),
+         # selector for facility
+         selectInput(
+           inputId = "select_facility",
+           label = "Select Facility",
+           choices = c("All", facility_list$location_name),
+           selected = "All"
+         ),
+         
+         # horizontal line
+         hr(),
+         downloadButton(
+           inputId = "download_epicurve",
+           label = "Download plot"
+         )
+
+    ),
+
+    mainPanel(
+      # epicurve goes here
+      plotOutput("malaria_epicurve")
+    )
+    
+  )
+)
+
+
+```
+
+
+Notice how we're now passing variables for our choices instead of hard coding them in the ui! This might make our code more compact as well! Lastly, we'll have to update the server. It will be easy to update our function to incorporate our new input (we just have to pass it as an argument to our new parameter), but we should remember we also want the ui dynamically when the user changes the selected district. It is important to understand here that we *can change the parameters and behaviour of widgets* while the app is running, but this needs to be done *in the server*. We need to understand a new way to output to the server to learn how to do this.
+
+The functions we need to understand how to do this are known as *observer* functions, and are similar to *reactive* functions in how they behave. They have one key difference though:
+
+- Reactive functions do not directly affect outputs, and produce objects that can be seen in other locations in the server
+- Observer functions *can* affect server outputs, but do so via side effects of other functions. (They can also do other things, but this is their main function in practice)
+
+Similar to reactive functions, there are two flavours of observer functions, and they are divided by the same logic that divides reactive functions:
+
+1. `observe()` - this function runs whenever any inputs used inside of it change
+2. `observeEvent()` - this function runs when a *user specified* input changes
+
+We also need to understand the shiny-provided functions that update widgets. These are fairly straightforward to run -they first take the `session` object from the server function (this doesn't need to be understood for now), and then the `inputId` of the function to be changed. We then pass new versions of all parameters that are already taken by `selectInput()` - these will be automatically updated in the widget. 
+
+Lets look at an isolated example of how we could use this in our server. When the user changes the district, we want to filter our tibble of facilities by district, and update the choices to *only reflect those that are available in that district* (and an option for all facilities)
+
+```{r, eval = FALSE}
+
+observe({
+  
+  if (input$select_district == "All") {
+    new_choices <- facility_list$location_name
+  } else {
+    new_choices <- facility_list %>%
+      filter(District == input$select_district) %>%
+      pull(location_name)
+  }
+  
+  new_choices <- c("All", new_choices)
+  
+  updateSelectInput(session, inputId = "select_facility",
+                    choices = new_choices)
+  
+})
+
+
+```
+
+And that's it! we can add it into our server, and that behaviour will now work. Here's what our new server should look like:
+
+```{r, eval = FALSE}
+server <- function(input, output, session) {
+  
+  malaria_plot <- reactive({
+    plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup, facility = input$select_facility)
+  })
+  
+  
+  
+  observe({
+    
+    if (input$select_district == "All") {
+      new_choices <- facility_list$location_name
+    } else {
+      new_choices <- facility_list %>%
+        filter(District == input$select_district) %>%
+        pull(location_name)
+    }
+    
+    new_choices <- c("All", new_choices)
+    
+    updateSelectInput(session, inputId = "select_facility",
+                      choices = new_choices)
+    
+  })
+  
+  
+  output$malaria_epicurve <- renderPlot(
+    malaria_plot()
+  )
+  
+  output$download_epicurve <- downloadHandler(
+    
+    filename = function() {
+      stringr::str_glue("malaria_epicurve_{input$select_district}.png")
+    },
+    
+    content = function(file) {
+      ggsave(file, 
+             malaria_plot(),
+             width = 8, height = 5, dpi = 300)
+    }
+    
+  )
+  
+  
+  
+}
+
+```
+
+
