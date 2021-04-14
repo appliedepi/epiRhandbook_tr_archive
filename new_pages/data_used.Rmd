@@ -77,12 +77,11 @@ It is easy to download a relatively small CSV file directly from Github into R w
 
 1) Go to the **["data" folder](https://github.com/nsbatra/Epi_R_handbook/tree/master/data)** of our Github repository  
 2) Click on the .csv file of interest  
-3) Click on the "Raw" button (you will then see the "raw" csv data, as shown below)  
-4) Copy the URL (web address)  
-5) Use the URL in the `import()` R command, as shown below  
+3) Right-click (or Control-click if on Mac) on the "Raw" or "View raw" button, and select "Copy link address".  
+4) Use the link address/URL in the `import()` R command, as shown below  
 
 ```{r out.height = "50%", out.width= "75%", fig.align = "center", echo=F}
-knitr::include_graphics(here::here("images", "download_csv_raw.png"))
+knitr::include_graphics(here::here("images", "download_csv_raw2.png"))
 ```
 
 Provide the URL to `import()` from **rio** as shown below. 

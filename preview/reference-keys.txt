@@ -1,0 +1,6 @@
+dashboards-with-r-markdown
+preparation
+begin
+layout
+section-1
+resources
