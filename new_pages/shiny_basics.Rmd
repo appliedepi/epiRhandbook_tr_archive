@@ -511,15 +511,131 @@ At this point we've finally got a running app, but we have very little functiona
 1. Some explanatory text 
 2. A download button for our plot - this would provide the user with a high quality version of the image that they're generating in the app
 3. A selector for specific facilities
-4. Another dashboard page - this could show summary statistics for the full scope of the data.
+4. Another dashboard page - this could show a table of our data.
 
 This is a lot to add, but we can use it to learn about a bunch of different shiny featues on the way. There is so much to learn about shiny (it can get *very* advanced, but its hopefully the case that once users have a better idea of how to use it they can become more comfortable using external learning sources as well).
 
-ADD IN SECTION ON ADDING TEXT p() etc.
+
+# Adding static text
+
+Lets first discuss adding static text to our shiny app. Adding text to our app is extremely easy, once you have a basic grasp of it. Since static text doesn't in the shiny app (If you'd like it to change, you can use *text rendering* functions in the server!), all of shiny's static text is generally added in the ui of the app. We wont go through this in great detail, but you can add a number of different elements to your ui (and even custom ones) by interfacing R with *HTML* and *css*.
+
+HTML and css are languages that are explicitly involved in user interface design. We don't need to understand these too well, but *HTML* creates objects in UI (like a text box, or a table), and *css* is generally used to change the style and aesthetics of those objects. Shiny has access to a large array of _HTML tags_ - these are present objects that behave in a specific way, such as headers, paragraphs of text, line breaks, tables, etc. We can use some of these examples like this:
+
+- `h1()` - this a a *header* tag, which will make enclosed text automatically larger, and change defaults as they pertain to the font face, colour etc (depending on the overall theme of your app). You can access _smaller and smaller_ sub-heading with `h2()` down to `h6()` as well. Usage looks like:
+  * `h1("my header - section 1")`
+
+- `p()` - this is a *paragraph* tag, which will make enclosed text similar to text in a body of text. This text will automatically wrap, and be of a relatively small size (footers could be smaller for example.) Think of it as the text body of a word document. Usage looks like:
+  *`p("This is a larger body of text where I am explaining the function of my app")`
+  
+- `tags$b()` and `tags$i()` - these are used to create bold `tags$b()` and italicised `tags$i()` with whichever text is enclosed!
+
+- `tags$ul()`, `tags$ol()` and `tags$li()` - these are tags used in creating *lists*. These are all used within the syntax below, and allow the user to create either an ordered list (`tags$ol()`; i.e. numbered) or unordered list (`tags$ul()`, i.e. bullet points). `tags$li()` is used to denote items in the list, regardless of which type of list is used. e.g.:
+
+```{r, eval = T}
+
+tags$ol(
+  
+  tags$li("Item 1"),
+  
+  tags$li("Item 2"),
+  
+  tags$li("Item 3")
+  
+)
+
+```
+
+- `br()` and `hr()` - these tags create *linebreaks* and *horizontal lines* (with a linebreak) respectively. Use them to separate out the sections of your app and text! There is no need to pass any items to these tags.
 
 
+- `div()` - this is a *generic* tag that can *contain anything*, and can be *named anything*. Once you progress with ui design, you can use these to compartmentalize your ui, give specific sections specific styles, and create interactions between the server and UI elements. We won't go into these in detail, but they're worth being aware of!
+
+Note that every one of these objects can be accessed through `tags$...` or for some, just the function. These are effectively synonymous, but it may help to use the `tags$...` style if you'd rather be more explicit and not overwrite the functions accidentally. This is also by no means an exhaustive list of tags available. There is a full list of all tags available in shiny here (https://shiny.rstudio.com/articles/tag-glossary.html) and even more can be used by inserting HTML directly into your ui!
+
+
+If you're feeling confident, you can also add any *css styling elements* to your HTML tags with the `style` argument in any of them. We won't go into how this works in detail, but one tip for testing aesthetic changes to a UI is using the HTML inspector mode in chrome (of your shiny app you are running in browser), and editing the style of objects yourself!
+
+Lets add some text to our app
+
+```{r, eval = F}
+
+ui <- fluidPage(
+
+  titlePanel("Malaria facility visualisation app"),
+
+  sidebarLayout(
+
+    sidebarPanel(
+         h4("Options"),
+         # selector for district
+         selectInput(
+              inputId = "select_district",
+              label = "Select district",
+              choices = c(
+                   "All",
+                   "Spring",
+                   "Bolo",
+                   "Dingo",
+                   "Barnard"
+              ),
+              selected = "All",
+              multiple = TRUE
+         ),
+         # selector for age group
+         selectInput(
+              inputId = "select_agegroup",
+              label = "Select age group",
+              choices = c(
+                   "All ages" = "malaria_tot",
+                   "0-4 yrs" = "malaria_rdt_0-4",
+                   "5-14 yrs" = "malaria_rdt_5-14",
+                   "15+ yrs" = "malaria_rdt_15"
+              ), 
+              selected = "All",
+              multiple = FALSE
+         ),
+         # horizontal line
+         hr(),
+         downloadButton(
+           inputId = "download_epicurve",
+           label = "Download plot"
+         )
+
+    ),
+
+    mainPanel(
+      # epicurve goes here
+      plotOutput("malaria_epicurve"),
+      br(),
+      hr(),
+      p("Welcome to the malaria facility visualisation app! To use this app, manipulate the widgets on the side to change the epidemic curve according to your preferences! To download a high quality image of the plot you've created, you can also download it with the download button. To see the raw data, use the raw data tab for an interactive form of the table. The data dictionary is as follows:")
+    ),
+    tags$ul(
+      tags$li(tags$b("location_name"), " - the facility that the data were collected at"),
+      tags$li(tags$b("data_date"), " - the date the data were collected at"),
+      tags$li(tags$b("submitted_daate"), " - the date the data were submitted at"),
+      tags$li(tags$b("Province"), " - the province the data were collected at (all 'North' for this dataset)"),
+      tags$li(tags$b("District"), " - the district the data were collected at"),
+      tags$li(tags$b("age_group"), " - the age group the data were collected for (0-5, 5-14, 15+, and all ages)"),
+      tags$li(tags$b("cases_reported"), " - the number of cases reported for the facility/age group on the given date")
+    )
+    
+  )
+)
+
+
+
+```
+
+
+
+
+# Adding a download button
 
 Lets move on to the second of the three features. A download button is a fairly common thing to add to an app and is fairly easy to make. We need to add another Widget to our ui, and we need to add another output to our server to attach to it. We can also introduce *reactive conductors* in this example!
+
+
 
 Lets update our ui first - this is easy as shiny comes with a widget called `downloadButton()` - lets give it an inputId and a label.
 
@@ -930,5 +1046,7 @@ server <- function(input, output, session) {
 }
 
 ```
+
+
 
 
