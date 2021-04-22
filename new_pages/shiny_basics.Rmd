@@ -516,7 +516,7 @@ At this point we've finally got a running app, but we have very little functiona
 This is a lot to add, but we can use it to learn about a bunch of different shiny featues on the way. There is so much to learn about shiny (it can get *very* advanced, but its hopefully the case that once users have a better idea of how to use it they can become more comfortable using external learning sources as well).
 
 
-# Adding static text
+### Adding static text
 
 Lets first discuss adding static text to our shiny app. Adding text to our app is extremely easy, once you have a basic grasp of it. Since static text doesn't in the shiny app (If you'd like it to change, you can use *text rendering* functions in the server!), all of shiny's static text is generally added in the ui of the app. We wont go through this in great detail, but you can add a number of different elements to your ui (and even custom ones) by interfacing R with *HTML* and *css*.
 
@@ -551,7 +551,7 @@ tags$ol(
 
 - `div()` - this is a *generic* tag that can *contain anything*, and can be *named anything*. Once you progress with ui design, you can use these to compartmentalize your ui, give specific sections specific styles, and create interactions between the server and UI elements. We won't go into these in detail, but they're worth being aware of!
 
-Note that every one of these objects can be accessed through `tags$...` or for some, just the function. These are effectively synonymous, but it may help to use the `tags$...` style if you'd rather be more explicit and not overwrite the functions accidentally. This is also by no means an exhaustive list of tags available. There is a full list of all tags available in shiny here (https://shiny.rstudio.com/articles/tag-glossary.html) and even more can be used by inserting HTML directly into your ui!
+Note that every one of these objects can be accessed through `tags$...` or for some, just the function. These are effectively synonymous, but it may help to use the `tags$...` style if you'd rather be more explicit and not overwrite the functions accidentally. This is also by no means an exhaustive list of tags available. There is a full list of all tags available in shiny  [here](https://shiny.rstudio.com/articles/tag-glossary.html) and even more can be used by inserting HTML directly into your ui!
 
 
 If you're feeling confident, you can also add any *css styling elements* to your HTML tags with the `style` argument in any of them. We won't go into how this works in detail, but one tip for testing aesthetic changes to a UI is using the HTML inspector mode in chrome (of your shiny app you are running in browser), and editing the style of objects yourself!
@@ -631,7 +631,7 @@ ui <- fluidPage(
 
 
 
-# Adding a download button
+### Adding a download button
 
 Lets move on to the second of the three features. A download button is a fairly common thing to add to an app and is fairly easy to make. We need to add another Widget to our ui, and we need to add another output to our server to attach to it. We can also introduce *reactive conductors* in this example!
 
@@ -795,6 +795,7 @@ server <- function(input, output, session) {
 
 You can see we're just calling on the output of our reactive we've defined in both our download and plot rendering functions. One thing to note that often trips people up is you have to use the outputs of reactives as if they were functions - so you *must add empty brackets at the end of them* (i.e. `malaria_plot()` is correct, and `malaria_plot` is not). Now that we've added this solution our app is a little tidyer, faster, and easier to change since all our code that runs the epicurve function is in one place.
 
+### Adding a facility selector
 
 Lets move on to our next feature - a selector for specific facilities. We'll implement another parameter into our function so we can pass this as an argument from our code. Lets look at doing this first - it just operates off the same principles as the other parameters we've set up. Lets update and test our function.
 
@@ -1047,6 +1048,42 @@ server <- function(input, output, session) {
 
 ```
 
+### Adding another tab with a table
+
+
+## Sharing shiny apps
+
+
+
+
+## Further reading
+
+So far, we've covered a lot of aspects of shiny, and have barely scratched the surface of what is on offer for shiny. While this guide serves as an introduction, there is loads more to learn to fully understand shiny. You should start making apps and gradually add more and more functionality
+
+
+# Recommended extension packages
+
+The following represents a selection of high quality shiny extensions that can help you get a lot more out of shiny. In no particular order:
+
+- `shinyWidgets` - this package gives you many many more widgets that can be used in your app. Run `shinyWidgets::shinyWidgetsGallery()` to see a selection of available widgets with this package. See examples [here](https://github.com/dreamRs/shinyWidgets)  
+
+- `shinyjs` - this is an excellent package that gives the user the ability to greatly extend shiny's utility via a series of javascript. The applications of this package range from very simple to highly advanced, but you might want to first use it to manipulate the ui in simple ways, like hiding/showing elements, or enabling/disabling buttons. Find out more [here](https://deanattali.com/shinyjs/basic)
+
+- `shinydashboard` - this package massively expands the available ui that can be used in shiny, specifically letting the user create a complex dashboard with a variety of complex layouts. See more [here](https://rstudio.github.io/shinydashboard/)
+
+- `shinydashboardPlus` - get even more features out of the `shinydashboard` framework! See more [here](https://rinterface.github.io/shinydashboardPlus/articles/shinydashboardPlus.html)
+
+- `shinythemes` - change the default css theme for your shiny app with a wide range of preset templates! See more [here](https://rstudio.github.io/shinythemes/)
+
+
+There are also a number of packages that can be used to create interactive outputs that are shiny compatible. 
+
+- `DT` is semi-incorporated into base-shiny, but provides a great set of functions to create interactive tables.
+
+- `plotly` is a package for creating interactive plots that the user can manipulate in app. You can also convert your plot to interactive versions via `plotly::ggplotly()`! As alternatives, `dygraphs` and `highcharter` are also excellent.
+
+
+# Recommended resources
 
 
 
