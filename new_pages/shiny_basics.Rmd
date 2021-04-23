@@ -502,7 +502,7 @@ To understand the basics of how the server reacts to user inputs, you should not
 
 Remember that these need to match the output function used in the ui - so `renderPlot()` is paired with `plotOutput()`, and `renderText()` is matched with `textOutput()`. 
 
-So we've finally made a functioning app! We can run this by pressing the Run App button on the top right of the script window in Rstudio. *ADD SOMETHING ON DOWNLOADING A ZIP FILE OF THE APP MAYBE?* 
+So we've finally made a functioning app! We can run this by pressing the Run App button on the top right of the script window in Rstudio. You should note that you can choose to run your app in your default browser (rather than Rstudio) which will more accurately reflect what the app will look like for other users. *ADD SOMETHING ON DOWNLOADING A ZIP FILE OF THE APP MAYBE?* 
 
 ## Adding more functionality
 
@@ -1050,11 +1050,31 @@ server <- function(input, output, session) {
 
 ### Adding another tab with a table
 
+Now we'll move on to the last component we want to add to our app. 
 
 ## Sharing shiny apps
 
+Now that you've developed your app, you probably want to share it with others - this is the main advantage of shiny after all! We can do this by sharing the code directly, or we could publish on a server. If we share the code, others will be able to see what you've done and build on it, but this will negate one of the main advantages of shiny - *it can eliminate the need for end-users to maintain an R installation*. For this reason, if you're sharing your app with users who are not comfortable with R, it is much easier to share an app that has been published on a server. 
 
+If you'd rather share the code, you could make a .zip file of the app, or better yet, *publish your app on github and add collaborators.* You can refer to the section on github for further information here.
 
+However, if we're publishing the app online, we need to do a little more work. Ultimately, we want your app to be able to be accessed via a web URL so others can get quick and easy access to it. Unfortunately, to publish you app on a server, you need to have access to a server to publish it on! There are a number of hosting options when it comes to this:
+
+- _shinyapps.io_: this is the easiest place to publish shiny apps, as it has the smallest amount of configuration work needed, and has some free, but limited licenses.
+
+- _RStudio Connect_: this is a far more powerful version of an R server, that can perform many operations, including publishing shiny apps. It is however, harder to use, and less recommended for first-time users.
+
+For the purposes of this document, we will use _shinyapps.io_, since it is easier for first time users. You can make a free account here to start - there are also different price plans for server licesnses if needed. The more users you expect to have, the more expensive your price plan may have to be, so keep this under consideration. If you're looking to create something for a small set of individuals to use, a free license may be perfectly suitable, but a public facing app may need more licenses.
+
+First we should make sure our app is suitable for publishing on a server. In your app, you should restart your R session, and ensure that it runs without running any extra code. This is important, as an app that requires package loading, or data reading not defined in your app code won't run on a server. Also note that you can't have any *explicit* file paths in your app - these will be invalid in the server setting - using the `here` package solves this issue very well. Finally, if you're reading data from a source that requires user-authentication, such as your organisation's servers, this will not generally work on a server. You will need to liase with your IT department to figure out how to whitelist the shiny server here.
+
+*signing up for account*
+
+Once you have your account, you can navigate to the tokens page under _Accounts_. Here you will want to add a new token - this will be used to deploy your app. 
+
+From here, you should note that the url of your account will reflect the name of your app - so if your app is called _my_app_, the url will be appended as _xxx.io/my_app/_. Choose your app name wisely! Now that you are all ready, click deploy - if successful this will run your app on the web url you chose!
+
+*something on making apps in documents?*
 
 ## Further reading
 
