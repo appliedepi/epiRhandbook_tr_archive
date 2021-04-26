@@ -401,7 +401,7 @@ Easy! One great feature of shiny is that it will understand what files named _ap
 
 ```{r, eval = F}
 
-source(here::here("funcs", "plot_epicurve.R"), local = TRUE)
+
 
 ```
 
@@ -609,8 +609,7 @@ ui <- fluidPage(
       plotOutput("malaria_epicurve"),
       br(),
       hr(),
-      p("Welcome to the malaria facility visualisation app! To use this app, manipulate the widgets on the side to change the epidemic curve according to your preferences! To download a high quality image of the plot you've created, you can also download it with the download button. To see the raw data, use the raw data tab for an interactive form of the table. The data dictionary is as follows:")
-    ),
+      p("Welcome to the malaria facility visualisation app! To use this app, manipulate the widgets on the side to change the epidemic curve according to your preferences! To download a high quality image of the plot you've created, you can also download it with the download button. To see the raw data, use the raw data tab for an interactive form of the table. The data dictionary is as follows:"),
     tags$ul(
       tags$li(tags$b("location_name"), " - the facility that the data were collected at"),
       tags$li(tags$b("data_date"), " - the date the data were collected at"),
@@ -660,7 +659,7 @@ ui <- fluidPage(
                    "Barnard"
               ),
               selected = "All",
-              multiple = TRUE
+              multiple = FALSE
          ),
          # selector for age group
          selectInput(
@@ -686,7 +685,20 @@ ui <- fluidPage(
 
     mainPanel(
       # epicurve goes here
-      plotOutput("malaria_epicurve")
+      plotOutput("malaria_epicurve"),
+      br(),
+      hr(),
+      p("Welcome to the malaria facility visualisation app! To use this app, manipulate the widgets on the side to change the epidemic curve according to your preferences! To download a high quality image of the plot you've created, you can also download it with the download button. To see the raw data, use the raw data tab for an interactive form of the table. The data dictionary is as follows:"),
+      tags$ul(
+        tags$li(tags$b("location_name"), " - the facility that the data were collected at"),
+        tags$li(tags$b("data_date"), " - the date the data were collected at"),
+        tags$li(tags$b("submitted_daate"), " - the date the data were submitted at"),
+        tags$li(tags$b("Province"), " - the province the data were collected at (all 'North' for this dataset)"),
+        tags$li(tags$b("District"), " - the district the data were collected at"),
+        tags$li(tags$b("age_group"), " - the age group the data were collected for (0-5, 5-14, 15+, and all ages)"),
+        tags$li(tags$b("cases_reported"), " - the number of cases reported for the facility/age group on the given date")
+      )
+      
     )
     
   )
@@ -884,7 +896,7 @@ With all the facilites in our data, it isn't very clear which facilities corresp
 
 ```{r, eval = FALSE, message =  FALSE}
 
-all_districts <- unique(malaria_data$District)
+all_districts <- c("All", unique(malaria_data$District))
 
 # data frame of location names by district
 facility_list <- malaria_data %>%
@@ -913,7 +925,7 @@ ui <- fluidPage(
               label = "Select district",
               choices = all_districts,
               selected = "All",
-              multiple = TRUE
+              multiple = FALSE
          ),
          # selector for age group
          selectInput(
@@ -947,7 +959,20 @@ ui <- fluidPage(
 
     mainPanel(
       # epicurve goes here
-      plotOutput("malaria_epicurve")
+      plotOutput("malaria_epicurve"),
+      br(),
+      hr(),
+      p("Welcome to the malaria facility visualisation app! To use this app, manipulate the widgets on the side to change the epidemic curve according to your preferences! To download a high quality image of the plot you've created, you can also download it with the download button. To see the raw data, use the raw data tab for an interactive form of the table. The data dictionary is as follows:"),
+      tags$ul(
+        tags$li(tags$b("location_name"), " - the facility that the data were collected at"),
+        tags$li(tags$b("data_date"), " - the date the data were collected at"),
+        tags$li(tags$b("submitted_daate"), " - the date the data were submitted at"),
+        tags$li(tags$b("Province"), " - the province the data were collected at (all 'North' for this dataset)"),
+        tags$li(tags$b("District"), " - the district the data were collected at"),
+        tags$li(tags$b("age_group"), " - the age group the data were collected for (0-5, 5-14, 15+, and all ages)"),
+        tags$li(tags$b("cases_reported"), " - the number of cases reported for the facility/age group on the given date")
+      )
+      
     )
     
   )
@@ -1050,7 +1075,176 @@ server <- function(input, output, session) {
 
 ### Adding another tab with a table
 
-Now we'll move on to the last component we want to add to our app. 
+Now we'll move on to the last component we want to add to our app. We'll want to separate our ui into two tabs, one of which will have an interactive table where the user can see the data they are making the epidemic curve with. To do this, we can use the packaged ui elements that come with shiny relevant to tabs. On a basic level, we can enclose most of our main panel in this general structure:
+
+```{r, eval = FALSE}
+
+
+# ... the rest of ui
+
+mainPanel(
+  
+  tabsetPanel(
+    type = "tabs",
+    tabPanel(
+      "Epidemic Curves",
+      ...
+    ),
+    tabPanel(
+      "Data",
+      ...
+    )
+  )
+)
+
+
+```
+
+Lets apply this to our ui. We also will want to use the `DT` pacakge here - this is a great package for making interactive tables from pre-existing data. We can see it being used for `DT::datatableOutput()` in this example.
+
+```{r, echo = FALSE}
+library(DT)
+```
+
+```{r, eval = FALSE}
+ui <- fluidPage(
+     
+     titlePanel("Malaria facility visualisation app"),
+     
+     sidebarLayout(
+          
+          sidebarPanel(
+               # selector for district
+               selectInput(
+                    inputId = "select_district",
+                    label = "Select district",
+                    choices = all_districts,
+                    selected = "All",
+                    multiple = FALSE
+               ),
+               # selector for age group
+               selectInput(
+                    inputId = "select_agegroup",
+                    label = "Select age group",
+                    choices = c(
+                         "All ages" = "malaria_tot",
+                         "0-4 yrs" = "malaria_rdt_0-4",
+                         "5-14 yrs" = "malaria_rdt_5-14",
+                         "15+ yrs" = "malaria_rdt_15"
+                    ), 
+                    selected = "All",
+                    multiple = FALSE
+               ),
+               # selector for facility
+               selectInput(
+                    inputId = "select_facility",
+                    label = "Select Facility",
+                    choices = c("All", facility_list$location_name),
+                    selected = "All"
+               ),
+               
+               # horizontal line
+               hr(),
+               downloadButton(
+                    outputId = "download_epicurve",
+                    label = "Download plot"
+               )
+               
+          ),
+          
+          mainPanel(
+               tabsetPanel(
+                    type = "tabs",
+                    tabPanel(
+                         "Epidemic Curves",
+                         plotOutput("malaria_epicurve")
+                    ),
+                    tabPanel(
+                         "Data",
+                         DT::dataTableOutput("raw_data")
+                    )
+               ),
+               br(),
+               hr(),
+               p("Welcome to the malaria facility visualisation app! To use this app, manipulate the widgets on the side to change the epidemic curve according to your preferences! To download a high quality image of the plot you've created, you can also download it with the download button. To see the raw data, use the raw data tab for an interactive form of the table. The data dictionary is as follows:"),
+               tags$ul(
+                    tags$li(tags$b("location_name"), " - the facility that the data were collected at"),
+                    tags$li(tags$b("data_date"), " - the date the data were collected at"),
+                    tags$li(tags$b("submitted_daate"), " - the date the data were submitted at"),
+                    tags$li(tags$b("Province"), " - the province the data were collected at (all 'North' for this dataset)"),
+                    tags$li(tags$b("District"), " - the district the data were collected at"),
+                    tags$li(tags$b("age_group"), " - the age group the data were collected for (0-5, 5-14, 15+, and all ages)"),
+                    tags$li(tags$b("cases_reported"), " - the number of cases reported for the facility/age group on the given date")
+               )
+               
+               
+          )
+     )
+)
+
+
+```
+
+
+Now our app is arranged into tabs! Lets make the necessary edits to the server as well. Since we dont need to manipulate our dataset at all before we render it this is actually very simple - we just render the malaria_data dataset via DT::renderDT() to the ui!
+
+
+```{r, echo = FALSE}
+server <- function(input, output, session) {
+  
+  malaria_plot <- reactive({
+    plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup, facility = input$select_facility)
+  })
+  
+  
+  
+  observe({
+    
+    if (input$select_district == "All") {
+      new_choices <- facility_list$location_name
+    } else {
+      new_choices <- facility_list %>%
+        filter(District == input$select_district) %>%
+        pull(location_name)
+    }
+    
+    new_choices <- c("All", new_choices)
+    
+    updateSelectInput(session, inputId = "select_facility",
+                      choices = new_choices)
+    
+  })
+  
+  
+  output$malaria_epicurve <- renderPlot(
+    malaria_plot()
+  )
+  
+  output$download_epicurve <- downloadHandler(
+    
+    filename = function() {
+      stringr::str_glue("malaria_epicurve_{input$select_district}.png")
+    },
+    
+    content = function(file) {
+      ggsave(file, 
+             malaria_plot(),
+             width = 8, height = 5, dpi = 300)
+    }
+    
+  )
+  
+  # render data table to ui
+  output$raw_data <- DT::renderDT(
+    malaria_data
+  )
+  
+  
+}
+
+
+```
+
 
 ## Sharing shiny apps
 
