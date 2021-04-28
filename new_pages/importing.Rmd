@@ -211,19 +211,101 @@ Scraping data from a website - TBD - Under construction
 <!-- ======================================================= -->
 ## API {}
 
-TBD - Under construction (Sara has added some API retrieval snippets for Go.Data in case useful but feel free to disregard)
+TBD - Under construction 
 
-An Automated Programming Interface (API) is commonly used to directly request clean data from a website. You can use R with the packages **httr** and **jsonlite** to pull directly via an API.  
+An Automated Programming Interface (API) is commonly used to directly request data from a website. There are some APIs that require authentication (i.e. a platform with user ID and credentials) and others that anyone can access without credentials. Regardless, this exchange is most commonly done through an HTTP request. The input and output may vary depending on the type of API but the process is the same - a "Request" (often HTTP Request) followed by a "Response". 
 
+There are a few different parameters of an *HTTP Request*, including: 
+- the specific URL of API endpoint
+- Verb/Method (Likely the only type you will deal with when pulling data into R for analysis is "GET")
+- Headers
+- Body
 
-This section was informed by [this tutorial](https://www.dataquest.io/blog/r-api-tutorial/) and [this tutorial](https://medium.com/@traffordDataLab/querying-apis-in-r-39029b73d5f1).  
+You will then receive a "response" in an expected similar format - including URL, HTTP status (Status 200 is what you want!), file type, size, and first bit of output. Then you need to parse the response and turn it into a workable dataframe within your R environment.
 
-Below is some sample code using *httr* and *jsonlite* for connecting to the Go.Data API to pull in contact lists.
+The *httr* package works quite well for working with HTTP requests in R, even for those who are less savvy with software development-speak! It requires little prior knowledge of Web APIs. In addition, some packages can help with parsing the response depending on the structure - if it's .json, you can use **jsonlite**.
+
+### Load Packages {-}
+
 
 ```{r, eval=F}
-# load packages
+pacman::p_load("tidyverse")
 pacman::p_load("httr")
-pacman::p_load("jsonlite")      
+pacman::p_load("jsonlite")
+```
+
+### API Example where Authentication is NOT required (i.e. publically available online data) {-} 
+
+Below is a simple example of an HTTP request from [The Trafford Data Lab](https://www.trafforddatalab.io/open_data_companion/#A_quick_introduction_to_APIs) which has a number of other easy-to-follow API exercises.
+
+Example: The Food Standards Agency provide food hygiene rating data for the United Kingdom. We want to get a list of fast food outlets in Trafford.
+
+-HTTP verb: GET
+-API endpoint URL: http://api.ratings.food.gov.uk/Establishments
+-Selected parameters: name, address, longitude, latitude, businessTypeId, ratingKey, localAuthorityId
+-Headers: “x-api-version”, 2
+-Data format(s): JSON, XML
+-Documentation: http://api.ratings.food.gov.uk/help
+
+```{r, warning=F, message=F}
+
+# load packages
+library(tidyverse)
+library(httr)
+library(jsonlite)
+
+
+# submit the request
+path <- "http://api.ratings.food.gov.uk/Establishments"
+request <- GET(url = path,
+             query = list(
+               localAuthorityId = 188,
+               BusinessTypeId = 7844,
+               pageNumber = 1,
+               pageSize = 5000),
+             add_headers("x-api-version" = "2"))
+
+# check for any server error
+# request$status_code
+
+# parse the response and convert to a data frame
+response <- content(request, as = "text", encoding = "UTF-8") %>%
+  fromJSON(flatten = TRUE) %>%
+  pluck("establishments") %>%
+  as_tibble()
+
+# tidy the data
+df <- response %>%
+  mutate_all(funs(replace(., . == '', NA))) %>%           
+  select(name = BusinessName,
+         type = BusinessType,
+         address1 = AddressLine1,
+         address2 = AddressLine2,
+         address3 = AddressLine3,
+         address4 = AddressLine4,
+         postcode = PostCode,
+         long = geocode.longitude,
+         lat = geocode.latitude) %>%
+  unite(address, address1, address2, address3, address4, remove = TRUE, sep = ", ") %>%
+  mutate(address = str_replace_all(address, "NA,", ""),
+         address = str_replace_all(address, ", NA", ""),
+         long = as.numeric(long),
+         lat = as.numeric(lat))
+
+```
+
+Below we retrieve a cleaned, tidy table of fast food outlets, as specified in query.
+
+```{r, echo=F}
+DT::datatable(df, rownames = FALSE, options = list(pageLength = 12, scrollX=T), class = 'white-space: nowrap' )
+```
+
+
+### API Example where Authentication is required - Go.Data API {-}
+
+Below is some sample code using *httr* and *jsonlite* for connecting to the Go.Data API to pull in contact linelists.
+
+```{r, eval=F}
 
 # set credentials for authorization
 url <- "https://godatasampleURL.int/"        # insert Go.Data instance url
@@ -253,12 +335,26 @@ response_contacts <- GET(paste0(url,"api/outbreaks/",outbreak_id,"/contacts"),  
 json_contacts <- content(response_contacts, as = "text")    # convert to text JSON
 contacts <- as_tibble(fromJSON(json_contacts, flatten = TRUE))   # flatten JSON to tibble
 
-
 ```
 
-<span style="color: orange;">**_CAUTION:_** If you are importing large amounts of data from the API, it will likely time-out. To avoid this, retrieve access_token again before each API GET request and try using filters or limits in the query. For more details, view [Contact Tracing] page or API tips on [Go.Data Github Repository](https://worldhealthorganization.github.io/godata/api-docs/) </span> 
+Below we retrieve the raw Go.Data contact list for further analysis (NOTE: this is from DEMO Sandbox instance).
 
-<span style="color: darkgreen;">**_TIP:_** The `fromJSON()` function in the *jsonlite* package does not fully un-nest so you will still have list items in your resulting tibble. You will need to further un-nest for certain variables. To view more info on this, view the [Contact Tracing] page. </span>
+```{r out.width = "100%", fig.align = "center", echo=F}
+knitr::include_graphics(here::here("images", "godata_api_contactsdf.png"))
+```
+
+
+<span style="color: orange;">**_CAUTION:_** If you are importing large amounts of data from an API requiring authentication, it may time-out. To avoid this, retrieve access_token again before each API GET request and try using filters or limits in the query. </span> 
+
+<span style="color: darkgreen;">**_TIP:_** The `fromJSON()` function in the *jsonlite* package does not fully un-nest the first time it's executed, so you will likely still have list items in your resulting tibble. You will need to further un-nest for certain variables; depending on how nested your .json is. To view more info on this, view the documentation for the **jsonlite** package, such as the [`flatten()` function](https://rdrr.io/cran/jsonlite/man/flatten.html). </span>
+
+
+For more details, View documentation on [LoopBack Explorer](https://loopback.io/doc/en/lb4/index.html), the [Contact Tracing] page or API tips on [Go.Data Github Repository](https://worldhealthorganization.github.io/godata/api-docs
+
+
+
+You can read more about the *httr* package [here](https://httr.r-lib.org/articles/quickstart.html)
+This section was also informed by [this tutorial](https://www.dataquest.io/blog/r-api-tutorial/) and [this tutorial](https://medium.com/@traffordDataLab/querying-apis-in-r-39029b73d5f1). 
 
 
 <!-- ======================================================= -->
