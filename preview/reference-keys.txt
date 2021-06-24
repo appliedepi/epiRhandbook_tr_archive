@@ -1,0 +1,5 @@
+editorial-and-technical-notes
+yaklaşım-ve-stil
+editorial-decisions
+major-revisions
+session-info-r-rstudio-packages

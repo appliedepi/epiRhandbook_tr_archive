@@ -3,7 +3,7 @@
 In this page we describe the philosophical approach, style, and specific editorial decisions made during the creation of this handbook.  
 
 
-## Approach and style
+## Yaklaşım ve Stil
 
 The potential audience for this book is large. It will surely be used by people very new to R, and also by experienced R users looking for best practices and tips. So it must be both accessible and succinct. Therefore, our approach was to provide *just enough* text explanation that someone very new to R can apply the code and follow what the code is doing.  
 
