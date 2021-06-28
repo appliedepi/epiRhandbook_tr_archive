@@ -1,5 +1,5 @@
-editorial-and-technical-notes
+önyazı-ve-teknik-notlar
 yaklaşım-ve-stil
-editorial-decisions
-major-revisions
-session-info-r-rstudio-packages
+editöryal-kararlar
+büyük-güncellemeler
+oturum-bilgisi-r-rstudio-packages
