@@ -1,0 +1,5 @@
+önyazı-ve-teknik-notlar
+yaklaşım-ve-stil
+editöryal-kararlar
+büyük-güncellemeler
+oturum-bilgisi-r-rstudio-packages

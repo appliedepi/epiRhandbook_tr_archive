@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>The Epidemiologist R Handbook</title>
+
+    <meta name="author" content="the handbook team" />
+  
+  <!-- JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script>
+  <script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script>
+    <script src="libs/header-attrs-2.8/header-attrs.js"></script>
+    <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet" />
+    <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script>
+    <script src="libs/bs3compat-0.2.5.1/tabs.js"></script>
+    <script src="libs/bs3compat-0.2.5.1/bs3compat.js"></script>
+    <link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet" />
+    <script src="libs/bs4_book-1.0.0/bs4_book.js"></script>
+    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/mark.min.js"></script>
+
+  <!-- CSS -->
+    <link rel="stylesheet" href="style_bs4.css" />
+    
+</head>
+
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<!--bookdown:title:start-->
+<!--bookdown:title:end-->
+
+<!--bookdown:toc:start-->
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book">
+    <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">The Epidemiologist R Handbook</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+      </form>
+
+      <nav aria-label="Table of contents">
+        <h2>Table of contents</h2>
+        <div id="book-toc"></div>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="#">View book source <i class="fab fa-github"></i></a></li></p>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="col-sm-12 col-md-9 col-lg-7" id="content">
+<!--bookdown:toc:end-->
+<!--bookdown:body:start-->
+<div id="section" class="section level1 unnumbered">
+<h1 class="unnumbered"></h1>
+<p><img src="images/Epi%20R%20Handbook%20Banner%20Beige%201500x500.png" width="100%" style="display: block; margin: auto;" /></p>
+<meta name="description" content="The Epi R Handbook is an R reference manual for applied epidemiology and public health.">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!-- <span style="color: red;">**THIS IS A DRAFT.  REVIEWERS GIVE FEEDBACK AT THIS [LINK](https://forms.gle/4RNdRRLGx67xW9yq9)**.</span> -->
+<!-- <span style="color: darkgreen;">**DO YOU LIKE THIS HANDBOOK? SHOULD SOMETHING BE CHANGED? PLEASE TELL US!**</span> -->
+<!-- <form target="_blank" action="https://forms.gle/A5SnRVws7tPD15Js9"> -->
+<!--     <input type="submit" value="FEEDBACK" /> -->
+<!-- </form> -->
+<!-- ======================================================= -->
+<!-- ## An R reference manual for applied epidemiology and public health {.unnumbered} -->
+<!-- <span style="color: brown;">**The Epi R Handbook is an R reference manual for applied epidemiology and public health.**</span> -->
+<!-- ## About this handbook   -->
+<div id="r-for-applied-epidemiology-and-public-health" class="section level2 unnumbered">
+<h2 class="unnumbered">R for applied epidemiology and public health</h2>
+<p><strong>This handbook strives to:</strong></p>
+<ul>
+<li>Serve as a quick R code reference manual<br />
+</li>
+<li>Provide task-centered examples addressing common epidemiological problems<br />
+</li>
+<li>Assist epidemiologists transitioning to R<br />
+</li>
+<li>Be accessible in settings with low internet-connectivity via an <strong>[offline version][Download handbook and data]</strong></li>
+</ul>
+<!-- * Use practical epi examples - cleaning case linelists, making transmission chains and epidemic curves, automated reports and dashboards, modeling incidence and making projections, demographic pyramids and rate standardization, record matching, outbreak detection, survey analysis, survival analysis, GIS basics, contact tracing, phylogenetic trees...   -->
+<!-- **How is this different than other R books?**   -->
+<!-- * It is community-driven - *written for epidemiologists by epidemiologists* in their spare time and leveraging experience in local, national, academic, and emergency settings   -->
+<!-- Dual-column created based on the rmarkdown cookbook here: https://bookdown.org/yihui/rmarkdown-cookbook/multi-column.html -->
+<p><br></p>
+<div style="display: flex;">
+<div>
+<p><img src="images/epiRhandbook_HexSticker_500x500.png" width="100%" style="display: block; margin: auto;" /></p>
+</div>
+<div class="col">
+<p> 
+<!-- an empty Div (with a white space), serving as
+a column separator --></p>
+</div>
+<div>
+<p><span style="color: black;"><strong>Written by epidemiologists, for epidemiologists</strong></span></p>
+<p>We are applied epis from around the world, writing in our spare time to offer this resource to the community. Your encouragement and feedback is most welcome:</p>
+<ul>
+<li>Structured <strong><a href="https://forms.gle/A5SnRVws7tPD15Js9">feedback form</a></strong><br />
+</li>
+<li>Email <strong><a href="mailto:epiRhandbook@gmail.com" class="email">epiRhandbook@gmail.com</a></strong> or tweet <strong><a href="https://twitter.com/epirhandbook">@epiRhandbook</a></strong><br />
+</li>
+<li>Submit issues to our <strong><a href="https://github.com/epirhandbook/Epi_R_handbook">Github repository</a></strong></li>
+</ul>
+</div>
+</div>
+<!-- ======================================================= -->
+</div>
+<div id="how-to-use-this-handbook" class="section level2 unnumbered">
+<h2 class="unnumbered">How to use this handbook</h2>
+<ul>
+<li>Browse the pages in the Table of Contents, or use the search box</li>
+<li>Click the “copy” icons to copy code<br />
+</li>
+<li>You can follow-along with [the example data][Download handbook and data]<br />
+</li>
+<li>See the “Resources” section of each page for further material</li>
+</ul>
+<p><strong>Offline version</strong></p>
+<p>See instructions in the [Download handbook and data] page.</p>
+<p><strong>Languages</strong></p>
+<p>We want to translate this into languages other than English. If you can help, please contact us.</p>
+<!-- ======================================================= -->
+</div>
+<div id="acknowledgements" class="section level2 unnumbered">
+<h2 class="unnumbered">Acknowledgements</h2>
+<p>This handbook is produced by a collaboration of epidemiologists from around the world drawing upon experience with organizations including local, state, provincial, and national health agencies, the World Health Organization (WHO), Médecins Sans Frontières / Doctors without Borders (MSF), hospital systems, and academic institutions.</p>
+<p>This handbook is <strong>not</strong> an approved product of any specific organization. Although we strive for accuracy, we provide no guarantee of the content in this book.</p>
+<div id="contributors" class="section level3 unnumbered">
+<h3 class="unnumbered">Contributors</h3>
+<p><strong>Editor:</strong> <a href="https://www.linkedin.com/in/neale-batra/">Neale Batra</a></p>
+<p><strong>Project core team:</strong> <a href="https://www.linkedin.com/in/neale-batra/">Neale Batra</a>, <a href="https://github.com/aspina7">Alex Spina</a>, <a href="https://twitter.com/Ammer_B">Amrish Baidjoe</a>, Pat Keating, <a href="https://github.com/henryls1">Henry Laurenson-Schafer</a>, <a href="https://github.com/finlaycampbell">Finlay Campbell</a></p>
+<p><strong>Authors</strong>: <a href="https://www.linkedin.com/in/neale-batra/">Neale Batra</a>, <a href="https://github.com/aspina7">Alex Spina</a>, <a href="https://www.linkedin.com/in/paula-bianca-blomquist-53188186/">Paula Blomquist</a>, <a href="https://github.com/finlaycampbell">Finlay Campbell</a>, <a href="https://github.com/henryls1">Henry Laurenson-Schafer</a>, <a href="www.Twitter.com/isaacatflorence">Isaac Florence</a>, <a href="https://www.linkedin.com/in/nataliefischer211/">Natalie Fischer</a>, <a href="https://twitter.com/aminata_fadl">Aminata Ndiaye</a>, <a href="https://www.linkedin.com/in/liza-coyer-86022040/">Liza Coyer</a>, <a href="https://twitter.com/jonny_polonsky">Jonathan Polonsky</a>, <a href="https://ch.linkedin.com/in/yurie-izawa-a1590319">Yurie Izawa</a>, <a href="https://twitter.com/cbailey_58?lang=en">Chris Bailey</a>, <a href="https://www.linkedin.com/in/daniel-molling-4005716a/">Daniel Molling</a>, <a href="https://twitter.com/ishaberry2">Isha Berry</a>, <a href="https://twitter.com/buajitti">Emma Buajitti</a>, <a href="https://mathildemousset.wordpress.com/research/">Mathilde Mousset</a>, <a href="https://www.linkedin.com/in/saramhollis/">Sara Hollis</a>, Wen Lin</p>
+<p><strong>Reviewers</strong>: Pat Keating, Annick Lenglet, Margot Charette, Danielly Xavier, Esther Kukielka, Michelle Sloan, Aybüke Koyuncu, Rachel Burke, Kate Kelsey, <a href="https://www.linkedin.com/in/berhe-etsay-5752b1154/">Berhe Etsay</a>, John Rossow, Mackenzie Zendt, James Wright, Laura Haskins, <a href="ffinger.github.io">Flavio Finger</a>, Tim Taylor, <a href="https://www.linkedin.com/in/jaehyoungtlee/">Jae Hyoung Tim Lee</a>, <a href="https://www.linkedin.com/in/brianna-bradley-bb8658155">Brianna Bradley</a>, <a href="https://www.linkedin.com/in/wenanoria">Wayne Enanoria</a>, Manual Albela Miranda, <a href="https://www.linkedin.com/in/molly-mantus-174550150/">Molly Mantus</a>, Pattama Ulrich, Joseph Timothy, Adam Vaughan, Olivia Varsaneux, Lionel Monteiro, Joao Muianga</p>
+<p><strong>Illustrations</strong>: Calder Fong</p>
+<!-- **Editor-in-Chief:** Neale Batra  -->
+<!-- **Project core team:** Neale Batra, Alex Spina, Amrish Baidjoe, Pat Keating, Henry Laurenson-Schafer, Finlay Campbell   -->
+<!-- **Authors**: Neale Batra, Alex Spina, Paula Blomquist, Finlay Campbell, Henry Laurenson-Schafer, [Isaac Florence](www.Twitter.com/isaacatflorence), Natalie Fischer, Aminata Ndiaye, Liza Coyer, Jonathan Polonsky, Yurie Izawa, Chris Bailey, Daniel Molling, Isha Berry, Emma Buajitti, Mathilde Mousset, Sara Hollis, Wen Lin   -->
+<!-- **Reviewers**: Pat Keating, Mathilde Mousset, Annick Lenglet, Margot Charette, Isha Berry, Paula Blomquist, Natalie Fischer, Daniely Xavier, Esther Kukielka, Michelle Sloan, Aybüke Koyuncu, Rachel Burke, Daniel Molling, Kate Kelsey, Berhe Etsay, John Rossow, Mackenzie Zendt, James Wright, Wayne Enanoria, Laura Haskins, Flavio Finger, Tim Taylor, Jae Hyoung Tim Lee, Brianna Bradley, Manual Albela Miranda, Molly Mantus, Priscilla Spencer, Pattama Ulrich, Joseph Timothy, Adam Vaughan, Olivia Varsaneux, Lionel Monteiro, Joao Muianga   -->
+</div>
+<div id="funding-and-support" class="section level3 unnumbered">
+<h3 class="unnumbered">Funding and support</h3>
+<p>The handbook received supportive funding via a COVID-19 emergency capacity-building grant from <a href="https://www.tephinet.org/">TEPHINET</a>, the global network of Field Epidemiology Training Programs (FETPs).</p>
+<p>Administrative support was provided by the EPIET Alumni Network (<a href="https://epietalumni.net/">EAN</a>), with special thanks to Annika Wendland. EPIET is the European Programme for Intervention Epidemiology Training.</p>
+<p>Special thanks to Médecins Sans Frontières (MSF) Operational Centre Amsterdam (OCA) for their support during the development of this handbook.</p>
+<p><em>This publication was supported by Cooperative Agreement number NU2GGH001873, funded by the Centers for Disease Control and Prevention through TEPHINET, a program of The Task Force for Global Health. Its contents are solely the responsibility of the authors and do not necessarily represent the official views of the Centers for Disease Control and Prevention, the Department of Health and Human Services, The Task Force for Global Health, Inc. or TEPHINET.</em></p>
+</div>
+<div id="inspiration" class="section level3 unnumbered">
+<h3 class="unnumbered">Inspiration</h3>
+<p>The multitude of tutorials and vignettes that provided knowledge for development of handbook content are credited within their respective pages.</p>
+<p>More generally, the following sources provided inspiration for this handbook:<br />
+<a href="https://r4epis.netlify.app/">The “R4Epis” project</a> (a collaboration between MSF and RECON)<br />
+<a href="https://www.repidemicsconsortium.org/">R Epidemics Consortium (RECON)</a><br />
+<a href="https://r4ds.had.co.nz/">R for Data Science book (R4DS)</a><br />
+<a href="https://bookdown.org/yihui/bookdown/">bookdown: Authoring Books and Technical Documents with R Markdown</a><br />
+<a href="https://www.netlify.com">Netlify</a> hosts this website</p>
+<!-- ### Image credits {-}   -->
+<!-- Images in logo from US CDC Public Health Image Library) include [2013 Yemen looking for mosquito breeding sites](https://phil.cdc.gov/Details.aspx?pid=19623), [Ebola virus](https://phil.cdc.gov/Details.aspx?pid=23186), and [Survey in Rajasthan](https://phil.cdc.gov/Details.aspx?pid=19838).   -->
+</div>
+</div>
+<div id="terms-of-use-and-contribution" class="section level2 unnumbered">
+<h2 class="unnumbered">Terms of Use and Contribution</h2>
+<div id="license" class="section level3 unnumbered">
+<h3 class="unnumbered">License</h3>
+<p><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.</p>
+<p>Academic courses and epidemiologist training programs are welcome to use this handbook with their students. If you have questions about your intended use, email <strong><a href="mailto:epiRhandbook@gmail.com" class="email">epiRhandbook@gmail.com</a></strong>.</p>
+</div>
+<div id="citation" class="section level3 unnumbered">
+<h3 class="unnumbered">Citation</h3>
+<p>Batra, Neale, et al. The Epidemiologist R Handbook. 2021. <a rel="license" href="https://zenodo.org/badge/231610102.svg"><img alt="DOI" style="border-width:0" src="https://zenodo.org/badge/231610102.svg" /></a><br /></p>
+</div>
+<div id="contribution" class="section level3 unnumbered">
+<h3 class="unnumbered">Contribution</h3>
+<p>If you would like to make a content contribution, please contact with us first via Github issues or by email. We are implementing a schedule for updates and are creating a contributor guide.</p>
+<p>Please note that the epiRhandbook project is released with a <a href="https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
+<!--chapter:end:index.Rmd-->
+</div>
+</div>
+</div>
+<div id="part-preview-pages" class="section level1 unnumbered">
+<h1 class="unnumbered">(PART) Preview pages</h1>
+<!--chapter:end:new_pages/cat_preview.Rmd-->
+</div>
+<div id="önyazı-ve-teknik-notlar" class="section level1" number="1">
+<h1 number="1"><span class="header-section-number">1</span> Önyazı ve teknik notlar</h1>
+<p>Bu sayfada, el kitabının hazırlanması sırasında belirlediğimiz felsefi yaklaşımı, stili ve belirli editoryal kararlara değineceğiz.</p>
+<div id="yaklaşım-ve-stil" class="section level2" number="1.1">
+<h2 number="1.1"><span class="header-section-number">1.1</span> Yaklaşım ve stil</h2>
+<p>Bu kitabın potansiyel hedef kitlesini geniş olarak belirledik. Hem R’a yeni olan kişiler tarafından hem de R “iyi uygulamalarını” ve “ipuçlarını” öğrenmek isteyen deneyimli R kullanıcılarının bu kitaptan faydalanabilmesini istedik. Kitap hem kolayca erişilebilir hem de az ve öz olmalıydı. Bu nedenle yaklaşımımızı, R’de çok yeni olan birinin kodu uygulayabileceği ve kodun ne yaptığını takip edebileceği <em>yeterli</em> metin açıklaması sağlamak olarak belirledik.</p>
+<p>Bir kaç nokta daha:</p>
+<ul>
+<li>Nispeten kısa örneklerin eşlik ettiği bir kod referans kitabı olarak tasarlanmıştır - R veya veri bilimi üzerine kapsamlı bir ders kitabı <em>değildir</em>.</li>
+<li>Uygulamalı epidemiyolojide kullanmanız için <em>R el kitabı</em> olarak kapsamı sınırlandırılmıştır - uygulamalı epidemiyoloji yöntemleri veya bilimi hakkında bir kılavuz değil.</li>
+<li>Bu el kitabının yaşayan bir belge olması amaçlanmıştır - belirli bir görevler için hazırlanan R paketleri sıklıkla güncellenir ve değişir. Bu kitapta hangilerine yer vermemiz gerektiğine dair öneri ve eleştirilerinizi memnuniyetle öğrenmek isteriz.</li>
+</ul>
+<div id="r-paketleri" class="section level3 unnumbered">
+<h3 class="unnumbered">R paketleri</h3>
+<p><strong>Çok fazla seçenek</strong></p>
+<p>R öğrenmenin en zorlu yönlerinden biri de hangi R paketinin kullanılacağını bilmektir. Bir işi çözmeye çalışırken “Hey, bunların hepsini tek bir komut satırında yapan bir R paketi var!” demeniz nadir bir durum olmayacaktır.</p>
+<p>Bu el kitabında, her görevi tamamlamanız için size en az iki yol sunmaya çalıştık: ilki denenmiş ve doğrulanmış bir yöntem (muhtemelen <strong>base</strong> R veya <strong>tidyverse</strong> içinde) ve ikincisi o iş için özel olarak tasarlanmış R paketi ile. Belirli bir pakette sorun yaşamanız halinde birden fazla seçeneğe sahip olmanızı istiyoruz.</p>
+<p>Paketleri belirlerken, R topluluğu tarafından test edilmiş ve onaylanmış paketlere ve yaklaşımlarına öncelik verdik. Rutin bir çalışma oturumunda işinize yarayacak, stabil (çok sık değişmeyen) ve görevi basit ve temiz bir şekilde yerine getirebilecek minimal sayıda paket kullandık.</p>
+<p>Bu el kitabı <strong>tidyverse</strong>’de bulunan R paket ve işlevlerine öncelik verir. Tidyverse, temel dilbilgisi ve veri yapılarını paylaşan veri bilimi için tasarlanmış bir R paketi koleksiyonudur. Tüm tidyverse paketleri, <strong>tidyverse</strong> paketi aracılığıyla kurulabilir veya yüklenebilir. <a href="https://www.tidyverse.org/">Tidyverse’n web sitesinde</a> daha fazlasını okuyabilirsiniz.</p>
+<p>Uygun yerlerde, kurulum sırasında R ile birlikte yüklenen <strong>base</strong> paket ve fonksiyonlarıyla ilişkili kod seçeneklerini de ekledik. Bunu, bu kitabın okuyucularından bazılarının ekstra paketleri indirmek için güvenilir bir internete sahip olmama ihtimaline karşılık yaptık.</p>
+<p><strong>Fonksiyonları paketlerle ilişkilendirme</strong></p>
+<p>R eğitim ve rehberlerinde bir fonksiyona ilişkin kodun anlatılıp kullanılan paketin hiç değinilmemesine şahit olmuşsunuzdur. Bu durum sinir bozucudur! İşte biz bunu size yaşatmaktan kaçınmaya çalıştık.</p>
+<p>Açıklama metinlerinde paket adları kalın harflerle (örn. <strong>dplyr</strong>) ve fonksiyonları <code>mutate()</code> şeklinde yazılır. Bir fonksiyonun hangi paketten geldiğini, ya en yakındaki metinde referanslayarak ya da kodu <code>dplyr::mutate()</code> şeklinde yazarak size açıklamaya çalıştık. Başta gereksiz görünebilir ancak bunu yukarıda bahsettiğimiz amaç uğruna, bilerek yapıyoruz.</p>
+<p>Paketler ve fonksiyonları hakkında daha fazla bilgi edinmek için [R basics] sayfasına bakabilirsiniz.</p>
+</div>
+<div id="kodlama-stili" class="section level3 unnumbered">
+<h3 class="unnumbered">Kodlama stili</h3>
+<p>El kitabında sık sık “yeni satırlar” kullanıyoruz, bu da kodumuzun “uzun” görünmesine neden olabiliyor. Bunun birkaç sebebi var:</p>
+<ul>
+<li>Kodun her küçük parçasına bitişik <code>#</code> ile açıklayıcı yorumlar yazabiliriz.</li>
+<li>Genellikle daha uzun (dikey) kodun okunması daha kolaydır.</li>
+<li>Kodların dar bir ekranda okunması daha kolaydır (ekranı yana kaydırmanıza gerek kalmaz).</li>
+<li>Girintiler sayesinde hangi argümanların hangi fonksiyona ait olduğunu daha kolay anlayabilirsiniz.</li>
+</ul>
+<p>Sonuç olarak, <em>aşağıdaki gibi</em> yazılabilecek kod:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>linelist <span class="sc">%&gt;%</span> </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(hospital) <span class="sc">%&gt;%</span>  <span class="co"># satırları hastane (hospital) olarak gruplandır</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(date, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> F) <span class="co"># eğer tarih (date) ile eşleşirse ilk satırı al</span></span></code></pre></div>
+<p>…şu şekilde yazılır:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>linelist <span class="sc">%&gt;%</span> </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(hospital) <span class="sc">%&gt;%</span> <span class="co"># satırları hastane (hospital) olarak gruplandır</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    date,                <span class="co"># maksimum tarih değerine grubu sırala</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="dv">1</span>,               <span class="co"># gruptaki satırlardan sadece ilkini al </span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">with_ties =</span> F)       <span class="co"># eğer tarih (date) ile eşleşirse ilk satırı al</span></span></code></pre></div>
+<p>R kodu genel olarak yeni satır veya girintilerden etkilenmez. Kodu yazarken, virgülden sonra yeni bir satır başlatırsanız, program yeni satıra otomatik girinti uygular.</p>
+<p>Ayrıca, okunması daha kolay olduğu için kodu yazarken birçok boşluk kullandık (örneğin, ‘n=1’ yerine ‘n = 1’). Siz de kodunuzu yazarken onu okuyabilecek insanları düşünerek yazmalısınız!</p>
+</div>
+<div id="terminoloji" class="section level3 unnumbered">
+<h3 class="unnumbered">Terminoloji</h3>
+<p>Bu el kitabında, genellikle “değişkenler” ve “gözlemler” yerine “sütunlar” ve “satırlar”a atıfta bulunuyoruz. <a href="https://tidyr.tidyverse.org/articles/tidy-data.html">“Tidy verileri”</a> ile ilgili bu makalede açıklandığı gibi, epidemiyolojik istatistiksel veri setlerinin çoğu yapısal olarak satır, sütun ve değerlerden oluşur.</p>
+<p><em>Değişkenler</em> aynı temel özelliği ölçen değerleri içerir (yaş grubu, çıktı veya başlangıç tarihi gibi). <em>Gözlemler</em> aynı birimde ölçülen tüm değerleri içerir (örneğin bir kişi, alan veya laboratuvar numunesi vb.). Dolayısıyla bu yönleri somut olarak tanımlamak daha zor olabilmektedir.</p>
+<p>“Tidy” veri kümelerinde her sütun bir değişken, her satır bir gözlem ve her hücre de tek bir değeri ifade etmektedir. Ancak karşılaştığınız bazı veri kümeleri bu kalıba sığmaz - “geniş” biçimli bir veri kümesinin birkaç sütuna bölünebilen değişkenleri olabilir ([Pivoting data] sayfasındaki bir örneğe bakın). Benzer şekilde, gözlemler de birkaç satıra bölünebilir.</p>
+<p>Bu el kitabı çoğunlukla, verileri yönetmek ve işlemek üzerine odaklanmıştır. O nedenle satır ve sütunlarda somut verilere atıfta bulunmayı, daha soyut gözlem ve değişkenlere tercih ettik. Bu yaklaşımımızın istisnası, daha fazla değişken ve gözlem referansıyla karşılaşacağınız veri analizi sayfalarıdır.</p>
+</div>
+<div id="notlar" class="section level3 unnumbered">
+<h3 class="unnumbered">Notlar</h3>
+<p>El kitabında karşılaşabileceğiniz not türleri şunlardır:</p>
+<p><span style="color: black;"><strong><em>NOT:</em></strong> Bu bir nottur.</span><br />
+<span style="color: darkgreen;"><strong><em>İPUCU:</em></strong> Bu bir ipucudur.</span><br />
+<span style="color: orange;"><strong><em>DİKKAT:</em></strong> Bu dikkatli yaklaşmanızı tavsiye eden bir nottur.</span><br />
+<span style="color: red;"><strong><em>TEHLİKE:</em></strong> Bu bir uyarıdır.</span></p>
+</div>
+</div>
+<div id="editöryal-kararlar" class="section level2" number="1.2">
+<h2 number="1.2"><span class="header-section-number">1.2</span> Editöryal Kararlar</h2>
+<p>Aşağıda, paket ve işlev seçimiyle ilgili önemli editoryal kararları sizinle paylaşıyoruz. Bizimle aynı fikirde değilseniz veya değerlendirilmesi için yeni bir araç önermek isterseniz, lütfen <a href="https://github.com/epirhandbook/Epi_R_handbook">Github sayfamıza</a> katılın ve yeni bir sohbet başlatın.</p>
+<p><strong>Paket, fonksiyon ve diğer editoryal kararlar tablosu</strong></p>
+<table>
+<colgroup>
+<col width="15%" />
+<col width="18%" />
+<col width="22%" />
+<col width="43%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Konu</th>
+<th>Paket</th>
+<th>Çıktı</th>
+<th>Rasyoneli</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Genel kodlama yaklaşımı</td>
+<td><strong>tidyverse</strong>, <strong>data.table</strong>, <strong>base</strong></td>
+<td><strong>tidyverse</strong>, <strong>data.table</strong> üzerinde bir sayfa ve interneti olmayan okuyucular için <strong>base</strong> alternatifleri</td>
+<td><strong>tidyverse</strong> okunabilir, evrensel, en çok öğretilen pakettir</td>
+</tr>
+<tr class="even">
+<td>Paket yükleme</td>
+<td><code>library()</code>,<code>install.packages()</code>, <code>require()</code>, <strong>pacman</strong></td>
+<td><strong>pacman</strong></td>
+<td>Çoklu paket indirme/yükleme süreçlerini kısaltır ve basitleştirir</td>
+</tr>
+<tr class="odd">
+<td>İçe ve dışa aktarma</td>
+<td><strong>rio</strong>, ve diğer pek çok paketler</td>
+<td><strong>rio</strong></td>
+<td>Birçok dosya türü için kolaylık sağlar</td>
+</tr>
+<tr class="even">
+<td>İstatistik özetleri için gruplandırma</td>
+<td><strong>dplyr</strong> <code>group_by()</code>, <strong>stats</strong> <code>aggregate()</code></td>
+<td><strong>dplyr</strong> <code>group_by()</code></td>
+<td><strong>tidyverse</strong> vurgusu ile tutarlıdır</td>
+</tr>
+<tr class="odd">
+<td>Pivotlama</td>
+<td><strong>tidyr</strong> (pivot fonksiyonları), <strong>reshape2</strong> (melt/cast), <strong>tidyr</strong> (spread/gather)</td>
+<td><strong>tidyr</strong> (pivot fonksiyonları)</td>
+<td><strong>reshape2</strong> artık kullanımda değil, <strong>tidyr</strong> v1.0.0 itibariyle pivot fonksiyonlarını kullanmaktadır</td>
+</tr>
+<tr class="even">
+<td>Sütun adlarını temizleme</td>
+<td><strong>linelist</strong>, <strong>janitor</strong></td>
+<td><strong>janitor</strong></td>
+<td>Paketlerin birlikte kullanımı vurgulanmaktadır</td>
+</tr>
+<tr class="odd">
+<td>Epiweeks</td>
+<td><strong>lubridate</strong>, <strong>aweek</strong>, <strong>tsibble</strong>, <strong>zoo</strong></td>
+<td>genelde <strong>lubridate</strong>, özel durumlarda diğer paketler</td>
+<td><strong>lubridate</strong> esnek, tutarlı ve diğer paketleri koruyan bir seçenektir</td>
+</tr>
+<tr class="even">
+<td>ggplot etiketleri</td>
+<td><code>labs()</code>, <code>ggtitle()</code>/<code>ylab()</code>/<code>xlab()</code></td>
+<td><code>labs()</code></td>
+<td>tüm etiketler tek bir yerde, kullanımı basittir</td>
+</tr>
+<tr class="odd">
+<td>Faktöre çevir</td>
+<td><code>factor()</code>, <strong>forcats</strong></td>
+<td><strong>forcats</strong></td>
+<td>çeşitli fonksiyonları da aynı komutta faktöre dönüşür</td>
+</tr>
+<tr class="even">
+<td>Epidemi eğrileri</td>
+<td><strong>incidence</strong>, <strong>ggplot2</strong>, <strong>EpiCurve</strong></td>
+<td><strong>incidence2</strong> hızlıdır, <strong>ggplot2</strong> ise detaylı ve güvenilirdir</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Birleştirme</td>
+<td><code>paste()</code>, <code>paste0()</code>, <code>str_glue()</code>, <code>glue()</code></td>
+<td><code>str_glue()</code></td>
+<td><strong>stringr</strong> fonksiyonlarını içerir, yapıştır fonksiyonlarından daha basit bir sentaks (sözdizimi) vardır</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="büyük-güncellemeler" class="section level2" number="1.3">
+<h2 number="1.3"><span class="header-section-number">1.3</span> Büyük güncellemeler</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Tarih</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>10 May 2021</td>
+<td>Versiyon 1.0.0’ın yayınlanması</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="oturum-bilgisi-r-rstudio-packages" class="section level2" number="1.4">
+<h2 number="1.4"><span class="header-section-number">1.4</span> Oturum bilgisi (R, RStudio, packages)</h2>
+<p>Aşağıda, bu el Kitabının hazırlanması sırasında kullanılan R, RStudio ve R paketleri ve sürümlerine ilişkin bilgiler yer almaktadır.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sessioninfo<span class="sc">::</span><span class="fu">session_info</span>()</span></code></pre></div>
+<pre><code>## - Session info ------------------------------------------------------------------------------------------------------------------
+##  setting  value                       
+##  version  R version 4.1.0 (2021-05-18)
+##  os       Windows 10 x64              
+##  system   x86_64, mingw32             
+##  ui       RStudio                     
+##  language (EN)                        
+##  collate  English_United States.1252  
+##  ctype    English_United States.1252  
+##  tz       Europe/Istanbul             
+##  date     2021-06-28                  
+## 
+## - Packages ----------------------------------------------------------------------------------------------------------------------
+##  package      * version date       lib source        
+##  apyramid     * 0.1.2   2020-05-08 [1] CRAN (R 4.1.0)
+##  assertthat     0.2.1   2019-03-21 [1] CRAN (R 4.1.0)
+##  backports      1.2.1   2020-12-09 [1] CRAN (R 4.1.0)
+##  base64enc      0.1-3   2015-07-28 [1] CRAN (R 4.1.0)
+##  bookdown       0.22    2021-04-22 [1] CRAN (R 4.1.0)
+##  broom          0.7.8   2021-06-24 [1] CRAN (R 4.1.0)
+##  bslib          0.2.5.1 2021-05-18 [1] CRAN (R 4.1.0)
+##  cellranger     1.1.0   2016-07-27 [1] CRAN (R 4.1.0)
+##  cli            2.5.0   2021-04-26 [1] CRAN (R 4.1.0)
+##  colorspace     2.0-1   2021-05-04 [1] CRAN (R 4.1.0)
+##  crayon         1.4.1   2021-02-08 [1] CRAN (R 4.1.0)
+##  crosstalk      1.1.1   2021-01-12 [1] CRAN (R 4.1.0)
+##  curl           4.3.1   2021-04-30 [1] CRAN (R 4.1.0)
+##  data.table     1.14.0  2021-02-21 [1] CRAN (R 4.1.0)
+##  DBI            1.1.1   2021-01-15 [1] CRAN (R 4.1.0)
+##  dbplyr         2.1.1   2021-04-06 [1] CRAN (R 4.1.0)
+##  digest         0.6.27  2020-10-24 [1] CRAN (R 4.1.0)
+##  downlit        0.2.1   2020-11-04 [1] CRAN (R 4.1.0)
+##  dplyr        * 1.0.6   2021-05-05 [1] CRAN (R 4.1.0)
+##  DT           * 0.18    2021-04-14 [1] CRAN (R 4.1.0)
+##  ellipsis       0.3.2   2021-04-29 [1] CRAN (R 4.1.0)
+##  epikit       * 0.1.2   2020-09-07 [1] CRAN (R 4.1.0)
+##  evaluate       0.14    2019-05-28 [1] CRAN (R 4.1.0)
+##  fansi          0.5.0   2021-05-25 [1] CRAN (R 4.1.0)
+##  farver         2.1.0   2021-02-28 [1] CRAN (R 4.1.0)
+##  forcats      * 0.5.1   2021-01-27 [1] CRAN (R 4.1.0)
+##  foreign        0.8-81  2020-12-22 [2] CRAN (R 4.1.0)
+##  fs           * 1.5.0   2020-07-31 [1] CRAN (R 4.1.0)
+##  generics       0.1.0   2020-10-31 [1] CRAN (R 4.1.0)
+##  ggplot2      * 3.3.4   2021-06-16 [1] CRAN (R 4.1.0)
+##  glue           1.4.2   2020-08-27 [1] CRAN (R 4.1.0)
+##  gtable         0.3.0   2019-03-25 [1] CRAN (R 4.1.0)
+##  haven          2.4.1   2021-04-23 [1] CRAN (R 4.1.0)
+##  here         * 1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
+##  highr          0.9     2021-04-16 [1] CRAN (R 4.1.0)
+##  hms            1.1.0   2021-05-17 [1] CRAN (R 4.1.0)
+##  htmltools      0.5.1.1 2021-01-22 [1] CRAN (R 4.1.0)
+##  htmlwidgets    1.5.3   2020-12-10 [1] CRAN (R 4.1.0)
+##  httr           1.4.2   2020-07-20 [1] CRAN (R 4.1.0)
+##  incidence2     1.1     2021-05-29 [1] CRAN (R 4.1.0)
+##  janitor      * 2.1.0   2021-01-05 [1] CRAN (R 4.1.0)
+##  jquerylib      0.1.4   2021-04-26 [1] CRAN (R 4.1.0)
+##  jsonlite       1.7.2   2020-12-09 [1] CRAN (R 4.1.0)
+##  knitr          1.33    2021-04-24 [1] CRAN (R 4.1.0)
+##  lifecycle      1.0.0   2021-02-15 [1] CRAN (R 4.1.0)
+##  lubridate    * 1.7.10  2021-02-26 [1] CRAN (R 4.1.0)
+##  magrittr       2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
+##  modelr         0.1.8   2020-05-19 [1] CRAN (R 4.1.0)
+##  munsell        0.5.0   2018-06-12 [1] CRAN (R 4.1.0)
+##  openxlsx       4.2.3   2020-10-27 [1] CRAN (R 4.1.0)
+##  pacman         0.5.1   2019-03-11 [1] CRAN (R 4.1.0)
+##  pillar         1.6.1   2021-05-16 [1] CRAN (R 4.1.0)
+##  pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.1.0)
+##  png            0.1-7   2013-12-03 [1] CRAN (R 4.1.0)
+##  purrr        * 0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
+##  R6             2.5.0   2020-10-28 [1] CRAN (R 4.1.0)
+##  RColorBrewer   1.1-2   2014-12-07 [1] CRAN (R 4.1.0)
+##  Rcpp           1.0.6   2021-01-15 [1] CRAN (R 4.1.0)
+##  readr        * 1.4.0   2020-10-05 [1] CRAN (R 4.1.0)
+##  readxl         1.3.1   2019-03-13 [1] CRAN (R 4.1.0)
+##  repr           1.1.3   2021-01-21 [1] CRAN (R 4.1.0)
+##  reprex         2.0.0   2021-04-02 [1] CRAN (R 4.1.0)
+##  rio          * 0.5.26  2021-03-01 [1] CRAN (R 4.1.0)
+##  rlang          0.4.11  2021-04-30 [1] CRAN (R 4.1.0)
+##  rmarkdown      2.8     2021-05-07 [1] CRAN (R 4.1.0)
+##  rprojroot      2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
+##  rstudioapi     0.13    2020-11-12 [1] CRAN (R 4.1.0)
+##  rvest          1.0.0   2021-03-09 [1] CRAN (R 4.1.0)
+##  sass           0.4.0   2021-05-12 [1] CRAN (R 4.1.0)
+##  scales         1.1.1   2020-05-11 [1] CRAN (R 4.1.0)
+##  sessioninfo    1.1.1   2018-11-05 [1] CRAN (R 4.1.0)
+##  skimr          2.1.3   2021-03-07 [1] CRAN (R 4.1.0)
+##  snakecase      0.11.0  2019-05-25 [1] CRAN (R 4.1.0)
+##  stringi        1.6.1   2021-05-10 [1] CRAN (R 4.1.0)
+##  stringr      * 1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
+##  tibble       * 3.1.2   2021-05-16 [1] CRAN (R 4.1.0)
+##  tidyr        * 1.1.3   2021-03-03 [1] CRAN (R 4.1.0)
+##  tidyselect     1.1.1   2021-04-30 [1] CRAN (R 4.1.0)
+##  tidyverse    * 1.3.1   2021-04-15 [1] CRAN (R 4.1.0)
+##  utf8           1.2.1   2021-03-12 [1] CRAN (R 4.1.0)
+##  vctrs          0.3.8   2021-04-29 [1] CRAN (R 4.1.0)
+##  withr          2.4.2   2021-04-18 [1] CRAN (R 4.1.0)
+##  xfun           0.23    2021-05-15 [1] CRAN (R 4.1.0)
+##  xml2           1.3.2   2020-04-23 [1] CRAN (R 4.1.0)
+##  yaml           2.2.1   2020-02-01 [1] CRAN (R 4.1.0)
+##  zip            2.2.0   2021-05-31 [1] CRAN (R 4.1.0)
+## 
+## [1] C:/Users/aseke/Documents/R/win-library/4.1
+## [2] C:/Program Files/R/R-4.1.0/library</code></pre>
+<!--chapter:end:new_pages/editorial_style.Rmd-->
+</div>
+</div>
+<!--bookdown:body:end-->
+  </main>
+
+  <div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page">
+      <h2>On this page</h2>
+      <div id="book-on-this-page"></div>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          <li><a id="book-source" href="#">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="#">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5">
+  <div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>The Epidemiologist R Handbook</strong>" was written by the handbook team. It was last built on 2021-06-28.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer>
+
+
+</body>
+
+</html>
