@@ -195,284 +195,255 @@ a column separator --></p>
 <h1 class="unnumbered">(PART) Preview pages</h1>
 <!--chapter:end:new_pages/cat_preview.Rmd-->
 </div>
-<div id="önyazı-ve-teknik-notlar" class="section level1" number="1">
-<h1 number="1"><span class="header-section-number">1</span> Önyazı ve teknik notlar</h1>
-<p>Bu sayfada, el kitabının hazırlanması sırasında belirlediğimiz felsefi yaklaşımı, stili ve belirli editoryal kararlara değineceğiz.</p>
-<div id="yaklaşım-ve-stil" class="section level2" number="1.1">
-<h2 number="1.1"><span class="header-section-number">1.1</span> Yaklaşım ve stil</h2>
-<p>Bu kitabın potansiyel hedef kitlesini geniş olarak belirledik. Hem R’a yeni olan kişiler tarafından hem de R “iyi uygulamalarını” ve “ipuçlarını” öğrenmek isteyen deneyimli R kullanıcılarının bu kitaptan faydalanabilmesini istedik. Kitap hem kolayca erişilebilir hem de az ve öz olmalıydı. Bu nedenle yaklaşımımızı, R’de çok yeni olan birinin kodu uygulayabileceği ve kodun ne yaptığını takip edebileceği <em>yeterli</em> metin açıklaması sağlamak olarak belirledik.</p>
-<p>Bir kaç nokta daha:</p>
+<div id="el-kitabı-ve-verileri-indirme" class="section level1" number="1">
+<h1 number="1"><span class="header-section-number">1</span> El Kitabı ve verileri indirme</h1>
+<!-- Note to self: If you want to create a download link to Github, right-click the "View Raw" button on Github, copy the address, and use that in the HTML below. -->
+<div id="çevrimdışı-el-kitabı-indirme" class="section level2" number="1.1">
+<h2 number="1.1"><span class="header-section-number">1.1</span> Çevrimdışı el kitabı indirme</h2>
+<p>İnternet erişiminiz olmasa bile bu el kitabını web tarayıcınızda görüntüleyebilirsiniz. Bunun için HTML dosyalarını indirmeniz gerekmektedir. Epi R El Kitabını çevrimdışı kullanmayı düşünüyorsanız, bilmeniz gereken gereken birkaç nokta mevcut:</p>
 <ul>
-<li>Nispeten kısa örneklerin eşlik ettiği bir kod referans kitabı olarak tasarlanmıştır - R veya veri bilimi üzerine kapsamlı bir ders kitabı <em>değildir</em>.</li>
-<li>Uygulamalı epidemiyolojide kullanmanız için <em>R el kitabı</em> olarak kapsamı sınırlandırılmıştır - uygulamalı epidemiyoloji yöntemleri veya bilimi hakkında bir kılavuz değil.</li>
-<li>Bu el kitabının yaşayan bir belge olması amaçlanmıştır - belirli bir görevler için hazırlanan R paketleri sıklıkla güncellenir ve değişir. Bu kitapta hangilerine yer vermemiz gerektiğine dair öneri ve eleştirilerinizi memnuniyetle öğrenmek isteriz.</li>
+<li>Dosyaları açtığınızda resimler ve İçindekiler’in yüklenmesi bir veya iki dakika sürebilir.</li>
+<li>Çevrimdışı kitabın düzeni biraz farklıdır - solda İçindekiler Tablosu olan uzun bir alan görecekseniz. Belirli terimleri aramak için Ctrl+F (Cmd-F) tuşlarını kullanabilirsiniz.</li>
+<li>İnternet bağlantınızı kesmeden önce uygun R paketlerini kurmanıza yardımcı olması için [Önerilen paketler] sayfasına bakın.</li>
+<li>Tüm örnek verileri içeren R paketimizi <strong>epirhandbook</strong> kurun (kurulum işlemi aşağıda açıklanmıştır)</li>
 </ul>
-<div id="r-paketleri" class="section level3 unnumbered">
-<h3 class="unnumbered">R paketleri</h3>
-<p><strong>Çok fazla seçenek</strong></p>
-<p>R öğrenmenin en zorlu yönlerinden biri de hangi R paketinin kullanılacağını bilmektir. Bir işi çözmeye çalışırken “Hey, bunların hepsini tek bir komut satırında yapan bir R paketi var!” demeniz nadir bir durum olmayacaktır.</p>
-<p>Bu el kitabında, her görevi tamamlamanız için size en az iki yol sunmaya çalıştık: ilki denenmiş ve doğrulanmış bir yöntem (muhtemelen <strong>base</strong> R veya <strong>tidyverse</strong> içinde) ve ikincisi o iş için özel olarak tasarlanmış R paketi ile. Belirli bir pakette sorun yaşamanız halinde birden fazla seçeneğe sahip olmanızı istiyoruz.</p>
-<p>Paketleri belirlerken, R topluluğu tarafından test edilmiş ve onaylanmış paketlere ve yaklaşımlarına öncelik verdik. Rutin bir çalışma oturumunda işinize yarayacak, stabil (çok sık değişmeyen) ve görevi basit ve temiz bir şekilde yerine getirebilecek minimal sayıda paket kullandık.</p>
-<p>Bu el kitabı <strong>tidyverse</strong>’de bulunan R paket ve işlevlerine öncelik verir. Tidyverse, temel dilbilgisi ve veri yapılarını paylaşan veri bilimi için tasarlanmış bir R paketi koleksiyonudur. Tüm tidyverse paketleri, <strong>tidyverse</strong> paketi aracılığıyla kurulabilir veya yüklenebilir. <a href="https://www.tidyverse.org/">Tidyverse’n web sitesinde</a> daha fazlasını okuyabilirsiniz.</p>
-<p>Uygun yerlerde, kurulum sırasında R ile birlikte yüklenen <strong>base</strong> paket ve fonksiyonlarıyla ilişkili kod seçeneklerini de ekledik. Bunu, bu kitabın okuyucularından bazılarının ekstra paketleri indirmek için güvenilir bir internete sahip olmama ihtimaline karşılık yaptık.</p>
-<p><strong>Fonksiyonları paketlerle ilişkilendirme</strong></p>
-<p>R eğitim ve rehberlerinde bir fonksiyona ilişkin kodun anlatılıp kullanılan paketin hiç değinilmemesine şahit olmuşsunuzdur. Bu durum sinir bozucudur! İşte biz bunu size yaşatmaktan kaçınmaya çalıştık.</p>
-<p>Açıklama metinlerinde paket adları kalın harflerle (örn. <strong>dplyr</strong>) ve fonksiyonları <code>mutate()</code> şeklinde yazılır. Bir fonksiyonun hangi paketten geldiğini, ya en yakındaki metinde referanslayarak ya da kodu <code>dplyr::mutate()</code> şeklinde yazarak size açıklamaya çalıştık. Başta gereksiz görünebilir ancak bunu yukarıda bahsettiğimiz amaç uğruna, bilerek yapıyoruz.</p>
-<p>Paketler ve fonksiyonları hakkında daha fazla bilgi edinmek için [R basics] sayfasına bakabilirsiniz.</p>
+<p><strong>El Kitabını iki farklı yoldan indirebilirsiniz:</strong></p>
+<div id="indirme-linkini-kullanarak" class="section level3 unnumbered">
+<h3 class="unnumbered">İndirme linkini kullanarak</h3>
+<p>Linke hızlıca erişebilmek için, <strong>bu linki sağ fare tuşunuzla tıklayın</strong> <a href="https://github.com/epirhandbook/Epi_R_handbook/raw/master/offline_long/Epi_R_Handbook_offline.html">this link</a> <strong>ve “Farklı Kaydet” seçeneğini seçin</strong>.</p>
+<p>Mac kullanıyorsanız, Cmd’ye basılı tutarak farenizle tıklayın. Cep telefonu kullanıyorsanız, bağlantıyı basılı tutun ve “Bağlantıyı kaydet”i seçin. Kitap cihazınıza indirilecektir. Görseller olmadan HTML kodu içeren bir ekran görürseniz, yukarıdaki talimatları uyguladığınızdan emin olun veya ikinci seçeneği deneyin.</p>
 </div>
-<div id="kodlama-stili" class="section level3 unnumbered">
-<h3 class="unnumbered">Kodlama stili</h3>
-<p>El kitabında sık sık “yeni satırlar” kullanıyoruz, bu da kodumuzun “uzun” görünmesine neden olabiliyor. Bunun birkaç sebebi var:</p>
+<div id="r-paketimizi-kullanın" class="section level3 unnumbered">
+<h3 class="unnumbered">R paketimizi kullanın</h3>
+<p>Sizin için <strong>epirhandbook</strong> adında bir R paketi tasarladık. El kitabını bilgisayarınıza indirebilmek için <code>download_book()</code> adlı bir fonksiyon oluşturduk. Bu fonksiyonu R programınızda kullanabilirsiniz.</p>
+<p>Bu pakette ayrıca <code>get_data()</code> adlı bir fonksiyon da mevcuttur. Bu fonskiyonla tüm örnek verileri bilgisayarınıza indirebilirsiniz.</p>
+<p><a href="https://github.com/appliedepi/epirhandbook">Github sayfamızdan <em>appliedepi</em></a> <strong>epirhandbook</strong> R paketini indirmek için aşağıda verdiğimiz kodu kullanabilirsiniz. İndireceğiniz bu paket CRAN’da olmadığı için (Github’da kayıtlı) <code>p_install_gh()</code> özel fonksiyonunu kullanmanız gerekecektir.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Epi R El Kitabı paketinin en son sürümünü indirin</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_install_gh</span>(<span class="st">&quot;appliedepi/epirhandbook&quot;</span>)</span></code></pre></div>
+<p>Şimdi, mevcut R oturumunuzda kullanmak üzere paketi yükleyin:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># paketi kullanmak için yükleyin</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(epirhandbook)</span></code></pre></div>
+<p>Ardından, el kitabını bilgisayarınıza indirmek için paketin <code>download_book()</code> (boş parantez ile) fonksiyonunu çalıştırın. RStudio kullandığınızı varsayarsak, dosyaları kaydetmeden önce konumu seçmenize izin veren bir pencere açılacaktır.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># çevrimdışı el kitabını bilgisayarınıza indirin</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">download_book</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="örnek-bazlı-verileri-indirme" class="section level2" number="1.2">
+<h2 number="1.2"><span class="header-section-number">1.2</span> Örnek bazlı verileri indirme</h2>
+<p>El kitabındaki örnekleri “takip etmek” için örnek veri ve çıktıları indirebilirsiniz.</p>
+<div id="r-paketimizi-kullanma" class="section level3 unnumbered">
+<h3 class="unnumbered">R paketimizi kullanma</h3>
+<p>Tüm verileri indirmenin en kolay yolu, R paketimiz olan <strong>epirhandbook</strong> kurmaktır. Bu paket tüm örnek verileri bilgisayarınızda seçtiğiniz bir klasöre kaydeden <code>get_data()</code> fonksiyonunu içerir.</p>
+<p>R paketini <strong>epirhandbook</strong>u kurmak için aşağıdaki kodu çalıştırın. Paketimiz CRAN’da bulunmamaktadır, bu yüzden kurmak için <code>p_install_gh()</code> fonksiyonunu kullanın. Parantez içindeki referans, Github organizasyonumuza (“<em>appliedepi</em>”) ve <strong>epirhandbook</strong> proje adına atıfta bulunnmaktadır.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Epi R El Kitabı paketinin en son sürümünü indirin</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_install_gh</span>(<span class="st">&quot;appliedepi/epirhandbook&quot;</span>)</span></code></pre></div>
+<p>Şimdi, mevcut R oturumunuzda kullanmak üzere paketi yükleyin:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># paketi kullanmak için yükleyin</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(epirhandbook)</span></code></pre></div>
+<p>Bu işlemlerin ardından, örnek verileri bilgisayarınıza indirmek için paketin <code>get_data()</code> fonksiyonunu kullanın. Örnek verilerin <em>tamamını</em> indirmek için <code>get_data("all")</code> komutunu çalıştırın veya yalnızca bir dosyayı almak için tırnak işaretleri içinde ilgili dosya adı ve uzantısını yazın.</p>
+<p>Veriler paketle birlikte indirilmiş olacaktır burada yapmanız gereken tek şey bilgisayarınızda indireceğiniz klasörü belirlemektir. İndirme konumunu seçmenize izin veren bir açılır pencere karşınıza çıkacaktır. Örnek veri ve çıktılar dahil yaklaşık 30 dosya olduğundan indirme konumunda yeni bir “veri” klasörü oluşturmanızı öneririz.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tüm örnek verileri bilgisayarınızdaki bir klasöre indirin</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">get_data</span>(<span class="st">&quot;all&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># bilgisayarınızdaki bir klasöre yalnızca belli bir satırın verilerini indirin</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">get_data</span>(<span class="at">file =</span> <span class="st">&quot;linelist_cleaned.rds&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># belirli bir dosyayı bilgisayarınızdaki bir klasöre indirin</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">get_data</span>(<span class="st">&quot;linelist_cleaned.rds&quot;</span>)</span></code></pre></div>
+<p>İstediğiniz dosyayı bilgisayarınıza kaydetmek için <code>get_data()</code>yı kullandıktan sonra, yine de onu R’ye aktarmanız gerekecektir. Ayrıntılar için [İçe ve dışa aktar] sayfasına bakabilirsiniz.</p>
+<p>Dilerseniz bu el kitabında kullanılan tüm verileri Github sayfamızın <strong><a href="https://github.com/epirhandbook/Epi_R_handbook/tree/master/data">“data” klasöründe</a></strong> inceleyebilirsiniz.</p>
+</div>
+<div id="tek-tek-indirme" class="section level3 unnumbered">
+<h3 class="unnumbered">Tek tek indirme</h3>
+<p>Bu seçenek, dosyaya özel bir bağlantı veya R komutu aracılığıyla Github sayfamızdan dosyaları sırasıyla indirmeyi içermektedir. Bazı dosya türleri indirme düğmesine izin verirken, diğerleri bir R komutuyla indirilebilir.</p>
+<div id="vaka-satır-listesi" class="section level4 unnumbered">
+<h4 class="unnumbered">Vaka satır listesi</h4>
+<p>Aşağıdaki linkler, <strong>outbreaks</strong> paketindeki <code>ebola_sim</code> uygulama veri kümesinde yer alan kitabın ekibi tarafından genişletilen kurgusal bir Ebola salgına aittir.</p>
 <ul>
-<li>Kodun her küçük parçasına bitişik <code>#</code> ile açıklayıcı yorumlar yazabiliriz.</li>
-<li>Genellikle daha uzun (dikey) kodun okunması daha kolaydır.</li>
-<li>Kodların dar bir ekranda okunması daha kolaydır (ekranı yana kaydırmanıza gerek kalmaz).</li>
-<li>Girintiler sayesinde hangi argümanların hangi fonksiyona ait olduğunu daha kolay anlayabilirsiniz.</li>
+<li><p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_raw.xlsx' class='download-button'>“Ham” satır listesini indirmek için tıklayın (.xlsx)</span></a>. “Ham” vaka satır listesi, dağınık veriler içeren bir Excel tablosudur. [Verileri temizleme ve temel işlevler] sayfasını takip etmek için bunu kullanabilirsiniz.</p></li>
+<li><p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>“Temiz” satır listesini indirmek için tıklayın (.rds)</a>. Bu el kitabının satır listesini kullanan diğer tüm sayfaları için bu dosyayı kullanabilirsiniz. Rds dosyası, sütun sınıflarını koruyan R’ye özgü bir dosya türüdür. Bu, verileri R’ye aktardıktan sonra temizlik yapma ihtiyacını azaltır.</p></li>
 </ul>
-<p>Sonuç olarak, <em>aşağıdaki gibi</em> yazılabilecek kod:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>linelist <span class="sc">%&gt;%</span> </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(hospital) <span class="sc">%&gt;%</span>  <span class="co"># satırları hastane (hospital) olarak gruplandır</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(date, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> F) <span class="co"># eğer tarih (date) ile eşleşirse ilk satırı al</span></span></code></pre></div>
-<p>…şu şekilde yazılır:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>linelist <span class="sc">%&gt;%</span> </span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(hospital) <span class="sc">%&gt;%</span> <span class="co"># satırları hastane (hospital) olarak gruplandır</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    date,                <span class="co"># maksimum tarih değerine grubu sırala</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="dv">1</span>,               <span class="co"># gruptaki satırlardan sadece ilkini al </span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">with_ties =</span> F)       <span class="co"># eğer tarih (date) ile eşleşirse ilk satırı al</span></span></code></pre></div>
-<p>R kodu genel olarak yeni satır veya girintilerden etkilenmez. Kodu yazarken, virgülden sonra yeni bir satır başlatırsanız, program yeni satıra otomatik girinti uygular.</p>
-<p>Ayrıca, okunması daha kolay olduğu için kodu yazarken birçok boşluk kullandık (örneğin, ‘n=1’ yerine ‘n = 1’). Siz de kodunuzu yazarken onu okuyabilecek insanları düşünerek yazmalısınız!</p>
+<p><em>Diğer dosyalar:</em></p>
+<ul>
+<li><p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.xlsx' class='download-button'>“Temiz” satır listesini Excel dosyası olarak indirmek için tıklayın</a></p></li>
+<li><p>Temizleme sayfasının bir kısmı bir “temizleme sözlüğü” (.csv dosyası) kullanır. Aşağıdaki komutları çalıştırarak doğrudan R’ye yükleyebilirsiniz:</p></li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(rio) <span class="co"># rio paketini kurun/yükleyin</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># dosyayı doğrudan Github&#39;dan içe aktarın</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>cleaning_dict <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">&quot;https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/cleaning_dict.csv&quot;</span>)</span></code></pre></div>
 </div>
-<div id="terminoloji" class="section level3 unnumbered">
-<h3 class="unnumbered">Terminoloji</h3>
-<p>Bu el kitabında, genellikle “değişkenler” ve “gözlemler” yerine “sütunlar” ve “satırlar”a atıfta bulunuyoruz. <a href="https://tidyr.tidyverse.org/articles/tidy-data.html">“Tidy verileri”</a> ile ilgili bu makalede açıklandığı gibi, epidemiyolojik istatistiksel veri setlerinin çoğu yapısal olarak satır, sütun ve değerlerden oluşur.</p>
-<p><em>Değişkenler</em> aynı temel özelliği ölçen değerleri içerir (yaş grubu, çıktı veya başlangıç tarihi gibi). <em>Gözlemler</em> aynı birimde ölçülen tüm değerleri içerir (örneğin bir kişi, alan veya laboratuvar numunesi vb.). Dolayısıyla bu yönleri somut olarak tanımlamak daha zor olabilmektedir.</p>
-<p>“Tidy” veri kümelerinde her sütun bir değişken, her satır bir gözlem ve her hücre de tek bir değeri ifade etmektedir. Ancak karşılaştığınız bazı veri kümeleri bu kalıba sığmaz - “geniş” biçimli bir veri kümesinin birkaç sütuna bölünebilen değişkenleri olabilir ([Pivoting data] sayfasındaki bir örneğe bakın). Benzer şekilde, gözlemler de birkaç satıra bölünebilir.</p>
-<p>Bu el kitabı çoğunlukla, verileri yönetmek ve işlemek üzerine odaklanmıştır. O nedenle satır ve sütunlarda somut verilere atıfta bulunmayı, daha soyut gözlem ve değişkenlere tercih ettik. Bu yaklaşımımızın istisnası, daha fazla değişken ve gözlem referansıyla karşılaşacağınız veri analizi sayfalarıdır.</p>
+<div id="data_malaria" class="section level4 unnumbered">
+<h4 class="unnumbered">Sıtma sayısı verileri</h4>
+<p>Bu veriler, yaş grubu, tesis ve güne göre sıtma vakalarının kurgusal sayılarıdır. Rds dosyası, sütun sınıflarını koruyan R’ye özgü bir dosya türüdür. Bu, verileri R’ye aktardıktan sonra temizlik yapma ihtiyacını azaltır.</p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/malaria_facility_count_data.rds' class='download-button'>
+Sıtma sayılarını (.rds dosyası)
+<span>indirmek için tıklayın.</span>
+</a></p>
 </div>
-<div id="notlar" class="section level3 unnumbered">
-<h3 class="unnumbered">Notlar</h3>
-<p>El kitabında karşılaşabileceğiniz not türleri şunlardır:</p>
-<p><span style="color: black;"><strong><em>NOT:</em></strong> Bu bir nottur.</span><br />
-<span style="color: darkgreen;"><strong><em>İPUCU:</em></strong> Bu bir ipucudur.</span><br />
-<span style="color: orange;"><strong><em>DİKKAT:</em></strong> Bu dikkatli yaklaşmanızı tavsiye eden bir nottur.</span><br />
-<span style="color: red;"><strong><em>TEHLİKE:</em></strong> Bu bir uyarıdır.</span></p>
+<div id="likert-ölçekli-veri" class="section level4 unnumbered">
+<h4 class="unnumbered">Likert ölçekli veri</h4>
+<p>Bunlar, [Demografik piramitler ve Likert ölçekleri] sayfasında kullanılan Likert tarzı bir anketten alınan kurgusal verilerdir. Aşağıdaki komutları çalıştırarak bu verileri doğrudan R’ye yükleyebilirsiniz:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(rio) <span class="co"># rio paketini kurun/yükleyin</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># dosyayı doğrudan Github&#39;dan içe aktarın</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>likert_data <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">&quot;https://raw.githubusercontent.com/nsbatra/Epi_R_handbook/master/data/likert_data.csv&quot;</span>)</span></code></pre></div>
+</div>
+<div id="esnek-pano" class="section level4 unnumbered">
+<h4 class="unnumbered">Esnek pano</h4>
+<p>Aşağıda [R Markdown ile Kontrol Panelleri]’ndeki sayfayla ilişkili dosyaya bağlantılar verilmiştir:</p>
+<ul>
+<li>Salgın panosu ile ilgili R Markdown’ı indirmek için <a href="https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/flexdashboard/outbreak_dashboard.Rmd">linke</a> sağ fare tuşuyla tıklayın (Mac için Cmd + tıkla) ve “Farklı Kaydet” seçeneğini seçin.<br />
+</li>
+<li>HTML kontrol panelini indirmek için <a href="https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/flexdashboard/outbreak_dashboard_test.html">linke</a> sağ fare tuşuyla tıklayın (Mac için Cmd + tıkla) ve “Farklı Kaydet” seçeneğini seçin.</li>
+</ul>
+</div>
+<div id="temaslı-izleme" class="section level4 unnumbered">
+<h4 class="unnumbered">Temaslı İzleme</h4>
+<p><a href="#temaslı-izleme">Temaslı İzleme</a> sayfası, aşağıdaki örnek verileri kullanarak kişi izleme verilerinin analizini göstermektedir. <a href="https://github.com/WorldHealthOrganization/godata/tree/master/analytics/r-reporting">Go.Data</a>. Sayfada kullanılan veriler aşağıdaki linklere tıklanarak .rds dosyaları olarak indirilebilir:</p>
+<p><a href='https://github.com/WorldHealthOrganization/godata/blob/master/analytics/r-reporting/data/cases_clean.rds?raw=true' class='download-button'>
+Vaka inceleme verilerini (.rds dosyası)
+<span>indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/WorldHealthOrganization/godata/blob/master/analytics/r-reporting/data/contacts_clean.rds?raw=true' class='download-button'>
+Temaslı kayıt verilerini (.rds dosyası)
+<span>indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/WorldHealthOrganization/godata/blob/master/analytics/r-reporting/data/followups_clean.rds?raw=true' class='download-button'>
+Temaslı takip verilerini (.rds dosyası)
+<span>indirmek için tıklayın.</span>
+</a></p>
+<p><span style="color: black;"><strong><em>NOT:</em></strong> Diğer yazılımlarda (örn. KoBo, DHIS2 Tracker, CommCare) yapılandırılmış temaslı izleme verileri farklı görünebilir. Bu sayfa için alternatif örnek veri veya içeriğe katkıda bulunmak isterseniz, lütfen <a href="#contact_us">bize ulaşın</a>.</span></p>
+<p><span style="color: darkgreen;"><strong><em>İPUCU:</em></strong> Go.Data kullanmak istiyorsanız ve örneklerinizin API’sine bağlanmak istiyorsanız, İçe ve Dışa Aktarma sayfasına <a href="#import_api">(API bölümü)</a> ve <a href="https://community-godata.who.int/">Go.Data Uygulama Topluluğu</a>’na bakabilirsiniz.</span></p>
+</div>
+<div id="gis" class="section level4 unnumbered">
+<h4 class="unnumbered">GIS</h4>
+<p>Şekil dosyaları, her biri farklı uzantıya sahip birçok alt bileşen dosyasına sahiptir. Bir dosya “.shp” uzantısına sahipken, bir diğeri “.dbf”, “.prj” vb. uzantıya sahip olabilir.</p>
+<p>[GIS temel bilgileri] sayfası, sıkıştırılmış şekil dosyaların indirebileceğiniz <em>Humanitarian Data Exchange</em> web sitesine ait bağlantılar barındırmaktadır.</p>
+<p>Örneğin sağlık tesisi puan verileri <a href="https://data.humdata.org/dataset/hotosm_sierra_leone_health_facilities">buradan</a> indirilebilir. “hotosm_sierra_leone_health_facilities_points_shp.zip” dosyasını indirin. Bilgisayarınıza kaydettikten sonra, klasörü “açın”. Farklı uzantılara sahip birkaç dosya göreceksiniz (örneğin “.shp”, “.prj”, “.shx”) - bunların tümü bilgisayarınızda aynı klasöre kaydedilmelidir. Ardından, R’a aktarmak için “.shp” dosyasının dosya yolunu ve adını <strong>sf</strong> paketinden <code>st_read()</code> fonksiyonuna ekleyin ([GIS temel bilgileri] sayfasında açıklandığı gibi)</p>
+<p>Tüm örnek verileri indirmek için Seçenek 1’i izlediyseniz (R paketimiz <strong>epirhandbook</strong> aracılığıyla), şekil dosyalarının tamamı içeride olacaktır.</p>
+<p>Alternatif olarak, şekil dosyalarını Github sayfamızdaki “data” klasöründen indirebilirsiniz (“gis” alt klasörüne bakın). Ancak, <em>her bir</em> alt dosyayı ayrı ayrı bilgisayarınıza indirmeniz gerekeceğini unutmayın. Github’da her bir dosyaya tek tek tıklayın ve “İndir” butonuna basarak indirin. Aşağıda örnek olarak, “sle_adm3” şekil dosyasının Github bölümünde kayıtlı birçok alt dosyadan oluştuğunu görebilirsiniz.</p>
+<p><img src="images/download_shp.png" width="918" height="50%" style="display: block; margin: auto;" /></p>
+</div>
+<div id="filogenetik-ağaçlar" class="section level4 unnumbered">
+<h4 class="unnumbered">Filogenetik ağaçlar</h4>
+<p><a href="#filogenetik-ağaçlar">Filogenetik ağaçlar</a> sayfayasında, 299 Shigella sonnei örneğinin tüm genom dizilimi ve buna karşılık gelen vaka verilerinden (bir metin dosyası halinde) oluşturulan filogenetik ağacı Newick dosyası göreceksiniz. Belçika örneklerinden elde edilen veriler, ECDC EUPHEM asistanı tarafından yürütülen bir proje kapsamında üretilmiştir. Salmonella ve Shigella’dan elde edilen bu veriler Belçika NRC’si tarafından sağlanmaktadır.Bu veriler yayına dönüştürülme aşamasındadır. Kullanılan uluslararası veriler kamuya açık veri tabanlarına (ncbi) kayıtlı ve yayınlanmış verilerden elde edilmiştir.</p>
+<ul>
+<li>“Shigella_tree.txt” filogenetik ağaç dosyasını indirmek için <a href="https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/phylo/Shigella_tree.txt">linke</a> sağ fare tuşuyla tıklayın (Mac için Cmd + tıkla) ve “Farklı Kaydet” seçeneğini seçin.<br />
+</li>
+<li>Her örnekle ilgili ek bilgiler içeren “sample_data_Shigella_tree.csv” dosyasını indirmek için <a href="https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/phylo/sample_data_Shigella_tree.csv">linke</a> sağ fare tuşuyla tıklayın (Mac için Cmd + tıkla) ve “Farklı Kaydet” seçeneğini seçin.<br />
+</li>
+<li>Yeni oluşturulan altküme ağacını görmek için <a href="https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/phylo/Shigella_subtree_2.txt">linke</a> sağ fare tuşuyla tıklayın (Mac için Cmd + tıkla) ve “Farklı Kaydet” seçeneğini seçin.</li>
+</ul>
+<p>Daha sonra sayfada açıklandığı gibi <strong>ape</strong> paketinden <code>read.tree()</code> ile .txt dosyalarını içe aktarabilirsiniz.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ape<span class="sc">::</span><span class="fu">read.tree</span>(<span class="st">&quot;Shigella_tree.txt&quot;</span>)</span></code></pre></div>
+</div>
+<div id="standardizasyon" class="section level4 unnumbered">
+<h4 class="unnumbered">Standardizasyon</h4>
+<p>[Standartlaştırılmış oranlar] ile ilgili sayfaya bakın. Verileri doğrudan internetteki Github sayfamızdan aşağıdaki komutlarla R oturumunuza yükleyebilirsiniz:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rio paketini kurun/yükleyin</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(rio) </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="do">##############</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># A Ülkesi</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="do">##############</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># A ülkesi için demografi bilgilerini Github&#39;dan içeri aktarın</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>A_demo <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">&quot;https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/country_demographics.csv&quot;</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co"># A ülkesi için ölüm bilgilerini Github&#39;dan içeri aktarın</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>A_deaths <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">&quot;https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/deaths_countryA.csv&quot;</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="do">##############</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co"># B Ülkesi</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="do">##############</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co"># B ülkesi için demografi bilgilerini Github&#39;dan içeri aktarın</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>B_demo <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">&quot;https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/country_demographics_2.csv&quot;</span>)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co"># B ülkesi için ölüm bilgilerini Github&#39;dan içeri aktarın</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>B_deaths <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">&quot;https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/deaths_countryB.csv&quot;</span>)</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="do">###############</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Referans</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="do">###############</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Referans demografik bilgileri Github&#39;dan içeri aktarın</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>standard_pop_data <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">&quot;https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/world_standard_population_by_sex.csv&quot;</span>)</span></code></pre></div>
+</div>
+<div id="data_outbreak" class="section level4 unnumbered">
+<h4 class="unnumbered">Zaman serileri ve salgın tespiti</h4>
+<p>[Zaman serisi ve salgın tespiti] sayfasında Almanya 2002-2011’de rapor edilen campylobacter vakalarını <strong>surveillance</strong> R paketinde olduğu gibi kullanıyoruz. (<em>ek bilgi:</em> bu veri seti orijinalinden uyarlanmıştır, 2011’in son 3 aylık verileri demo amacıyla silinmiştir)</p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/campylobacter_germany.xlsx' class='download-button'>
+Almanya Campylobacter verilerini (.xlsx)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p>Kitapta ayrıca Almanya 2002-2011 iklim verilerini kullanıyoruz (santigrat derece cinsinden sıcaklık ve milimetre cinsinden yağış bilgileri mevcut). Bu veriler, <strong>ecmwfr</strong> paketi kullanılarak EU Copernicus uydu yeniden analiz veri setinden indirilmiştir. Bunların hepsini indirmeniz ve zaman serisi sayfasında açıklandığı gibi <code>stars::read_stars()</code> ile içe aktarmanız gerekecektir.</p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2002.nc' class='download-button'>
+Almanya Hava Durumu 2002 verilerini(.nc dosyası)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2003.nc' class='download-button'>
+Almanya Hava Durumu 2003 verilerini (.nc dosyası)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2004.nc' class='download-button'>
+Almanya Hava Durumu 2004 verilerini (.nc dosyası)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2005.nc' class='download-button'>
+Almanya Hava Durumu 2005 verilerini (.nc dosyası)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2006.nc' class='download-button'>
+Almanya Hava Durumu 2006 verilerini (.nc dosyası)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2007.nc' class='download-button'>
+Almanya Hava Durumu 2007 verilerini (.nc dosyası)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2008.nc' class='download-button'>
+Almanya Hava Durumu 2008 verilerini (.nc dosyası)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2009.nc' class='download-button'>
+Almanya Hava Durumu 2009 verilerini (.nc dosyası)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2010.nc' class='download-button'>
+Almanya Hava Durumu 2010 verilerini (.nc dosyası)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2011.nc' class='download-button'>
+Almanya Hava Durumu 2011 verilerini (.nc dosyası)
+<span> indirmek için tıklayın.</span>
+</a></p>
+</div>
+<div id="data_survey" class="section level4 unnumbered">
+<h4 class="unnumbered">Anket analizi</h4>
+<p><a href="https://epirhandbook.com/survey-analysis.html">Anket analizi</a> sayfası için MSF OCA anket şablonlarına dayalı kurgusal ölüm anketi verilerini kullandık. Bu kurgusal veriler <a href="https://r4epis.netlify.app/">“R4Epis” projesi</a> kapsamında oluşturulmuştur.</p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/surveys/survey_data.xlsx' class='download-button'>
+Kurgusal anket verilerini (.xlsx)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/surveys/survey_dict.xlsx' class='download-button'>
+Kurgusal anket veri sözlüğünü (.xlsx)
+<span> indirmek için tıklayın.</span>
+</a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/surveys/population.xlsx' class='download-button'>
+Kurgusal anket nüfus verilerini (.xlsx)
+<span> indirmek için tıklayın.</span>
+</a></p>
+</div>
+<div id="data_shiny" class="section level4 unnumbered">
+<h4 class="unnumbered">Shiny</h4>
+<p>[Shiny Gösterge Tabloları] ile ilgili sayfa, sıtma verilerini görüntülemek için uygulamanın yapısını göstermektedir.</p>
+<p>Shiny uygulamasını oluşturan R dosyalarını indirmek için:</p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/malaria_app/app.R' class='download-button'>Shiny uygulaması için hem kullanıcı arayüzünü hem de sunucu kodunu içeren app.R dosyasını<span> indirmek için burayı tıklayabilirsiniz.</span></a></p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/blob/master/data/malaria_app/data/facility_count_data.rds' class='download-button'>Shiny uygulaması için sıtma verilerini içeren property_count_data.rds dosyasını indirmek için burayı tıklayabilirsiniz.<span></a> <code>here()</code> fonksiyonunun doğru çalışması için onu bir “data” klasöründe saklamayı unutmayın.</p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/blob/master/data/malaria_app/global.R' class='download-button'>Sayfada açıklandığı gibi, uygulama açılmadan önce çalışması gereken global.R dosyasını indirmek için burayı tıklayabilirsiniz.<span></a> Sayfada açıklandığı gibi, uygulama açılmadan önce çalıştırmayı unutmayın.</p>
+<p><a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/malaria_app/funcs/plot_epicurve.R' class='download-button'>global.R tarafından sağlanan plot_epicurve.R dosyasını indirmek için burayı tıklayabilirsiniz.<span></a> <code>here()</code> fonksiyonlarının doğru çalışması için onu bir “funcs” klasöründe saklamayı unutmayın.</p>
+<!--chapter:end:new_pages/data_used.Rmd-->
 </div>
 </div>
-<div id="editöryal-kararlar" class="section level2" number="1.2">
-<h2 number="1.2"><span class="header-section-number">1.2</span> Editöryal Kararlar</h2>
-<p>Aşağıda, paket ve işlev seçimiyle ilgili önemli editoryal kararları sizinle paylaşıyoruz. Bizimle aynı fikirde değilseniz veya değerlendirilmesi için yeni bir araç önermek isterseniz, lütfen <a href="https://github.com/epirhandbook/Epi_R_handbook">Github sayfamıza</a> katılın ve yeni bir sohbet başlatın.</p>
-<p><strong>Paket, fonksiyon ve diğer editoryal kararlar tablosu</strong></p>
-<table>
-<colgroup>
-<col width="15%" />
-<col width="18%" />
-<col width="22%" />
-<col width="43%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Konu</th>
-<th>Paket</th>
-<th>Çıktı</th>
-<th>Rasyoneli</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Genel kodlama yaklaşımı</td>
-<td><strong>tidyverse</strong>, <strong>data.table</strong>, <strong>base</strong></td>
-<td><strong>tidyverse</strong>, <strong>data.table</strong> üzerinde bir sayfa ve interneti olmayan okuyucular için <strong>base</strong> alternatifleri</td>
-<td><strong>tidyverse</strong> okunabilir, evrensel, en çok öğretilen pakettir</td>
-</tr>
-<tr class="even">
-<td>Paket yükleme</td>
-<td><code>library()</code>,<code>install.packages()</code>, <code>require()</code>, <strong>pacman</strong></td>
-<td><strong>pacman</strong></td>
-<td>Çoklu paket indirme/yükleme süreçlerini kısaltır ve basitleştirir</td>
-</tr>
-<tr class="odd">
-<td>İçe ve dışa aktarma</td>
-<td><strong>rio</strong>, ve diğer pek çok paketler</td>
-<td><strong>rio</strong></td>
-<td>Birçok dosya türü için kolaylık sağlar</td>
-</tr>
-<tr class="even">
-<td>İstatistik özetleri için gruplandırma</td>
-<td><strong>dplyr</strong> <code>group_by()</code>, <strong>stats</strong> <code>aggregate()</code></td>
-<td><strong>dplyr</strong> <code>group_by()</code></td>
-<td><strong>tidyverse</strong> vurgusu ile tutarlıdır</td>
-</tr>
-<tr class="odd">
-<td>Pivotlama</td>
-<td><strong>tidyr</strong> (pivot fonksiyonları), <strong>reshape2</strong> (melt/cast), <strong>tidyr</strong> (spread/gather)</td>
-<td><strong>tidyr</strong> (pivot fonksiyonları)</td>
-<td><strong>reshape2</strong> artık kullanımda değil, <strong>tidyr</strong> v1.0.0 itibariyle pivot fonksiyonlarını kullanmaktadır</td>
-</tr>
-<tr class="even">
-<td>Sütun adlarını temizleme</td>
-<td><strong>linelist</strong>, <strong>janitor</strong></td>
-<td><strong>janitor</strong></td>
-<td>Paketlerin birlikte kullanımı vurgulanmaktadır</td>
-</tr>
-<tr class="odd">
-<td>Epiweeks</td>
-<td><strong>lubridate</strong>, <strong>aweek</strong>, <strong>tsibble</strong>, <strong>zoo</strong></td>
-<td>genelde <strong>lubridate</strong>, özel durumlarda diğer paketler</td>
-<td><strong>lubridate</strong> esnek, tutarlı ve diğer paketleri koruyan bir seçenektir</td>
-</tr>
-<tr class="even">
-<td>ggplot etiketleri</td>
-<td><code>labs()</code>, <code>ggtitle()</code>/<code>ylab()</code>/<code>xlab()</code></td>
-<td><code>labs()</code></td>
-<td>tüm etiketler tek bir yerde, kullanımı basittir</td>
-</tr>
-<tr class="odd">
-<td>Faktöre çevir</td>
-<td><code>factor()</code>, <strong>forcats</strong></td>
-<td><strong>forcats</strong></td>
-<td>çeşitli fonksiyonları da aynı komutta faktöre dönüşür</td>
-</tr>
-<tr class="even">
-<td>Epidemi eğrileri</td>
-<td><strong>incidence</strong>, <strong>ggplot2</strong>, <strong>EpiCurve</strong></td>
-<td><strong>incidence2</strong> hızlıdır, <strong>ggplot2</strong> ise detaylı ve güvenilirdir</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>Birleştirme</td>
-<td><code>paste()</code>, <code>paste0()</code>, <code>str_glue()</code>, <code>glue()</code></td>
-<td><code>str_glue()</code></td>
-<td><strong>stringr</strong> fonksiyonlarını içerir, yapıştır fonksiyonlarından daha basit bir sentaks (sözdizimi) vardır</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="büyük-güncellemeler" class="section level2" number="1.3">
-<h2 number="1.3"><span class="header-section-number">1.3</span> Büyük güncellemeler</h2>
-<table>
-<thead>
-<tr class="header">
-<th>Tarih</th>
-<th>Açıklama</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>10 May 2021</td>
-<td>Versiyon 1.0.0’ın yayınlanması</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="oturum-bilgisi-r-rstudio-packages" class="section level2" number="1.4">
-<h2 number="1.4"><span class="header-section-number">1.4</span> Oturum bilgisi (R, RStudio, packages)</h2>
-<p>Aşağıda, bu el Kitabının hazırlanması sırasında kullanılan R, RStudio ve R paketleri ve sürümlerine ilişkin bilgiler yer almaktadır.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sessioninfo<span class="sc">::</span><span class="fu">session_info</span>()</span></code></pre></div>
-<pre><code>## - Session info ------------------------------------------------------------------------------------------------------------------
-##  setting  value                       
-##  version  R version 4.1.0 (2021-05-18)
-##  os       Windows 10 x64              
-##  system   x86_64, mingw32             
-##  ui       RStudio                     
-##  language (EN)                        
-##  collate  English_United States.1252  
-##  ctype    English_United States.1252  
-##  tz       Europe/Istanbul             
-##  date     2021-06-28                  
-## 
-## - Packages ----------------------------------------------------------------------------------------------------------------------
-##  package      * version date       lib source        
-##  apyramid     * 0.1.2   2020-05-08 [1] CRAN (R 4.1.0)
-##  assertthat     0.2.1   2019-03-21 [1] CRAN (R 4.1.0)
-##  backports      1.2.1   2020-12-09 [1] CRAN (R 4.1.0)
-##  base64enc      0.1-3   2015-07-28 [1] CRAN (R 4.1.0)
-##  bookdown       0.22    2021-04-22 [1] CRAN (R 4.1.0)
-##  broom          0.7.8   2021-06-24 [1] CRAN (R 4.1.0)
-##  bslib          0.2.5.1 2021-05-18 [1] CRAN (R 4.1.0)
-##  cellranger     1.1.0   2016-07-27 [1] CRAN (R 4.1.0)
-##  cli            2.5.0   2021-04-26 [1] CRAN (R 4.1.0)
-##  colorspace     2.0-1   2021-05-04 [1] CRAN (R 4.1.0)
-##  crayon         1.4.1   2021-02-08 [1] CRAN (R 4.1.0)
-##  crosstalk      1.1.1   2021-01-12 [1] CRAN (R 4.1.0)
-##  curl           4.3.1   2021-04-30 [1] CRAN (R 4.1.0)
-##  data.table     1.14.0  2021-02-21 [1] CRAN (R 4.1.0)
-##  DBI            1.1.1   2021-01-15 [1] CRAN (R 4.1.0)
-##  dbplyr         2.1.1   2021-04-06 [1] CRAN (R 4.1.0)
-##  digest         0.6.27  2020-10-24 [1] CRAN (R 4.1.0)
-##  downlit        0.2.1   2020-11-04 [1] CRAN (R 4.1.0)
-##  dplyr        * 1.0.6   2021-05-05 [1] CRAN (R 4.1.0)
-##  DT           * 0.18    2021-04-14 [1] CRAN (R 4.1.0)
-##  ellipsis       0.3.2   2021-04-29 [1] CRAN (R 4.1.0)
-##  epikit       * 0.1.2   2020-09-07 [1] CRAN (R 4.1.0)
-##  evaluate       0.14    2019-05-28 [1] CRAN (R 4.1.0)
-##  fansi          0.5.0   2021-05-25 [1] CRAN (R 4.1.0)
-##  farver         2.1.0   2021-02-28 [1] CRAN (R 4.1.0)
-##  forcats      * 0.5.1   2021-01-27 [1] CRAN (R 4.1.0)
-##  foreign        0.8-81  2020-12-22 [2] CRAN (R 4.1.0)
-##  fs           * 1.5.0   2020-07-31 [1] CRAN (R 4.1.0)
-##  generics       0.1.0   2020-10-31 [1] CRAN (R 4.1.0)
-##  ggplot2      * 3.3.4   2021-06-16 [1] CRAN (R 4.1.0)
-##  glue           1.4.2   2020-08-27 [1] CRAN (R 4.1.0)
-##  gtable         0.3.0   2019-03-25 [1] CRAN (R 4.1.0)
-##  haven          2.4.1   2021-04-23 [1] CRAN (R 4.1.0)
-##  here         * 1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
-##  highr          0.9     2021-04-16 [1] CRAN (R 4.1.0)
-##  hms            1.1.0   2021-05-17 [1] CRAN (R 4.1.0)
-##  htmltools      0.5.1.1 2021-01-22 [1] CRAN (R 4.1.0)
-##  htmlwidgets    1.5.3   2020-12-10 [1] CRAN (R 4.1.0)
-##  httr           1.4.2   2020-07-20 [1] CRAN (R 4.1.0)
-##  incidence2     1.1     2021-05-29 [1] CRAN (R 4.1.0)
-##  janitor      * 2.1.0   2021-01-05 [1] CRAN (R 4.1.0)
-##  jquerylib      0.1.4   2021-04-26 [1] CRAN (R 4.1.0)
-##  jsonlite       1.7.2   2020-12-09 [1] CRAN (R 4.1.0)
-##  knitr          1.33    2021-04-24 [1] CRAN (R 4.1.0)
-##  lifecycle      1.0.0   2021-02-15 [1] CRAN (R 4.1.0)
-##  lubridate    * 1.7.10  2021-02-26 [1] CRAN (R 4.1.0)
-##  magrittr       2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
-##  modelr         0.1.8   2020-05-19 [1] CRAN (R 4.1.0)
-##  munsell        0.5.0   2018-06-12 [1] CRAN (R 4.1.0)
-##  openxlsx       4.2.3   2020-10-27 [1] CRAN (R 4.1.0)
-##  pacman         0.5.1   2019-03-11 [1] CRAN (R 4.1.0)
-##  pillar         1.6.1   2021-05-16 [1] CRAN (R 4.1.0)
-##  pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.1.0)
-##  png            0.1-7   2013-12-03 [1] CRAN (R 4.1.0)
-##  purrr        * 0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
-##  R6             2.5.0   2020-10-28 [1] CRAN (R 4.1.0)
-##  RColorBrewer   1.1-2   2014-12-07 [1] CRAN (R 4.1.0)
-##  Rcpp           1.0.6   2021-01-15 [1] CRAN (R 4.1.0)
-##  readr        * 1.4.0   2020-10-05 [1] CRAN (R 4.1.0)
-##  readxl         1.3.1   2019-03-13 [1] CRAN (R 4.1.0)
-##  repr           1.1.3   2021-01-21 [1] CRAN (R 4.1.0)
-##  reprex         2.0.0   2021-04-02 [1] CRAN (R 4.1.0)
-##  rio          * 0.5.26  2021-03-01 [1] CRAN (R 4.1.0)
-##  rlang          0.4.11  2021-04-30 [1] CRAN (R 4.1.0)
-##  rmarkdown      2.8     2021-05-07 [1] CRAN (R 4.1.0)
-##  rprojroot      2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
-##  rstudioapi     0.13    2020-11-12 [1] CRAN (R 4.1.0)
-##  rvest          1.0.0   2021-03-09 [1] CRAN (R 4.1.0)
-##  sass           0.4.0   2021-05-12 [1] CRAN (R 4.1.0)
-##  scales         1.1.1   2020-05-11 [1] CRAN (R 4.1.0)
-##  sessioninfo    1.1.1   2018-11-05 [1] CRAN (R 4.1.0)
-##  skimr          2.1.3   2021-03-07 [1] CRAN (R 4.1.0)
-##  snakecase      0.11.0  2019-05-25 [1] CRAN (R 4.1.0)
-##  stringi        1.6.1   2021-05-10 [1] CRAN (R 4.1.0)
-##  stringr      * 1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
-##  tibble       * 3.1.2   2021-05-16 [1] CRAN (R 4.1.0)
-##  tidyr        * 1.1.3   2021-03-03 [1] CRAN (R 4.1.0)
-##  tidyselect     1.1.1   2021-04-30 [1] CRAN (R 4.1.0)
-##  tidyverse    * 1.3.1   2021-04-15 [1] CRAN (R 4.1.0)
-##  utf8           1.2.1   2021-03-12 [1] CRAN (R 4.1.0)
-##  vctrs          0.3.8   2021-04-29 [1] CRAN (R 4.1.0)
-##  withr          2.4.2   2021-04-18 [1] CRAN (R 4.1.0)
-##  xfun           0.23    2021-05-15 [1] CRAN (R 4.1.0)
-##  xml2           1.3.2   2020-04-23 [1] CRAN (R 4.1.0)
-##  yaml           2.2.1   2020-02-01 [1] CRAN (R 4.1.0)
-##  zip            2.2.0   2021-05-31 [1] CRAN (R 4.1.0)
-## 
-## [1] C:/Users/aseke/Documents/R/win-library/4.1
-## [2] C:/Program Files/R/R-4.1.0/library</code></pre>
-<!--chapter:end:new_pages/editorial_style.Rmd-->
 </div>
 </div>
 <!--bookdown:body:end-->
@@ -499,7 +470,7 @@ a column separator --></p>
   <div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>The Epidemiologist R Handbook</strong>" was written by the handbook team. It was last built on 2021-06-28.</p>
+    <p>"<strong>The Epidemiologist R Handbook</strong>" was written by the handbook team. It was last built on 2021-07-04.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
