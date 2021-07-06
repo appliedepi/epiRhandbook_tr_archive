@@ -30,7 +30,7 @@ Bu el kitabı **tidyverse**'de bulunan R paket ve işlevlerine öncelik verir. T
 
 Uygun yerlerde, kurulum sırasında R ile birlikte yüklenen **base** paket ve fonksiyonlarıyla ilişkili kod seçeneklerini de ekledik. Bunu, bu kitabın okuyucularından bazılarının ekstra paketleri indirmek için güvenilir bir internete sahip olmama ihtimaline karşılık yaptık.
 
-**Fonksiyonları paketlerle ilişkilendirme**
+**Fonksiyonları paketlerle ilişkilendirme =**
 
 R eğitim ve rehberlerinde bir fonksiyona ilişkin kodun anlatılıp kullanılan paketin hiç değinilmemesine şahit olmuşsunuzdur. Bu durum sinir bozucudur! İşte biz bunu size yaşatmaktan kaçınmaya çalıştık.
 
