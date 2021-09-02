@@ -1,261 +1,237 @@
-# R Basics {}
+# R'ın Temelleri
 
 ```{r out.width = "100%", fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "basics_header_close.png"))
 ```
 
+Hoş geldiniz!
 
-Welcome!  
+Bu sayfa, R'ın temellerini gözden geçirmektedir. Kapsamlı bir eğitim olması amaçlanmamıştır. Ancak temel bilgileri sağlar ve hatırlamanız için faydalı olabilir. İleri ve daha kapsamlı eğitimler için ilgili [Öğrenme kaynağı](#learning) bölüme geçiş yapılabilir. 
 
-This page reviews the essentials of R. It is not intended to be a comprehensive tutorial, but it provides the basics and can be useful for refreshing your memory. The section on [Resource for learning](#learning) links to more comprehensive tutorials.  
+Bu sayfanın bazı bölümleri [R4Epis projesinden](https://r4epis.netlify.app/) izin alınarak uyarlanmıştır.
 
-Parts of this page have been adapted with permission from the [R4Epis project](https://r4epis.netlify.app/).  
-
-See the page on [Transition to R] for tips on switching to R from STATA, SAS, or Excel.  
+STATA, SAS veya Excel'den R'a geçişle ilgili ipuçları için [R'a Geçiş] hakkındaki sayfaya bakabilirsiniz.
 
 ```{r, echo=F}
-# import the cleaned ebola linelist
+# temizlenmiş ebola satır listesini içe aktar
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
 pacman::p_load(apyramid)
 ```
 
-
-
-
 <!-- ======================================================= -->
-## Why use R?
 
-As stated on the [R project website](https://www.r-project.org/about.html), R is a programming language and environment for statistical computing and graphics. It is highly versatile, extendable, and community-driven.  
+## Neden R Kullanıyoruz?
 
-**Cost**
+[R proje web sitesinde](https://www.r-project.org/about.html) belirtildiği gibi, R, istatistiksel hesaplama ve grafikler için bir programlama dili ve ortamıdır. Çok yönlü, genişletilebilir ve topluluk odaklıdır.
 
-R is free to use! There is a strong ethic in the community of free and open-source material.  
+**Maliyet**
 
-**Reproducibility**  
+R'ın kullanımı ücretsizdir! Açık kaynak ve ücretsiz olması yönünde topluluğun ciddi bir etik duruşu vardır.
 
-Conducting your data management and analysis through a programming language (compared to Excel or another primarily point-click/manual tool) enhances **reproducibility**, makes **error-detection** easier, and eases your workload.  
+**Yeniden üretilebilirlik**
 
-**Community**  
+Veri yönetiminizi ve analizinizi bir programlama dili aracılığıyla yürütmek (Excel'e veya başka bir öncelikli tıklama/manuel araçla karşılaştırıldığında), **tekrarlanabilirliği** artırır, **hata algılamayı** kolaylaştırır ve iş yükünüzü hafifletir.
 
-The R community of users is enormous and collaborative. New packages and tools to address real-life problems are developed daily, and vetted by the community of users. As one example, [R-Ladies](https://rladies.org/) is a worldwide organization whose mission is to promote gender diversity in the R community, and is one of the largest organizations of R users. It likely has a chapter near you!  
+**Topluluk**
 
+R kullanıcı topluluğu kalabalık ve işbirlikçidir. Gerçek hayattaki sorunları ele almak için yeni paketler ve araçlar günlük olarak geliştirilir ve kullanıcı topluluğu tarafından incelenir. Örnek olarak, [R-Ladies](https://rladies.org/), amacı R topluluğunda cinsiyet çeşitliliğini teşvik etmek olan dünya çapında bir kuruluştur ve R kullanıcılarının en büyük kuruluşlarından biridir. Muhtemelen kullanmak üzere olduğunuz bir bölümleri vardır!
 
-## Key terms  
+## Anahtar Kelimeler
 
-**RStudio** - RStudio is a Graphical User Interface (GUI) for easier use of **R**. Read more [in the RStudio section](#rstudio).  
+**RStudio** - RStudio, **R**'ın daha kolay kullanımı için bir Grafik Kullanıcı Arayüzüdür (GUI). Daha fazlasını [RStudio bölümünde](#rstudio) okuyabilirsiniz.
 
-**Objects** - Everything you store in R - datasets, variables, a list of village names, a total population number, even outputs such as graphs - are *objects* which are *assigned a name* and *can be referenced* in later commands. Read more [in the Objects section](#objects).  
+**Objects** - R'da sakladığınız her şey - veri kümeleri, değişkenler, köy adlarının bir listesi, toplam nüfus sayısı, hatta grafikler gibi çıktılar - *bir isim atanan* nesnelerdir ve *sonraki komutlarda* başvurulabilir. Daha fazlasını [Nesneler bölümünde](#objects) okuyabilirsiniz.
 
-**Functions** - A function is a code operation that accept inputs and returns a transformed output. Read more [in the Functions section](#functions).  
+**Functions** - Fonksiyon, girdileri kabul eden ve çıktıya dönüştüren bir kod işlemidir. Daha fazlasını [Fonksiyonlar bölümünde](#Fonksiyonlar) okuyabilirsiniz.
 
-**Packages** - An R package is a shareable bundle of functions. Read more [in the Packages section](#packages).  
+**Packages** -  R paketi, aslında paylaşılabilir fonksiyonlar paketidir. Daha fazlasını [Paketler bölümünde](#packages) okuyabilirsiniz.
 
-**Scripts** - A script is the document file that hold your commands. Read more [in the Scripts section](#scripts)
+**Scripts** - Komut dosyası, komutlarınızı tutan belge dosyasıdır. Daha fazlasını [Komut Dosyaları bölümünde](#scripts) okuyabilirsiniz.
 
+## Öğrenme Kaynakları {#learning}
 
+### RStudio İçindeki Kaynaklar {.unnumbered}
 
-## Resources for learning {#learning}  
+**Yardım dosyaları**
 
-### Resources within RStudio {.unnumbered}  
+R paketleri ve belirli fonksiyonlarla ilgili belgeler için RStudio "Yardım" sekmesini arayın. Bu, Dosyaları, Grafikleri ve Paketleri de içeren bölmenin içindedir (genellikle sağ alt bölmededir). Kısayol olarak, ilgili Yardım sayfasını açmak için bir soru işaretinden sonra R konsoluna bir paketin veya fonksiyonun adını da yazabilirsiniz. Kesme işareti eklemeyin.
 
-**Help documentation**  
+Örneğin: `?filter` veya `?diagrammeR`.
 
-Search the RStudio "Help" tab for documentation on R packages and specific functions. This is within the pane that also contains Files, Plots, and Packages (typically in the lower-right pane). As a shortcut, you can also type the name of a package or function into the R console after a question-mark to open the relevant Help page. Do not include parentheses.  
+**Etkileşimli öğreticiler**
 
-For example: `?filter`  or `?diagrammeR`.  
+RStudio *içinde* etkileşimli olarak R öğrenmenin birkaç yolu vardır.
 
-**Interactive tutorials**  
+RStudio'nun kendisi, [**learnr**](https://blog.rstudio.com/2020/02/25/rstudio-1-3-integrated-tutorials/) R paketi tarafından desteklenen bir eğitim bölmesi sunar. Basitçe bu paketi kurabilir ve sağ üst RStudio bölmesindeki (Ortam ve Geçmiş sekmelerini de içeren) yeni "Tutorial" sekmesi aracılığıyla bir öğretici açabilirsiniz.
 
-There are several ways to learn R interactively *within* RStudio.  
+R paketi [**swirl**](https://swirlstats.com/), R Konsolunda etkileşimli kurslar sunar. Bu paketi kurun ve yükleyin, ardından R konsolunda `swirl()` (boş parantezler) komutunu çalıştırın. Konsolda istemlerin göründüğünü göreceksiniz. Konsola yazarak yanıt verin. Seçtiğiniz bir kurs boyunca size rehberlik edecektir.
 
-RStudio itself offers a Tutorial pane that is powered by the [**learnr**](https://blog.rstudio.com/2020/02/25/rstudio-1-3-integrated-tutorials/) R package. Simply install this package and open a tutorial via the new "Tutorial" tab in the upper-right RStudio pane (which also contains Environment and History tabs).  
+### Kopya Kağıtları {.unnumbered}
 
-The R package [**swirl**](https://swirlstats.com/) offers interactive courses in the R Console. Install and load this package, then run the command `swirl()` (empty parentheses) in the R console. You will see prompts appear in the Console. Respond by typing in the Console. It will guide you through a course of your choice.   
+[RStudio web sitesinde](https://rstudio.com/resources/cheatsheets/) birçok PDF "kullanımı kolaylaştırıcı belge/ kopya kağıtları" bulunmaktadır, örneğin:
 
+- **forcats** paketini içeren faktörler\
+- **lubridate** paketi ile tarihler ve saatler\
+- **stringr** paketi içeren dizeler\
+- **purrr** paketi ile tekrarlanan işlemler\
+- içeri_veri_aktar\
+- **dplyr** paketi ile veri dönüştürme hile sayfası\
+- R Markdown (PDF, Word, Powerpoint... gibi belgeler oluşturmak için)\
+- Shiny (etkileşimli web uygulamaları oluşturmak için)\
+- **ggplot2** paketi ile veri görselleştirme\
+- Haritacılık (GIS)\
+- **broşür** paketi (etkileşimli haritalar)\
+- R ile Python (**reticulate** paketi)
 
-### Cheatsheets {.unnumbered}
+Bu, özellikle [Excel kullanıcıları](https://jules32.github.io/r-for-excel-users/) için çevrimiçi bir R kaynağıdır.
 
-There are many PDF "cheatsheets" available on the [RStudio website](https://rstudio.com/resources/cheatsheets/), for example:  
+### Twitter {.unnumbered}
 
-* Factors with **forcats** package  
-* Dates and times with **lubridate** package  
-* Strings with **stringr** package  
-* iterative opertaions with **purrr** package  
-* Data import  
-* Data transformation cheatsheet with **dplyr** package  
-* R Markdown (to create documents like PDF, Word, Powerpoint...)  
-* Shiny (to build interactive web apps)  
-* Data visualization with **ggplot2** package  
-* Cartography (GIS)  
-* **leaflet** package (interactive maps)  
-* Python with R (**reticulate** package)  
+<!-- R, ipuçlarını, kısayolları ve haberleri öğrenebileceğiniz canlı bir twitter topluluğuna sahiptir - şu hesapları takip edin: -->
 
-This is an online R resource specifically for [Excel users](https://jules32.github.io/r-for-excel-users/)  
+-   Bizi Takip Edin! [\@epiRhandbook](https://twitter.com/epirhandbook)\
+-   R Function A Day [\@rfuntionaday](https://twitter.com/rfunctionaday) *muazzam* bir kaynak\
+-   R for Data Science [\@rstats4ds](https://twitter.com/rstats4ds?lang=en)\
+-   RStudio [\@RStudio](https://twitter.com/rstudio?lang=en)\
+-   RStudio Tips [\@rstudiotips](https://twitter.com/rstudiotips)\
+-   R-Bloggers [\@Rbloggers](https://twitter.com/Rbloggers)\
+-   R-ladies [\@RLadiesGlobal](https://twitter.com/RLadiesGlobal)\
+-   Hadley Wickham [\@hadleywickham](https://twitter.com/hadleywickham?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor)
 
+Aynı zamanda:
 
+**\#epitwitter** ve **\#rstats**
 
-### Twitter {.unnumbered}  
+### Ücretsiz Çevrimiçi Kaynaklar {.unnumbered}
 
-R has a vibrant twitter community where you can learn tips, shortcuts, and news - follow these accounts:  
+Tanımlayıcı bir metin, Garrett Grolemund ve Hadley Wickham'ın [Veri Bilimi için R](https://r4ds.had.co.nz/) kitabı.
 
-* Follow us! [\@epiRhandbook](https://twitter.com/epirhandbook)  
-* R Function A Day [\@rfuntionaday](https://twitter.com/rfunctionaday) is an *incredible* resource  
-* R for Data Science [\@rstats4ds](https://twitter.com/rstats4ds?lang=en)  
-* RStudio [\@RStudio](https://twitter.com/rstudio?lang=en)  
-* RStudio Tips [\@rstudiotips](https://twitter.com/rstudiotips)  
-* R-Bloggers [\@Rbloggers](https://twitter.com/Rbloggers)  
-* R-ladies [\@RLadiesGlobal](https://twitter.com/RLadiesGlobal)  
-* Hadley Wickham [\@hadleywickham](https://twitter.com/hadleywickham?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor)  
+[R4Epis](https://r4epis.netlify.app/)
+Proje web sitesi "bir MSF acil müdahale ortamında yürütülecek yaygın salgın türlerini ve nüfusa dayalı anketleri kapsayacak şekilde standartlaştırılmış veri temizleme, analiz ve raporlama araçları geliştirmeyi" amaçlamaktadır. R temel eğitim materyallerini, salgınlar ve anketlerle ilgili RMarkdown raporları için şablonları ve bunları ayarlamanıza yardımcı olacak öğreticileri bulabilirsiniz.
 
-
-Also:  
-
-**#epitwitter** and **#rstats**  
-
-
-
-### Free online resources {.unnumbered}  
-
-A definitive text is the [R for Data Science](https://r4ds.had.co.nz/) book by Garrett Grolemund and Hadley Wickham
-
-The [R4Epis](https://r4epis.netlify.app/) project website aims to "develop standardised data cleaning, analysis and reporting tools to cover common types of outbreaks and population-based surveys that would be conducted in an MSF emergency response setting." You can find R basics training materials, templates for RMarkdown reports on outbreaks and surveys, and tutorials to help you set them up.  
-
-
-### Languages other than English {.unnumbered}  
+### İngilizce dışındaki dillerde {.unnumbered}
 
 [Materiales de RStudio en Español](https://www.rstudio.com/collections/espanol/)
 
-[Introduction à R et au tidyverse (Francais)](https://juba.github.io/tidyverse/index.html)  
-
-
-
-
-
-
-
+[Introduction à R et au tidyverse (Francais)](https://juba.github.io/tidyverse/index.html)
 
 <!-- ======================================================= -->
-## Installation  
 
-### R and RStudio {.unnumbered}  
+## Kurulum
 
-**How to install R**  
+### R ve RStudio {.unnumbered}
 
-Visit this website [https://www.r-project.org/](https://www.r-project.org/) and download the latest version of R suitable for your computer.  
+**R Nasıl Kurulur?**
 
-**How to install RStudio**  
+Bu web sitesini <https://www.r-project.org/> ziyaret edin ve bilgisayarınıza uygun en son R sürümünü indirin.
 
-Visit this website [https://rstudio.com/products/rstudio/download/](https://rstudio.com/products/rstudio/download/) and download the latest free Desktop version of RStudio suitable for your computer.
+**RStudio nasıl kurulur?**
 
-**Permissions**  
-Note that you should install R and RStudio to a drive where you have read and write permissions. Otherwise, your ability to install R packages (a frequent occurrence) will be impacted. If you encounter problems, try opening RStudio by right-clicking the icon and selecting "Run as administrator". Other tips can be found in the page [R on network drives].  
+Bu web sitesini <https://rstudio.com/products/rstudio/download/> ziyaret edin ve bilgisayarınıza uygun RStudio'nun en son ücretsiz masaüstü sürümünü indirin.
 
-**How to update R and RStudio**  
+**İzinler**\
 
-Your version of R is printed to the R Console at start-up. You can also run `sessionInfo()`.  
+R ve RStudio'yu okuma ve yazma izinlerine sahip olduğunuz bir sürücüye kurmanız gerektiğini unutmayın. Aksi takdirde, R paketlerini kurma yeteneğiniz (sık rastlanan bir durum) etkilenecektir. Sorunlarla karşılaşırsanız, simgeye sağ tıklayıp "Yönetici olarak çalıştır"ı seçerek RStudio'yu açmayı deneyin. Diğer ipuçları [Ağ sürücülerinde R] sayfasında bulunabilir.
 
-To update R, go to the website mentioned above and re-install R. Alternatively, you can use the **installr** package (on Windows) by running `installr::updateR()`. This will open dialog boxes to help you download the latest R version and update your packages to the new R version. More details can be found in the **installr** [documentation](https://www.r-project.org/nosvn/pandoc/installr.html).  
+**R ve RStudio nasıl güncellenir?**
 
-Be aware that the old R version will still exist in your computer. You can temporarily run an older version (older "installation") of R by clicking "Tools" -> "Global Options" in RStudio and choosing an R version. This can be useful if you want to use a package that has not been updated to work on the newest version of R.  
+R sürümünüz, başlangıçta R Konsoluna yazdırılır. Ayrıca `sessionInfo()` komutunu da çalıştırabilirsiniz.
 
-To update RStudio, you can go to the website above and re-download RStudio. Another option is to click "Help" -> "Check for Updates" within RStudio, but this may not show the very latest updates.  
+R'ı güncellemek için yukarıda belirtilen web sitesine gidin ve R'ı yeniden yükleyin. Alternatif olarak, **installr** paketini (Windows'ta) `installr::updateR()` çalıştırarak kullanabilirsiniz. Bu, en son R sürümünü indirmenize ve paketlerinizi yeni R sürümüne güncellemenize yardımcı olacak iletişim kutularını açacaktır. Daha fazla ayrıntıyı **installr** [belgelerde](https://www.r-project.org/nosvn/pandoc/installr.html) bulabilirsiniz.
 
-To see which versions of R, RStudio, or packages were used when this Handbook as made, see the page on [Editorial and technical notes]. 
+Eski R sürümünün bilgisayarınızda hala var olacağını unutmayın. RStudio'da "Araçlar" -\> "Global Seçenekler"e tıklayarak ve bir R sürümü seçerek R'ın daha eski bir sürümünü (eski "kurulum") geçici olarak çalıştırabilirsiniz. Bu, R'ın en yeni sürümü üzerinde çalışacak şekilde güncellenmemiş bir paket kullanmak istiyorsanız yararlı olabilir.
 
+RStudio'yu güncellemek için yukarıdaki web sitesine gidebilir ve RStudio'yu yeniden indirebilirsiniz. Başka bir seçenek de RStudio içinde "Yardım" -\> "Güncellemeleri Kontrol Et" seçeneğine tıklamaktır. Ancak bu en son güncellemeleri göstermeyebilir.
 
-### Other software you *may* need to install {.unnumbered} 
+Bu El Kitabı hazırlanırken hangi R, RStudio veya paket sürümlerinin kullanıldığını görmek için [Editoryal ve teknik notlar] sayfasına bakın.
 
-* TinyTeX (*for compiling an RMarkdown document to PDF*)  
-* Pandoc  (*for compiling RMarkdown documents*)  
-* RTools  (*for building packages for R*)  
-* phantomjs (*for saving still images of animated networks, such as transmission chains*)  
+### Kurulumuna ihtiyaç duyabileceğiniz diğer yazılımlar{.unnumbered}
 
+-   TinyTeX (*bir RMarkdown belgesini PDF'ye derlemek için*)\
+-   Pandoc (*RMarkdown belgelerini derlemek için*)\
+-   RTools (*R için paketler oluşturmak için*)\
+-   phantomjs (*iletim zincirleri gibi hareketli ağların hareketsiz görüntülerini kaydetmek için*)
 
-#### TinyTex {.unnumbered}  
+#### TinyTex {.unnumbered}
 
-TinyTex is a custom LaTeX distribution, useful when trying to produce PDFs from R.  
-See [https://yihui.org/tinytex/](https://yihui.org/tinytex/) for more informaton.  
+TinyTex, özel bir LaTeX dağıtımıdır ve R'dan PDF'ler üretmeye çalışırken kullanışlıdır.\
+Daha fazla bilgi için <https://yihui.org/tinytex/> adresine bakın.
 
-To install TinyTex from R:  
+TinyTex'i R'dan yüklemek için:
 
 ```{r, eval=F}
 install.packages('tinytex')
 tinytex::install_tinytex()
-# to uninstall TinyTeX, run tinytex::uninstall_tinytex()
+# TinyTeX'i kaldırmak için, run tinytex::uninstall_tinytex()
 ```
-
 
 #### Pandoc {.unnumbered}
 
-Pandoc is a document converter, a separate software from R. **It comes bundled with RStudio and should not need to be downloaded.** It helps the process of converting Rmarkdown documents to formats like .pdf and adding complex functionality.  
+Pandoc, R'dan ayrı bir yazılım olan belge dönüştürücüdür. **RStudio ile birlikte gelir ve indirilmesi gerekmez.** Rmarkdown belgelerini .pdf gibi biçimlere dönüştürme ve karmaşık fonksiyonlar ekleme sürecine yardımcı olur.
 
+#### RTools {.unnumbered}
 
-#### RTools {.unnumbered}  
+RTools, R için paketler oluşturmaya yönelik bir yazılım koleksiyonudur.
 
-RTools is a collection of software for building packages for R
+Bu internet sayfasından yükleyebilirsiniz: <https://cran.r-project.org/bin/windows/Rtools/>
 
-Install from this website: [https://cran.r-project.org/bin/windows/Rtools/](https://cran.r-project.org/bin/windows/Rtools/)  
+#### phantomjs {.unnumbered}
 
-
-#### phantomjs {.unnumbered}  
-
-This is often used to take "screenshots" of webpages. For example when you make a transmission chain with **epicontacts** package, an HTML file is produced that is interactive and dynamic. If you want a static image, it can be useful to use the [**webshot**](https://wch.github.io/webshot/articles/intro.html) package to automate this process. This will require the external program "phantomjs". You can install phantomjs via the **webshot** package with the command `webshot::install_phantomjs()`.  
-
-
-
+Bu genellikle web sayfalarının "ekran görüntülerini" almak için kullanılır. Örneğin **epicontacts** paketi ile bir iletim zinciri yaptığınızda interaktif ve dinamik bir HTML dosyası üretilir. Statik bir görüntü istiyorsanız, bu işlemi otomatikleştirmek için [**webshot**](https://wch.github.io/webshot/articles/intro.html) paketini kullanmak faydalı olabilir. Bu, harici "phantomjs" programını gerektirecektir. phantomjs'yi **webshot** paketi aracılığıyla `webshot::install_phantomjs()` komutuyla kurabilirsiniz.
 
 <!-- ======================================================= -->
+
 ## RStudio {#rstudio}
 
+### RStudio Yönlendirmesi {.unnumbered}
 
-### RStudio orientation {.unnumbered}  
+**Öncelikle RStudio'yu açın.** Simgeleri çok benzer görünebileceğinden, R'ı değil *RStudio*'yu açtığınızdan emin olun.
 
-**First, open RStudio.** As their icons can look very similar, be sure you are opening *RStudio* and not R.  
+RStudio'nun çalışması için bilgisayarda R'ın da kurulu olması gerekir (kurulum talimatları için yukarıya bakın).
 
-For RStudio to work you must also have R installed on the computer (see above for installation instructions).  
+**RStudio**, **R**'ın daha kolay kullanımı için bir arayüzdür (GUI). R'ı kritik işi yapan aracın motoru ve RStudio'yu, ilerlemek için motoru gerçekten kullanmanıza yardımcı olan aracın gövdesi (koltuklar, aksesuarlar vb. ile) olarak düşünebilirsiniz! Tam RStudio kullanıcı arayüzünü kolaylaştırıcısını (PDF) [buradan](https://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf) görebilirsiniz.
 
-**RStudio** is an interface (GUI) for easier use of **R**. You can think of R as being the engine of a vehicle, doing the crucial work, and RStudio as the body of the vehicle (with seats, accessories, etc.) that helps you actually use the engine to move forward! You can see the complete RStudio user-interface cheatsheet (PDF) [here](https://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf)  
-
-By default RStudio displays four rectangle panes.  
-
+Varsayılan olarak RStudio dört dikdörtgen bölme görüntüler.
 ```{r out.width = "100%", fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "RStudio_overview.png"))
 ```
 
+[***İPUCU:*** RStudio'nuz yalnızca bir sol bölme gösteriyorsa, bunun nedeni henüz açık komut dosyanız olmamasıdır.]{style="color: darkgreen;"}
 
-<span style="color: black;">**_TIP:_** If your RStudio displays only one left pane it is because you have no scripts open yet.</span>
+**Kaynak Bölmesi**\
 
+Varsayılan olarak sol üstteki bu bölme, [komut dosyalarınızı](#scripts) düzenlemek, çalıştırmak ve kaydetmek için kullanılan bir alandır. Komut dosyaları, çalıştırmak istediğiniz komutları içerir. Bu bölme, görüntüleme için veri kümelerini/çerçevelerini (datasets/data frames) de görüntüleyebilir.
 
-**The Source Pane**  
-This pane, by default in the upper-left, is a space to edit, run, and save your [scripts](#scripts). Scripts contain the commands you want to run. This pane can also display datasets (data frames) for viewing.  
+Stata kullanıcıları için bu bölme, Do-file ve Data Editor pencerelerinize benzer.
 
-For Stata users, this pane is similar to your Do-file and Data Editor windows.
+**R Konsol Bölmesi**
 
+Varsayılan olarak R Studio'daki sol veya sol alt bölme olan R Konsolu, R "motorunun" evidir. Burası komutların fiilen çalıştırıldığı ve grafik olmayan çıktıların ve hata/uyarı mesajlarının göründüğü yerdir. Komutları doğrudan R Konsoluna girebilir ve çalıştırabilirsiniz. Ancak bu komutların bir komut dosyasından komut çalıştırırken olduğu gibi kaydedilmediğine dikkat ediniz.
 
+Stata'ya aşina iseniz, R Konsolu komut penceresi "Sonuçlar" penceresi gibidir.
 
-**The R Console Pane**  
+**Ortam Bölmesi**\
 
-The R Console, by default the left or lower-left pane in R Studio, is the home of the R "engine". This is where the commands are actually run and non-graphic outputs and error/warning messages appear. You can directly enter and run commands in the R Console, but realize that these commands are not saved as they are when running commands from a script.  
+Varsayılan olarak sağ üstte bulunan bu bölme, çoğunlukla mevcut oturumda R Ortamındaki [nesnelerin](#nesneler) kısa özetlerini görmek için kullanılır. Bu nesneler, içe aktarılan, değiştirilen veya oluşturulan veri kümelerini, tanımladığınız parametreleri (örneğin, analiz için belirli bir epi haftası) veya analiz sırasında tanımladığınız vektörleri veya listeleri (örneğin, bölgelerin adları) içerebilir. Değişkenlerini görmek için bir veri kümesi adının yanındaki oka tıklayabilirsiniz.
 
-If you are familiar with Stata, the R Console is like the Command Window and also the Results Window.
+<!--Data frame kavramını nasıl çevirmeli?Data Frameler, listenin her elemanının kendisine ait aynı uzunlukta özel bir listesi olan veriler olarak temsil edilir.
+Listenin her bir öğesi bir sütun ve bu sütuna ait satırlar olarak düşünülebilir.
+Matrislerden farklı olarak data frame’ler, her sütunda farklı nesne sınıfları depolayabilir. Matrisler,
+her öğenin aynı sınıfa sahip olmasını gerektirmektedir (ör.hepsi sayısal veya hepsi string). ======================================================= -->
 
+Stata'da, bu en çok Değişkenler Yöneticisi penceresine benzer.
 
-**The Environment Pane**  
-This pane, by default in the upper-right, is most often used to see brief summaries of [objects](#objects) in the R Environment in the current session. These objects could include imported, modified, or created datasets, parameters you have defined (e.g. a specific epi week for the analysis), or vectors or lists you have defined during analysis (e.g. names of regions). You can click on the arrow next to a data frame name to see its variables.  
+Bu bölme ayrıca daha önceki komutları görebileceğiniz *Geçmiş*i içerir. Ayrıca, **learnr** paketini yüklediyseniz etkileşimli R eğitimlerini tamamlayabileceğiniz bir "Öğretici" sekmesine de sahiptir. Ayrıca harici bağlantılar için bir "Bağlantılar" bölmesine sahiptir ve Github ile arabirim kurmayı seçerseniz bir "Git" bölmesine sahip olabilir.
 
-In Stata, this is most similar to the Variables Manager window.
+**Grafikler, Görüntüleyici, Paketler ve Yardım Bölmesi**\
 
-This pane also contains *History* where can see commands that you can previously. It also has a "Tutorial" tab where you can complete interactive R tutorials if you have the **learnr** package installed. It also has a "Connections" pane for external connections, and can have a "Git" pane if you choose to interface with Github.  
+Sağ alt bölmede birkaç önemli sekme bulunur. Haritalar dahil tipik çizim grafikleri, Çizim bölmesinde görüntülenecektir. Etkileşimli veya HTML çıktıları, Görüntüleyici bölmesinde görüntülenecektir. Yardım bölmesi, belgeleri ve yardım dosyalarını görüntüleyebilir. Dosyalar bölmesi, dosyaları açmak veya silmek için kullanılabilen bir tarayıcıdır. Paketler bölmesi, R paketlerini görmenize, yüklemenize, güncellemenize, silmenize ve paketin hangi sürümüne sahip olduğunuzu görmenize olanak tanır. Paketler hakkında daha fazla bilgi edinmek için aşağıdaki [paketler bölümüne](#packages) bakın.
 
+Bu bölme, Plots Manager ve Project Manager pencerelerinin Stata eşdeğerlerini içerir.
 
-**Plots, Viewer, Packages, and Help Pane**  
-The lower-right pane includes several important tabs. Typical plot graphics including maps will display in the Plot pane. Interactive or HTML outputs will display in the Viewer pane. The Help pane can display documentation and help files. The Files pane is a browser which can be used to open or delete files. The Packages pane allows you to see, install, update, delete, load/unload R packages, and see which version of the package you have. To learn more about packages see the [packages section](#packages) below.  
+### RStudio ayarları {.numbered}
 
-This pane contains the Stata equivalents of the Plots Manager and Project Manager windows.
-
-### RStudio settings {.unnumbered}  
-
-Change RStudio settings and appearance in the *Tools* drop-down menu, by selecting *Global Options*. There you can change the default settings, including appearance/background color.  
+*Tools* açılır menüsünde *Global Options*'ı seçerek RStudio ayarlarını ve görünümünü değiştirin. Orada görünüm/arka plan rengi dahil varsayılan ayarları değiştirebilirsiniz.
 
 ```{r out.width = c('50%'), fig.show='hold', echo=F}
 knitr::include_graphics(here::here("images", "RStudio_tools_options_1.png"))
@@ -263,160 +239,166 @@ knitr::include_graphics(here::here("images", "RStudio_tools_options_1.png"))
 knitr::include_graphics(here::here("images", "RStudio_tools_options.png"))
 ```
 
-**Restart**  
+**Tekrar başlat**
 
-If your R freezes, you can re-start R by going to the Session menu and clicking "Restart R". This avoids the hassle of closing and opening RStudio. Everything in your R environment will be removed when you do this.  
+R'ınız donarsa, Oturum menüsüne gidip "R'ı Yeniden Başlat" ı tıklayarak R'ı yeniden başlatabilirsiniz. Bu, RStudio'yu kapatıp açma zahmetini ortadan kaldırır. Bunu yaptığınızda R ortamınızdaki her şey kaldırılacaktır.
 
+### Klavye kısayolları {.unnumbered}
 
-### Keyboard shortcuts {.unnumbered}  
+Bazı çok kullanışlı klavye kısayolları aşağıdadır. Bu RStudio'nun ikinci sayfasında Windows, Mac ve Linux için tüm klavye kısayollarına ulaşabilirsiniz [kullanıcı arayüzü kolaylaştırıcısı](https://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet .pdf).
+<!--Link bozuk -->
 
-Some very useful keyboard shortcuts are below. See all the keyboard shortcuts for Windows, Max, and Linux in the second page of this RStudio [user interface cheatsheet](https://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf).  
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Windows/Linux                    | Mac                    | Eylemi                                                                                                                         |
++==================================+========================+================================================================================================================================+
+| Esc                              | Esc                    | Geçerli komutu kesintiye uğratın (yanlışlıkla eksik bir komut çalıştırdıysanız ve R konsolunda "+" görmekten kurtulamıyorsanız kullanışlıdır) |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ctrl+s                           | Cmd+s                  | Kaydet (komut dosyası)                                                                                                                  |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Tab                              | Tab                    | Otomatik tamamlama                                                                                                                  |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ctrl + Enter                     | Cmd + Enter            | Geçerli satırları/kod seçimini çalıştır                                                                                          |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ctrl + Shift + C                 | Cmd + Shift + c        | Vurgulanan satırları yorumla/yorumu kaldır                                                                                        |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Alt + -                          | Option + -             | Eklemek `<-`                                                                                                                    |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ctrl + Shift + m                 | Cmd + Shift + m        | Eklemek `%>%`                                                                                                                   |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ctrl + l                         | Cmd + l                | R konsolunu temizle                                                                                                            |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ctrl + Alt + b                   | Cmd + Option + b       | Baştan geçerli satıra çalıştır                                                                                                 |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ctrl + Alt + t                   | Cmd + Option + t       | Geçerli kod bölümünü çalıştırın (R Markdown)                                                                                      |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ctrl + Alt + i                   | Cmd + Shift + r        | Kod öbeği ekle (R Markdown'a)                                                                                            |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ctrl + Alt + c                   | Cmd + Option + c       | Geçerli kod parçasını çalıştır (R Markdown)                                                                                            |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Yukarı/aşağı ok tuşları          | Aynı                   | Son çalıştırılan komutlar arasında geçiş yap                                                                                           |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Shift + Yukarı/aşağı ok tuşları  | Aynı                   | Birden çok kod satırı seçin                                                                                                   |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ctrl + f                         | Cmd + f                | Geçerli komut dosyasında bul ve değiştir                                                                                             |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Ctrl + Shift + f                 | Cmd + Shift + f        | Dosyalarda bulun (birçok komut dosyasında arama yapın/değiştirin)                                                                            |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Alt + l                          | Cmd + Option + l       | Seçilen kodu katla                                                                                                             |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Shift + Alt + l                  | Cmd + Shift + Option+l | Seçili kodu aç                                                                                                           |
++----------------------------------+------------------------+--------------------------------------------------------------------------------------------------------------------------------+
 
+[***İPUCU:*** Yazarken RStudio'nun otomatik tamamlama fonksiyonunu etkinleştirmek için Sekme tuşunuzu kullanın. Bu, yazım hatalarını önleyebilir. Şu ana kadar yazdıklarınıza bağlı olarak olası fonksiyonlar ve nesnelerin bir açılır menüsünü oluşturmak için yazarken Sekme tuşuna basın.]{style="color: darkgreen;"}
 
-Windows/Linux     |Mac             |Action                
-------------------|----------------|-----------------------------------------
-Esc               |Esc             |Interrupt current command (useful if you accidentally ran an incomplete command and cannot escape seeing "+" in the R console)
-Ctrl+s            |Cmd+s           |Save (script)
-Tab               |Tab             |Auto-complete  
-Ctrl + Enter      |Cmd + Enter     |Run current line(s)/selection of code
-Ctrl + Shift + C  |Cmd + Shift + c |comment/uncomment the highlighted lines
-Alt + -           |Option + -      |Insert `<-`  
-Ctrl + Shift + m  |Cmd + Shift + m |Insert `%>%`
-Ctrl + l          |Cmd + l         |Clear the R console
-Ctrl + Alt + b    |Cmd + Option + b|Run from start to current line
-Ctrl + Alt + t    |Cmd + Option + t|Run the current code section (R Markdown)
-Ctrl + Alt + i    |Cmd + Shift + r |Insert code chunk (into R Markdown)
-Ctrl + Alt + c    |Cmd + Option + c|Run current code chunk (R Markdown)
-up/down arrows in R console|Same |Toggle through recently run commands
-Shift + up/down arrows in script|Same|Select multiple code lines
-Ctrl + f |Cmd + f|Find and replace in current script
-Ctrl + Shift + f|Cmd + Shift + f|Find in files (search/replace across many scripts)
-Alt + l |Cmd + Option + l|Fold selected code
-Shift + Alt + l|Cmd + Shift + Option+l|Unfold selected code
+<!-- Tablo düzgün mü diye htmlden kontrolü iyi olur. ======================================================= -->
 
+## Fonksiyonlar" {#functions}
 
+Fonksiyonlar, R'ı kullanmanın merkezinde yer alır. Fonksiyonlar, görevleri ve işlemleri nasıl gerçekleştirdiğinizdir. Pek çok fonksiyon R ile kurulu olarak gelir, daha pek çoğu *paketlerde* indirilebilir ([paketler](#paketler) bölümünde açıklanmıştır) ve hatta kendi özel Fonksiyonlarınızı bile yazabilirsiniz!
 
-<span style="color: darkgreen;">**_TIP:_** Use your Tab key when typing to engage RStudio's auto-complete functionality. This can prevent spelling errors. Press Tab while typing to produce a drop-down menu of likely functions and objects, based on what you have typed so far.</span>  
+Fonksiyonlarla ilgili bu temel bilgiler bölümü şunları açıklar:
 
-  
+- Fonksiyon nedir ve nasıl çalışır\
+- Fonksiyonun *Değişkenleri*(arguments) nelerdir\
+- Bir fonksiyonu anlamak için nasıl yardım alınır
 
-
+*Sözdizimi (syntax) hakkında kısa bir not:* Bu el kitabında, fonksiyonlar açık ve kapalı parantezler içinde kod-metin içinde şöyle yazılmıştır: `filter()`. [Paketler](#packages) bölümünde açıklandığı gibi, Fonksiyonlar *paketler* içinde indirilir. Bu el kitabında, paket adları **dplyr** gibi **kalın** ile yazılmıştır. Bazen örnek kodda, fonksiyon adının, bunun gibi iki adet iki nokta üst üste (`::`) ile açıkça paketinin adıyla bağlantılı olduğunu görebilirsiniz: `dplyr::filter()`. Bu bağlantının amacı paketler bölümünde açıklanmıştır.
 
 <!-- ======================================================= -->
-## Functions {#functions}  
 
-Functions are at the core of using R. Functions are how you perform tasks and operations. Many functions come installed with R, many more are available for download in *packages* (explained in the [packages](#packages) section), and you can even write your own custom functions! 
+### Basit Fonksiyonlar {.unnumbered}
 
-This basics section on functions explains:  
+**Bir fonksiyon, girdileri alan, bu girdilerle bazı işlemler yapan ve bir çıktı üreten makine gibidir.** Çıktının ne olduğu fonksiyona bağlıdır.
 
-* What a function is and how they work  
-* What function *arguments* are  
-* How to get help understanding a function  
-
-*A quick note on syntax:* In this handbook, functions are written in code-text with open parentheses, like this: `filter()`. As explained in the [packages](#packages) section, functions are downloaded within *packages*. In this handbook, package names are written in **bold**, like **dplyr**. Sometimes in example code you may see the function name linked explicitly to the name of its package with two colons (`::`) like this: `dplyr::filter()`. The purpose of this linkage is explained in the packages section.  
-
-
-<!-- ======================================================= -->
-### Simple functions {.unnumbered}  
-
-**A function is like a machine that receives inputs, does some action with those inputs, and produces an output.** What the output is depends on the function.    
-
-**Functions typically operate upon some object placed within the function's parentheses**. For example, the function `sqrt()` calculates the square root of a number:  
+**Fonksiyonlar genellikle fonksiyonun parantezleri içine yerleştirilmiş bazı nesneler üzerinde çalışır**. Örneğin, `sqrt()` fonksiyonu bir sayının karekökünü hesaplar:
 
 ```{r basics_function_sqrt}
 sqrt(49)
 ```
 
-The object provided to a function also can be a column in a dataset (see the [Objects](#objects) section for detail on all the kinds of objects). Because R can store multiple datasets, you will need to specify both the dataset and the column. One way to do this is using the `$` notation to link the name of the dataset and the name of the column (`dataset$column`). In the example below, the function `summary()` is applied to the numeric column `age` in the dataset `linelist`, and the output is a summary of the column's numeric and missing values.  
-
+Bir fonksiyona sağlanan nesne ayrıca veri kümesindeki bir sütun olabilir (tüm nesne türleri hakkında ayrıntılı bilgi için [Nesneler](#nesneler) bölümüne bakın). R, birden çok veri kümesini depolayabildiğinden, hem veri kümesini hem de sütunu belirtmeniz gerekecektir. Bunu yapmanın bir yolu, veri kümesinin adını ve sütunun adını ("veri kümesi$sütun") bağlamak için "$" gösterimini kullanmaktır. Aşağıdaki örnekte, "summary()" fonksiyonu, "linelist" veri kümesindeki "age" sayısal sütununa uygulanır ve çıktı, sütunun sayısal ve eksik değerlerinin bir özetidir.
 
 ```{r basics_functions_summary}
-# Print summary statistics of column 'age' in the dataset 'linelist'
+# 'linelist' veri kümesindeki 'age' sütununun özet istatistiklerini yazdır
 summary(linelist$age)
-```
+``` 
 
-<span style="color: black;">**_NOTE:_** Behind the scenes, a function represents complex additional code that has been wrapped up for the user into one easy command.</span>
-
-
+[***NOT:*** Perde arkasında, bir fonksiyon, kullanıcı için tek bir kolay komuta sarılmış karmaşık ek kodu temsil eder.]{style="color: black;"}
 
 <!-- ======================================================= -->
-### Functions with multiple arguments {.unnumbered}  
 
-Functions often ask for several inputs, called ***arguments***, located within the parentheses of the function, usually separated by commas. 
+### Birden çok bağımsız değişkene sahip fonksiyonlar {.unnumbered}
 
-* Some arguments are required for the function to work correctly, others are optional  
-* Optional arguments have default settings  
-* Arguments can take character, numeric, logical (TRUE/FALSE), and other inputs  
+Fonksiyonlar genellikle,parantezleri içinde yer alan ve virgülle ayrılmış olan ***değişkenler*** adı verilen birkaç girdi ister.
 
-Here is a fun fictional function, called `oven_bake()`, as an example of a typical function. It takes an input object (e.g. a dataset, or in this example "dough") and performs operations on it as specified by additional arguments (`minutes = ` and `temperature = `). The output can be printed to the console, or saved as an object using the assignment operator `<-`.  
+- Fonksiyonun doğru çalışması için bazı değişkenler gereklidir, bazıları isteğe bağlıdır\
+- İsteğe bağlı bağımsız değişkenlerin varsayılan ayarları vardır\
+- Değişkenler karakter, sayısal, mantıksal (DOĞRU/YANLIŞ) ve diğer girdi değerlerini alabilir
+
+Tipik bir fonksiyona örnek olarak, 'oven_bake()' adlı eğlenceli bir kurgusal fonksiyonu burada bulabilirsiniz. Bir girdi nesnesi (örneğin, bir veri kümesi veya bu örnekte "hamur") alır ve üzerinde ek bağımsız değişkenler ('dakikalar =' ve 'sıcaklık =') tarafından belirtildiği gibi işlemler gerçekleştirir. Çıktı konsola yazdırılabilir veya "<-" atama operatörü kullanılarak bir nesne olarak kaydedilebilir.
 
 ```{r basics_functions_image, echo=F, out.width = "75%", fig.align = "center"}
 knitr::include_graphics(here::here("images", "Function_Bread_Example.png"))
 ```
 
-
-**In a more realistic example**, the `age_pyramid()` command below produces an age pyramid plot based on defined age groups and a binary split column, such as `gender`. The function is given three arguments within the parentheses, separated by commas. The values supplied to the arguments establish `linelist` as the dataframe to use, `age_cat5` as the column to count, and `gender` as the binary column to use for splitting the pyramid by color.
+**Daha gerçekçi bir örnekte**, aşağıdaki "age_pyramid()" komutu, tanımlanmış yaş gruplarına ve "cinsiyet" gibi ikili bir bölme sütununa dayalı bir yaş piramidi grafiği oluşturur. Fonksiyona, parantez içinde virgülle ayrılmış üç değişken verilir. Değişkenlere sağlanan değerler, kullanılacak veri çerçevesi olarak "satır listesi"ni, sayılacak sütun olarak "age_cat5"i ve piramidi renge göre bölmek için kullanılacak ikili sütun olarak "gender"i belirler.
 
 ```{r basics_functions_arguments, include=FALSE, results='hide', message=FALSE, warning=FALSE,}
-## create an age group variable by specifying categorical breaks
+## kategorik aralar belirterek bir yaş grubu değişkeni oluşturun
 linelist$age_group <- cut(linelist$age, breaks = c(0, 5, 10, 15, 20, 30, 45, 60))
 ```
 
 ```{r message=FALSE, warning=FALSE,  out.width = "75%", out.height="75%"}
-# Create an age pyramid
+# Bir yaş piramidi oluştur
 age_pyramid(data = linelist, age_group = "age_cat5", split_by = "gender")
 ```
 
-The above command can be equivalently written as below, in a longer style with a new line for each argument. This style can be easier to read, and easier to write "comments" with `#` to explain each part (commenting extensively is good practice!). To run this longer command you can highlight the entire command and click "Run", or just place your cursor in the first line and then press the Ctrl and Enter keys simultaneously.  
+Yukarıdaki komut, her değişken için yeni bir satırla daha uzun bir tarzda aşağıdaki gibi eşdeğer olarak yazılabilir. Bu stilin okunması daha kolay olabilir ve her bölümü açıklamak için "#" ile "yorum" yazmak daha kolay olabilir (kapsamlı yorum yapmak iyi bir uygulamadır!). Bu daha uzun komutu çalıştırmak için tüm komutu vurgulayabilir ve "Çalıştır"a tıklayabilir veya imlecinizi ilk satıra getirip ardından Ctrl ve Enter tuşlarına aynı anda basabilirsiniz.
 
 ```{r message=FALSE, warning=FALSE,  out.width = "75%", out.height="75%"}
-# Create an age pyramid
+# Bir yaş piramidi oluştur
 age_pyramid(
-  data = linelist,        # use case linelist
-  age_group = "age_cat5", # provide age group column
-  split_by = "gender"     # use gender column for two sides of pyramid
+  data = linelist,        # Satır listesini kullan
+  age_group = "age_cat5", # Yaş grubu sütununu kullan
+  split_by = "gender"     # Piramidin iki tarafı için cinsiyet sütununu kullan
   )
 ```
 
-The first half of an argument assignment (e.g. `data = `) does not need to be specified if the arguments are written in a specific order (specified in the function's documentation). The below code produces the exact same pyramid as above, because the function expects the argument order: data frame, `age_group` variable, `split_by` variable.  
+Bir bağımsız değişken atamasının ilk yarısının (örneğin, "veri ="), bağımsız değişkenler belirli bir sırada (fonksiyonun belgelerinde belirtilen) yazılmışsa belirtilmesi gerekmez. Aşağıdaki kod, yukarıdakiyle tam olarak aynı piramidi üretir, çünkü fonksiyon değişken sırasını kabul eder: satır listesi, "yaş_grubu" değişkeni, "bölme_göre" değişkeni.
 
 ```{r, basics_functions_pyramid2, eval = FALSE, warning=FALSE, message=FALSE, , out.width = "75%", out.height="75%", eval=F}
-# This command will produce the exact same graphic as above
+# Bu komut yukarıdaki ile aynı grafiği üretecektir.
 age_pyramid(linelist, "age_cat5", "gender")
 ```
 
-**A more complex `age_pyramid()` command might include the *optional* arguments to:**  
+**Daha karmaşık bir "age_pyramid()" komutu, aşağıdakilere yönelik *isteğe bağlı* değişkenleri içerebilir:**
 
-* Show proportions instead of counts (set `proportional = TRUE` when the default is `FALSE`)  
-* Specify the two colors to use (`pal = ` is short for "palette" and is supplied with a vector of two color names. See the [objects](#objectstructure) page for how the function `c()` makes a vector)  
+- Sayılar yerine oranları göster (varsayılan "YANLIŞ" olduğunda "orantılı = DOĞRU" olarak ayarlayın)\
+- Kullanılacak iki rengi belirtin (`pal =`, "palet"in kısaltmasıdır ve iki renk adından oluşan bir vektörle sağlanır. ""c()" fonksiyonunun nasıl vektör oluşturduğunu öğrenmek için [nesneler](#objectstructure) sayfasına bakın)
 
-
-<span style="color: black;">**_NOTE:_** For arguments that you specify with both parts of the argument (e.g. `proportional = TRUE`), their order among all the arguments does not matter.</span>
-
+[***NOT:*** İki taraflı belirtilecek değişkenler için (ör. `orantılı = DOĞRU`) değişkenlerin sıraları önemsizdir.]{style="color: black;"}
 
 ```{r message=FALSE, warning=FALSE, out.width = "75%", out.height="75%"}
 age_pyramid(
-  linelist,                    # use case linelist
-  "age_cat5",                  # age group column
-  "gender",                    # split by gender
-  proportional = TRUE,         # percents instead of counts
-  pal = c("orange", "purple")  # colors
+  linelist,                    # Satır listesini kullan
+  "age_cat5",                  # Yaş grubu sütununu kullan
+  "gender",                    # Cinsiyete göre ayır
+  proportional = TRUE,         # sayı yerine yüzdelik kullan
+  pal = c("orange", "purple")  # renkleri turuncu ve mor
   )
 ```
 
-
-
 <!-- ======================================================= -->
 
-### Writing Functions {.unnumbered}  
+### Fonksiyon Yazma {.unnumbered}
 
-R is a language that is oriented around functions, so you should feel empowered to write your own functions. Creating functions brings several advantages:  
+R, fonksiyonlara yönelik bir dildir, bu nedenle kendi fonksiyonlarınızı yazmak için yetkilendirilmiş hissetmeniz gerekir. Fonskiyonlar oluşturmak çeşitli avantajlar sağlar:
 
-* To facilitate modular programming - the separation of code in to independent and manageable pieces  
-* Replace repetitive copy-and-paste, which can be error prone  
-* Give pieces of code memorable names  
+- Modüler programlamayı kolaylaştırmak için - kodun bağımsız ve yönetilebilir parçalara ayrılması\
+- Hataya açık olabilen tekrarlayan kopyala ve yapıştır işlemlerinin değiştirilmesi\
+- Kod parçalarına akılda kalıcı isimler verilmesi
 
-How to write a function is covered in-depth in the [Writing functions] page.  
+Bir fonksiyonun nasıl yazılacağı [Fonksiyon Yazma] sayfasında derinlemesine ele alınmıştır.
 
 <!-- A function is given a name and defined with the assignment operator `<-` to a special **base** R function called `function()`. Within the parentheses, the arguments that the function will accept are defined. This is followed by curly brackets `{ }`, within which the actual code of the function is written.     -->
 
@@ -431,28 +413,39 @@ my_function <- function( ARGUMENTS HERE ){ CODE HERE }
 <!-- The arguments (inputs) and their default values will be:   -->
 
 <!-- * `daily_cases = NULL` The number of new COVID-19 cases per day   -->
+
 <!-- * `contacts_each = 5` The number contacts enumerated for each case   -->
+
 <!-- * `time_case = 0.5`  Number of hours to complete a case investigaton by phone   -->
+
 <!-- * `time_contact = 0.25`  Number of hours to complete a contact follow-up by phone   -->
+
 <!-- * `time_day = 8` The number of hours one staff works per day   -->
 
 <!-- Below, the function is created. The code ends with the special function `return()`, which is what the function produces.    -->
 
 <!-- ```{r message=FALSE, warning=FALSE, out.width = "75%", out.height="75%"} -->
+
 <!-- staff_calc <- function(daily_cases = NULL, contacts_each = 5, -->
+
 <!--                        time_case = 0.5, time_contact = 0.25, time_day = 8){ -->
 
 <!--   # Define total daily hours for calling cases -->
+
 <!--   case_hours <- daily_cases * time_case  -->
 
 <!--   # Define total daily hours for calling contacts -->
+
 <!--   contact_hours <- daily_cases * contacts_each * time_contact -->
 
 <!--   # Calculate number of staff required -->
+
 <!--   staff_required <- (case_hours + contact_hours)/time_day -->
 
 <!--   return(staff_required) -->
+
 <!-- } -->
+
 <!-- ``` -->
 
 <!-- Once this code is run, the function will be defined and will appear in the R Environment. We can run the function. Below all the default values are used and the `daily_cases = ` is set to 150.   -->
@@ -475,721 +468,681 @@ ggplot(case_incidence, aes(x = dates))+
 
 <!-- There are many other nuances to understand when writing functions, as discussed in the page [Writing functions].   -->
 
+<!-- ======================================================= -->
 
 <!-- ======================================================= -->
-<!-- ======================================================= -->
-## Packages {#packages}  
 
-**Packages contain functions.**  
+## Paketler {#packages}
 
-An R package is a shareable bundle of code and documentation that contains pre-defined functions. Users in the R community develop packages all the time catered to specific problems, it is likely that one can help with your work! You will install and use hundreds of packages in your use of R.  
+**Paketler fonksiyonları içerir.**
 
-On installation, R contains **"base"** packages and functions that perform common elementary tasks. But many R users create specialized functions, which are verified by the R community and which you can download as a **package** for your own use. In this handbook, package names are written in **bold**. One of the more challenging aspects of R is that there are often many functions or packages to choose from to complete a given task.  
+Bir R paketi, önceden tanımlanmış fonksiyonları içeren, paylaşılabilir bir kod ve belge paketidir. R topluluğundaki kullanıcılar, her zaman belirli sorunlara yönelik paketler geliştirir, muhtemelen size yardımcı olabilecek bir tanesi mevcuttur! R kullanımınızda yüzlerce paket kuracak ve kullanacaksınız.
 
+Kurulum sırasında R, yaygın kullanılan görevleri gerçekleştiren **"temel"** paketleri ve fonksiyonları içerir. Ancak birçok R kullanıcısı, R topluluğu tarafından doğrulanan ve kendi kullanımınız için bir **paket** olarak indirebileceğiniz özel fonksiyonlar oluşturur. Bu el kitabında paket adları **kalın** ile yazılmıştır. R'ın daha zorlu yönlerinden biri, belirli bir görevi tamamlamak için seçilebilecek çok sayıda farklı fonksiyon veya paketin olmasıdır.
 
-### Install and load {.unnumbered}  
+### Kurulum ve Yükleme {.unnumbered}
 
-*Functions* are contained within **packages** which can be downloaded ("installed") to your computer from the internet. Once a package is downloaded, it is stored in your "library". You can then access the functions it contains during your current R session by "loading" the package.
+*Fonksiyonlar*, internetten bilgisayarınıza indirebileceğiniz ("kurulu") **paketler** içerisinde yer almaktadır. Bir paket indirildiğinde, "kütüphanenizde" saklanır. Ardından, paketi "yükleyerek" mevcut R oturumunuz sırasında içerdiği fonksiyonlara erişebilirsiniz.
 
-*Think of R as your personal library*: When you download a package, your library gains a new book of functions, but each time you want to use a function in that book, you must borrow ("load") that book from your library.  
+*R'ı kişisel kitaplığınız olarak düşünün*: Bir paket indirdiğinizde, kütüphaneniz yeni bir fonksiyon kitabı kazanır, ancak o kitaptaki bir fonksiyonu her kullanmak istediğinizde, kütüphanenizden o kitabı ödünç almanız ("yüklemeniz") gerekir.
 
-In summary: to use the functions available in an R package, 2 steps must be implemented:  
+Özetle: bir R paketinde bulunan fonksiyonları kullanmak için 2 adım uygulanmalıdır:
 
-1) The package must be **installed** (once), *and*  
-2) The package must be **loaded** (each R session)  
+1) Paket (bir defaya mahsus) **kurulmalı**, *ve*\
+2) Paket (her R oturumu sırasında) **yüklenmeli**
 
+#### Senin Kütüphanen {.unnumbered}
 
-#### Your library {.unnumbered}  
+"Senin kütüphanen" aslında bilgisayarınızda kurulu olan her paket için içerisinde farklı bir dosya oluşturulan bir klasördür. Bilgisayarınızda R'ın nerede kurulu olduğunu bulun ve "win-library" adlı bir klasör arayın. Örneğin: `R\win-library\4.0` (4.0, R sürümüdür - indirdiğiniz her R sürümü için farklı bir kitaplığınız olacaktır).
 
-Your "library" is actually a folder on your computer, containing a folder for each package that has been installed. Find out where R is installed in your computer, and look for a folder called "win-library". For example: `R\win-library\4.0` (the 4.0 is the R version - you'll have a different library for each R version you've downloaded).  
+`.libPaths()` (boş parantezler) girerek kitaplığınızın dosya yolunu yazdırabilirsiniz. [Ağ sürücülerinde R] ile çalışırken bu özellikle önemlidir.
 
-You can print the file path to your library by entering `.libPaths()` (empty parentheses). This becomes especially important if working with [R on network drives].   
+#### CRAN 'dan Kurulum {.unnumbered}
 
+Çoğu zaman, R kullanıcıları paketleri CRAN'dan indirir. CRAN (Comprehensive R Archive Network - Kapsamlı R Arşiv Ağı), topluluk üyeleri tarafından yayınlanan R paketlerinin çevrimiçi genel deposudur.
 
-#### Install from CRAN {.unnumbered}  
+CRAN'dan bir paket indirirken virüsler ve güvenlik konusunda endişeleniyor musunuz? Konuyla ilgili [bu makaleyi](https://support.rstudio.com/hc/en-us/articles/360042593974-R-and-R-Package-Security) okuyabilirsiniz.
 
-Most often, R users download packages from CRAN. CRAN (Comprehensive R Archive Network) is an online public warehouse of R packages that have been published by R community members. 
+#### Nasıl kurulum yapar ve yüklerim?{.unnumbered}
+Bu el kitabında, **pacman** paketini ("paket yöneticisi" kısaltması) kullanmanızı öneririz. Gerekirse bir paketi kuracak *ve* mevcut R oturumunda kullanmak üzere yükleyecek uygun bir `p_load()` fonksiyonu sunar.
 
-Are you worried about viruses and security when downloading a package from CRAN? Read [this article](https://support.rstudio.com/hc/en-us/articles/360042593974-R-and-R-Package-Security) on the topic.  
- 
-
-#### How to install and load {.unnumbered}  
-
-In this handbook, we suggest using the **pacman** package (short for "package manager"). It offers a convenient function `p_load()` which will install a package if necessary *and* load it for use in the current R session.  
-
-The syntax quite simple. Just list the names of the packages within the `p_load()` parentheses, separated by commas. This command will install the **rio**, **tidyverse**, and **here** packages if they are not yet installed, and will load them for use. This makes the `p_load()` approach convenient and concise if sharing scripts with others. Note that package names are case-sensitive. 
+Sözdizimi oldukça basit. Paketlerin adlarını 'p_load()' parantezleri içinde virgülle ayırarak listeleyin. Bu komut, henüz kurulmamışlarsa **rio**, **tidyverse** ve **here** paketlerini kuracak ve bunları kullanım için yükleyecektir. Bu, komut dosyalarını başkalarıyla paylaşırken `p_load()` yaklaşımını kullanışlı ve özlü hale getirir. Paket adlarının büyük/küçük harfe duyarlı olduğunu unutmayın.
 
 ```{r}
-# Install (if necessary) and load packages for use
+# Paketleri kurup yükleyebilirsiniz.(Gerekli görürseniz)
 pacman::p_load(rio, tidyverse, here)
 ```
 
-Note that we have used the syntax `pacman::p_load()` which explicitly writes the package name (**pacman**) prior to the function name (`p_load()`), connected by two colons `::`. This syntax is useful because it also loads the **pacman** package (assuming it is already installed).  
+Paket adını (**pacman**) fonksiyon adından (`p_load()`) önce açıkça yazan `pacman::p_load()` sözdizimini kullandığımızı ve iki adet iki nokta üst üste `::` ile bağlandığını unutmayın. Bu sözdizimi, **pacman** paketini de yüklediği için kullanışlıdır (zaten kurulu olduğu varsayılarak).
 
-There are alternative **base** R functions that you will see often. The **base** R function for installing a package is `install.packages()`. The name of the package to install must be provided in the parentheses *in quotes*. If you want to install multiple packages in one command, they must be listed within a character vector `c()`.   
+Sıklıkla göreceğiniz alternatif **temel** R fonksiyonları vardır. Bir paketi kurmak için **temel** R fonksiyonu `install.packages()` fonksiyonudur. Kurulacak paketin adı parantez içinde *tırnak içinde* belirtilmelidir. Bir komutta birden çok paket kurmak istiyorsanız, bunlar bir `c()` karakter vektörü içinde listelenmelidir.
 
-Note: this command *installs* a package, but does *not* load it for use in the current session.  
+Not: Bu komut bir paketi *kurar*, ancak geçerli oturumda kullanmak için *yüklemez*.
 
 ```{r, eval=F}
-# install a single package with base R
+# Temel R için bir paketin kurulumu
 install.packages("tidyverse")
 
-# install multiple packages with base R
+# Temel R için çoklu paketlerin kurulumu
 install.packages(c("tidyverse", "rio", "here"))
 ```
 
-Installation can also be accomplished point-and-click by going to the RStudio "Packages" pane and clicking "Install" and searching for the desired package name.  
+Kurulum ayrıca, RStudio "Paketler" bölmesine gidip istenen paket adını arayarak "Kur" seçeneğine tıklanarak da gerçekleştirilebilir.
 
-The **base** R function to **load** a package for use (after it has been installed) is `library()`. It can load only one package at a time (another reason to use `p_load()`). You can provide the package name with or without quotes.    
+Bir paketi kullanmak üzere (kurulduktan sonra) **yüklemek** için **temel** R fonksiyonu 'library()'dir. Bir seferde yalnızca bir paket yükleyebilir (`p_load()` kullanmanın başka bir nedeni). Paket adını tırnak işaretleri ile veya tırnak işaretleri olmadan sağlayabilirsiniz.
 
 ```{r, eval=F}
-# load packages for use, with base R
+# Temel R için paket yüklenmesi
 library(tidyverse)
 library(rio)
 library(here)
 ```
 
-To check whether a package in installed and/or loaded, you can view the Packages pane in RStudio. If the package is installed, it is shown there with version number. If its box is checked, it is loaded for the current session. 
+Bir paketin kurulu ve/veya yüklenmiş olup olmadığını kontrol etmek için RStudio'da Paketler bölmesini görüntüleyebilirsiniz. Paket kurulu ise sürüm numarası ile orada gösterilir. Kutusu işaretliyse, geçerli oturum için yüklenir.
 
+**Github'dan Kurulum**
 
+Bazen, henüz CRAN'da bulunmayan bir paketi yüklemeniz gerekir. Veya belki de paket CRAN'da mevcuttur, ancak daha kararlı yayınlanan CRAN sürümünde henüz sunulmayan yeni özelliklere sahip *geliştirme sürümünü* istiyorsunuzdur. Bunlar genellikle [github.com](https://github.com/) web sitesinde ücretsiz, halka açık bir kod "deposu" içinde barındırılır. [Git ve Github ile sürüm kontrolü ve işbirliği] El kitabı sayfasından Github hakkında daha fazla bilgi edinebilirsiniz.
 
-**Install from Github**
+Github'dan R paketlerini indirmek için, gerekirse paketi kuracak ve mevcut R oturumunuzda kullanmak üzere yükleyecek olan **pacman**'dan `p_load_gh()` fonksiyonunu kullanabilirsiniz. Kurulum alternatifleri arasında **remotes** veya **devtools** paketlerinin kullanılması yer alır. [Paket belgelerinde](https://cran.r-project.org/web/packages/pacman/pacman.pdf) tüm **pacman** fonksiyonları hakkında daha fazla bilgi edinin.
 
-Sometimes, you need to install a package that is not yet available from CRAN. Or perhaps the package is available on CRAN but you want the *development version* with new features not yet offered in the more stable published CRAN version. These are often hosted on the website [github.com](https://github.com/) in a free, public-facing code "repository". Read more about Github in the handbook page on [Version control and collaboration with Git and Github].  
+Github'dan yüklemek için daha fazla bilgi sağlamanız gerekir. Şunları sağlamalısın:
 
-To download R packages from Github, you can use the function `p_load_gh()` from **pacman**, which will install the package if necessary, and load it for use in your current R session. Alternatives to install include using the **remotes** or **devtools** packages. Read more about all the **pacman** functions in the [package documentation](https://cran.r-project.org/web/packages/pacman/pacman.pdf).  
+1) Depo sahibinin Github kimliği
+2) Paketi içeren havuzun adı\
+3) *(isteğe bağlı) İndirmek istediğiniz "dalın" (özel geliştirme sürümü) adı*
 
-To install from Github, you have to provide more information. You must provide:  
-
-1) The Github ID of the repository owner
-2) The name of the repository that contains the package  
-3) *(optional) The name of the "branch" (specific development version) you want to download*  
-
-In the examples below, the first word in the quotation marks is the Github ID of the repository owner, after the slash is the name of the repository (the name of the package).  
+Aşağıdaki örneklerde, tırnak içindeki ilk kelime depo sahibinin Github ID'sidir, eğik çizgiden sonra deponun adı (paketin adı) olur.
 
 ```{r, eval=F}
-# install/load the epicontacts package from its Github repository
+# Github deposundan epicontacts paketini kur ve yükle.
 p_load_gh("reconhub/epicontacts")
 ```
 
-If you want to install from a "branch" (version) other than the main branch, add the branch name after an "@", after the repository name.  
+Ana dal dışında bir "daldan" (sürüm) kurulum yapmak istiyorsanız, dal adını depo adından sonra şu ifade ile birlikte "\@" ekleyin.
 
 ```{r, eval=F}
-# install the "timeline" branch of the epicontacts package from Github
+# Github'dan epicontacts paketinin "zaman çizelgesi" dalını kurun
 p_load_gh("reconhub/epicontacts@timeline")
 ```
 
-If there is no difference between the Github version and the version on your computer, no action will be taken. You can "force" a re-install by instead using `p_load_current_gh()` with the argument `update = TRUE`. Read more about **pacman** in this [online vignette](http://trinker.github.io/pacman/vignettes/Introduction_to_pacman.html)
+Github sürümü ile bilgisayarınızdaki sürüm arasında herhangi bir fark yoksa herhangi bir işlem yapılmayacaktır. "update = TRUE" değişkeni yerine "p_load_current_gh()" komutu kullanarak yeniden yüklemeyi "zorlayabilirsiniz" (force). Bu [çevrimiçi gösterimde] http://trinker.github.io/pacman/vignettes/Introduction_to_pacman.html adresinde **pacman** hakkında daha fazla bilgi edinin)
 
+**ZIP veya TAR'dan yükleme**
 
-**Install from ZIP or TAR**
-
-You could install the package from a URL:  
+Paketi bir URL'den yükleyebilirsiniz:
 
 ```{r, eval=F}
 packageurl <- "https://cran.r-project.org/src/contrib/Archive/dsr/dsr_0.2.2.tar.gz"
 install.packages(packageurl, repos=NULL, type="source")
 ```
 
-Or, download it to your computer in a zipped file:  
+Veya sıkıştırılmış bir dosyada bilgisayarınıza indirin:
 
-Option 1: using `install_local()` from the **remotes** package  
+Seçenek 1: **remotes** paketinden `install_local()` kullanmak
 
 ```{r, eval=F}
 remotes::install_local("~/Downloads/dplyr-master.zip")
 ```
 
-Option 2: using `install.packages()` from **base** R, providing the file path to the ZIP file and setting `type = "source` and `repos = NULL`.    
+Seçenek 2: **base** R'dan `install.packages()` komutunu kullanarak, ZIP dosyasının dosya yolunu sağlayarak ve `type = "source` ve `repos = NULL` ayarını yaparak.
 
 ```{r, eval=F}
 install.packages("~/Downloads/dplyr-master.zip", repos=NULL, type="source")
 ```
 
+### Kod sözdizimi {.unnumbered}
 
-### Code syntax {.unnumbered}  
+Bu el kitabındaki netlik için, fonksiyonlar önüne bazen aşağıdaki şekilde `::` sembolü kullanılarak paketlerinin adı gelir: `package_name::function_name()`
 
-For clarity in this handbook, functions are sometimes preceded by the name of their package using the `::` symbol in the following way: `package_name::function_name()`  
-
-Once a package is loaded for a session, this explicit style is not necessary. One can just use `function_name()`. However writing the package name is useful when a function name is common and may exist in multiple packages (e.g. `plot()`). Writing the package name will also load the package if it is not already loaded. 
+Bir oturum için bir paket yüklendiğinde, belirgin stil gerekli değildir. Sadece `function_name()` kullanılabilir. Bununla birlikte, bir fonksiyon adı yaygın olduğunda ve birden çok pakette bulunabileceğinde paket adını yazmak yararlıdır (örneğin, `plot()`). Paket adının yazılması, henüz yüklenmemişse paketi de yükleyecektir.
 
 ```{r eval=FALSE}
-# This command uses the package "rio" and its function "import()" to import a dataset
+# Bu komut, bir veri kümesini içe aktarmak için "rio" paketini ve "import()" fonksiyonunu kullanır.
 linelist <- rio::import("linelist.xlsx", which = "Sheet1")
 ```
 
+### Fonksiyon yardımı {.unnumbered}
 
+Bir fonksiyon hakkında daha fazlasını okumak için, sağ alt RStudio'nun Yardım sekmesinde onu arayabilirsiniz. Ayrıca `?fonksiyonadı` (fonksiyonun adını bir soru işaretinden sonra koyun) gibi bir komut çalıştırabilirsiniz ve Yardım bölmesinde Yardım sayfası görünecektir. Son olarak, kaynakları çevrimiçi olarak aramayı deneyin.
 
-### Function help {.unnumbered}  
+### Paketleri güncelleyin {.unnumbered}
 
-To read more about a function, you can search for it in the Help tab of the lower-right RStudio. You can also run a command like  `?thefunctionname` (put the name of the function after a question mark) and the Help page will appear in the Help pane. Finally, try searching online for resources.  
+Paketleri yeniden yükleyerek güncelleyebilirsiniz. Hangi paketlerin kurulacak yeni sürümleri olduğunu görmek için RStudio Paketleri bölmenizdeki yeşil "Güncelle" düğmesini de tıklayabilirsiniz. Bir fonksiyonun nasıl çalıştığına dair büyük bir revizyon varsa, eski kodunuzun güncellenmesi gerekebileceğini unutmayın!
 
+### Paketleri sil {.unnumbered}
 
+**pacman**'den `p_delete()` veya **base** R'dan `remove.packages()` komutlarını kullanabilirsiniz. Alternatif olarak, kitaplığınızı içeren klasörü bulup manuel olarak silebilirsiniz.
 
-### Update packages {.unnumbered}  
+### Bağlılıklar {.unnumbered}
 
-You can update packages by re-installing them. You can also click the green "Update" button in your RStudio Packages pane to see which packages have new versions to install. Be aware that your old code may need to be updated if there is a major revision to how a function works!  
+Paketler genellikle çalışmak için diğer paketlere bağlıdır. Bunlara bağlılıklar (dependencies)denir. Bir bağlılık yüklenemezse, buna bağlı olan paket de yüklenemeyebilir.
 
+`p_depends()` ile bir paketin bağlılıklarını görün ve `p_depends_reverse()` ile hangi paketlerin ona bağlı olduğunu görün
 
-### Delete packages {.unnumbered}
-Use `p_delete()` from **pacman**, or `remove.packages()` from **base** R. Alternatively, go find the folder which contains your library and manually delete the folder.
+### Maskelenmiş fonksiyonlar {.numbered}
 
+İki veya daha fazla paketin aynı fonksiyon adını içermesi nadir değildir. Örneğin, **dplyr** paketinin bir "filter()" fonksiyonu vardır, ancak **stats** paketinin de fonksiyonu vardır. Varsayılan 'filter()' fonksiyonu, bu paketlerin R oturumunda ilk yüklendiği sıraya bağlıdır - sonraki, 'filter()' komutu için varsayılan olacaktır.
 
-
-### Dependencies {.unnumbered}  
-
-Packages often depend on other packages to work. These are called dependencies. If a dependency fails to install, then the package depending on it may also fail to install.  
-
-See the dependencies of a package with `p_depends()`, and see which packages depend on it with `p_depends_reverse()`  
-
-
-
-### Masked functions {.unnumbered}  
-
-It is not uncommon that two or more packages contain the same function name. For example, the package **dplyr** has a `filter()` function, but so does the package **stats**. The default `filter()` function depends on the order these packages are first loaded in the R session - the later one will be the default for the command `filter()`. 
-
-You can check the order in your Environment pane of R Studio - click the drop-down for "Global Environment" and see the order of the packages. Functions from packages *lower* on that drop-down list will mask functions of the same name in packages that appear higher in the drop-down list. When first loading a package, R will warn you in the console if masking is occurring, but this can be easy to miss.  
+Sırayı R Studio'nun Ortam bölmesinde kontrol edebilirsiniz - "Global Ortam" açılır menüsünü tıklayın ve paketlerin sırasını görün. Bu açılır listedeki *alt* paketlerdeki fonksiyonlar, açılır listede daha yukarıda görünen paketlerdeki aynı ada sahip fonksiyonları maskeleyecektir. Bir paketi ilk yüklerken, maskeleme meydana gelirse R sizi konsolda uyarır, ancak bunu gözden kaçırmak kolay olabilir.
 
 ```{r out.width = "50%", fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "masking_functions.png"))
 ```
 
-Here are ways you can fix masking:  
+Maskelemeyi düzeltmenin yolları şunlardır:
 
-1) Specify the package name in the command. For example, use `dplyr::filter()`  
-2) Re-arrange the order in which the packages are loaded (e.g. within `p_load()`), and **start a new R session**  
+1) Komutta paket adını belirtin. Örneğin, `dplyr::filter()`\ kodunu kullanın
+2) Paketlerin yüklenme sırasını yeniden düzenleyin (ör. `p_load()` içinde) ve **yeni bir R oturumu başlatın**
 
+### Ayır / kaldır {.unnumbered}
 
-
-### Detach / unload {.unnumbered}  
-
-To detach (unload) a package, use this command, with the correct package name and only one colon. Note that this may not resolve masking.  
+Bir paketi ayırmak (kaldırmak) için, bu komutu doğru paket adı ve yalnızca bir iki nokta üst üste ile kullanın. Bunun maskelemeyi çözmeyebileceğini unutmayın.
 
 ```{r, eval=F}
 detach(package:PACKAGE_NAME_HERE, unload=TRUE)
 ```
 
+###  Eski sürümü yükleyin {.unnumbered}
 
-### Install older version {.unnumbered}  
+Belirli bir paketin daha eski bir sürümünü yüklemek için bu [kılavuza](https://support.rstudio.com/hc/en-us/articles/219949047-Installing-older-versions-of-packages) bakabilirsiniz.
 
-See this [guide](https://support.rstudio.com/hc/en-us/articles/219949047-Installing-older-versions-of-packages) to install an older version of a particular package.  
+### Önerilen paketler {.unnumbered}
 
+Günlük epidemiyoloji için önerdiğimiz paketlerin listesi için [Önerilen paketler] sayfasına bakabilirsiniz.
 
-### Suggested packages {.unnumbered}  
+<!-- ============================================ ========= -->
 
-See the page on [Suggested packages] for a listing of packages we recommend for everyday epidemiology.  
+## Komut Dosyaları {#scripts}
 
+Komut dosyaları, programlamanın temel bir parçasıdır. Komutlarınızı tutan belgelerdir (örneğin, veri kümeleri oluşturma ve değiştirme fonksiyonları, baskı görselleştirmeleri vb.). Bir komut dosyasını kaydedebilir ve daha sonra yeniden çalıştırabilirsiniz. Komutlarınızı bir komut dosyasında saklamanın ve çalıştırmanın (komutları tek tek R konsolu "komut satırına" yazmaya kıyasla) birçok avantajı vardır:
 
+- Taşınabilirlik - çalışmalarınızı komut dosyalarınızı göndererek başkalarıyla paylaşabilirsiniz\
+- Tekrarlanabilirlik - böylece siz ve diğerleri tam olarak ne yaptığınızı bilir\
+- Sürüm kontrolü - böylece kendiniz veya meslektaşlarınız tarafından yapılan değişiklikleri takip edebilirsiniz\
+- Yorumlama/açıklama - meslektaşlarınıza ne yaptığınızı açıklamak için kullanabilirsiniz
 
+### Yorum yapma {.unnumbered}
 
+Bir komut dosyasında, R kodunuzun etrafına açıklama da ("yorum") yapabilirsiniz. Yorum yapmak, kendinize ve diğer okuyuculara ne yaptığınızı açıklamanıza yardımcı olur. Hashtag sembolünü (\#) yazıp ardından yorumunuzu yazarak yorum ekleyebilirsiniz. Yorum yapılan metin, R kodundan farklı bir renkte görünecektir.
 
-
-
-<!-- ======================================================= -->
-## Scripts {#scripts}
-
-Scripts are a fundamental part of programming. They are documents that hold your commands (e.g. functions to create and modify datasets, print visualizations, etc). You can save a script and run it again later. There are many advantages to storing and running your commands from a script (vs. typing commands one-by-one into the R console "command line"):  
-
-* Portability - you can share your work with others by sending them your scripts  
-* Reproducibility - so that you and others know exactly what you did  
-* Version control - so you can track changes made by yourself or colleagues  
-* Commenting/annotation - to explain to your colleagues what you have done  
-
-### Commenting {.unnumbered}  
-
-In a script you can also annotate ("comment") around your R code. Commenting is helpful to explain to yourself and other readers what you are doing. You can add a comment by typing the hash symbol (#) and writing your comment after it. The commented text will appear in a different color than the R code.  
-
-Any code written after the # will not be run. Therefore, placing a # before code is also a useful way to temporarily block a line of code ("comment out") if you do not want to delete it). You can comment out/in multiple lines at once by highlighting them and pressing Ctrl+Shift+c (Cmd+Shift+c in Mac).  
-
+\#'dan sonra yazılan hiçbir kod çalıştırılmayacaktır. Bu nedenle, kodun önüne bir \# koymak, silmek istemiyorsanız bir kod satırını geçici olarak engellemenin ("yorum yapma") da yararlı bir yoludur. Ctrl+Shift+c (Mac'te Cmd+Shift+c) tuşlarına basarak aynı anda birden fazla satırda yorum yapabilir ve vurgular oluşturabilirsiniz.
 
 ```{r, eval = F}
-# A comment can be on a line by itself
-# import data
-linelist <- import("linelist_raw.xlsx") %>%   # a comment can also come after code
-# filter(age > 50)                          # It can also be used to deactivate / remove a line of code
+# Bir yorum tek başına bir satırda olabilir
+# verileri içe aktar
+linelist <- import("linelist_raw.xlsx") %>%   # Bir yorum aynı zamanda kodun ardından gelebilir
+# filtre(yaş > 50)                # Bir kod satırını devre dışı bırakmak/kaldırmak için de kullanılabilir
   count()
 
 ```
 
-* Comment on *what* you are doing *and on **why** you are doing it*.  
-* Break your code into logical sections  
-* Accompany your code with a text step-by-step description of what you are doing (e.g. numbered steps)  
+- *Ne* yaptığınız hakkında *ve  **neden** yaptığınız* hakkında yorum yapın.\
+- Kodunuzu mantıksal bölümlere ayırın\
+- Yaptığınız işin adım adım açıklamasını içeren bir metinle kodunuza eşlik edin (ör. numaralandırılmış adımlar)
 
-### Style {.unnumbered}  
+### Stil {.numbered}
 
-It is important to be conscious of your coding style - especially if working on a team. We advocate for the **tidyverse** [style guide](https://style.tidyverse.org/). There are also packages such as **styler** and **lintr** which help you conform to this style.  
+Özellikle bir ekip üzerinde çalışıyorsanız, kodlama stilinizin bilincinde olmak önemlidir. Biz **tidyverse** [stil rehberini](https://style.tidyverse.org/) öneriyoruz. Bu stile uyum sağlamanıza yardımcı olan **styler** ve **lintr** gibi paketler de vardır.
 
-A few very basic points to make your code readable to others:  
-  * When naming objects, use only lowercase letters, numbers, and underscores `_`, e.g. `my_data`  
-  * Use frequent spaces, including around operators, e.g. `n = 1` and `age_new <- age_old + 3`  
+Kodunuzu başkaları tarafından okunabilir kılmak için birkaç temel nokta:\
+\* Nesneleri adlandırırken yalnızca küçük harf, sayı ve alt çizgi "_" kullanın, ör. `benim_verilerim`\
+\* Sık boşluklar kullanın, ör. "n = 1" ve "age_new <- age_old + 3"
 
+### Örnek Komut Dosyası {.unnumbered}
 
-### Example Script {.unnumbered}  
-
-Below is an example of a short R script. Remember, the better you succinctly explain your code in comments, the more your colleagues will like you!  
+Aşağıda kısa bir R komut dosyası örneği verilmiştir. Unutmayın, kodunuzu yorumlarda ne kadar kısa ve öz bir şekilde açıklarsanız, iş arkadaşlarınız sizi o kadar çok sevecektir!
 
 ```{r out.width = "100%", fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "example_script.png"))
 ```
 
-<!-- ======================================================= -->
-### R markdown {.unnumbered}
+<!--PNG'DE TÜRKÇEYE ÇEVRİLMESİ GEREKEN YORUM ALANLARI MEVCUT ======================================================= -->
 
-An R markdown script is a type of R script in which the script itself *becomes* an output document (PDF, Word, HTML, Powerpoint, etc.). These are incredibly useful and versatile tools often used to create dynamic and automated reports. Even this website and handbook is produced with R markdown scripts!  
+### R işaretleme (R Markdown) {.unnumbered}
 
-It is worth noting that beginner R users can also use R Markdown - do not be intimidated! To learn more, see the handbook page on [Reports with R Markdown] documents.  
+Bir R işaretleme komut dosyası, betiğin kendisinin bir çıktı belgesi (PDF, Word, HTML, Powerpoint, vb.) *olduğu*  türüdür. Bunlar, genellikle dinamik ve otomatik raporlar oluşturmak için kullanılan inanılmaz derecede kullanışlı ve çok yönlü araçlardır. Bu web sitesi ve el kitabı bile R işaretleme komut dosyaları ile üretilmiştir!
 
+Yeni başlayan R kullanıcılarının da R Markdown'ı kullanabileceğini belirtmekte fayda var - gözünüz korkmasın! Daha fazla bilgi edinmek için, [R Markdown ile Raporlar] belgelerindeki el kitabı sayfasına bakabilirsiniz.
 
-<!-- ======================================================= -->
-### R notebooks {.unnumbered}
+<!-- ============================================ ========= -->
 
-There is no difference between writing in a Rmarkdown vs an R notebook. However the execution of the document differs slightly. See this [site](http://uc-r.github.io/r_notebook) for more details.
+### R not defterleri {.unnumbered}
 
-<!-- ======================================================= -->
-### Shiny {.unnumbered}
+Rmarkdown ile R not defterine yazmak arasında hiçbir fark yoktur. Ancak belgenin işlenmesi biraz farklıdır. Daha fazla ayrıntı için bu [siteye](http://uc-r.github.io/r_notebook) bakabilirsiniz.
 
-Shiny apps/websites are contained within one script, which must be named `app.R`. This file has three components:  
+<!-- ============================================ ========= -->
 
-1) A user interface (ui)  
-2) A server function  
-3) A call to the `shinyApp` function  
+### Parlak {.unnumbered}
 
-See the handbook page on [Dashboards with Shiny], or this online tutorial: [Shiny tutorial](https://shiny.rstudio.com/tutorial/written-tutorial/lesson1/)
+Parlak uygulamalar/web siteleri, "app.R" olarak adlandırılması gereken tek bir komut dosyası içinde bulunur. Bu dosyanın üç bileşeni vardır:
 
-*In older times, the above file was split into two files (`ui.R` and `server.R`)*
+1) Bir kullanıcı arayüzü (user inteface(ui))\
+2) Bir sunucu fonksiyonu\
+3) "shinyApp" fonksiyonuna bir çağrı
 
+[Shiny ile Panolar]'daki el kitabı sayfasına veya bu çevrimiçi eğiticiye bakabilirsiniz: [Parlak öğretici](https://shiny.rstudio.com/tutorial/write-tutorial/lesson1/)
 
-### Code folding {.unnumbered}  
+*Önceleri yukarıdaki dosya iki dosyaya bölünmüş olarak mevcuttu. (`ui.R` ve `server.R`)*
 
-You can collapse portions of code to make your script easier to read.  
+### Kod katlama {.unnumbered}
 
-To do this, create a text header with #, write your header, and follow it with at least 4 of either dashes (-), hashes (#) or equals (=). When you have done this, a small arrow will appear in the "gutter" to the left (by the row number). You can click this arrow and the code below until the next header will collapse and a dual-arrow icon will appear in its place.  
+Komut dosyanızın okunmasını kolaylaştırmak için kod bölümlerini daraltabilirsiniz.
 
-To expand the code, either click the arrow in the gutter again, or the dual-arrow icon. There are also keyboard shortcuts as explained in the [RStudio section](#rstudio) of this page.   
+Bunu yapmak için, \# ile bir metin başlığı oluşturun, başlığınızı yazın ve ardından tire (-), kare (\#) veya eşittir (=)'den birini en az 4 kez kullanın. Bunu yaptığınızda, soldaki "oluk"ta (satır numarasına göre) küçük bir ok belirecektir. Bu oku ve aşağıdaki kodu, bir sonraki başlık bitimine ve yerinde bir çift ok simgesi görünene kadar tıklayabilirsiniz.
 
-By creating headers with #, you will also activate the Table of Contents at the bottom of your script (see below) that you can use to navigate your script. You can create sub-headers by adding more # symbols, for example # for primary, ## for seconary, and ### for tertiary headers.  
+Kodu genişletmek için, ya cilt payındaki oku ya da çift ok simgesini tıklayın. Bu sayfanın [RStudio bölümünde](#rstudio) açıklandığı gibi klavye kısayolları da mevcuttur.
 
-Below are two versions of an example script. On the left is the original with commented headers. On the right, four dashes have been written after each header, making them collapsible. Two of them have been collapsed, and you can see that the Table of Contents at the bottom now shows each section.  
+\# ile başlıklar oluşturarak, komut dosyanızın altında (aşağıya bakın) komut dosyanızda gezinmek için kullanabileceğiniz İçindekiler Tablosunu da etkinleştirirsiniz. Daha fazla \# sembolü ekleyerek alt başlıklar oluşturabilirsiniz, örneğin birincil için \#, ikincil için \#\# ve üçüncül başlıklar için \#\#\#.
+
+Aşağıda örnek bir komut dosyasının iki versiyonu bulunmaktadır. Solda, yorumlanmış başlıkları olan orijinaldir. Sağ tarafta, her başlıktan sonra daraltılabilir hale getiren dört çizgi yazılmıştır. Bunlardan ikisi daraltılmıştır ve alttaki İçindekiler'in artık her bölümü gösterdiğini görebilirsiniz.
 
 ```{r, out.width = c('50%'), fig.show='hold', echo=F}
 knitr::include_graphics(here::here("images", "code_folding1.png"))
 knitr::include_graphics(here::here("images", "code_folding2.png"))
 ```
 
-Other areas of code that are automatically eligible for folding include "braced" regions with brackets `{ }` such as function definitions or conditional blocks (if else statements). You can read more about code folding at the RStudio [site](https://support.rstudio.com/hc/en-us/articles/200484568-Code-Folding-and-Sections).  
+Otomatik olarak katlama için uygun olan diğer kod alanları, fonksiyon tanımları veya koşullu bloklar (if else ifadeleri) gibi "{ }" köşeli parantezli "köşeli" bölgeleri içerir. RStudio [sitesinde](https://support.rstudio.com/hc/en-us/articles/200484568-Code-Folding-and-Sections) kod katlama hakkında daha fazla bilgi edinebilirsiniz.
 
+<!-- ============================================ ========= -->
 
+<!-- ============================================ ========= -->
 
-<!-- ======================================================= -->
-<!-- ======================================================= -->
-<!-- ======================================================= -->
-## Working directory  
+<!-- ============================================ ========= -->
 
-The working directory is the root folder location used by R for your work - where R looks for and saves files by default. By default, it will save new files and outputs to this location, and will look for files to import (e.g. datasets) here as well.  
+## Çalışma dizini
 
-The working directory appears in grey text at the top of the RStudio Console pane. You can also print the current working directory by running `getwd()` (leave the parentheses empty).  
+Çalışma dizini, R tarafından işiniz için kullanılan kök klasör konumudur - burada R, varsayılan olarak dosyaları arar ve kaydeder. Varsayılan olarak, yeni dosyaları ve çıktıları bu konuma kaydedecek ve içe aktarılacak dosyaları (örneğin veri kümeleri) burada da arayacaktır.
 
-```{r out.width = "100%", fig.align = "center", echo=F}
+Çalışma dizini, RStudio Konsol bölmesinin üst kısmında gri metin olarak görünür. Geçerli çalışma dizinini `getwd()` komutunu çalıştırarak da yazdırabilirsiniz (parantezleri boş bırakın).
+
+```{r fig.align="center", out.width="100%"}
 knitr::include_graphics(here::here("images", "working_directory_1.png"))
 ```
 
 
-### Recommended approach {.unnumbered}  
+Yakın zamana kadar, R öğrenen birçok kişiye komut dosyalarına `setwd()` komutuyla başlamaları öğretiliyordu. Bunun yerine lütfen [R projesi][R projeleri] odaklı bir iş akışı kullanmayı düşünün ve [`setwd()` kullanmama nedenleriniz için okuyunuz](https://www.tidyverse.org/blog/2017/12/workflow-vs-script/). Kısacası, işiniz bilgisayarınıza özel hale gelir, dosyaları içe ve dışa aktarmak için kullanılan dosya yolları "kırılgan" hale gelir ve bu, işbirliğini ve kodunuzun başka herhangi bir bilgisayarda kullanılmasını ciddi şekilde engeller. Kolay alternatifler var!
 
-**See the page on [R projects] for details on our recommended approach to managing your working directory.**  
-A common, efficient, and trouble-free way to manage your working directory and file paths is to combine these 3 elements in an [R project][R projects]-oriented workflow:  
-
-1) An R Project to store all your files (see page on [R projects])  
-2) The **here** package to locate files (see page on [Import and export])  
-3) The **rio** package to import/export files (see page on [Import and export])  
-
-
-<!-- ======================================================= -->
-### Set by command {.unnumbered}
-
-Until recently, many people learning R were taught to begin their scripts with a `setwd()` command. Please instead consider using an [R project][R projects]-oriented workflow and read the [reasons for not using `setwd()`](https://www.tidyverse.org/blog/2017/12/workflow-vs-script/). In brief, your work becomes specific to your computer, file paths used to import and export files become "brittle", and this severely hinders collaboration and use of your code on any other computer. There are easy alternatives!  
-
-As noted above, although we do not recommend this approach in most circumstances, you can use the command `setwd()` with the desired folder file path in quotations, for example:  
+Yukarıda belirtildiği gibi, çoğu durumda bu yaklaşımı önermesek de, `setwd()` komutunu alıntılarda istediğiniz klasör dosya yolu ile kullanabilirsiniz, örneğin:
 
 ```{r, eval=F}
 setwd("C:/Documents/R Files/My analysis")
 ```
 
-<span style="color: red;">**_DANGER:_** Setting a working directory with `setwd()` *can* be "brittle" if the file path is specific to one computer. Instead, use file paths relative to an R Project root directory (with the **here** package). </span>  
+[***TEHLİKE:*** `setwd()` ile bir çalışma dizini ayarlamak dosya yolu bir bilgisayara özelse "kırılgan" *olabilir*. Bunun yerine, bir R Project kök dizinine göre dosya yollarını kullanın (**burada** paketiyle). ]{style="renk: kırmızı;"}
 
+<!-- ============================================ ========= -->
 
+### Manuel olarak ayarla {.unnumbered}
 
-<!-- ======================================================= -->
-### Set manually {.unnumbered}  
+Çalışma dizinini manuel olarak ayarlamak için ('setwd()'nin tıklamakla eşdeğeri), Oturum açılır menüsünü tıklayın ve "Çalışma Dizinini Ayarla"ya ve ardından "Dizin Seç"e gidin. Bu, o belirli R oturumu için çalışma dizinini ayarlayacaktır. Not: Bu yaklaşımı kullanıyorsanız, RStudio'yu her açtığınızda bunu manuel olarak yapmanız gerekecektir.
 
-To set the working directory manually (the point-and-click equivalent of `setwd()`), click the Session drop-down menu and go to "Set Working Directory" and then "Choose Directory". This will set the working directory for that specific R session. Note: if using this approach, you will have to do this manually each time you open RStudio.  
+<!-- ============================================ ========= -->
 
+### Bir R projesi içinde {.unnumbered}
 
-<!-- ======================================================= -->
-### Within an R project {.unnumbered}
+Bir R projesi kullanıyorsanız, çalışma dizini varsayılan olarak ".rproj" dosyasını içeren R projesi kök klasörü olacaktır. Bu, RStudio'yu R Project'i (".rproj" uzantılı dosya) tıklayarak açarsanız geçerli olacaktır.
 
-If using an R project, the working directory will default to the R project root folder that contains the ".rproj" file. This will apply if you open RStudio by clicking open the R Project (the file with ".rproj" extension).  
+<!-- ============================================ ========= -->
 
+### R markdown için çalışma dizini {.unnumbered}
 
-<!-- ======================================================= -->
-### Working directory in an R markdown {.unnumbered}
+Bir R markdown komut dosyasında, varsayılan çalışma dizini, Rmarkdown dosyasının (`.Rmd`) içinde kaydedildiği klasördür. Bir R projesi ve **here** paketi kullanılıyorsa, bu geçerli değildir ve çalışma dizini [R projeleri] sayfasında açıklandığı gibi 'here()' olacaktır.
 
-In an R markdown script, the default working directory is the folder the Rmarkdown file (`.Rmd`) is saved within. If using an R project and **here** package, this does not apply and the working directory will be `here()` as explained in the [R projects] page.  
-
-If you want to change the working directory of a stand-alone R markdown (not in an R project), if you use `setwd()` this will only apply to that specific code chunk. To make the change for all code chunks in an R markdown, edit the setup chunk to add the `root.dir = ` parameter, such as below:
+Tek başına bir R markdown çalışma dizinini değiştirmek istiyorsanız (bir R projesinde değil), 'setwd()' kullanırsanız, bu yalnızca o belirli kod yığını için geçerli olacaktır. Bir R işaretlemesindeki tüm kod parçalarında değişiklik yapmak için, aşağıdaki gibi "root.dir =" parametresini eklemek için kurulum öbeğini düzenlemelisiniz:
 
 ```{r, eval=F}
 knitr::opts_knit$set(root.dir = 'desired/directorypath')
 ```
 
-It is much easier to just use the R markdown within an R project and use the **here** package.  
+Bir R projesinde sadece R işaretlemesini kullanmak ve **here** paketini kullanmak çok daha kolaydır.
 
+<!-- ============================================ ========= -->
 
+### Dosya yolları sağlama {.unnumbered}
 
-<!-- ======================================================= -->
-### Providing file paths {.unnumbered}  
+Yeni başlayanlar için (en azından bir Windows makinesinde) belki de en yaygın hayal kırıklığı kaynağı, verileri içe veya dışa aktarmak için bir dosya yoluna yazmaktır. [İçe ve dışa aktar] sayfasında dosya yollarının en iyi nasıl girileceğine dair kapsamlı bir açıklama vardır, ancak burada birkaç önemli nokta vardır:
 
-Perhaps the most common source of frustration for an R beginner (at least on a Windows machine) is typing in a file path to import or export data. There is a thorough explanation of how to best input file paths in the [Import and export] page, but here are a few key points:  
+**Bozuk yollar**
 
-**Broken paths**  
+Aşağıda bir "mutlak" veya "tam adres" dosya yolu örneği verilmiştir. Bunlar başka bir bilgisayar tarafından kullanılırsa büyük olasılıkla kırılacaktır. Bir istisna, paylaşılan/ağ sürücüsü kullanmanızdır.
 
-Below is an example of an "absolute" or "full address" file path. These will likely break if used by another computer. One exception is if you are using a shared/network drive.  
+    C:/Kullanıcılar/Ad/Belge/Analitik Yazılım/R/Projeler/Analiz2019/data/March2019.csv
 
-```
-C:/Users/Name/Document/Analytic Software/R/Projects/Analysis2019/data/March2019.csv  
-```
+** Eğik yön**
 
-**Slash direction**  
+*Bir dosya yolu yazıyorsanız, eğik çizgilerin yönüne dikkat edin.* Bileşenleri ayırmak için *eğik çizgi* (`/`) kullanın ("data/provincial.csv"). Windows kullanıcıları için, dosya yollarının varsayılan görüntülenme şekli *ters eğik çizgi* (\\) iledir - bu nedenle her eğik çizginin yönünü değiştirmeniz gerekecektir. **here** paketini [R projeleri] sayfasında açıklandığı gibi kullanırsanız, eğik çizgi bir sorun olmaz.
 
-*If typing in a file path, be aware the direction of the slashes.* Use *forward slashes* (`/`) to separate the components ("data/provincial.csv"). For Windows users, the default way that file paths are displayed is with *back slashes* (\\) - so you will need to change the direction of each slash. If you use the **here** package as described in the [R projects] page the slash direction is not an issue.  
+**Göreceli dosya yolları**
 
-**Relative file paths**  
-
-We generally recommend providing "relative" filepaths instead - that is, the path *relative to* the root of your R Project. You can do this using the **here** package as explained in the [R projects] page. A relativel filepath might look like this:  
+Bunun yerine genellikle "göreceli" dosya yolları sağlamanızı öneririz - yani, R Projenizin köküne *göre* olan yol. Bunu, [R projeleri] sayfasında açıklandığı gibi **here** paketini kullanarak yapabilirsiniz. Göreceli bir dosya yolu şöyle görünebilir:
 
 ```{r, eval=F}
-# Import csv linelist from the data/linelist/clean/ sub-folders of an R project
+# Bir R projesinin veri/satır listesi/temiz/alt klasörlerinden csv satır listesini içe aktarın
 linelist <- import(here("data", "clean", "linelists", "marin_country.csv"))
 ```
 
-Even if using relative file paths within an R project, you can still use absolute paths to import/export data  outside your R project.  
+Bir R projesinde göreli dosya yolları kullanıyor olsanız bile, R projenizin dışında verileri içe/dışa aktarmak için mutlak yolları kullanabilirsiniz.
 
+<!-- ============================================ ========= -->
 
+## Nesneler {#objects}
 
+R'daki her şey bir nesnedir ve R, "nesne yönelimli" bir dildir. Bu bölümler şunları açıklayacaktır:
 
+- Nesneler nasıl oluşturulur (`<-`)
+- Nesne türleri (örn. veri çerçeveleri, vektörler..)\
+- Nesnelerin alt bölümlerine nasıl erişilir (ör. bir veri kümesindeki değişkenler)\
+- Nesne sınıfları (örn. sayısal, mantıksal, tamsayı, çift, karakter, faktör)
 
-<!-- ======================================================= -->
-## Objects {#objects}
+<!-- ============================================ ========= -->
 
-Everything in R is an object, and R is an "object-oriented" language. These sections will explain:  
+### Her şey bir nesnedir {.unnumbered}
 
-* How to create objects (`<-`) 
-* Types of objects (e.g. data frames, vectors..)  
-* How to access subparts of objects (e.g. variables in a dataset)  
-* Classes of objects (e.g. numeric, logical, integer, double, character, factor)  
+*Bu bölüm [R4Epis projesinden](https://r4epis.netlify.app/training/r_basics/objects/) uyarlanmıştır.*\
+R'da sakladığınız her şey - veri kümeleri, değişkenler, köy isimleri listesi, toplam nüfus sayısı, hatta grafikler gibi çıktılar - **atanmış bir adla** ve **alıntılanabilen** **nesnelerdir**.
 
+Bir nesneye bir değer atadığınızda var olur (aşağıdaki atama bölümüne bakın). Bir değer atandığında, nesne Ortamda görünür (RStudio'nun sağ üst bölmesine bakın). Daha sonra çalıştırılabilir, manipüle edilebilir, değiştirilebilir ve yeniden tanımlanabilir.
 
+<!-- ============================================ ========= -->
 
-<!-- ======================================================= -->
-### Everything is an object {.unnumbered} 
+### Nesneleri tanımlama (`<-`) {.unnumbered}
 
-*This section is adapted from the [R4Epis project](https://r4epis.netlify.app/training/r_basics/objects/).*  
-Everything you store in R - datasets, variables, a list of village names, a total population number, even outputs such as graphs - are **objects** which are **assigned a name** and **can be referenced** in later commands.  
+**\<- operatörüyle *nesnelere bir değer* atayarak nesneler oluşturun.**\
+"<-" atama operatörü olarak tanımlanır. Atama komutları genellikle standart bir sıra izler:
 
-An object exists when you have assigned it a value (see the assignment section below). When it is assigned a value, the object appears in the Environment (see the upper right pane of RStudio). It can then be operated upon, manipulated, changed, and re-defined.
+**nesne_adı** \<- **değer** (veya bir değer üreten süreç/hesaplama)
 
+Örneğin, mevcut epidemiyolojik raporlama haftasını daha sonraki kodda referans için bir nesne olarak kaydetmek isteyebilirsiniz. Bu örnekte, "current_week" nesnesi "2018-W10"' değeri atandığında oluşturulur (tırnak işaretleri bunu bir karakter değeri yapar). 'current_week' nesnesi daha sonra RStudio Ortam bölmesinde (sağ üst) görünecek ve sonraki komutlarda başvurulabilecektir.
 
-<!-- ======================================================= -->
-### Defining objects (`<-`) {.unnumbered}
-
-**Create objects *by assigning them a value* with the <- operator.**  
-You can think of the assignment operator `<-` as the words "is defined as". Assignment commands generally follow a standard order:
- 
-**object_name**  <-  **value** (or process/calculation that produce a value)
-
-For example, you may want to record the current epidemiological reporting week as an object for reference in later code. In this example, the object `current_week` is created when it is assigned the value `"2018-W10"` (the quote marks make this a character value). The object `current_week` will then appear in the RStudio Environment pane (upper-right) and can be referenced in later commands.  
-
-See the R commands and their output in the boxes below. 
+Aşağıdaki kutularda R komutlarına ve çıktılarına bakabilirsiniz.
 
 ```{r basics_objects_assignment}
-current_week <- "2018-W10"   # this command creates the object current_week by assigning it a value
-current_week                 # this command prints the current value of current_week object in the console
+current_week <- "2018-W10"   # bu komut, bir değer atayarak current_week nesnesini yaratır.
+current_week                 # bu komut, geçerli_hafta nesnesinin geçerli değerini konsolda yazdırır
 ```
 
-<span style="color: black;">**_NOTE:_** Note the `[1]` in the R console output is simply indicating that you are viewing the first item of the output</span>
+[***NOT:*** R konsol çıktısındaki `[1]` sadece çıktının ilk öğesini görüntülediğinizi belirtir]{style="color: black;"}
 
+[***DİKKAT:*** **Bir nesnenin değerinin üzerine  yeniden tanımlamak için bir atama komutu herhangi bir zamanda yazılabilir** Bu nedenle, **çalışan komutların sırası çok önemlidir**.]{style="color: orange;"}
 
-<span style="color: orange;">**_CAUTION:_** **An object's value can be over-written** at any time by running an assignment command to re-define its value. Thus, the **order of the commands run is very important**.</span>
-
-The following command will re-define the value of `current_week`: 
+Aşağıdaki komut, "current_week" değerini yeniden tanımlayacaktır:
 
 ```{r basics_objects_reassignment}
-current_week <- "2018-W51"   # assigns a NEW value to the object current_week
-current_week                 # prints the current value of current_week in the console
+current_week <- "2018-W51"   # current_week nesnesine YENİ bir değer atar
+current_week                 # bu yeni değeri konsolda yazdırır
 ```
 
-**Equals signs `=`**  
+**Eşittir işaretleri `=`**
 
-You will also see equals signs in R code:  
+Ayrıca R kodunda eşittir işaretleri göreceksiniz:
 
-* A double equals sign `==` between two objects or values asks a logical *question*: "is this equal to that?".  
-* You will also see equals signs within functions used to specify values of function arguments (read about these in sections below), for example `max(age, na.rm = TRUE)`.  
-* You *can* use a single equals sign `=` in place of `<-` to create and define objects, but this is discouraged. You can read about why this is discouraged [here](https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/).  
+- İki nesne veya değer arasındaki bir çift eşittir işareti `==` mantıksal bir *soru sorar*: "buna eşit mi?".\
+- Ayrıca, fonskiyonların değişkenlerinin değerlerini belirtmek için kullanılan eşittir işaretlerini de göreceksiniz (bunlar hakkında aşağıdaki bölümlerde okuyun), örneğin `max(age, na.rm = TRUE)`.\
+- Nesneleri oluşturmak ve tanımlamak için `<-` yerine tek bir eşittir işareti `=` *kullanabilirsiniz*, ancak bu önerilmez. Bunun neden önerilmediğini [buradan](https://renkun.me/2014/01/28/difference-between-assignment-operators-in-r/) okuyabilirsiniz.
 
+**Veri kümeleri (Datasets)**
 
-**Datasets**  
-
-Datasets are also objects (typically "dataframes") and must be assigned names when they are imported. In the code below, the object `linelist` is created and assigned the value of a CSV file imported with the **rio** package and its `import()` function.  
+Veri kümeleri de nesnelerdir (tipik olarak "veri çerçeveleri") ve içe aktarıldıklarında adlarının atanması gerekir. Aşağıdaki kodda, 'linelist' nesnesi oluşturulur ve **rio** paketi ve 'import()' fonksiyonu ile içe aktarılan bir CSV dosyasının değeri atanır.
 
 ```{r basics_objects_dataframes, eval=FALSE}
-# linelist is created and assigned the value of the imported CSV file
+# satır listesi oluşturulur ve içe aktarılan CSV dosyasının değeri atanır
 linelist <- import("my_linelist.csv")
 ```
 
-You can read more about importing and exporting datasets with the section on [Import and export].
+[İçe aktarma ve dışa aktarma] bölümünden veri kümelerini içe ve dışa aktarma hakkında daha fazla bilgi edinebilirsiniz.
 
-<span style="color: orange;">**_CAUTION:_** A quick note on naming of objects:</span>
+[***DİKKAT:*** Nesnelerin adlandırılmasıyla ilgili kısa bir not:]{style="color: orange;"}
 
-  * Object names must not contain spaces, but you should use underscore (_) or a period (.) instead of a space.  
-  * Object names are case-sensitive (meaning that Dataset_A is different from dataset_A). 
-  * Object names must begin with a letter (cannot begin with a number like 1, 2 or 3). 
+- Nesne adları boşluk içermemelidir, ancak boşluk yerine alt çizgi (\_) veya nokta (.) kullanabilirsiniz.\
+- Nesne adları büyük/küçük harfe duyarlıdır (yani Veri Kümesi_A, veri kümesi_A'dan farklıdır).
+- Nesne adları bir harfle başlamalıdır (1, 2 veya 3 gibi bir sayı ile başlayamaz).
 
-**Outputs**  
+**Çıktılar**
 
-Outputs like tables and plots provide an example of how outputs can be saved as objects, or just be printed without being saved. A cross-tabulation of gender and outcome using the **base** R function `table()` can be printed directly to the R console (*without* being saved).
+Tablolar ve çizimler gibi çıktılar, çıktıların nesneler olarak nasıl kaydedilebileceğine veya kaydedilmeden nasıl yazdırılabileceğine dair bir örnek sağlar. **Temel** R fonksiyonu "table()" kullanılarak cinsiyet ve kazanç tablosu doğrudan R konsoluna yazdırılabilir (*kaydedilmeden*).
 
 ```{r}
-# printed to R console only
+# yalnızca R konsoluna yazdırılır
 table(linelist$gender, linelist$outcome)
 ```
 
-But the same table can be saved as a named object. Then, optionally, it can be printed.
+Ancak aynı tablo adlandırılmış bir nesne olarak kaydedilebilir. Daha sonra isteğe bağlı olarak yazdırılabilir.
 
 ```{r}
-# save
+# kayıt
 gen_out_table <- table(linelist$gender, linelist$outcome)
 
-# print
+#  yazdırma
 gen_out_table
 ```
 
-**Columns**  
+**Sütunlar**
 
-Columns in a dataset are also objects and can be defined, over-written, and created as described below in the section on Columns. 
+Bir veri kümesindeki sütunlar da nesnelerdir ve aşağıda Sütunlar bölümünde açıklandığı gibi tanımlanabilir, üzerine yazılabilir ve oluşturulabilirdir.
 
-You can use the assignment operator from **base** R to create a new column. Below, the new column `bmi` (Body Mass Index) is created, and for each row the new value is result of a mathematical operation on the row's value in the `wt_kg` and `ht_cm` columns.  
+Yeni bir sütun oluşturmak için **temel** R'dan atama operatörünü kullanabilirsiniz. Aşağıda, yeni sütun "bmi" (Vücut Kitle İndeksi) oluşturulur ve her satır için yeni değer, satırın "wt_kg" ve "ht_cm" sütunlarındaki değeri üzerindeki matematiksel bir işlemin sonucudur.
 
 ```{r, eval=F}
-# create new "bmi" column using base R syntax
+# temel R sözdizimini kullanarak yeni "bmi" sütunu oluşturun
 linelist$bmi <- linelist$wt_kg / (linelist$ht_cm/100)^2
 ```
 
-However, in this handbook, we emphasize a different approach to defining columns, which uses the function `mutate()` from the **dplyr** package and *piping* with the pipe operator (`%>%`). The syntax is easier to read and there are other advantages explained in the page on [Cleaning data and core functions]. You can read more about *piping* in the Piping section below.  
+Bununla birlikte, bu el kitabında, **dplyr** paketindeki `mutate()` fonksiyonunu ve tünel operatörüyle (`%>%`) *piping* fonksiyonunu kullanan sütunları tanımlamaya yönelik farklı bir yaklaşımı vurguluyoruz. Sözdiziminin okunması daha kolaydır ve [Temizleme verileri ve temel fonksiyonlar] sayfasında açıklanan başka avantajları da vardır. *tünelleme* hakkında daha fazla bilgiyi aşağıdaki Tünelleme bölümünde okuyabilirsiniz.
 
-```{r, eval=F} 
-# create new "bmi" column using dplyr syntax
+```{r, eval=F}
+# dplyr sözdizimini kullanarak yeni "bmi" sütunu oluşturun
 linelist <- linelist %>% 
   mutate(bmi = wt_kg / (ht_cm/100)^2)
 ```
 
+<!PİPİNG OLAYINI HİÇ ANLAMADIM-- ======================================================= -->
 
-<!-- ======================================================= -->
-### Object structure {.unnumbered}  
+### Nesne yapısı {.unnumbered}
 
-**Objects can be a single piece of data (e.g. `my_number <- 24`), or they can consist of structured data.**  
+**Nesneler tek bir veri parçası olabilir (ör. "my_number <- 24") veya yapılandırılmış verilerden oluşabilir.**
 
-The graphic below is borrowed from [this online R tutorial](http://venus.ifca.unican.es/Rintro/dataStruct.html). It shows some common data structures and their names. Not included in this image is spatial data, which is discussed in the [GIS basics] page.  
-
+Aşağıdaki grafik [bu çevrimiçi R eğitiminden](http://venus.ifca.unican.es/Rintro/dataStruct.html) ödünç alınmıştır. Bazı yaygın veri yapılarını ve adlarını gösterir. [GIS temelleri] sayfasında tartışılan uzamsal veriler bu görüntüye dahil değildir.
 
 ```{r basics_objects_structures, echo=F, out.width = "75%", out.height="50%", fig.align = "center"}
 knitr::include_graphics(here::here("images", "R_data_structures.png"))
-```  
+```
 
-In epidemiology (and particularly field epidemiology), you will *most commonly* encounter data frames and vectors:  
+Epidemiyolojide (ve özellikle saha epidemiyolojisinde), *en yaygın olarak* veri çerçeveleri ve vektörlerle karşılaşacaksınız:
 
++------------------+--------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------+
+| Yaygın Yapılar | Açıklama                                                                     | Örnekler                                                                             |
++==================+==================================================================================================+=====================================================================================+
+| Vektörler          | Hepsi aynı sınıftan (ör. sayısal, karakter) tekil nesneler dizisi için bir kapsayıcı. | **Veri çerçevelerindeki "Değişkenler" (sütunlar) vektörlerdir** (ör. "age_years" sütunu). |
++------------------+--------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------+
+| Veri Çerçeveleri   | Hepsi aynı sayıda satıra sahip olan birbirine bağlı vektörler (örneğin sütunlar).           | `satır_listesi` bir veri çerçevesidir.                                                         |
++------------------+--------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------+
 
-Common structure | Explanation | Example
-------------------- | ------------------------------------ | ------------------------  
-Vectors | A container for a sequence of singular objects, all of the same class (e.g. numeric, character). | **"Variables" (columns) in data frames are vectors** (e.g. the column `age_years`).  
-Data Frames | Vectors (e.g. columns) that are bound together that all have the same number of rows. | `linelist` is a data frame.
+"Tek başına" (bir veri çerçevesinin parçası olmayan) bir vektör oluşturmak için "c()" fonksiyonunun farklı öğeleri birleştirmek için kullanıldığını unutmayın. Örneğin, bir renk vektörü oluşturuyorsanız, grafiğin renk skalası: `vector_of_colors <- c("blue", "red2", "orange", "grey")`
 
-Note that to create a vector that "stands alone" (is not part of a data frame) the function `c()` is used to combine the different elements. For example, if creating a vector of colors plot's color scale: 
-`vector_of_colors <- c("blue", "red2", "orange", "grey")`  
+<!-- ============================================ ========= -->
 
+### Nesne sınıfları {.unnumbered}
 
-<!-- ======================================================= -->
-### Object classes  {.unnumbered}
+R'da depolanan tüm nesnelerin, R'a nesneyi nasıl kullanacağını söyleyen bir *sınıfı* vardır. Birçok olası sınıf vardır, ancak ortak olanlar şunları içerir:
 
-All the objects stored in R have a *class* which tells R how to handle the object. There are many possible classes, but common ones include:
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------+
+| Sınıf      | Açıklama                                                                                            | Örnekler                                                      |
++============+=========================================================================================================================================================================================+=======================================================================================================+
+| Karakter   | Bunlar **"tırnak içinde"** bulunan metin/kelimeler/cümlelerdir . Bu nesneler üzerinde matematik yapılamaz.  | "Karakter nesneleri tırnak içindedir"                                                            |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------+
+| Tam Sayı    | **Yalnızca tam** olan sayılar (virgülden sonra ondalığı yok)                                                                                                                                         | -5, 14, veya 2000                                                                                       |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------+
+| Sayısal(Nümerik)    | Bunlar sayılardır ve **ondalık sayılar içerebilir**. Tırnak içindeyseler, karakter sınıfı olarak kabul edilirler.                                                             | 23.1 veya 14                                                                                            |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------+
+| Faktör     | Bunlar, **belirtilmiş bir sıraya** veya değerler hiyerarşisine sahip vektörlerdir.                                                                                                     | Sıralı değerlere sahip bir ekonomik durum değişkeni                                                  |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------+
+| Tarih       |**R'a belirli verilerin Tarih olduğu söylendiğinde**, bu veriler özel yollarla manipüle edilebilir ve görüntülenebilir. Daha fazla bilgi için [Tarihlerle çalışma] sayfasına bakın.| 2018-04-12 veya 15/3/1954 veya Çrş 4 Ocak 1980                                                             |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------+
+| Mantıksal (Logical)    | Değerler DOĞRU veya YANLIŞ iki özel değerden biri olmalıdır (bunların tırnak içinde **değil** "DOĞRU" ve "YANLIŞ" olduğuna dikkat edin)                                                              | DOĞRU veya YANLIŞ                                                                                         |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------+
+| veri Çerçevesi (data frame) | Veri çerçevesi, R'ın **tipik bir veri kümesini** nasıl depoladığıdır. Hepsi aynı sayıda gözleme (satır) sahip olan birbirine bağlı veri vektörlerinden (sütunlarından) oluşur.         | 'linelist_raw' adlı örnek AJS veri kümesi, her biri 300 gözlem (satır) içeren 68 değişken içerir. |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------+
+| Tibble     | tibbles, veri çerçevesindeki bir varyasyondur, ana operasyonel fark, konsola daha güzel yazdırmalarıdır (ilk 10 satırı ve yalnızca ekrana uyan sütunları görüntüleyin) | Herhangi bir veri çerçevesi, liste veya matris, `as_tibble() ile bir tibble'a dönüştürülebilir.`                       |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------+
+| Liste       | Liste vektör gibidir, ancak diğer nesneler farklı sınıflara ait olabilir.                                                                                                     | Bir liste tek bir sayıyı, bir veri çerçevesini ve bir vektörü ve hatta içinde başka bir listeyi içerebilir!   |
++------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------+
 
-Class |	Explanation | Examples
------- | ------------------------------------------ |  -----------------------------
-Character	| These are text/words/sentences **"within quotation marks"**. Math cannot be done on these objects.	| "Character objects are in quotation marks"  
-Integer | Numbers that are **whole only** (no decimals) | -5, 14, or 2000  
-Numeric	| These are numbers and **can include decimals**. If within quotation marks they will be considered character class. | 23.1 or 14  
-Factor | These are vectors that have a **specified order** or hierarchy of values | An variable of economic status with ordered values  
-Date | **Once R is told that certain data are Dates**, these data can be manipulated and displayed in special ways. See the page on [Working with dates] for more information. | 2018-04-12 or 15/3/1954 or Wed 4 Jan 1980  
-Logical | Values must be one of the two special values TRUE or FALSE (note these are **not** "TRUE" and "FALSE" in quotation marks) | TRUE or FALSE  
-data.frame | A data frame is how R stores a **typical dataset**. It consists of vectors (columns) of data bound together, that all have the same number of observations (rows). | The example AJS dataset named `linelist_raw` contains 68 variables with 300 observations (rows) each.  
-tibble | tibbles are a variation on data frame, the main operational difference being that they print more nicely to the console (display first 10 rows and only columns that fit on the screen) | Any data frame, list, or matrix can be converted to a tibble with `as_tibble()`  
-list | A list is like vector, but holds other objects that can be other different classes | A list could hold a single number, and a dataframe, and a vector, and even another list within it!  
-
-
-**You can test the class of an object by providing its name to the function `class()`**. Note: you can reference a specific column within a dataset using the `$` notation to separate the name of the dataset and the name of the column.
+**Bir nesnenin sınıfını, adını `class()`** fonksiyonuna vererek test edebilirsiniz. Not: Veri kümesinin adını ve sütunun adını ayırmak için "$" gösterimini kullanarak bir veri kümesi içindeki belirli bir sütuna başvurabilirsiniz.
 
 ```{r, echo=TRUE,}
-class(linelist)         # class should be a data frame or tibble
+class(linelist) # sınıfı bir veri çerçevesi veya tibble olmalıdır
 
-class(linelist$age)     # class should be numeric
+class(linelist$age) # sınıfı sayısal olmalıdır
 
-class(linelist$gender)  # class should be character
+class(linelist$gender) # sınıfı karakter olmalı
 ```
 
-Sometimes, a column will be converted to a different class automatically by R. Watch out for this! For example, if you have a vector or column of numbers, but a character value is inserted... the entire column will change to class character.  
+Bazen bir sütun R tarafından otomatik olarak farklı bir sınıfa dönüştürülür. Buna dikkat edin! Örneğin, bir vektörünüz veya sayı sütununuz varsa, ancak bir karakter değeri eklenirse... sütunun tamamı sınıf karakterine dönüşür.
 
 ```{r}
-num_vector <- c(1,2,3,4,5) # define vector as all numbers
-class(num_vector)          # vector is numeric class
-num_vector[3] <- "three"   # convert the third element to a character
-class(num_vector)          # vector is now character class
+num_vector <- c(1,2,3,4,5)       # vektörü tüm sayılar olarak tanımla
+class(num_vector)                # vektör sayısal bir sınıftır
+num_vector[3] <- "üç"            # üçüncü elemanı bir karaktere çevir
+class(num_vector)                # vektör artık karakter sınıfıdır
 ```
 
+Bunun yaygın bir örneği, bir tablo yazdırmak için bir veri çerçevesini manipüle etmektir - toplam bir satır yaparsanız ve sayılarla aynı hücredeki yüzdeleri yapıştırmaya çalışırsanız (örneğin '23 (%40)'), yukarıdaki sayısal sütunun tamamı karaktere dönüştürülecek ve artık matematiksel hesaplamalar için kullanılamayacak.**Bazen nesneleri veya sütunları başka bir sınıfa dönüştürmeniz gerekebilir.**
 
-One common example of this is when manipulating a data frame in order to print a table - if you make a total row and try to paste/glue together percents in the same cell as numbers (e.g. `23 (40%)`), the entire numeric column above will convert to character and can no longer be used for mathematical calculations.**Sometimes, you will need to convert objects or columns to another class.**
++------------------+---------------------------------------------------------------------------------------+
+| Fonksiyon         | Eylem                                                                                |
++==================+=======================================================================================+
+| `as.character()` | Karakter sınıfına çevirir                                                           |
++------------------+---------------------------------------------------------------------------------------+
+| `as.numeric()`   | Sayısal sınıfına çevirir                                                             |
++------------------+---------------------------------------------------------------------------------------+
+| `as.integer()`   | Tam Sayı sınıfına çevirir                                                            |
++------------------+---------------------------------------------------------------------------------------+
+| `as.Date()`      | Tarih sınıfına dönüştürür - Not: Ayrıntılar için [dates](#dates) bölümüne bakıns             |
++------------------+---------------------------------------------------------------------------------------+
+| `factor()`       | Faktöre dönüştürür - Not: değer düzeylerinin sırasını yeniden tanımlamak için ekstra değişkenler gerekir |
++------------------+---------------------------------------------------------------------------------------+
 
-Function | Action  
------------------ | --------------------------------------------------------------    
-`as.character()` | Converts to character class  
-`as.numeric()` | Converts to numeric class  
-`as.integer()` | Converts to integer class
-`as.Date()` | Converts to Date class - Note: see section on [dates](#dates) for details  
-`factor()` | Converts to factor - Note: re-defining order of value levels requires extra arguments
+Benzer şekilde, belirli bir sınıfa ait bir nesnenin IS olup olmadığını kontrol etmek için **temel** R fonksiyonları vardır. Örneğin "is.numeric()", "is.character()", "is.double()", "is.factor()`, `is.integer()`
 
-Likewise, there are **base** R functions to check whether an object IS of a specific class, such as `is.numeric()`, `is.character()`, `is.double()`, `is.factor()`, `is.integer()`
+[R'daki sınıflar ve veri yapıları hakkında daha fazla çevrimiçi materyal](https://swcarpentry.github.io/r-novice-inflammation/13-supp-data-structures/).
 
-Here is [more online material on classes and data structures in R](https://swcarpentry.github.io/r-novice-inflammation/13-supp-data-structures/).
+<!-- ============================================ ========= -->
 
+### Sütunlar/Değişkenler (`$`) {.unnumbered}
 
-<!-- ======================================================= -->
-### Columns/Variables (`$`) {.unnumbered}  
+**Veri çerçevesindeki bir sütun teknik olarak bir "vektördür" (yukarıdaki tabloya bakın)** - tümü aynı sınıfta olması gereken bir dizi değer (karakter, sayısal, mantıksal vb.).
 
-**A column in a data frame is technically a "vector" (see table above)** - a series of values that must all be the same class (either character, numeric, logical, etc).  
-
-A vector can exist independent of a data frame, for example a vector of column names that you want to include as explanatory variables in a model. To create a "stand alone" vector, use the `c()` function as below:  
+Bir vektör, bir veri çerçevesinden bağımsız olarak var olabilir. Örneğin, bir modelde açıklayıcı değişkenler olarak dahil etmek istediğiniz sütun adlarından oluşan bir vektör. "Bağımsız" bir vektör oluşturmak için aşağıdaki gibi `c()` fonksiyonunu kullanın:
 
 ```{r, warning=F, message=F}
-# define the stand-alone vector of character values
+# karakter değerlerinin bağımsız vektörünü tanımlayın
 explanatory_vars <- c("gender", "fever", "chills", "cough", "aches", "vomit")
 
-# print the values in this named vector
+# bu adlandırılmış vektördeki değerleri yazdır
 explanatory_vars
 ```
 
-**Columns in a data frame are also vectors and can be called, referenced, extracted, or created using the `$` symbol.** The `$` symbol connects the name of the column to the name of its data frame. In this handbook, we try to use the word "column" instead of "variable".  
-
+**Bir veri çerçevesindeki sütunlar da vektörlerdir ve çağrılabilir, referans alınabilir, ayıklanabilir veya `$` sembolü kullanılarak oluşturulabilir.** `$` sembolü, sütunun adını veri çerçevesinin adına bağlar. Bu el kitabında "değişken" yerine "sütun" kelimesini kullanmaya çalışıyoruz.
 
 ```{r basics_objects_call, eval=F}
-# Retrieve the length of the vector age_years
-length(linelist$age) # (age is a column in the linelist data frame)
+# age_years vektörünün uzunluğunu alın
+length(linelist$age) # (yaş, satır listesi veri çerçevesindeki bir sütundur)
 
 ```
 
-By typing the name of the dataframe followed by `$` you will also see a drop-down menu of all columns in the data frame. You can scroll through them using your arrow key, select one with your Enter key, and avoid spelling mistakes!  
+Veri çerçevesinin adının ardından `$' yazarak, veri çerçevesindeki tüm sütunların bir açılır menüsünü de göreceksiniz. Ok tuşunuzu kullanarak aralarında gezinebilir, Enter tuşu ile birini seçebilir ve yazım hatalarından kaçınabilirsiniz!
 
 ```{r echo=F, out.width = "100%", fig.align = "center"}
 knitr::include_graphics(here::here("images", "Calling_Names.gif"))
-```  
+```
+[***GELİŞMİŞ İPUCU:*** Bazı daha karmaşık nesnelerin (örneğin bir liste veya bir "epicontacts" nesnesi) birden çok dolar işaretiyle erişilebilen birden çok düzeyi olabilir. Örneğin, `epicontacts$linelist$date_onset`]{style="color: darkgreen;"}
 
+<!-- ============================================= ========= -->
 
+### Köşeli ayraçlarla erişim/dizin (`[ ]`) {.unnumbered}
 
-<span style="color: darkgreen;">**_ADVANCED TIP:_** Some more complex objects (e.g. a list, or an `epicontacts` object) may have multiple levels which can be accessed through multiple dollar signs. For example `epicontacts$linelist$date_onset`</span>
-
-
-
-<!-- ======================================================= -->
-### Access/index with brackets (`[ ]`) {.unnumbered}  
-
-You may need to view parts of objects, also called "indexing", which is often done using the square brackets `[ ]`. Using `$` on a dataframe to access a column is also a type of indexing.  
+Genellikle "[ ]" köşeli parantezleri kullanılarak yapılan, "indeksleme" olarak da adlandırılan nesnelerin parçalarını görüntülemeniz gerekebilir. Bir sütuna erişmek için bir veri çerçevesinde `$` kullanmak da bir indeksleme türüdür.
 
 ```{r}
-my_vector <- c("a", "b", "c", "d", "e", "f")  # define the vector
-my_vector[5]                                  # print the 5th element
+my_vector <- c("a", "b", "c", "d", "e", "f")  # Vektörün tanımlanması
+my_vector[5]                                  # 5. ögenin yazdırılması
 ```
 
-Square brackets also work to return specific parts of an returned output, such as the output of a `summary()` function: 
+Köşeli parantezler ayrıca, bir "summary()" fonksiyonunun çıktısı gibi, döndürülen çıktının belirli bölümlerini döndürmek için de çalışır:
 
 ```{r}
-# All of the summary
+# Özetin tamamı
 summary(linelist$age)
 
-# Just the second element of the summary, with name (using only single brackets)
+# Özetin yalnızca ikinci ögesi, adıyla (yalnızca tek parantez kullanarak)
 summary(linelist$age)[2]
 
-# Just the second element, without name (using double brackets)
+# Sadece ikinci öge, isimsiz (çift parantez kullanarak)
 summary(linelist$age)[[2]]
 
-# Extract an element by name, without showing the name
+# Bir öğeyi, adını göstermeden adıyla ayıklayın
 summary(linelist$age)[["Median"]]
 
 ```
 
-Brackets also work on data frames to view specific rows and columns. You can do this using the syntax `dataframe[rows, columns]`:  
+Parantezler ayrıca belirli satırları ve sütunları görüntülemek için veri çerçeveleri üzerinde de çalışır. Bunu, `dataframe[rows, column]` sözdizimini kullanarak yapabilirsiniz:
 
 ```{r basics_objects_access, eval=F}
-# View a specific row (2) from dataset, with all columns (don't forget the comma!)
+# Tüm sütunlarla birlikte veri kümesinden belirli bir satırı (2) görüntüleyin (virgül unutmayın!)
 linelist[2,]
 
-# View all rows, but just one column
+# Tüm satırları görüntüleyin, ancak yalnızca bir sütun
 linelist[, "date_onset"]
 
-# View values from row 2 and columns 5 through 10
+# 2. satırdaki ve 5 ile 10 arasındaki sütunlardaki değerleri görüntüleyin
 linelist[2, 5:10] 
 
-# View values from row 2 and columns 5 through 10 and 18
+# 2. satırdaki ve 5. ila 10. ve 18. sütunlardaki değerleri görüntüleyin
 linelist[2, c(5:10, 18)] 
 
-# View rows 2 through 20, and specific columns
+# 2'den 20'ye kadar olan satırları ve belirli sütunları görüntüleyin
 linelist[2:20, c("date_onset", "outcome", "age")]
 
-# View rows and columns based on criteria
-# *** Note the dataframe must still be named in the criteria!
+# Ölçüte göre satırları ve sütunları görüntüleyin
+# *** Veri çerçevesinin kriterlerde hala adlandırılması gerektiğine dikkat edin!
 linelist[linelist$age > 25 , c("date_onset", "outcome", "age")]
 
-# Use View() to see the outputs in the RStudio Viewer pane (easier to read) 
-# *** Note the capital "V" in View() function
+# RStudio Viewer bölmesindeki çıktıları görmek için View()'i kullanın (okunması daha kolay)
+# *** View() fonksiyonunda büyük "V" harfini not edin
 View(linelist[2:20, "date_onset"])
 
-# Save as a new object
+# Yeni bir nesne olarak kaydet
 new_table <- linelist[2:20, c("date_onset")] 
 ```
 
-Note that you can also achieve the above row/column indexing on data frames and tibbles using **dplyr** syntax (functions `filter()` for rows, and `select()` for columns). Read more about these core functions in the [Cleaning data and core functions] page.  
+**dplyr** sözdizimini (satırlar için 'filter()' ve sütunlar için 'select()' fonksiyonları) kullanarak veri çerçeveleri ve tibbles üzerinde yukarıdaki satır/sütun indekslemeyi de gerçekleştirebileceğinizi unutmayın. [Temizleme verileri ve temel fonksiyonlar] sayfasında bu temel fonksiyonlar hakkında daha fazla bilgi edinin.
 
-To filter based on "row number", you can use the **dplyr** function `row_number()` with open parentheses as part of a logical filtering statement. Often you will use the `%in%` operator and a range of numbers as part of that logical statement, as shown below. To see the *first* N rows, you can also use the special **dplyr** function `head()`.   
+"Satır numarasına" göre filtrelemek için, mantıksal bir filtreleme ifadesinin parçası olarak açık parantezlerle **dplyr** `row_number()` fonksiyonunu kullanabilirsiniz. Aşağıda gösterildiği gibi, genellikle bu mantıksal ifadenin bir parçası olarak "%in%" operatörünü ve bir dizi sayıyı kullanacaksınız. *ilk* N satırı görmek için, özel **dplyr** fonksiyonu `head()` de kullanabilirsiniz.
 
 ```{r, eval=F}
-# View first 100 rows
+# İlk 100 satırı görüntüle
 linelist %>% head(100)
 
-# Show row 5 only
+# Sadece 5. satırı görüntüke
 linelist %>% filter(row_number() == 5)
 
-# View rows 2 through 20, and three specific columns (note no quotes necessary on column names)
+# 2'den 20'ye kadar olan satırları ve üç özel sütunu görüntüleyin (sütun adlarında tırnak işareti gerekmediğini unutmayın)
 linelist %>% filter(row_number() %in% 2:20) %>% select(date_onset, outcome, age)
 ```
 
+**list** sınıfının bir nesnesini indekslerken, yalnızca tek bir nesne döndürülse bile, tek parantezler her zaman sınıf listesiyle birlikte döner. Ancak çift parantezler, tek bir öğeye erişmek ve listeden farklı bir sınıf döndürmek için kullanılabilir.\
+Parantezler ayrıca aşağıda gösterildiği gibi birbiri ardına yazılabilir.
 
-When indexing an object of class **list**, single brackets always return with class list, even if only a single object is returned. Double brackets, however, can be used to access a single element and return a different class than list.  
-Brackets can also be written after one another, as demonstrated below.  
-
-This [visual explanation of lists indexing, with pepper shakers](https://r4ds.had.co.nz/vectors.html#lists-of-condiments) is humorous and helpful.
+Bu [liste indekslemenin tuzlukla görsel açıklaması](https://r4ds.had.co.nz/vectors.html#lists-of-condiments) komik ve faydalıdır.
 
 ```{r}
-# define demo list
+# demo listesini tanımla
 my_list <- list(
-  # First element in the list is a character vector
+  # Listedeki ilk öge karakter vektörü
   hospitals = c("Central", "Empire", "Santa Anna"),
   
-  # second element in the list is a data frame of addresses
+  # Listedeki ikinci öge adreslerin veri çerçevesi
   addresses   = data.frame(
     street = c("145 Medical Way", "1048 Brown Ave", "999 El Camino"),
     city   = c("Andover", "Hamilton", "El Paso")
@@ -1197,111 +1150,111 @@ my_list <- list(
   )
 ```
 
-Here is how the list looks when printed to the console. See how there are two named elements:  
+Konsola yazdırıldığında listenin nasıl göründüğü aşağıda açıklanmıştır. Nasıl adlandırılmış iki öğe olduğunu görün:
 
-* `hospitals`, a character vector  
-* `addresses`, a data frame of addresses
+- "hospitals", bir karakter vektörü\
+- "addresses", adreslerin bir veri çerçevesi
 
 ```{r}
 my_list
 ```
-Now we extract, using various methods:  
+
+Şimdi çeşitli yöntemler kullanarak ayıklıyoruz:
 
 ```{r}
-my_list[1] # this returns the element in class "list" - the element name is still displayed
+my_list[1] # bu, "list" sınıfındaki öğeyi döndürür - öğe adı hala görüntüleniyor
 
-my_list[[1]] # this returns only the (unnamed) character vector
+my_list[[1]] # bu yalnızca (adsız) karakter vektörünü döndürür
 
-my_list[["hospitals"]] # you can also index by name of the list element
+my_list[["hospitals"]] # ayrıca liste öğesinin adına göre dizin oluşturabilirsiniz
 
-my_list[[1]][3] # this returns the third element of the "hospitals" character vector
+my_list[[1]][3] # "hastaneler" karakter vektörünün üçüncü öğesini döndürür
 
-my_list[[2]][1] # This returns the first column ("street") of the address data frame
+my_list[[2]][1] # Bu, adres veri çerçevesinin ilk sütununu ("sokak") döndürür
 
 ```
 
-
-
 <!-- ======================================================= -->
-### Remove objects {.unnumbered} 
 
-You can remove individual objects from your R environment by putting the name in the `rm()` function (no quote marks):  
+### Nesneleri kaldırma {.unnumbered}
+
+'rm()' fonksiyonu ile (tırnak işaretleri olmadan) R ortamınızdan tek tek nesneleri kaldırabilirsiniz:
 
 ```{r, eval=F}
 rm(object_name)
 ```
 
-You can remove all objects (clear your workspace) by running:  
+Aşağıdakileri çalıştırarak tüm nesneleri kaldırabilirsiniz (çalışma alanınızı temizleyin):
 
 ```{r, eval=F}
 rm(list = ls(all = TRUE))
 ```
 
-
+<!-- ======================================================= -->
 
 <!-- ======================================================= -->
-<!-- ======================================================= -->
-<!-- ======================================================= -->
-## Piping (`%>%`)  
-
-**Two general approaches to working with objects are:**  
-
-1) **Pipes/tidyverse** - pipes send an object from function to function - emphasis is on the *action*, not the object  
-2) **Define intermediate objects** - an object is re-defined again and again - emphasis is on the object  
-
 
 <!-- ======================================================= -->
-### **Pipes** {.unnumbered}
 
-**Simply explained, the pipe operator (`%>%`) passes an intermediate output from one function to the next.**  
-You can think of it as saying "then". Many functions can be linked together with `%>%`.  
+## Tünelleme (`%>%`)
 
-* **Piping emphasizes a sequence of actions, not the object the actions are being performed on**  
-* Pipes are best when a sequence of actions must be performed on one object  
-* Pipes come from the package **magrittr**, which is automatically included in packages **dplyr** and **tidyverse**
-* Pipes can make code more clean and easier to read, more intuitive
+**Nesnelerle çalışmaya yönelik iki genel yaklaşım şunlardır:**
 
-Read more on this approach in the tidyverse [style guide](https://style.tidyverse.org/pipes.html)  
+1) **Tüneller/tidyverse** - tüneller nesneyi bir fonksiyondan diğerine gönderir - vurgu nesne değil *eylem* üzerindedir\
+2) **Ara nesneleri tanımlayın** - bir nesne tekrar tekrar tanımlanır - vurgu nesne üzerindedir
 
-Here is a fake example for comparison, using fictional functions to "bake a cake". First, the pipe method:  
+<!-- ============================================ ========= -->
+
+### **Tüneller** {.unnumbered}
+
+**Basitçe açıklandığı gibi, tünel operatörü (`%>%`) bir fonksiyondan diğerine bir ara çıktı iletir.**\
+Bunu "sonrasında" demek gibi düşünebilirsiniz. Birçok fonksiyon `%>%` ile birbirine bağlanabilir.
+
+- **Tünelleme, eylemlerin gerçekleştirildiği nesneyi değil, bir dizi eylemi vurgular**\
+- Tüneller, bir nesne üzerinde bir dizi eylem gerçekleştirilmesi gerektiğinde en iyisidir\
+- Tüneller, otomatik olarak **dplyr** ve **tidyverse** paketlerine dahil edilen **magrittr** paketinden gelir
+- Tüneller, kodu daha temiz ve okunması daha kolay, daha sezgisel hale getirebilir
+
+Bu yaklaşımla ilgili daha fazla bilgiyi tidyverse [stil kılavuzunda] (https://style.tidyverse.org/pipes.html) okuyabilirsiniz.
+
+İşte "kek pişirmek" için kurgusal fonksiyonları kullanan karşılaştırma için sahte bir örnek. İlk olarak, tünel yöntemi:
 
 ```{r piping_example_pipe, eval=F}
-# A fake example of how to bake a cake using piping syntax
+# Tünel sözdizimi kullanarak kek pişirmenin sahte bir örneği
 
-cake <- flour %>%       # to define cake, start with flour, and then...
-  add(eggs) %>%   # add eggs
-  add(oil) %>%    # add oil
-  add(water) %>%  # add water
-  mix_together(         # mix together
+cake <- flour %>%       # Kek pişirmek için önce undan başlanır, sonrasında...
+  add(eggs) %>%   # yumurtaları ekle
+  add(oil) %>%    # yağı ekle
+  add(water) %>%  # suyu ekle
+  mix_together(         # birlikte karıştır
     utensil = spoon,
     minutes = 2) %>%    
-  bake(degrees = 350,   # bake
+  bake(degrees = 350,   # pişir
        system = "fahrenheit",
        minutes = 35) %>%  
-  let_cool()            # let it cool down
+  let_cool()            # soğumaya bırak
 ```
 
-Here is another [link](https://cfss.uchicago.edu/notes/pipes/#:~:text=Pipes%20are%20an%20extremely%20useful,code%20and%20combine%20multiple%20operations) describing the utility of pipes.  
+İşte tünellerin kullanımını açıklayan başka bir [bağlantı](https://cfss.uchicago.edu/notes/pipes/#:~:text=Pipes%20are%20an%20extremely%20useful,code%20and%20combine%20multiple%20operations).
 
-Piping is not a **base** function. To use piping, the **magrittr** package must be installed and loaded (this is typically done by loading **tidyverse** or **dplyr** package which include it). You can [read more about piping in the magrittr documentation](https://magrittr.tidyverse.org/).
+Tünelleme bir **temel** fonksiyon değildir. Tünelleri kullanmak için **magrittr** paketi kurulmalı ve yüklenmelidir (bu genellikle, onu içeren **tidyverse** veya **dplyr** paketi yüklenerek yapılır). [magrittr belgelerinde tünelleme hakkında daha fazla bilgi edinebilirsiniz](https://magrittr.tidyverse.org/).
 
-Note that just like other R commands, pipes can be used to just display the result, or to save/re-save an object, depending on whether the assignment operator `<-` is involved. See both below:  
+Diğer R komutlarında olduğu gibi, tünellerin yalnızca sonucu görüntülemek veya "<-" atama operatörünün dahil olup olmadığına bağlı olarak bir nesneyi kaydetmek/yeniden kaydetmek için kullanılabileceğini unutmayın. Her ikisine de bakın:
 
 ```{r, eval=F}
-# Create or overwrite object, defining as aggregate counts by age category (not printed)
+# Yaş kategorisine göre toplam sayım olarak tanımlayarak nesne oluşturun veya üzerine yazın (yazdırılmaz)
 linelist_summary <- linelist %>% 
   count(age_cat)
 ```
 
 ```{r}
-# Print the table of counts in the console, but don't save it
+# Konsoldaki sayım tablosunu yazdırın, ancak kaydetmeyin
 linelist %>% 
   count(age_cat)
 ```
 
-
-**`%<>%`**  
-This is an "assignment pipe" from the **magrittr** package, which *pipes an object forward and also re-defines the object*. It must be the first pipe operator in the chain. It is shorthand. The below two commands are equivalent:  
+**`%<>%`**\
+Bu, **magrittr** paketinden bir "atama tüneli"dir ve bu, bir nesneyi ileriye taşır ve aynı zamanda nesneyi yeniden tanımlar*. Zincirdeki ilk tünel operatörü olmalıdır. Kısa yol. Aşağıdaki iki komut eşdeğerdir:
 
 ```{r, eval=F}
 linelist <- linelist %>%
@@ -1310,28 +1263,27 @@ linelist <- linelist %>%
 linelist %<>% filter(age > 50)
 ```
 
-
 <!-- ======================================================= -->
-### Define intermediate objects {.unnumbered}
 
-This approach to changing objects/dataframes may be better if:  
+### Ara nesneleri tanımlayın {.unnumbered}
 
-* You need to manipulate multiple objects  
-* There are intermediate steps that are meaningful and deserve separate object names
+Nesneleri/veri çerçevelerini değiştirmeye yönelik bu yaklaşım, aşağıdaki durumlarda daha iyi olabilir:
 
+- Birden çok nesneyi manipüle etmeniz gerekirse\
+- Anlamlı olan ve ayrı nesne adlarını hak eden ara adımlar varsa
 
-**Risks:**  
+**Riskler:**
 
-* Creating new objects for each step means creating lots of objects. If you use the wrong one you might not realize it!  
-* Naming all the objects can be confusing  
-* Errors may not be easily detectable  
+- Her adım için yeni nesneler oluşturmak, çok sayıda nesne oluşturmak anlamına gelir. Eğer yanlış olanı kullanırsan, bunu fark etmeyebilirsin!\
+- Tüm nesneleri adlandırmak kafa karıştırıcı olabilir\
+- Hatalar kolayca tespit edilemeyebilir
 
-Either name each intermediate object, or overwrite the original, or combine all the functions together. All come with their own risks.  
+Her bir ara nesneyi adlandırın veya orijinalin üzerine yazın veya tüm fonksiyonları bir araya getirin. Hepsi kendi riskleriyle birlikte gelir.
 
-Below is the same fake "cake" example as above, but using this style:  
+Aşağıda, yukarıdakiyle aynı sahte "kek" örneği verilmiştir, ancak bu stili kullanarak:
 
 ```{r piping_example_redefine, eval=F}
-# a fake example of how to bake a cake using this method (defining intermediate objects)
+# bu yöntemi kullanarak kek pişirmenin sahte bir örneği (ara nesneleri tanımlama)
 batter_1 <- left_join(flour, eggs)
 batter_2 <- left_join(batter_1, oil)
 batter_3 <- left_join(batter_2, water)
@@ -1343,53 +1295,50 @@ cake <- bake(batter_4, degrees = 350, system = "fahrenheit", minutes = 35)
 cake <- let_cool(cake)
 ```
 
-Combine all functions together - this is difficult to read:  
+Tüm fonksiyonları bir araya getirin - bunu okumak zordur:
 
 ```{r eval=F}
-# an example of combining/nesting mutliple functions together - difficult to read
+# birden çok fonksiyonu bir araya getirme/iç içe yerleştirme örneği - okunması zordur
 cake <- let_cool(bake(mix_together(batter_3, utensil = spoon, minutes = 2), degrees = 350, system = "fahrenheit", minutes = 35))
 ```
 
-
 <!-- ======================================================= -->
-## Key operators and functions {#operators}
 
-This section details operators in R, such as:  
+## Anahtar operatörler ve fonksiyonlar {#operators}
 
-* Definitional operators  
-* Relational operators (less than, equal too..)  
-* Logical operators (and, or...)  
-* Handling missing values  
-* Mathematical operators and functions (+/-, >, sum(), median(), ...)  
-* The `%in%` operator  
+Bu bölüm, R'daki operatörleri detaylandırır, örneğin:
 
+- Tanımsal operatörler\
+- İlişkisel operatörler (küçüktür, eşittir çok ..)\
+- Mantıksal operatörler (ve, veya...)\
+- Eksik değerlerin işlenmesi\
+- Matematiksel operatörler ve fonksiyonlar (+/-, \>, toplam(), medyan(), ...)\
+- `%in%` operatörü
 
+<!-- ============================================ ========= -->
 
-<!-- ======================================================= -->
-### Assignment operators {.unnumbered}  
+### Atama operatörleri {.unnumbered}
 
-**`<-`**  
+**`<-`**
 
-The basic assignment operator in R is `<-`. Such that `object_name <- value`.  
-This assignment operator can also be written as `=`. We advise use of `<-` for general R use.  
-We also advise surrounding such operators with spaces, for readability.  
+R'daki temel atama operatörü `<-` şeklindedir. Öyle ki `nesne_adı <- değer`.\
+Bu atama operatörü `=` şeklinde de yazılabilir. Genel R kullanımı için `<-` kullanılmasını tavsiye ederiz.\
+Okunabilirlik için bu tür operatörleri boşluklarla çevrelemenizi de öneririz.
 
+**`<<-`**
 
-**`<<-`**  
+[Yazma fonksiyonlarını] veya R'ı kaynaklı komut dosyalarıyla etkileşimli bir şekilde kullanıyorsanız, bu atama operatörünü `<<-` (**base** R'dan) kullanmanız gerekebilir. Bu operatör, daha yüksek bir 'ana' R Ortamında bir nesneyi tanımlamak için kullanılır. Bu [çevrimiçi referansa](https://stat.ethz.ch/R-manual/R-devel/library/base/html/assignOps.html) bakabilirsiniz.
 
-If [Writing functions], or using R in an interactive way with sourced scripts, then you may need to use this assignment operator `<<-` (from **base** R). This operator is used to define an object in a higher 'parent' R Environment. See this [online reference](https://stat.ethz.ch/R-manual/R-devel/library/base/html/assignOps.html).
+**`%<>%`**
 
-
-**`%<>%`**  
-
-This is an "assignment pipe" from the **magrittr** package, which pipes an object forward and *also re-defines the object*. It must be the first pipe operator in the chain. It is shorthand, as shown below in two equivalent examples:  
+Bu, bir nesneyi ileriye yönlendiren ve *aynı zamanda nesneyi yeniden tanımlayan* **magrittr** paketinden bir "atama tünelidir". Zincirdeki ilk tünel operatörü olmalıdır. Aşağıda iki eşdeğer örnekte gösterildiği gibi kısa yoldur:
 
 ```{r, eval=F}
 linelist <- linelist %>% 
   mutate(age_months = age_years * 12)
-```  
+```
 
-The above is equivalent to the below:  
+Yukarıdaki aşağıdakine eşdeğerdir.
 
 ```{r, eval=F}
 linelist %<>% mutate(age_months = age_years * 12)
@@ -1397,37 +1346,47 @@ linelist %<>% mutate(age_months = age_years * 12)
 
 **`%<+%`**
 
-This is used to add data to phylogenetic trees with the **ggtree** package. See the page on [Phylogenetic trees] or this online [resource book](https://yulab-smu.top/treedata-book/).  
+Bu, **ggtree** paketi ile filogenetik ağaçlara veri eklemek için kullanılır. [Filogenetik ağaçlar] sayfasına veya bu çevrimiçi [kaynak kitap](https://yulab-smu.top/treedata-book/) sayfasına bakabilirsiniz.
 
+<!-- ============================================= ========= -->
 
- 
+### İlişkisel ve mantıksal operatörler {.unnumbered}
 
-<!-- ======================================================= -->
-### Relational and logical operators {.unnumbered}  
+İlişkisel operatörler değerleri karşılaştırır ve genellikle yeni değişkenleri ve veri kümelerinin alt kümelerini tanımlarken kullanılır. R'daki ortak ilişkisel operatörler şunlardır:
 
-Relational operators compare values and are often used when defining new variables and subsets of datasets. Here are the common relational operators in R:  
++--------------------------+------------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Anlamı                  | Operatör   | Örnek         | Örnek Sonucu                                                                                                                                         |
++==========================+============+==============+========================================================================================================================================================+
+| Eşittir                | `==`       | `"A" == "a"` | `FALSE` (çünkü R büyük/küçük harf duyarlıdır) *== (çift eşittir) öğesinin = (tekli eşittir) fonksiyonundan farklı olduğuna ve bu atama operatörünün `<-`* gibi davrandığına dikkat edin |
++--------------------------+------------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Eşit değildir             | `!=`       | `2 != 0`     | `TRUE`                                                                                                                                                 |
++--------------------------+------------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Büyüktür                 | `>`        | `4 > 2`      | `TRUE`                                                                                                                                                 |
++--------------------------+------------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Küçüktür                 | `<`        | `4 < 2`      | `FALSE`                                                                                                                                                |
++--------------------------+------------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Büyük eşittir            | `>=`       | `6 >= 4`     | `TRUE`                                                                                                                                                 |
++--------------------------+------------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Küçük eşittir            | `<=`       | `6 <= 4`     | `FALSE`                                                                                                                                                |
++--------------------------+------------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Değer eksiktir           | `is.na()`  | `is.na(7)`   | `FALSE` [Kayıp Veri] sayfasına bakabilirsiniz)                                                                                                                   |
++--------------------------+------------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Değer tamdır             | `!is.na()` | `!is.na(7)`  | `TRUE`                                                                                                                                                 |
++--------------------------+------------+--------------+--------------------------------------------------------------------------------------------------------------------------------------------------------+
 
-Meaning                 |Operator     |Example       |Example Result
-------------------------|-------------|--------------|---------------------------
-Equal to                |`==`         |`"A" == "a"`  |`FALSE` (because R is case sensitive) *Note that == (double equals) is different from = (single equals), which acts like the assignment operator `<-`*
-Not equal to            |`!=`         |`2 != 0`      |`TRUE`
-Greater than            |`>`          |`4 > 2`       |`TRUE`
-Less than               |`<`          |`4 < 2`       |`FALSE`
-Greater than or equal to|`>=`         |`6 >= 4`      |`TRUE`
-Less than or equal to   |`<=`         |`6 <= 4`      |`FALSE`
-Value is missing        |`is.na()`    |`is.na(7)`    |`FALSE` (see page on [Missing data])
-Value is not missing    |`!is.na()`   |`!is.na(7)`   |`TRUE`
+AND ve OR gibi mantıksal operatörler, genellikle ilişkisel operatörleri bağlamak ve daha karmaşık kriterler oluşturmak için kullanılır. Karmaşık ifadeler, gruplama ve uygulama sırası için parantez ( ) gerektirebilir.
 
-Logical operators, such as AND and OR, are often used to connect relational operators and create more complicated criteria. Complex statements might require parentheses ( ) for grouping and order of application.  
++---------------------+-----------------------------------------------------------------------+
+| Anlamı              | Operator                                                              |
++=====================+=======================================================================+
+| VE                  | `&`                                                                   |
++---------------------+-----------------------------------------------------------------------+
+| VEYA                  | `|` (dikey çizgi)                                                    |
++---------------------+-----------------------------------------------------------------------+
+| Parantezler         | `( )` Kriterleri birlikte gruplandırmak ve işlem sırasını netleştirmek için kullanılır |
++---------------------+-----------------------------------------------------------------------+
 
-Meaning    |Operator
------------|------------------------
-AND        |`&`
-OR         |`|` (vertical bar)
-Parentheses|`( )` Used to group criteria together and clarify order  of operations
-
-
-For example, below, we have a linelist with two variables we want to use to create our case definition, `hep_e_rdt`, a test result and `other_cases_in_hh`, which will tell us if there are other cases in the household. The command below uses the function `case_when()` to create the new variable `case_def` such that:
+Örneğin, aşağıda vaka tanımımızı oluşturmak için kullanmak istediğimiz iki değişkenli bir satır listemiz var, `hep_e_rdt`, bir test sonucu ve hanede başka vakalar olup olmadığını bize bildirecek `other_cases_in_hh`. Aşağıdaki komut, yeni "case_def" değişkenini yaratmak için "case_when()" fonksiyonunu kullanır:
 
 ```{r eval=FALSE}
 linelist_cleaned <- linelist %>%
@@ -1439,151 +1398,144 @@ linelist_cleaned <- linelist %>%
   ))
 ```
 
-Criteria in example above               | Resulting value in new variable "case_def"
-----------------------------------------|-------------------------------------
-If the value for variables `rdt_result` and `other_cases_in_home` are missing | `NA` (missing)  
-If the value in `rdt_result` is "Positive" | "Confirmed"  
-If the value in `rdt_result` is NOT "Positive" AND the value in `other_cases_in_home` is "Yes" | "Probable"  
-If one of the above criteria are not met | "Suspected"  
++------------------------------------------------------------------------------------------------+--------------------------------------------+
+| Üstteki örneğin kriteri                                                                   | Yeni "case_def" değişkeninde elde edilen değer |
++================================================================================================+============================================+
+| "rdt_result" ve "other_cases_in_home" değişkenlerinin değeri eksik ise                          | `NA` (eksik)                             |
++------------------------------------------------------------------------------------------------+--------------------------------------------+
+| "rdt_result" içindeki değer "Pozitif" ise                                                      | "Onaylanmış"                                |
++------------------------------------------------------------------------------------------------+--------------------------------------------+
+| "rdt_result" içindeki değer "Pozitif" DEĞİLSE VE "other_cases_in_home" içindeki değer "Evet" ise | "Muhtemel"                                 |
++------------------------------------------------------------------------------------------------+--------------------------------------------+
+| Yukarıdaki kriterlerden biri karşılanmazsa                                                    | "Şüpheli"                                |
++------------------------------------------------------------------------------------------------+--------------------------------------------+
 
+*R'ın büyük/küçük harf duyarlı olduğuna dikkat edin, bu nedenle "Pozitif", "pozitif"ten farklıdır...*
 
-*Note that R is case-sensitive, so "Positive" is different than "positive"...*  
+<!-- ============================================= ========= -->
 
- 
-<!-- ======================================================= -->
-### Missing values {.unnumbered}
+### Eksik değerler {.unnumbered}
 
-In R, missing values are represented by the special value `NA` (a "reserved" value) (capital letters N and A - not in quotation marks). If you import data that records missing data in another way (e.g. 99, "Missing", or .), you may want to re-code those values to `NA`. How to do this is addressed in the [Import and export] page.  
+R'da, eksik değerler "NA" ("ayrılmış" bir değer) özel değeriyle temsil edilir (büyük harfler N ve A - tırnak içinde değil). Eksik verileri başka bir şekilde kaydeden verileri içe aktarırsanız (ör. 99, "Eksik" veya .), bu değerleri "NA" olarak yeniden kodlamak isteyebilirsiniz. Bunun nasıl yapılacağı [İçe ve dışa aktar] sayfasında ele alınmaktadır.
 
-**To test whether a value is `NA`, use the special function `is.na()`**, which returns `TRUE` or `FALSE`.
+**Bir değerin "NA" olup olmadığını test etmek için "DOĞRU" veya "YANLIŞ" döndüren özel "is.na()"** fonksiyonunu kullanın.
 
 ```{r basics_operators_missing}
-rdt_result <- c("Positive", "Suspected", "Positive", NA)   # two positive cases, one suspected, and one unknown
-is.na(rdt_result)  # Tests whether the value of rdt_result is NA
+rdt_result <- c("Positive", "Suspected", "Positive", NA)   # biri şüpheli, biri bilinmeyen iki pozitif vaka
+is.na(rdt_result)  # rdt_result değerinin NA olup olmadığını test eder
 ```
 
-Read more about missing, infinite, `NULL`, and impossible values in the page on [Missing data]. Learn how to convert missing values when importing data in the page on [Import and export].  
+[Eksik veri] sayfasındaki eksik, sonsuz, "NULL" ve imkansız değerler hakkında daha fazla bilgi edinin. [İçe ve dışa aktar] sayfasındaki verileri içe aktarırken eksik değerleri nasıl dönüştüreceğinizi öğrenin.
 
+<!-- ============================================= ========= -->
 
+### Matematik ve istatistik {.unnumbered}
 
-<!-- ======================================================= -->
-### Mathematics and statistics {.unnumbered}  
+Bu sayfadaki tüm operatörler ve fonksiyonlar, **base** R kullanılarak otomatik olarak kullanılabilir.
 
-All the operators and functions in this page are automatically available using **base** R.  
+#### Matematiksel operatörler {.unnumbered}
 
-#### Mathematical operators {.unnumbered} 
+Bunlar genellikle toplama, bölme, yeni sütunlar vb. oluşturmak için kullanılır. Aşağıda R'daki yaygın matematiksel operatörler verilmiştir. Operatörlerin etrafına boşluk koyup koymamanız önemli değildir.
 
-These are often used to perform addition, division, to create new columns, etc. Below are common mathematical operators in R. Whether you put spaces around the operators is not important.  
+| Amaç                | R'da Örneği  |
+|---------------------|--------------|
+| Toplama             | 2 + 3        |
+| Çıkarma             | 2 - 3        |
+| Çarpma              | 2 \* 3       |
+| Bölme               | 30 / 5       |
+| Üstel               | 2\^3         |
+| Operasyon sırası    | ( )          |
 
+#### Matematiksel fonksiyonlar {.unnumbered}
 
-Purpose            |Example in R
--------------------|-------------
-addition           | 2 + 3
-subtraction        | 2 - 3
-multiplication     | 2 * 3
-division           | 30 / 5
-exponent           | 2^3
-order of operations| ( )
+| Amaç               | Fonksiyon                             |
+|--------------------|---------------------------------------|
+| yuvarlama          | round(x, digits = n)                  |
+| yuvarlama          | janitor::round_half_up(x, digits = n) |
+| tavana yuvarlama   | ceiling(x)                            |
+| tabana yuvarlama   | floor(x)                              |
+| kesin değer        | abs(x)                                |
+| karekök            | sqrt(x)                               |
+| üstel              | exponent(x)                           |
+| doğal logaritma    | log(x)                                |
+| log 10 tabanlı     | log10(x)                              |
+| log 2 tabanlı      | log2(x)                               |
 
+Not: "round()" için "digits =", yerleştirilen ondalık sayıyı belirtir. Bir dizi anlamlı rakama yuvarlamak için `signif()` kullanın.
 
+#### Bilimsel gösterim {.unnumbered}
 
-#### Mathematical functions {.unnumbered}
+Bilimsel gösterimin kullanılma olasılığı, "scipen" seçeneğinin değerine bağlıdır.
 
-Purpose            |Function
--------------------|-------------
-rounding           | round(x, digits = n)  
-rounding           | janitor::round_half_up(x, digits = n)
-ceiling (round up) | ceiling(x)
-floor (round down) | floor(x)
-absolute value     | abs(x)
-square root        | sqrt(x)
-exponent           | exponent(x)
-natural logarithm  | log(x)
-log base 10        | log10(x)
-log base 2         | log2(x)
+`?options` belgesinden: scipen, sayısal değerleri sabit veya üstel gösterimde yazdırmaya karar verirken uygulanacak bir cezadır. Pozitif değerler sabite ve negatif değerler bilimsel gösterime eğilimlidir: 'scipen' basamaklarından daha geniş olmadığı sürece sabit gösterim tercih edilecektir.
 
-Note: for `round()` the `digits = ` specifies the number of decimal placed. Use `signif()` to round to a number of significant figures.  
-
-
-#### Scientific notation {.unnumbered}
-
-The likelihood of scientific notation being used depends on the value of the `scipen` option.  
-
-From the documentation of `?options`: scipen is a penalty to be applied when deciding to print numeric values in fixed or exponential notation.  Positive values bias towards fixed and negative towards scientific notation: fixed notation will be preferred unless it is more than ‘scipen’ digits wider.  
-
-If it is set to a low number (e.g. 0) it will be "turned on" always. To "turn off" scientific notation in your R session, set it to a very high number, for example:    
+Düşük bir sayıya (örneğin 0) ayarlanırsa, her zaman "açık" olacaktır. R oturumunuzda bilimsel gösterimi "kapatmak" için çok yüksek bir sayıya ayarlayın, örneğin:
 
 ```{r, eval=F}
-# turn off scientific notation
+# bilimsel gösterimi kapat
 options(scipen=999)
 ```
 
+#### Yuvarlama {.unnumbered}
 
-
-#### Rounding {.unnumbered}  
-
-<span style="color: red;">**_DANGER:_** `round()` uses "banker's rounding" which rounds up from a .5 only if the upper number is even. Use `round_half_up()` from **janitor** to consistently round halves up to the nearest whole number. See [this explanation](https://cran.r-project.org/web/packages/janitor/vignettes/janitor.html#explore-records-with-duplicated-values-for-specific-combinations-of-variables-with-get_dupes) </span>  
+[***TEHLİKE:*** 'round()', yalnızca üst sayı çift ise 0,5'ten yuvarlayan "banker yuvarlaması"nı kullanır. Yarımları tutarlı bir şekilde en yakın tam sayıya yuvarlamak için **janitor** 'dan 'round_half_up()' kullanın. [Bu açıklamaya] bakabilirsiniz(https://cran.r-project.org/web/packages/janitor/vignettes/janitor.html#explore-records-with-duplicated-values-for-spec-combinations-of-variables- with-get_dupes) ]{style="color: red;"}
 
 ```{r}
-# use the appropriate rounding function for your work
+# işiniz için uygun yuvarlama fonksiyonunu kullanın
 round(c(2.5, 3.5))
 
 janitor::round_half_up(c(2.5, 3.5))
 ```
 
+#### İstatistiksel fonksiyonlar{.unnumbered}
 
-#### Statistical functions {.unnumbered}  
+[***DİKKAT:*** Aşağıdaki fonksiyonlar varsayılan olarak hesaplamalarda eksik değerleri içerecektir. "na.rm = TRUE" bağımsız değişkeni belirtilmedikçe, eksik değerler "YOK" çıktısıyla sonuçlanır. Bu, kısaca `na.rm = T` şeklinde yazılabilir.]{style="color: orange;"}
 
-<span style="color: orange;">**_CAUTION:_** The functions below will by default include missing values in calculations. Missing values will result in an output of `NA`, unless the argument `na.rm = TRUE` is specified. This can be written shorthand as `na.rm = T`.</span>
+| Amaç                    | Fonksiyon          |
+|-------------------------|--------------------|
+| Ortalama                | mean(x, na.rm=T)   |
+| Ortanca                 | median(x, na.rm=T) |
+| Standart Deviasyon      | sd(x, na.rm=T)     |
+| dağılım\*               | quantile(x, probs) |
+| toplam                  | sum(x, na.rm=T)    |
+| minimum değer           | min(x, na.rm=T)    |
+| maksimum değer          | max(x, na.rm=T)    |
+| Numerik veri aralığı    | range(x, na.rm=T)  |
+| özet\*\*                | summary(x)         |
 
+Notlar:
 
-Objective                |Function
--------------------------|----------------------
-mean (average)           | mean(x, na.rm=T)
-median                   | median(x, na.rm=T)
-standard deviation       | sd(x, na.rm=T)
-quantiles*               | quantile(x, probs)
-sum                      | sum(x, na.rm=T)
-minimum value            | min(x, na.rm=T)
-maximum value            | max(x, na.rm=T)
-range of numeric values  | range(x, na.rm=T)
-summary**               | summary(x)
+- "*quantile()": "x" incelenecek sayısal vektördür ve "prob =" olasılıkları 0 ile 1.0 arasında olan sayısal bir vektördür, ör. "c(0.5, 0.8, 0.85)"
+- `**summary()`: ortalama, medyan ve ortak yüzdelikler dahil olmak üzere sayısal bir vektörün özetini verir
 
-Notes:  
-
-* `*quantile()`: `x` is the numeric vector to examine, and `probs = ` is a numeric vector with probabilities within 0 and 1.0, e.g `c(0.5, 0.8, 0.85)`
-* `**summary()`: gives a summary on a numeric vector including mean, median, and common percentiles  
-
-<span style="color: red;">**_DANGER:_** If providing a vector of numbers to one of the above functions, be sure to wrap the numbers within `c()` .</span>
+[***TEHLİKE:*** Yukarıdaki fonksiyonlardan birine bir sayı vektörü sağlıyorsanız, sayıları `c()` içine sardığınızdan emin olun.]{style="color: red;"}
 
 ```{r}
-# If supplying raw numbers to a function, wrap them in c()
-mean(1, 6, 12, 10, 5, 0)    # !!! INCORRECT !!!  
+# Bir fonksiyona ham sayılar veriliyorsa, bunları c() içine sarın
+mean(1, 6, 12, 10, 5, 0)    # !!! YANLIŞ !!!  
 
-mean(c(1, 6, 12, 10, 5, 0)) # CORRECT
+mean(c(1, 6, 12, 10, 5, 0)) # DOĞRU
 ```
 
+#### Diğer kullanışlı fonksiyonlar {.unnumbered}
 
-
-
-
-#### Other useful functions {.unnumbered}  
-
-
-Objective                   |Function            |Example
-----------------------------|--------------------|-----------------------------------------------
-create a sequence           | seq(from, to, by)  |`seq(1, 10, 2)`
-repeat x, n times           | rep(x, ntimes)     |`rep(1:3, 2)` or `rep(c("a", "b", "c"), 3)` 
-subdivide a numeric vector  | cut(x, n)          |`cut(linelist$age, 5)`
-take a random sample        | sample(x, size)    |`sample(linelist$id, size = 5, replace = TRUE)`
-
-
-
++----------------------------+-------------------+-------------------------------------------------+
+| Amaç                       | Fonksiyon         | Örnek                                           |
++============================+===================+=================================================+
+| Bir seri oluştur           | seq(from, to, by) | `seq(1, 10, 2)`                                 |
++----------------------------+-------------------+-------------------------------------------------+
+| x, n kere tekrar et        | rep(x, ntimes)    | `rep(1:3, 2)` or `rep(c("a", "b", "c"), 3)`     |
++----------------------------+-------------------+-------------------------------------------------+
+| sayısal bir vektörü alt bölümlere ayır | cut(x, n)         | `cut(linelist$age, 5)`                          |
++----------------------------+-------------------+-------------------------------------------------+
+| Rastgele örnek al          | sample(x, size)   | `sample(linelist$id, size = 5, replace = TRUE)` |
++----------------------------+-------------------+-------------------------------------------------+
 
 <!-- ======================================================= -->
-### `%in%` {.unnumbered}  
 
-A very useful operator for matching values, and for quickly assessing if a value is within a vector or dataframe.   
+### `%in%` {.unnumbered}
+
+Değerleri eşleştirmek ve bir değerin bir vektör veya veri çerçevesi içinde olup olmadığını hızlı bir şekilde değerlendirmek için çok kullanışlı bir operatör.
 
 ```{r}
 my_vector <- c("a", "b", "c", "d")
@@ -1594,15 +1546,15 @@ my_vector <- c("a", "b", "c", "d")
 "h" %in% my_vector
 ```
 
-To ask if a value is **not** `%in%` a vector, put an exclamation mark (!) **in front** of the logic statement:  
+Bir vektörün **%in%'inde  olup olmadığını sormak için mantık ifadesinin **önüne** bir ünlem işareti (!) koyun:
 
 ```{r}
-# to negate, put an exclamation in front
+# inkar etmek, önüne ünlem işareti koymak
 !"a" %in% my_vector
 !"h" %in% my_vector
 ```
 
-`%in%` is very useful when using the **dplyr** function `case_when()`. You can define a vector previously, and then reference it later. For example:  
+"%in%", **dplyr** fonksiyonu "case_while()" kullanılırken çok kullanışlıdır. Bir vektörü önceden tanımlayabilir ve daha sonra ona başvurabilirsiniz. Örneğin:
 
 ```{r eval=F}
 affirmative <- c("1", "Yes", "YES", "yes", "y", "Y", "oui", "Oui", "Si")
@@ -1613,82 +1565,68 @@ linelist <- linelist %>%
     TRUE                                      ~ "Not"))
 ```
 
-Note: If you want to detect a partial string, perhaps using `str_detect()` from **stringr**, it will not accept a character vector like `c("1", "Yes", "yes", "y")`. Instead, it must be given a *regular expression* - one condensed string with OR bars, such as "1|Yes|yes|y". For example, `str_detect(hospitalized, "1|Yes|yes|y")`. See the page on [Characters and strings] for more information.  
+Not: Belki **stringr**'den `str_detect()` kullanarak kısmi bir dize algılamak istiyorsanız, `c("1", "Yes", "yes", "y" gibi bir karakter vektörünü kabul etmeyecektir. ")`. Bunun yerine, "1\|Yes\|yes\|y" gibi VEYA çubukları olan bir yoğunlaştırılmış dize *normal ifade* verilmelidir. Örneğin, `str_detect(hospitalized, "1|Yes|yes|y")`. Daha fazla bilgi için [Karakterler ve dizeler] hakkındaki sayfaya bakın.
 
-You can convert a character vector to a named regular expression with this command:  
+Bu komutla bir karakter vektörünü adlandırılmış bir normal ifadeye dönüştürebilirsiniz:
 
 ```{r}
 affirmative <- c("1", "Yes", "YES", "yes", "y", "Y", "oui", "Oui", "Si")
 affirmative
 
 # condense to 
-affirmative_str_search <- paste0(affirmative, collapse = "|")  # option with base R
-affirmative_str_search <- str_c(affirmative, collapse = "|")   # option with stringr package
+affirmative_str_search <- paste0(affirmative, collapse = "|")  # Temel R ile yapılması seçeneği
+affirmative_str_search <- str_c(affirmative, collapse = "|")   # stringr paketi seçeneği
 
 affirmative_str_search
 ```
 
-
-
-
-
-
-
-
+<!-- ======================================================= -->
 
 <!-- ======================================================= -->
-<!-- ======================================================= -->
-<!-- ======================================================= -->
-## Errors & warnings  
-
-This section explains:  
-
-* The difference between errors and warnings  
-* General syntax tips for writing R code  
-* Code assists  
-
-Common errors and warnings and troubleshooting tips can be found in the page on [Errors and help].  
-
-
 
 <!-- ======================================================= -->
-### Error versus Warning {.unnumbered}
 
-When a command is run, the R Console may show you warning or error messages in red text.  
+## Hatalar ve uyarılar
 
-* A **warning** means that R has completed your command, but had to take additional steps or produced unusual output that you should be aware of.  
+Bu bölüm şunları açıklar:
 
-* An **error** means that R was not able to complete your command.  
+- Hatalar ve uyarılar arasındaki fark\
+- R kodu yazmak için genel sözdizimi ipuçları\
+- Kod yardımcıları
 
-Look for clues: 
+Genel hatalar, uyarılar ve sorun giderme ipuçları [Hatalar ve yardım] sayfasında bulunabilir.
 
-* The error/warning message will often include a line number for the problem.  
+<!-- ============================================ ========= -->
 
-* If an object "is unknown" or "not found", perhaps you spelled it incorrectly, forgot to call a package with library(), or forgot to re-run your script after making changes.  
+### Hata VS. Uyarı {.unnumbered}
 
-If all else fails, copy the error message into Google along with some key terms - chances are that someone else has worked through this already!
+Bir komut çalıştırıldığında, R Konsolu size kırmızı metinle uyarı veya hata mesajları gösterebilir.
 
+- Bir **uyarı**, R'ın komutunuzu tamamladığı, ancak farkında olmanız gereken ek adımlar atması veya olağandışı çıktılar üretmesi gerektiği anlamına gelir.
 
-<!-- ======================================================= -->
-### General syntax tips {.unnumbered}
+- Bir **hata**, R'ın komutunuzu tamamlayamadığı anlamına gelir.
 
-A few things to remember when writing commands in R, to avoid errors and warnings:  
+İpuçlarını ara:
 
-* Always close parentheses - tip: count the number of opening "(" and closing parentheses ")" for each code chunk
-* Avoid spaces in column and object names. Use underscore ( _ ) or periods ( . ) instead
-* Keep track of and remember to separate a function's arguments with commas
-* R is case-sensitive, meaning `Variable_A` is *different* from `variable_A`
+- Hata/uyarı mesajı genellikle sorun için bir satır numarası içerir.
 
+- Bir nesne "bilinmiyorsa" veya "bulunamadıysa", yanlış yazmış olabilirsiniz, library() ile bir paketi çağırmayı unutmuş veya değişiklik yaptıktan sonra betiğinizi yeniden çalıştırmayı unutmuş olabilirsiniz.
 
-<!-- ======================================================= -->
-### Code assists {.unnumbered}  
+Her şey başarısız olursa, bazı anahtar terimlerle birlikte hata mesajını Google'a kopyalayın - büyük olasılıkla başka biri bunun üzerinde çalışmıştır!
 
-Any script (RMarkdown or otherwise) will give clues when you have made a mistake. For example, if you forgot to write a comma where it is needed, or to close a parentheses, RStudio will raise a flag on that line, on the right side of the script, to warn you.  
+<!-- ============================================ ========= -->
 
+### Genel sözdizimi ipuçları {.unnumbered}
 
+Hataları ve uyarıları önlemek için R'da komut yazarken hatırlamanız gereken birkaç şey:
 
+- Parantezleri her zaman kapatın - ipucu: Her kod öbeği için "(" ve kapanış parantezleri ")" sayısını sayın
+- Sütun ve nesne adlarında boşluklardan kaçının. Bunun yerine alt çizgi ( \_ ) veya nokta ( . ) kullanın
+- Bir fonksiyonun değişkenlerini virgülle ayırmayı unutmayın ve takip edin
+- R büyük/küçük harf duyarlıdır, yani "Değişken_A", "değişken_A"dan *farklıdır*
 
+<!-- ============================================ ========= -->
 
+### Kod yardımı {.unnumbered}
 
-
-
+Herhangi bir komut dosyası (RMarkdown veya başka türlü), bir hata yaptığınızda ipucu verecektir. Örneğin, gereken yere virgül yazmayı veya bir parantez kapatmayı unuttuysanız, RStudio sizi uyarmak için betiğin sağ tarafında o satırda bir bayrak kaldıracaktır.
