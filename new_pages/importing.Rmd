@@ -785,7 +785,7 @@ export(linelist, "my_linelist.xlsx") # çalışma dizinine kaydedecek
 Uzantıyı değiştirerek aynı veri çerçevesini bir csv dosyası olarak kaydedebilirsiniz. Örneğin, onu "here()" ile oluşturulmuş bir dosya yoluna da kaydederiz:
 
 ```{r, eval=F}
-export(linelist, here("data","clean", "my_linelist.csv")
+export(linelist, here("data", "clean", "my_linelist.csv"))
 ```
 
 
@@ -810,7 +810,7 @@ Sütun sınıfları depolanır, bu nedenle içe aktarıldığında tekrar temizl
 Örneğin, bir Epidemiyoloji ekibinde çalışıyorsanız ve haritalama için bir CBS ekibine dosya göndermeniz gerekiyorsa ve onlar da R kullanıyorsa, onlara .rds dosyasını göndermeniz yeterlidir! Daha sonra tüm sütun sınıfları korunur ve yapacak daha az işleri olur.
 
 ```{r, eval=F}
-export(linelist, here("data","clean", "my_linelist.rds")
+export(linelist, here("data", "clean", "my_linelist.rds"))
 ```
 
 
