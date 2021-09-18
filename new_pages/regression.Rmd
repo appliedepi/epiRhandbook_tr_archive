@@ -1,93 +1,92 @@
-# Univariate and multivariable regression { }
+# Tek değişkenli ve çok değişkenli regresyon { }
 
-<!-- ======================================================= -->
+<!-- ============================================= ========= -->
 
-This page demonstrates the use of **base** R regression functions such as `glm()` and the **gtsummary** package to 
-look at associations between variables (e.g. odds ratios, risk ratios and hazard
-ratios). It also uses functions like `tidy()` from the **broom** package to clean-up regression outputs.  
+Bu sayfa, "glm()" ve **gtsummary** paketi gibi **base** R regresyon fonksiyonlarının kullanımını gösterir.
+Değişkenler arasındaki ilişkilere bakarak bunu yapar (örneğin, odds oranları, risk oranları ve tehlike oranları). Ayrıca regresyon çıktılarını temizlemek için **broom** paketindeki 'tidy()' gibi fonksiyonları kullanır.
 
-1.  Univariate: two-by-two tables 
-2.  Stratified: mantel-haenszel estimates  
-3.  Multivariable: variable selection, model selection, final table
-4.  Forest plots
+1. Tek değişkenli: ikiye iki tablo
+2. Tabakalı: mantel-haenszel tahminleri
+3. Çok değişkenli: değişken seçimi, model seçimi, final tablosu
+4. Metaanaliz Grafikleri
 
-For Cox proportional hazard regression, see the [Survival analysis] page.  
+Cox orantılı tehlike regresyonu için [Hayatta kalma analizi] sayfasına bakınız.
 
-<span style="color: black;">**_NOTE:_** We use the term *multivariable* to refer to a regression with multiple explanatory variables. In this sense a *multivariate* model would be a regression with several outcomes - see this [editorial](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3518362/) for detail </span> 
+<span style="color: black;">**_NOT:_** *Çok değişkenli* terimini, birden fazla açıklayıcı değişken içeren bir regresyona atıfta bulunmak için kullanırız. Bu anlamda *çok değişkenli* bir model, çeşitli sonuçları olan bir regresyon olacaktır - ayrıntılar için [editoryal](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3518362/) e bakabilirsiniz </span>
 
-<!-- ======================================================= -->
+<!-- ============================================= ========= -->
 
-## Preparation {  }
+## Hazırlık {  }
 
 
-### Load packages {.unnumbered}
+### Paketleri yükleyin {.unnumbered}
 
-This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Bu kod parçası, analizler için gerekli olan paketlerin yüklenmesini gösterir. Bu el kitabında, gerekirse paketi kuran *ve* kullanım için yükleyen **pacman**'dan `p_load()` vurgusunu yapıyoruz. **base** R'dan `library()` ile kurulu paketleri de yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R basics] sayfasına bakın.
 
 ```{r}
 pacman::p_load(
-  rio,          # File import
-  here,         # File locator
-  tidyverse,    # data management + ggplot2 graphics, 
-  stringr,      # manipulate text strings 
-  purrr,        # loop over objects in a tidy way
-  gtsummary,    # summary statistics and tests 
-  broom,        # tidy up results from regressions
-  lmtest,       # likelihood-ratio tests
-  parameters,   # alternative to tidy up results from regressions
-  see          # alternative to visualise forest plots
+  rio,          # Dosyayı içe aktarma
+  here,         # Dosyayı konumlama
+  tidyverse,    # veri yönetimi + ggplo2 grafikleri 
+  stringr,      # metin dizelerini düzenle 
+  purrr,        # düzenli bir şekilde nesneler üzerinde döngü sağlama
+  gtsummary,    # özet istatistikler ve testler
+  broom,        # regresyonlardan elde edilen sonuçları toparlama
+  lmtest,       # olasılık oranı testleri
+  parameters,   # regresyonlardan elde edilen sonuçları toparlamaya alternatif
+  see          # metaanaliz grafiklerini görselleştirmeye alternatif
   )
 ```
 
-### Import data {.unnumbered}
+### Verileri içe aktar {.unnumbered}
 
-We import the dataset of cases from a simulated Ebola epidemic. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file). Import your data with the `import()` function from the **rio** package (it accepts many file types like .xlsx, .rds, .csv - see the [Import and export] page for details).  
+Simüle edilmiş bir Ebola salgınından vakaların veri setini içe aktarıyoruz. Takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" linelist indirmek için tıklayın</a> (.rds dosyası olarak). Verilerinizi **rio** paketinden `import()` fonksiyonuyla içe aktarın (.xlsx, .rds, .csv gibi birçok dosya türünü kabul eder - ayrıntılar için [İçe aktarma ve dışa aktarma] sayfasına bakınız). 
 
 
 ```{r, echo=F}
-# import the linelist into R
+# Vaka listesini R içine aktarma
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
 ```
 
 ```{r, eval=F}
-# import the linelist
+# Vaka listesini içe aktarma
 linelist <- import("linelist_cleaned.rds")
 ```
 
-The first 50 rows of the linelist are displayed below.
+Vaka listesinin ilk 50 satırı aşağıda görüntülenir.
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# Vaka listesini tablo olarak gösterme
 DT::datatable(head(linelist, 50), rownames = FALSE, options = list(pageLength = 5, scrollX=T) )
 ```
 
-### Clean data {.unnumbered}
+### Temiz veri {.unnumbered}
 
-#### Store explanatory variables {.unnumbered}  
+#### Açıklayıcı değişkenleri saklayın {.unnumbered}
 
-We store the names of the explanatory columns as a character vector. This will be referenced later.  
+Açıklayıcı sütunların adlarını bir karakter vektörü olarak saklıyoruz. Buna daha sonra atıfta bulunulacaktır.  
 
 ```{r}
-## define variables of interest 
+## ilgilenilen değişkenleri tanımlama 
 explanatory_vars <- c("gender", "fever", "chills", "cough", "aches", "vomit")
 ```
 
 
-#### Convert to 1's and 0's  {.unnumbered}   
+#### 1'lere ve 0'lara dönüştür {.unnumbered}
 
-Below we convert the explanatory columns from "yes"/"no", "m"/"f", and "dead"/"alive" to **1 / 0**, to cooperate with the expectations of logistic regression models. To do this efficiently, used `across()` from **dplyr** to transform multiple columns at one time. The function we apply to each column is `case_when()` (also **dplyr**) which applies logic to convert specified values to 1's and 0's. See sections on `across()` and `case_when()` in the [Cleaning data and core functions page](#clean_across)).  
+Aşağıda, lojistik regresyon modellerinin beklentileriyle işbirliği yapmak için "evet"/"hayır", "e"/"k" ve "ölü"/"canlı" olan açıklayıcı sütunları **1/0**'a çeviriyoruz. Bunu verimli bir şekilde yapmak için, aynı anda birden çok sütunu dönüştürmek için **dplyr**'den 'across()' kullanıldı. Her sütuna uyguladığımız fonksiyon, belirtilen değerleri 1'lere ve 0'lara dönüştürmek için mantık uygulayan 'case_while()' (ayrıca **dplyr**) fonksiyonudur. [Temizleme verileri ve temel işlevler sayfasındaki](#clean_across) 'across()' ve 'case_while()' ile ilgili bölümlere bakınız
 
-Note: the "." below represents the column that is being processed by `across()` at that moment.
+Not: "." aşağıdaki, 'cross()' tarafından işlenmekte olan sütunu temsil eder.
 
 ```{r}
-## convert dichotomous variables to 0/1 
+## ikili değişkenleri 0/1'e dönüştür
 linelist <- linelist %>%  
   mutate(across(                                      
-    .cols = all_of(c(explanatory_vars, "outcome")),  ## for each column listed and "outcome"
+    .cols = all_of(c(explanatory_vars, "outcome")),  ## listelenen her sütun ve "sonuç" için
     .fns = ~case_when(                              
-      . %in% c("m", "yes", "Death")   ~ 1,           ## recode male, yes and death to 1
-      . %in% c("f", "no",  "Recover") ~ 0,           ## female, no and recover to 0
-      TRUE                            ~ NA_real_)    ## otherwise set to missing
+      . %in% c("m", "yes", "Death")   ~ 1,           ## erkek, evet ve ölü'yü 1 olarak yeniden kodla
+      . %in% c("f", "no",  "Recover") ~ 0,           ## kadın, hayır ve iyileşme'yi sıfır olarak kodla
+      TRUE                            ~ NA_real_)    ## geri kalanını kayıp veri olarak kaydet
     )
   )
 
@@ -95,121 +94,115 @@ linelist <- linelist %>%
       
 ```
 
-#### Drop rows with missing values {.unnumbered}  
+#### Eksik değerlere sahip satırları bırakın {.unnumbered}
 
-To drop rows with missing values, can use the **tidyr** function `drop_na()`. However, we only want to do this for rows that are missing values in the columns of interest.  
+Eksik değerleri olan satırları bırakmak için, **tidyr** `drop_na()` fonksiyonunu kullanabilirsiniz. Ancak, bunu yalnızca ilgilenilen sütunlarda değerleri eksik olan satırlar için yapmak istiyoruz.
 
-The first thing we must to is make sure our `explanatory_vars` vector includes the column `age` (`age` would have produced an error in the previous `case_when()` operation, which was only for dichotomous variables). Then we pipe the `linelist` to `drop_na()` to remove any rows with missing values in the `outcome` column or any of the `explanatory_vars` columns.  
+Yapmamız gereken ilk şey, "explanatory_vars" vektörümüzün "age" sütununu içerdiğinden emin olmaktır ("age", yalnızca ikili değişkenler için olan önceki "case_while()" işleminde bir hata üretebilirdi). Ardından, "outcome" sütununda veya "explanatory_vars" sütunlarından herhangi birinde eksik değerleri olan satırları kaldırmak için "linelist"i "drop_na()"ya yönlendiririz.
 
-Before running the code, the number of rows in the `linelist` is ` nrow(linelist)`.  
+Kodu çalıştırmadan önce, 'linelist'teki satır sayısı 'nrow(linelist)' şeklindedir.
 
 ```{r}
-## add in age_category to the explanatory vars 
+## açıklayıcı değişkenlere age_category ekleyin 
 explanatory_vars <- c(explanatory_vars, "age_cat")
 
-## drop rows with missing information for variables of interest 
+## ilgilenilen değişkenler için eksik bilgi içeren satırları bırak 
 linelist <- linelist %>% 
   drop_na(any_of(c("outcome", explanatory_vars)))
 
 ```
 
-The number of rows remaining in `linelist` is ` nrow(linelist)`.  
+'linelist'te' kalan satır sayısı 'nrow(linelist)' şeklindedir.
 
 
-<!-- ======================================================= -->
+<!-- ============================================ ========= -->
 
-## Univariate {  }
+## Tek değişkenli { }
 
-Just like in the page on [Descriptive tables](https://epirhandbook.com/descriptive-tables.html), your use case will determine which R package you use. We present two options for doing univariate analysis:  
+Tıpkı [Açıklayıcı tablolar](https://epirhandbook.com/descriptive-tables.html) sayfasında olduğu gibi, kullandığınız senaryo hangi R paketini kullanacağınızı belirleyecektir. Tek değişkenli analiz yapmak için iki seçenek sunuyoruz:
 
-* Use functions available in **base** R to quickly print results to the console. Use the **broom** package to tidy up the outputs.  
-* Use the **gtsummary** package to model and get publication-ready outputs  
+* Sonuçları konsola hızlı bir şekilde yazdırmak için **base** R'da bulunan fonksiyonları kullanın. Çıktıları düzenlemek için **broom** paketini kullanın.
+* Yayına hazır çıktıları modellemek ve almak için **gtsummary** paketini kullanın
 
 
 
-<!-- ======================================================= -->
+<!-- ============================================ ========= -->
 
 ### **base** R {.unnumbered}
 
-#### Linear regression {.unnumbered}  
+#### Doğrusal (Lineer) regresyon {.unnumbered}
 
-The **base** R function `lm()` perform linear regression, assessing the relationship between numeric response and explanatory variables that are assumed to have a linear relationship.  
+**base** R fonskiyonu 'lm()', sayısal yanıt ile doğrusal bir ilişkiye sahip olduğu varsayılan açıklayıcı değişkenler arasındaki ilişkiyi değerlendirerek doğrusal regresyon gerçekleştirir.
 
-Provide the equation as a formula, with the response and explanatory column names separated by a tilde `~`. Also, specify the dataset to `data = `. Define the model results as an R object, to use later.    
+Denklemi, yanıt ve açıklayıcı sütun adları yaklaşık bir "~" ile ayrılmış şekilde bir formül olarak sağlayın. Ayrıca, veri kümesini `data = ` olarak belirtin. Model sonuçlarını daha sonra kullanmak üzere bir R nesnesi olarak tanımlayın.
 
 ```{r lin_reg}
 lm_results <- lm(ht_cm ~ age, data = linelist)
 ```
 
-You can then run `summary()` on the model results to see the coefficients (Estimates), P-value, residuals, and other measures.  
+Daha sonra katsayıları (Tahminler), P-değerini, artıkları ve diğer ölçüleri görmek için model sonuçlarında "summary()" komutunu çalıştırabilirsiniz.  
 
 ```{r lin_reg_res}
 summary(lm_results)
 ```
 
-Alternatively you can use the `tidy()` function from the **broom** package to pull 
-the results in to a table. What the results tell us is that for each year increase in age the height increases
-by 3.5 cm and this is statistically significant. 
+Alternatif olarak, **broom** paketindeki `tidy()` fonksiyonunu kullanabilirsiniz. Sonuçlar bir tabloya dönüştürülür. Sonuçlarda her yıl yaş arttıkça boy da 3.5 cm artıyor ve bu istatistiksel olarak anlamlıdır.
 
 ```{r lin_reg_res_tidy}
 tidy(lm_results)
 ```
 
-You can then also use this regression to add it to a **ggplot**, to do this we 
-first pull the points for the observed data and the fitted line in to one data frame 
-using the `augment()` function from **broom**. 
+Daha sonra bu regresyonu bir **ggplot**'a eklemek için de kullanabilirsiniz, bunu yapmak için önce **broom**dan 'augment()' fonksiyonunu kullanarak gözlemlenen veri ve uygun çizgi için noktaları tek bir veri çerçevesine çekeriz.
 
 ```{r lin_reg_res_plot}
 
-## pull the regression points and observed data in to one dataset
+## regresyon noktalarını ve gözlemlenen verileri tek bir veri kümesine çekin
 points <- augment(lm_results)
 
-## plot the data using age as the x-axis 
+## x ekseni olarak yaşı kullanarak verileri grafikleştirin
 ggplot(points, aes(x = age)) + 
-  ## add points for height 
+  ## boy için noktalar koyun 
   geom_point(aes(y = ht_cm)) + 
-  ## add your regression line 
+  ## regresyon çizginizi çizin 
   geom_line(aes(y = .fitted), colour = "red")
 
 ```
 
-It is also possible to add a simple linear regression straight straight in **ggplot** 
-using the `geom_smooth()` function. 
+Ayrıca, "geom_smooth()" fonksiyonunu kullanarak **ggplot**'a doğrudan basit bir doğrusal regresyon eklemek de mümkündür.
 
 ```{r geom_smooth}
 
-## add your data to a plot 
+## verinizi bir grafiğe ekleyin 
  ggplot(linelist, aes(x = age, y = ht_cm)) + 
-  ## show points
+  ## noktaları gösterin
   geom_point() + 
-  ## add a linear regression 
+  ## lineer regresyon ekleyin 
   geom_smooth(method = "lm", se = FALSE)
 ```
 
-See the Resource section at the end of this chapter for more detailed tutorials.  
+Daha ayrıntılı öğreticiler için bu bölümün sonundaki Kaynak bölümüne bakabilirsiniz.
 
 
-#### Logistic regression {.unnumbered}  
+#### Lojistik regresyon {.unnumbered}
 
-The function `glm()` from the **stats** package (part of **base** R) is used to fit Generalized Linear Models (GLM).  
+**stats** paketindeki (**base** R'ın bir parçası) 'glm()' fonksiyonu, Genelleştirilmiş Doğrusal Modellere (GLM) uymak için kullanılır.
 
-`glm()` can be used for univariate and multivariable logistic regression (e.g. to get Odds Ratios). Here are the core parts:  
+`glm()`, tek değişkenli ve çok değişkenli lojistik regresyon için kullanılabilir (örneğin, Odds Ratio'ları elde etmek için). İşte temel parçalar:
 
 ```{r, eval=F}
-# arguments for glm()
+# glm() için değişkenler
 glm(formula, family, data, weights, subset, ...)
 ```
 
-* `formula = ` The model is provided to `glm()` as an equation, with the outcome on the left and explanatory variables on the right of a tilde `~`.  
-* `family = ` This determines the type of model to run. For logistic regression, use `family = "binomial"`, for poisson use `family = "poisson"`. Other examples are in the table below.  
-* `data = ` Specify your data frame  
+* `formül = ` Model `glm()` için bir denklem olarak sağlanır, tilde `~` nin sağında çıktısı, solunda açıklayıcı değişkenler bulunur.
+* `family = ` Bu, çalıştırılacak modelin türünü belirler. Lojistik regresyon için `family= "binom"` kullanın, poisson için `family = "poisson"` kullanın. Diğer örnekler aşağıdaki tablodadır.
+* `data = ` Veri çerçevenizi belirtin
 
 
-If necessary, you can also specify the link function via the syntax `family = familytype(link = "linkfunction"))`. You can read more in the documentation about other families and optional arguments such as `weights = ` and `subset = ` (`?glm`).  
+Gerekirse, bağlantı işlevini `family = familytype(link = "linkfunction"))` sözdizimi aracılığıyla da belirtebilirsiniz. Diğer aileler ve 'ağırlıklar = ' ve 'alt küme = ' ('?glm') gibi isteğe bağlı bağımsız değişkenler hakkındaki belgelerde daha fazlasını okuyabilirsiniz.
 
 
-
-Family                 | Default link function 
+Family                 |  Varsayılan bağlantı fonksiyonu
 -----------------------|-------------------------------------------  
 `"binomial"` | `(link = "logit")`  
 `"gaussian"` | `(link = "identity")`  
@@ -221,21 +214,21 @@ Family                 | Default link function
 `"quasipoisson"` | `(link = "log")`  
 
 
-When running `glm()` it is most common to save the results as a named R object. Then you can print the results to your console using `summary()` as shown below, or perform other operations on the results (e.g. exponentiate).  
+`glm()` çalıştırıldığında, sonuçların adlandırılmış bir R nesnesi olarak kaydedilmesi en yaygın yöntemdir. Ardından, aşağıda gösterildiği gibi `summary()` kullanarak sonuçları konsolunuza yazdırabilir veya sonuçlar üzerinde diğer işlemleri gerçekleştirebilirsiniz ( örneğin; üstünü almak gibi).
 
-If you need to run a negative binomial regression you can use the **MASS** package; the `glm.nb()` uses the same syntax as `glm()`. 
-For a walk-through of different regressions, see the [UCLA stats page](https://stats.idre.ucla.edu/other/dae/). 
+Negatif bir binom regresyonu çalıştırmanız gerekiyorsa **MASS** paketini kullanabilirsiniz; "glm.nb()", "glm()" ile aynı sözdizimini kullanır.
+Farklı regresyonların gözden geçirilmesi için [UCLA istatistik sayfasına](https://stats.idre.ucla.edu/other/dae/) bakabilirsiniz.
 
-#### Univariate `glm()` {.unnumbered}
+#### Tek değişkenli `glm()` {.unnumbered}
 
-In this example we are assessing the association between different age categories and the outcome of death (coded as 1 in the Preparation section). Below is a univariate model of `outcome` by `age_cat`. We save the model output as `model` and then print it with `summary()` to the console. Note the estimates provided are the *log odds* and that the baseline level is the first factor level of `age_cat` ("0-4").  
+Bu örnekte, farklı yaş kategorileri ile ölümün sonucu arasındaki ilişkiyi değerlendiriyoruz (Hazırlık bölümünde 1 olarak kodlanmıştır). Aşağıda, "age_cat" tarafından "sonucun" tek değişkenli bir modeli verilmiştir. Model çıktısını `model` olarak kaydedip ardından `summary()` ile konsola yazdırıyoruz. Sağlanan tahminlerin *log oranları* olduğunu ve temel seviyenin "age_cat" ("0-4") birinci faktör seviyesi olduğunu unutmayınız.
 
 ```{r}
 model <- glm(outcome ~ age_cat, family = "binomial", data = linelist)
 summary(model)
 ```
 
-To alter the baseline level of a given variable, ensure the column is class Factor and move the desired level to the first position with `fct_relevel()` (see page on [Factors]). For example, below we take column `age_cat` and set "20-29" as the baseline before piping the modified data frame into `glm()`.  
+Belirli bir değişkenin temel seviyesini değiştirmek için, sütunun Faktör sınıfı olduğundan emin olun ve istenen seviyeyi `fct_relevel()` ile ilk konuma taşıyın ([Faktörler] sayfasındaki sayfaya bakabilirsiniz). Örneğin, aşağıda 'age_cat' sütununu alıyoruz ve değiştirilmiş veri çerçevesini 'glm()' içine aktarmadan önce temel olarak "20-29" ayarlıyoruz.
 
 ```{r}
 linelist %>% 
@@ -244,29 +237,29 @@ linelist %>%
   summary()
 ```
 
-#### Printing results {.unnumbered}
+#### Sonuçları yazdırmak {.unnumbered}
 
-For most uses, several modifications must be made to the above outputs. The function `tidy()` from the package **broom** is convenient for making the model results presentable.  
+Çoğu kullanım için, yukarıdaki çıktılarda birkaç değişiklik yapılmalıdır. **broom** paketindeki 'tidy()' fonksiyonu, model sonuçlarını sunulabilir kılmak için uygundur.
 
-Here we demonstrate how to combine model outputs with a table of counts.  
+Burada model çıktılarının bir sayım tablosuyla nasıl birleştirileceğini gösteriyoruz.
 
-1) Get the *exponentiated* log odds ratio estimates and confidence intervals by passing the model to `tidy()` and setting `exponentiate = TRUE` and `conf.int = TRUE`.  
+1) Modeli "tidy()" öğesine geçirerek ve "üssel = TRUE" ve "conf.int = TRUE" ayarını yaparak *üslü* günlük odds oranı tahminlerini ve güven aralıklarını(GA) alın.
 
 ```{r odds_base_single}
 
 model <- glm(outcome ~ age_cat, family = "binomial", data = linelist) %>% 
-  tidy(exponentiate = TRUE, conf.int = TRUE) %>%        # exponentiate and produce CIs
-  mutate(across(where(is.numeric), round, digits = 2))  # round all numeric columns
+  tidy(exponentiate = TRUE, conf.int = TRUE) %>%        # GA'larını üret ve üstelleştir
+  mutate(across(where(is.numeric), round, digits = 2))  # tüm sayısal sütunları yuvarla
 ```
 
-Below is the outputted tibble `model`:  
+Çıktı alınan tibble 'model' aşağıdadır:
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# vaka listesi verisini tabloda göster
 DT::datatable(model, rownames = FALSE, options = list(pageLength = nrow(model), scrollX=T), class = 'white-space: nowrap' )
 ```
 
-2) Combine these model results with a table of counts. Below, we create the a counts cross-table with the `tabyl()` function from **janitor**, as covered in the [Descriptive tables] page.  
+2) Bu model sonuçlarını bir sayım tablosuyla birleştirin. Aşağıda, [Açıklayıcı tablolar] sayfasında anlatıldığı gibi, **janitor**'dan 'tabyl()' fonksiyonuyla bir sayımlar çapraz tablosunu oluşturuyoruz. 
 
 ```{r}
 counts_table <- linelist %>% 
@@ -288,24 +281,24 @@ counts_table <- linelist %>%
 <!-- ``` -->
 
 
-Here is what this `counts_table` data frame looks like:  
+Bu "counts_table" veri çerçevesi şöyle görünür: 
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# vaka listesi verisini tabloda göster
 DT::datatable(counts_table, rownames = FALSE, options = list(pageLength = nrow(counts_table), scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Now we can bind the `counts_table` and the `model` results together horizontally with `bind_cols()` (**dplyr**). Remember that with `bind_cols()` the rows in the two data frames must be aligned perfectly. In this code, because we are binding within a pipe chain, we use `.` to represent the piped object `counts_table` as we bind it to `model`. To finish the process, we use `select()` to pick the desired columns and their order, and finally apply the **base** R `round()` function across all numeric columns to specify 2 decimal places.  
+Şimdi 'counts_table' ve 'model' sonuçlarını 'bind_cols()' (**dplyr**) ile yatay olarak birbirine bağlayabiliriz. `bind_cols()` ile iki veri çerçevesindeki satırların mükemmel şekilde hizalanması gerektiğini unutmayın. Bu kodda, bir tünel zinciri içinde bağlı olduğumuz için, tünelli nesneyi "counts_table" olarak temsil etmek için "." kullanırız ve onu "model"e bağlarız. İşlemi bitirmek için, istenen sütunları ve sıralarını seçmek için 'select()' kullanırız ve son olarak 2 ondalık basamak belirtmek için tüm sayısal sütunlara **base** R 'round()' fonksiyonunu uygularız. 
 
 ```{r, message=F, warning=F}
-combined <- counts_table %>%           # begin with table of counts
-  bind_cols(., model) %>%              # combine with the outputs of the regression 
-  select(term, 2:3, estimate,          # select and re-order cols
+combined <- counts_table %>%           # sayım tablosuyla başla
+  bind_cols(., model) %>%              # regresyonun çıktıları ile birleştir 
+  select(term, 2:3, estimate,          # sütunları seç ve yeniden düzenle
          conf.low, conf.high, p.value) %>% 
-  mutate(across(where(is.numeric), round, digits = 2)) ## round to 2 decimal places
+  mutate(across(where(is.numeric), round, digits = 2)) ## 2 basamak şeklinde yuvarla
 ```
 
-Here is what the combined data frame looks like, printed nicely as an image with a function from **flextable**. The [Tables for presentation] explains how to customize such tables with **flextable**, or or you can use numerous other packages such as **knitr** or **GT**.  
+Birleştirilmiş veri çerçevesinin nasıl göründüğü, **flextable** fonksiyonuyla güzel bir görüntü olarak yazdırılmıştır. [Tablolar sunum], bu tür tabloların **flextable** ile nasıl özelleştirileceğini veya **knitr** veya **GT** gibi çok sayıda başka paketin nasıl kullanılacağını açıklar.
 
 ```{r}
 combined <- combined %>% 
@@ -313,97 +306,96 @@ combined <- combined %>%
 ```
 
 
-#### Looping multiple univariate models {.unnumbered}  
+#### Birden çok tek değişkenli modeli döngüye alma {.unnumbered}
 
-Below we present a method using `glm()` and `tidy()` for a more simple approach, see the section on **gtsummary**.  
+Aşağıda daha basit bir yaklaşım için `glm()` ve `tidy()` kullanan bir yöntem sunuyoruz, **gtsummary** bölümüne bakın.
 
-To run the models on several exposure variables to produce univariate odds ratios (i.e. not controlling for each other), you can use the approach below. It uses `str_c()` from **stringr** to create univariate formulas (see [Characters and strings]), runs the `glm()` regression on each formula, passes each `glm()` output to `tidy()` and finally collapses all the model outputs together with `bind_rows()` from **tidyr**. This approach uses `map()` from the package **purrr** to iterate - see the page on [Iteration, loops, and lists] for more information on this tool.  
+Tek değişkenli olasılık oranları (yani birbirini kontrol etmeyen) üretmek için modelleri çeşitli maruziyet değişkenleri üzerinde çalıştırmak için aşağıdaki yaklaşımı kullanabilirsiniz. Tek değişkenli formüller oluşturmak için **stringr**'den str_c()' kullanır (bkz. )` ve son olarak **tidyr**'den `bind_rows()` ile birlikte tüm model çıktılarını daraltır. Bu yaklaşım, yineleme için **purrr** paketinden `map()` kullanır - bu araç hakkında daha fazla bilgi için [Yineleme, döngüler ve listeler] sayfasına bakın.
 
-1) Create a vector of column names of the explanatory variables. We already have this as `explanatory_vars` from the Preparation section of this page.  
+1) Açıklayıcı değişkenlerin sütun adlarından oluşan bir vektör oluşturun. Bunu zaten bu sayfanın Hazırlık bölümünden 'açıklayıcı_değişkenler' olarak aldık.
 
-2) Use `str_c()` to create multiple string formulas, with `outcome` on the left, and a column name from `explanatory_vars` on the right. The period `.` substitutes for the column name in `explanatory_vars`.  
+2) Solda "sonuç" ve sağda "açıklayıcı_değişkenler"den bir sütun adı ile birden çok dize formülü oluşturmak için "str_c()" kullanın. "." noktası, "açıklayıcı_değişkenler"deki sütun adının yerini alır.
 
 ```{r}
 explanatory_vars %>% str_c("outcome ~ ", .)
 ```
 
-3) Pass these string formulas to `map()` and set `~glm()` as the function to apply to each input. Within `glm()`, set the regression formula as `as.formula(.x)` where `.x` will be replaced by the string formula defined in the step above. `map()` will loop over each of the string formulas, running regressions for each one.  
+3) Bu dizi formüllerini 'map()' öğesine iletin ve her girişe uygulanacak fonksiyon olarak '~glm()' öğesini ayarlayın. "glm()" içinde, regresyon formülünü "as.formula(.x)" olarak ayarlayın, burada ".x", yukarıdaki adımda tanımlanan dizi formülüyle değiştirilecektir. `map()`, her biri için gerilemeler çalıştırarak, dizi formüllerinin her biri üzerinde döngü yapacaktır.
 
-4) The outputs of this first `map()` are passed to a second `map()` command, which applies `tidy()` to the regression outputs.  
+4) Bu ilk 'map()' çıktıları, regresyon çıktılarına 'tidy()' uygulayan ikinci bir 'map()' komutuna iletilir.
 
-5) Finally the output of the second `map()` (a list of tidied data frames) is condensed with `bind_rows()`, resulting in one data frame with all the univariate results.  
+5) Son olarak, ikinci 'map()' çıktısı (düzenlenmiş veri çerçevelerinin bir listesi) 'bind_rows()' ile yoğunlaştırılır, bu da tüm tek değişkenli sonuçları içeren bir veri çerçevesiyle sonuçlanır.
 
 
 ```{r odds_base_multiple}
 
-models <- explanatory_vars %>%       # begin with variables of interest
-  str_c("outcome ~ ", .) %>%         # combine each variable into formula ("outcome ~ variable of interest")
+models <- explanatory_vars %>%       # ilgilenilen değişkenlerle başla
+  str_c("outcome ~ ", .) %>%         # her değişkeni formüle birleştir ("outcome ~ variable of interest")
   
-  # iterate through each univariate formula
+  # her tek değişkenli formülü yineleyin
   map(                               
-    .f = ~glm(                       # pass the formulas one-by-one to glm()
-      formula = as.formula(.x),      # within glm(), the string formula is .x
-      family = "binomial",           # specify type of glm (logistic)
-      data = linelist)) %>%          # dataset
+    .f = ~glm(                       # formülleri birer birer glm() öğesine iletin
+      formula = as.formula(.x),      # glm() içinde, dizİ formülü .x'tir
+      family = "binomial",           # glm (logistic) tipini belirle
+      data = linelist)) %>%          # veri kümesi
   
-  # tidy up each of the glm regression outputs from above
+  # glm regresyon çıktılarının her birini düzenleyin
   map(
     .f = ~tidy(
       .x, 
-      exponentiate = TRUE,           # exponentiate 
-      conf.int = TRUE)) %>%          # return confidence intervals
+      exponentiate = TRUE,           # üstelleştirme 
+      conf.int = TRUE)) %>%          # güven aralığına dönme
   
-  # collapse the list of regression outputs in to one data frame
+  # regresyon çıktılarının listesini bir veri çerçevesine daralt
   bind_rows() %>% 
   
-  # round all numeric columns
+  # tüm sayısal sütunları yuvarla
   mutate(across(where(is.numeric), round, digits = 2))
 ```
 
-This time, the end object `models` is longer because it now represents the combined results of several univariate regressions. Click through to see all the rows of `model`.  
+Bu sefer, son nesne 'modelleri' daha uzundur çünkü artık birkaç tek değişkenli regresyonun birleşik sonuçlarını temsil etmektedir. Tüm "model" satırlarını görmek için tıklayın.  
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# vaka listesi verilerini tabloda göster
 DT::datatable(models, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-As before, we can create a counts table from the `linelist` for each explanatory variable, bind it to `models`, and make a nice table. We begin with the variables, and iterate through them with `map()`. We iterate through a user-defined function which involves creating a counts table with **dplyr** functions. Then the results are combined and bound with the `models` model results.  
-
+Daha önce olduğu gibi, her açıklayıcı değişken için 'vaka listesi'nden bir sayım tablosu oluşturabilir, onu 'modellere' bağlayabilir ve güzel bir tablo yapabiliriz. Değişkenlerle başlıyoruz ve onları `map()` ile yineliyoruz. **dplyr** fonksiyonlarıyla bir sayım tablosu oluşturmayı içeren kullanıcı tanımlı bir fonksiyonu yineliyoruz. Daha sonra sonuçlar birleştirilir ve 'modeller' model sonuçlarıyla birleştirilir.
 
 ```{r, warning=F, message=F}
 
-## for each explanatory variable
+## Her açıklayıcı değişken için
 univ_tab_base <- explanatory_vars %>% 
   map(.f = 
-    ~{linelist %>%                ## begin with linelist
-        group_by(outcome) %>%     ## group data set by outcome
-        count(.data[[.x]]) %>%    ## produce counts for variable of interest
-        pivot_wider(              ## spread to wide format (as in cross-tabulation)
+    ~{linelist %>%                ## vaka listesiyle başla
+        group_by(outcome) %>%     ## veri setini çıktıya göre gruplandırma
+        count(.data[[.x]]) %>%    ## ilgilenilen değişken için sayılar üret
+        pivot_wider(              ## geniş formata yayılma (çapraz tablodaki gibi)
           names_from = outcome,
           values_from = n) %>% 
-        drop_na(.data[[.x]]) %>%         ## drop rows with missings
-        rename("variable" = .x) %>%      ## change variable of interest column to "variable"
-        mutate(variable = as.character(variable))} ## convert to character, else non-dichotomous (categorical) variables come out as factor and cant be merged
+        drop_na(.data[[.x]]) %>%         ## eksik olan satırları bırak
+        rename("variable" = .x) %>%      ## ilgili sütununun değişkenini "değişken" olarak değiştir
+        mutate(variable = as.character(variable))} ## karaktere dönüştürün, aksi takdirde ikili olmayan (kategorik) değişkenler faktör olarak ortaya çıkar ve birleştirilemez
       ) %>% 
   
-  ## collapse the list of count outputs in to one data frame
+  ## sayım çıktılarının listesini bir veri çerçevesine daralt
   bind_rows() %>% 
   
-  ## merge with the outputs of the regression 
+  ## regresyon çıktıları ile birleştirme 
   bind_cols(., models) %>% 
   
-  ## only keep columns interested in 
+  ## yalnızca ilgilenilen sütunları tutma 
   select(term, 2:3, estimate, conf.low, conf.high, p.value) %>% 
   
-  ## round decimal places
+  ## ondalık basamakları yuvarla
   mutate(across(where(is.numeric), round, digits = 2))
 
 ```
 
-Below is what the data frame looks like. See the page on [Tables for presentation] for ideas on how to further convert this table to pretty HTML output (e.g. with **flextable**).  
+Aşağıda veri çerçevesinin neye benzediği görülmektedir. Bu tablonun güzel HTML çıktısına nasıl dönüştürüleceği hakkında fikirler için [Tablolar] hakkındaki sayfaya bakın (ör. **flextable** ile).
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# vaka listesini tablo olarak göster
 DT::datatable(univ_tab_base, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
@@ -413,63 +405,64 @@ DT::datatable(univ_tab_base, rownames = FALSE, options = list(pageLength = 5, sc
 
 <!-- ======================================================= -->
 
-### **gtsummary** package {#reg_gt_uni .unnumbered}
+### **gtsummary** paketi {#reg_gt_uni .unnumbered}
 
-Below we present the use of `tbl_uvregression()` from the **gtsummary** package. Just like in the page on [Descriptive tables](https://epirhandbook.com/descriptive-tables.html), **gtsummary** functions do a good job of running statistics *and* producing professional-looking outputs. This function produces a table of univariate regression results.  
+Aşağıda **gtsummary** paketinden `tbl_uvregression()` kullanımını sunuyoruz. Tıpkı [Tanımlayıcı tablolar](https://epirhandbook.com/descriptive-tables.html) sayfasındaki gibi, **gtsummary** fonksiyonları istatistikleri çalıştırmada *ve* profesyonel görünümlü çıktılar üretmede iyi bir iş çıkarır. Bu fonksiyon, tek değişkenli regresyon sonuçlarının bir tablosunu üretir.
 
-We select only the necessary columns from the `linelist` (explanatory variables and the outcome variable) and  pipe them into `tbl_uvregression()`. We are going to run univariate regression on each of the columns we defined as `explanatory_vars` in the data Preparation section (gender, fever, chills, cough, aches, vomit, and age_cat).  
+'Vaka listesi'nden (açıklayıcı değişkenler ve sonuç değişkeni) yalnızca gerekli sütunları seçiyoruz ve bunları 'tbl_uvregression()' içine aktarıyoruz. Veri Hazırlama bölümünde 'açıklayıcı_değişkenler' olarak tanımladığımız sütunların her biri üzerinde (cinsiyet, ateş, titreme, öksürük, ağrı, kusmuk ve yaş_kedi) tek değişkenli regresyon uygulayacağız.
 
-Within the function itself, we provide the `method = ` as `glm` (no quotes), the `y = ` outcome column (`outcome`), specify to `method.args = ` that we want to run logistic regression via `family = binomial`, and we tell it to exponentiate the results.  
+Fonksiyonun kendi içinde, `method =` as `glm` (tırnak işaretleri olmadan), `y =` sonuç sütununu (`outcome`) sağlarız, `family= binomial` yoluyla, lojistik regresyonu çalıştırmak istediğimizi `method.args = ` ile belirtiriz. Ve ona sonuçları üslü hale getirmesini söylüyoruz.
 
-The output is HTML and contains the counts
+Çıktı HTML'dir ve sayıları içermektedir.
 
 ```{r odds_gt, message=F, warning=F}
 
 univ_tab <- linelist %>% 
-  dplyr::select(explanatory_vars, outcome) %>% ## select variables of interest
+  dplyr::select(explanatory_vars, outcome) %>% ## ilgilenilen değişkenleri seç
 
-  tbl_uvregression(                         ## produce univariate table
-    method = glm,                           ## define regression want to run (generalised linear model)
-    y = outcome,                            ## define outcome variable
-    method.args = list(family = binomial),  ## define what type of glm want to run (logistic)
-    exponentiate = TRUE                     ## exponentiate to produce odds ratios (rather than log odds)
+  tbl_uvregression(                         ## tek değişkenli tablo üret
+    method = glm,                           ## çalıştırmak istediğiniz regresyonu tanımlayın (genelleştirilmiş doğrusal model)
+    y = outcome,                            ## sonuç değişkenini tanımlayın
+    method.args = list(family = binomial),  ## ne tür bir glm çalıştırmak istediğini tanımla (lojistik)
+    exponentiate = TRUE                     ## odds oranlarını üretmek için üstelleştir (logaritmik oranlar yerine)
   )
 
-## view univariate results table 
+## tek değişkenli sonuç tablosunu göster 
 univ_tab
 ```
 
-There are many modifications you can make to this table output, such as adjusting the text labels, bolding rows by their p-value, etc. See tutorials [here](http://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html) and elsewhere online.  
+
+Bu tablo çıktısında, metin etiketlerini ayarlamak, satırları p değerlerine göre kalınlaştırmak vb. gibi birçok değişiklik yapabilirsiniz. Öğreticilere [buradan](http://www.danieldsjoberg.com/gtsummary/articles/tbl_regression .html) ve başka çevrimiçi yerlerden bakabilirsiniz.
 
 
 
-<!-- ======================================================= -->
+<!-- ============================================ ========= -->
 
-## Stratified {  }
+## Tabakalı { }
 
-Stratified analysis is currently still being worked on for **gtsummary**, 
-this page will be updated in due course. 
-
-
+Tabakalı analiz şu anda **gtsummary** üzerinde çalışıyor,
+bu sayfa zamanı gelince güncellenecektir.
 
 
-## Multivariable  
-
-For multivariable analysis, we again present two approaches:  
-
-* `glm()` and `tidy()`  
-* **gtsummary** package  
-
-The workflow is similar for each and only the last step of pulling together a final table is different.
 
 
-### Conduct multivariable {.unnumbered}  
+## Çok Değişkenli
+
+Çok değişkenli analiz için yine iki yaklaşım sunuyoruz:
+
+* `glm()` ve `tidy()`
+* **gtsummary** paketi
+
+İş akışı her biri için benzerdir ve yalnızca son tabloyu bir araya getirmenin son adımı farklıdır.
 
 
-Here we use `glm()` but add more variables to the right side of the equation, separated by plus symbols (`+`). 
+### Çok değişkenli yürütme {.unnumbered}
 
 
-To run the model with all of our explanatory variables we would run:  
+Burada `glm()` kullanıyoruz ama denklemin sağ tarafına artı sembolleriyle (`+`) ayırarak daha fazla değişken ekliyoruz.
+
+
+Modeli tüm açıklayıcı değişkenlerimizle çalıştırmak için şunu çalıştırırız:  
 
 ```{r}
 mv_reg <- glm(outcome ~ gender + fever + chills + cough + aches + vomit + age_cat, family = "binomial", data = linelist)
@@ -477,31 +470,30 @@ mv_reg <- glm(outcome ~ gender + fever + chills + cough + aches + vomit + age_ca
 summary(mv_reg)
 ```
 
-If you want to include two variables and an interaction between them you can separate them with an asterisk `*` instead of a `+`. Separate them with a colon `:` if you are only specifying the interaction. For example:  
+İki değişken ve aralarında bir etkileşim eklemek istiyorsanız, bunları "+" yerine yıldız işareti "*" ile ayırabilirsiniz. Yalnızca etkileşimi belirtiyorsanız, bunları iki nokta üst üste `:` ile ayırın. Örneğin:
 
 ```{r, eval=F}
 glm(outcome ~ gender + age_cat * fever, family = "binomial", data = linelist)
 ```
 
 
-*Optionally*, you can use this code to leverage the pre-defined vector of column names and re-create the above command using `str_c()`. This might be useful if your explanatory variable names are changing, or you don't want to type them all out again.  
+*İsteğe bağlı olarak*, bu kodu, önceden tanımlanmış sütun adları vektöründen yararlanmak ve `str_c()` kullanarak yukarıdaki komutu yeniden oluşturmak için kullanabilirsiniz. Bu, açıklayıcı değişken adlarınız değişiyorsa veya hepsini yeniden yazmak istemiyorsanız yararlı olabilir.
 
 ```{r mv_regression}
 
-## run a regression with all variables of interest 
-mv_reg <- explanatory_vars %>%  ## begin with vector of explanatory column names
-  str_c(collapse = "+") %>%     ## combine all names of the variables of interest separated by a plus
-  str_c("outcome ~ ", .) %>%    ## combine the names of variables of interest with outcome in formula style
-  glm(family = "binomial",      ## define type of glm as logistic,
-      data = linelist)          ## define your dataset
+##  ilgilenilen tüm değişkenlerle bir regresyon çalıştırın 
+mv_reg <- explanatory_vars %>%  ## açıklayıcı sütun adlarının vektörüyle başlayın
+  str_c(collapse = "+") %>%     ## bir artı ile ayrılmış ilgilenilen değişkenlerin tüm adlarını birleştirin
+  str_c("outcome ~ ", .) %>%    ## formül stilinde sonuç ile ilgilenilen değişkenlerin adlarını birleştirin
+  glm(family = "binomial",      ## glm tipini lojistik olarak tanımlayın
+      data = linelist)          ## veri setinizi tanımlayın
 ```
 
+#### Modeli oluşturma {.unnumbered}
 
-#### Building the model {.unnumbered}  
+Belirli açıklayıcı değişkenleri içeren çeşitli modelleri kaydederek modelinizi adım adım oluşturabilirsiniz. Bu modelleri, aşağıdaki gibi **lmtest** paketinden `lrtest()` kullanarak olasılık-oran testleri ile karşılaştırabilirsiniz:
 
-You can build your model step-by-step, saving various models that include certain explanatory variables. You can compare these models with likelihood-ratio tests using `lrtest()` from the package **lmtest**, as below:  
-
-<span style="color: black;">**_NOTE:_** Using **base** `anova(model1, model2, test = "Chisq)` produces the same results </span> 
+<span style="color: black;">**_NOT:_** **base** `anova(model1, model2, test = "Chisq)` kullanılması aynı sonuçları verir </span>
 
 ```{r}
 model1 <- glm(outcome ~ age_cat, family = "binomial", data = linelist)
@@ -510,32 +502,32 @@ model2 <- glm(outcome ~ age_cat + gender, family = "binomial", data = linelist)
 lmtest::lrtest(model1, model2)
 ```
 
-Another option is to take the model object and apply the `step()` function from the **stats** package. Specify which variable selection direction you want use when building the model.      
+Diğer bir seçenek ise model nesnesini alıp **stats** paketinden `step()` fonksiyonunu uygulamaktır. Modeli oluştururken hangi değişken seçim yönünü kullanmak istediğinizi belirtin. 
 
 ```{r}
-## choose a model using forward selection based on AIC
-## you can also do "backward" or "both" by adjusting the direction
+## AIC'ye (Akaike information criterion) dayalı ileri seçimi kullanarak bir model seçin
+## yönü ayarlayarak "geri" veya "her ikisini" de yapabilirsiniz.
 final_mv_reg <- mv_reg %>%
   step(direction = "forward", trace = FALSE)
 ```
 
 
-You can also turn off scientific notation in your R session, for clarity:  
+Netlik için R oturumunuzda bilimsel gösterimi de kapatabilirsiniz:
 
 ```{r}
 options(scipen=999)
 ```
 
-As described in the section on univariate analysis, pass the model output to `tidy()` to exponentiate the log odds and CIs. Finally we round all numeric columns to two decimal places. Scroll through to see all the rows.  
+Tek değişkenli analiz bölümünde açıklandığı gibi, log oranlarını ve GA'nı üslendirmek için model çıktısını 'tidy()' öğesine iletin. Son olarak, tüm sayısal sütunları iki ondalık basamağa yuvarlarız. Tüm satırları görmek için kaydırın.  
 
 ```{r mv_regression_base}
 
 mv_tab_base <- final_mv_reg %>% 
-  broom::tidy(exponentiate = TRUE, conf.int = TRUE) %>%  ## get a tidy dataframe of estimates 
-  mutate(across(where(is.numeric), round, digits = 2))          ## round 
+  broom::tidy(exponentiate = TRUE, conf.int = TRUE) %>%  ## düzenli veri çerçevesinin tahminlerini elde edin 
+  mutate(across(where(is.numeric), round, digits = 2))          ## yuvarlama 
 ```
 
-Here is what the resulting data frame looks like: 
+Ortaya çıkan veri çerçevesi şöyle görünür:
 
 ```{r, message=FALSE, echo=F}
 DT::datatable(mv_tab_base, rownames = FALSE, options = list(pageLength = 10, scrollX=T), class = 'white-space: nowrap' )
@@ -547,50 +539,48 @@ DT::datatable(mv_tab_base, rownames = FALSE, options = list(pageLength = 10, scr
 
 <!-- ======================================================= -->
 
-### Combine univariate and multivariable {.unnumbered}
+### Tek değişkenli ve çok değişkenli birleştirme {.unnumbered}
 
-#### Combine with **gtsummary**  {.unnumbered}  
+#### **gtsummary** ile birleştirme {.unnumbered}
 
-The **gtsummary** package provides the `tbl_regression()` function, which will 
-take the outputs from a regression (`glm()` in this case) and produce an nice 
-summary table. 
+**gtsummary** paketi, `tbl_regression()` fonksiyonunu sağlar.
+Bu paket regresyondan çıktıları alan (bu durumda `glm()`) ve güzel bir sonuç üreten özet tablodur.
 
 ```{r mv_regression_gt}
-## show results table of final regression 
+## son regresyonun sonuç tablosunu göster
 mv_tab <- tbl_regression(final_mv_reg, exponentiate = TRUE)
 ```
 
-Let's see the table:  
+Tabloyu görelim:
 
 ```{r}
 mv_tab
 ```
 
-You can also combine several different output tables produced by **gtsummary** with 
-the `tbl_merge()` function. We now combine the multivariable results with the **gtsummary** *univariate* results that we created [above](#reg_gt_uni):  
+**gtsummary** tarafından üretilen birkaç farklı çıktı tablosunu `tbl_merge()` fonksiyonuyla da birleştirebilirsiniz. Şimdi çok değişkenli sonuçları, oluşturduğumuz **gtsummary** *tek değişkenli* sonuçlarla birleştiriyoruz [yukarıda](#reg_gt_uni):
 
 ```{r}
-## combine with univariate results 
+## tek değişkenli sonuçlarla birleştir
 tbl_merge(
-  tbls = list(univ_tab, mv_tab),                          # combine
-  tab_spanner = c("**Univariate**", "**Multivariable**")) # set header names
+  tbls = list(univ_tab, mv_tab),                          # birleştir
+  tab_spanner = c("**Univariate**", "**Multivariable**")) # başlık adlarını ayarla
 ```
 
 
 
-#### Combine with **dplyr** {.unnumbered}  
+#### **dplyr**  ile birleştirme {.unnumbered}
 
-An alternative way of combining the `glm()`/`tidy()` univariate and multivariable outputs is with the **dplyr** join functions.  
+`glm()`/`tidy()` tek değişkenli ve çok değişkenli çıktıları birleştirmenin alternatif bir yolu, **dplyr** birleştirme fonksiyonlarıdır.
 
-* Join the univariate results from earlier (`univ_tab_base`, which contains counts) with the tidied multivariable results `mv_tab_base`  
-* Use `select()` to keep only the columns we want, specify their order, and re-name them  
-* Use `round()` with two decimal places on all the column that are class Double  
+* Daha önceki tek değişkenli sonuçları (sayıları içeren 'univ_tab_base') derlenmiş çok değişkenli sonuçlar 'mv_tab_base' ile birleştirebilirsiniz
+* Yalnızca istediğimiz sütunları tutmak, sıralarını belirlemek ve yeniden adlandırmak için `select()` kullanabilirsiniz
+* Double sınıfı olan tüm sütunlarda iki ondalık basamakla `round()` kullanabilirsiniz 
 
 ```{r, warning=F, message=F}
-## combine univariate and multivariable tables 
+## tek ve çok değişkenli tabloları birleştir
 left_join(univ_tab_base, mv_tab_base, by = "term") %>% 
-  ## choose columns and rename them
-  select( # new name =  old name
+  ## sütunları seç ve yeniden isimlendir
+  select( # yeni isim =  eski isim
     "characteristic" = term, 
     "recovered"      = "0", 
     "dead"           = "1", 
@@ -612,52 +602,51 @@ left_join(univ_tab_base, mv_tab_base, by = "term") %>%
 
 <!-- ======================================================= -->
 
-## Forest plot {  }
+## Metaanaliz Grafiği{  }
 
-This section shows how to produce a plot with the outputs of your regression.
-There are two options, you can build a plot yourself using **ggplot2** or use a 
-meta-package called **easystats** (a package that includes many packages).  
+Bu bölüm, regresyonunuzun çıktılarıyla bir grafiğin nasıl üretileceğini gösterir.
+İki seçenek vardır, **ggplot2** kullanarak kendiniz bir grafik oluşturabilir veya **easystats** (birçok paket içeren bir paket) adlı bir meta paket kullanabilirsiniz.
 
-See the page on [ggplot basics] if you are unfamiliar with the **ggplot2** plotting package.  
+**ggplot2** çizim paketine aşina değilseniz [ggplot temelleri] sayfasına bakın.
 
 
-<!-- ======================================================= -->
+<!-- ============================================ ========= -->
 
-### **ggplot2** package {.unnumbered}
+### **ggplot2** paketi {.unnumbered}
 
-You can build a forest plot with `ggplot()` by plotting elements of the multivariable regression results. Add the layers of the plots using these "geoms":  
+Çok değişkenli regresyon sonuçlarının öğelerini çizerek `ggplot()` ile bir metaanaliz grafiği oluşturabilirsiniz. Bu "geomları" kullanarak grafiklerin katmanlarını ekleyin:
 
-* estimates with `geom_point()`  
-* confidence intervals with `geom_errorbar()`  
-* a vertical line at OR = 1 with `geom_vline()`  
+* `geom_point()` ile tahminler
+* `geom_errorbar()` ile güven aralıkları
+* OR(Odds Ratio)= 1'de `geom_vline()` ile dikey bir çizgi
 
-Before plotting, you may want to use `fct_relevel()` from the **forcats** package to set the order of the variables/levels on the y-axis. `ggplot()` may display them in alpha-numeric order which would not work well for these age category values ("30" would appear before "5"). See the page on [Factors] for more details.  
+Çizmeden önce, y eksenindeki değişkenlerin/seviyelerin sırasını ayarlamak için **forcats** paketinden `fct_relevel()` kullanmak isteyebilirsiniz. "ggplot()", bu yaş kategorisi değerleri için iyi çalışmayan ("30", "5"ten önce görünür) alfa-sayısal sırada görüntüleyebilir. Daha fazla ayrıntı için [Faktörler] sayfasına bakın.
 
 ```{r ggplot_forest}
 
-## remove the intercept term from your multivariable results
+## kesme değerini çok değişkenli sonuçlarınızdan kaldırın
 mv_tab_base %>% 
   
-  #set order of levels to appear along y-axis
+  #y ekseni boyunca görünecek seviyelerin sırasını ayarlayın
   mutate(term = fct_relevel(
     term,
     "vomit", "gender", "fever", "cough", "chills", "aches",
     "age_cat5-9", "age_cat10-14", "age_cat15-19", "age_cat20-29",
     "age_cat30-49", "age_cat50-69", "age_cat70+")) %>%
   
-  # remove "intercept" row from plot
+  # grafikten "kesme değeri" satırını kaldır
   filter(term != "(Intercept)") %>% 
   
-  ## plot with variable on the y axis and estimate (OR) on the x axis
+  ## değişkeni y eksenine göre grafikleştir, x eksenini tahmin et(OR)
   ggplot(aes(x = estimate, y = term)) +
   
-  ## show the estimate as a point
+  ## tahminini nokta olarak göster
   geom_point() + 
   
-  ## add in an error bar for the confidence intervals
+  ## güven aralıkları için bir hata çubuğu ekleyin
   geom_errorbar(aes(xmin = conf.low, xmax = conf.high)) + 
   
-  ## show where OR = 1 is for reference as a dashed line
+  ## OR = 1'in referans için nerede olduğunu kesikli çizgi olarak göster
   geom_vline(xintercept = 1, linetype = "dashed")
   
 ```
@@ -665,18 +654,16 @@ mv_tab_base %>%
 
 <!-- ======================================================= -->
 
-### **easystats** packages {.unnumbered}
+### **easystats** paketleri {.unnumbered}
 
-An alternative, if you do not want to the fine level of control that **ggplot2** provides, is to use a combination of **easystats** packages.  
+**ggplot2**'nin sağladığı iyi düzeyde kontrolü istemiyorsanız, alternatif olarak **easystats** paketlerinin bir kombinasyonunu kullanabilirsiniz.
 
-The function `model_parameters()` from the **parameters** package does the equivalent
-of the **broom** package function `tidy()`. The **see** package then accepts those outputs
-and creates a default forest plot as a `ggplot()` object. 
+**parameters** paketindeki 'model_parameters()' fonksiyonu, **broom** paket işlevi 'tidy()' ile eşdeğerdir. **see** paketi daha sonra bu çıktıları kabul eder ve bir "ggplot()" nesnesi olarak varsayılan bir metaanaliz grafiği oluşturur.
 
 ```{r easystats_forest}
 pacman::p_load(easystats)
 
-## remove the intercept term from your multivariable results
+## kesme değerini çok değişkenli sonuçlarınızdan kaldırın 
 final_mv_reg %>% 
   model_parameters(exponentiate = TRUE) %>% 
   plot()
@@ -686,15 +673,15 @@ final_mv_reg %>%
 
 <!-- ======================================================= -->
 
-## Resources {  }
+## Kaynaklar {  }
 
-The content of this page was informed by these resources and vignettes online:  
+Bu sayfanın içeriği şu kaynaklar ve çevrimiçi gösterimlerden yararlanılarak hazırlanmıştır.
 
-[Linear regression in R](https://www.datacamp.com/community/tutorials/linear-regression-R)  
+[R'da Linear regression](https://www.datacamp.com/community/tutorials/linear-regression-R)  
 
 [gtsummary](http://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html)  
 
-[UCLA stats page](https://stats.idre.ucla.edu/other/dae/)  
+[UCLA stats sayfası](https://stats.idre.ucla.edu/other/dae/)  
 
 [sthda stepwise regression](http://www.sthda.com/english/articles/36-classification-methods-essentials/150-stepwise-logistic-regression-essentials-in-r/)   
 
