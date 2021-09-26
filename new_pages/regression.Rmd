@@ -8,7 +8,7 @@ Değişkenler arasındaki ilişkilere bakarak bunu yapar (örneğin, odds oranla
 1. Tek değişkenli: ikiye iki tablo
 2. Tabakalı: mantel-haenszel tahminleri
 3. Çok değişkenli: değişken seçimi, model seçimi, final tablosu
-4. Metaanaliz Grafikleri
+4. Forest Grafikleri
 
 Cox orantılı tehlike regresyonu için [Hayatta kalma analizi] sayfasına bakınız.
 
@@ -34,7 +34,7 @@ pacman::p_load(
   broom,        # regresyonlardan elde edilen sonuçları toparlama
   lmtest,       # olasılık oranı testleri
   parameters,   # regresyonlardan elde edilen sonuçları toparlamaya alternatif
-  see          # metaanaliz grafiklerini görselleştirmeye alternatif
+  see          # Forest grafiklerini görselleştirmeye alternatif
   )
 ```
 
@@ -602,7 +602,7 @@ left_join(univ_tab_base, mv_tab_base, by = "term") %>%
 
 <!-- ======================================================= -->
 
-## Metaanaliz Grafiği{  }
+## Forest Grafiği{  }
 
 Bu bölüm, regresyonunuzun çıktılarıyla bir grafiğin nasıl üretileceğini gösterir.
 İki seçenek vardır, **ggplot2** kullanarak kendiniz bir grafik oluşturabilir veya **easystats** (birçok paket içeren bir paket) adlı bir meta paket kullanabilirsiniz.
@@ -614,7 +614,7 @@ Bu bölüm, regresyonunuzun çıktılarıyla bir grafiğin nasıl üretileceğin
 
 ### **ggplot2** paketi {.unnumbered}
 
-Çok değişkenli regresyon sonuçlarının öğelerini çizerek `ggplot()` ile bir metaanaliz grafiği oluşturabilirsiniz. Bu "geomları" kullanarak grafiklerin katmanlarını ekleyin:
+Çok değişkenli regresyon sonuçlarının öğelerini çizerek `ggplot()` ile bir Forest grafiği oluşturabilirsiniz. Bu "geomları" kullanarak grafiklerin katmanlarını ekleyin:
 
 * `geom_point()` ile tahminler
 * `geom_errorbar()` ile güven aralıkları
@@ -658,7 +658,7 @@ mv_tab_base %>%
 
 **ggplot2**'nin sağladığı iyi düzeyde kontrolü istemiyorsanız, alternatif olarak **easystats** paketlerinin bir kombinasyonunu kullanabilirsiniz.
 
-**parameters** paketindeki 'model_parameters()' fonksiyonu, **broom** paket işlevi 'tidy()' ile eşdeğerdir. **see** paketi daha sonra bu çıktıları kabul eder ve bir "ggplot()" nesnesi olarak varsayılan bir metaanaliz grafiği oluşturur.
+**parameters** paketindeki 'model_parameters()' fonksiyonu, **broom** paket işlevi 'tidy()' ile eşdeğerdir. **see** paketi daha sonra bu çıktıları kabul eder ve bir "ggplot()" nesnesi olarak varsayılan bir Forest grafiği oluşturur.
 
 ```{r easystats_forest}
 pacman::p_load(easystats)
