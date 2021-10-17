@@ -395,14 +395,20 @@ options(scipen=1, digits=7)
 
 <!--chapter:end:new_pages/cat_data_management.Rmd-->
 
+<<<<<<< HEAD
 ---
 output:
   word_document: default
   html_document: default
 ---
 # Cleaning data and core functions {}
+=======
+# Önyazı ve teknik notlar { }
+>>>>>>> 239b7fb500cb7a4d3c75c443efced2364334381d
 
+Bu sayfada, el kitabının hazırlanması sırasında belirlediğimiz felsefi yaklaşımı, stili ve belirli editoryal kararlara değineceğiz.
 
+<<<<<<< HEAD
 ```{r, out.height = "10%", fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "cleaning.png"))
 ```
@@ -418,8 +424,25 @@ To demonstrate data cleaning, this page begins by importing a raw case linelist 
 This handbook emphasizes use of the functions from the [**tidyverse**](https://www.tidyverse.org/) family of R packages. The essential R functions demonstrated in this page are listed below.  
 
 Many of these functions belong to the [**dplyr**](https://dplyr.tidyverse.org/) R package, which provides "verb" functions to solve data manipulation challenges (the name is a reference to a "data frame-[plier](https://www.thefreedictionary.com/plier#:~:text=also%20ply%C2%B7er%20(pl%C4%AB%E2%80%B2,holding%2C%20bending%2C%20or%20cutting.)"). **dplyr** is part of the **tidyverse** family of R packages (which also includes **ggplot2**, **tidyr**, **stringr**, **tibble**, **purrr**, **magrittr**, and **forcats** among others).  
+=======
 
 
+## Yaklaşım ve stil
+
+Bu kitabın potansiyel hedef kitlesini geniş olarak belirledik. Hem R'a yeni olan kişiler tarafından hem de R "iyi uygulamalarını" ve "ipuçlarını" öğrenmek isteyen deneyimli R kullanıcılarının bu kitaptan faydalanabilmesini istedik. Kitap hem kolayca erişilebilir hem de az ve öz olmalıydı. Bu nedenle yaklaşımımızı, R'de çok yeni olan birinin kodu uygulayabileceği ve kodun ne yaptığını takip edebileceği *yeterli* metin açıklaması sağlamak olarak belirledik.
+
+Bir kaç nokta daha:  
+
+* Nispeten kısa örneklerin eşlik ettiği bir kod referans kitabı olarak tasarlanmıştır - R veya veri bilimi üzerine kapsamlı bir ders kitabı *değildir*.
+* Uygulamalı epidemiyolojide kullanmanız için *R el kitabı* olarak kapsamı sınırlandırılmıştır - uygulamalı epidemiyoloji yöntemleri veya bilimi hakkında bir kılavuz değil.
+* Bu el kitabının yaşayan bir belge olması amaçlanmıştır - belirli bir görevler için hazırlanan R paketleri sıklıkla güncellenir ve değişir. Bu kitapta hangilerine yer vermemiz gerektiğine dair öneri ve eleştirilerinizi memnuniyetle öğrenmek isteriz.
+
+
+>>>>>>> 239b7fb500cb7a4d3c75c443efced2364334381d
+
+### R paketleri {.unnumbered}
+
+<<<<<<< HEAD
 Function       | Utility                               | Package
 ---------------|---------------------------------------|------------------------------
 ` %>% `|"pipe" (pass) data from one function to the next|**magrittr** 
@@ -455,8 +478,27 @@ In this handbook, we generally reference "columns" and "rows" instead of "variab
 In "tidy" datasets, each column is a variable, each row is an observation, and each cell is a single value. However some datasets you encounter will not fit this mold - a "wide" format dataset may have a variable split across several columns (see an example in the [Pivoting data] page). Likewise, observations could be split across several rows.  
 
 Most of this handbook is about managing and transforming data, so referring to the concrete data structures of rows and columns is more relevant than the more abstract observations and variables. Exceptions occur primarily in pages on data analysis, where you will see more references to variables and observations.  
+=======
+**Çok fazla seçenek**  
 
+R öğrenmenin en zorlu yönlerinden biri de hangi R paketinin kullanılacağını bilmektir. Bir işi çözmeye çalışırken "Hey, bunların hepsini tek bir komut satırında yapan bir R paketi var!" demeniz nadir bir durum olmayacaktır.
 
+Bu el kitabında, her görevi tamamlamanız için size en az iki yol sunmaya çalıştık: ilki denenmiş ve doğrulanmış bir yöntem (muhtemelen **base** R veya **tidyverse** içinde) ve ikincisi o iş için özel olarak tasarlanmış R paketi ile. Belirli bir pakette sorun yaşamanız halinde birden fazla seçeneğe sahip olmanızı istiyoruz.
+
+Paketleri belirlerken, R topluluğu tarafından test edilmiş ve onaylanmış paketlere ve yaklaşımlarına öncelik verdik. Rutin bir çalışma oturumunda işinize yarayacak, stabil (çok sık değişmeyen) ve görevi basit ve temiz bir şekilde yerine getirebilecek minimal sayıda paket kullandık.
+
+Bu el kitabı **tidyverse**'de bulunan R paket ve işlevlerine öncelik verir. Tidyverse, temel dilbilgisi ve veri yapılarını paylaşan veri bilimi için tasarlanmış bir R paketi koleksiyonudur. Tüm tidyverse paketleri, **tidyverse** paketi aracılığıyla kurulabilir veya yüklenebilir. [Tidyverse'n web sitesinde](https://www.tidyverse.org/) daha fazlasını okuyabilirsiniz.
+
+Uygun yerlerde, kurulum sırasında R ile birlikte yüklenen **base** paket ve fonksiyonlarıyla ilişkili kod seçeneklerini de ekledik. Bunu, bu kitabın okuyucularından bazılarının ekstra paketleri indirmek için güvenilir bir internete sahip olmama ihtimaline karşılık yaptık.
+
+**Fonksiyonları paketlerle ilişkilendirme =**
+
+R eğitim ve rehberlerinde bir fonksiyona ilişkin kodun anlatılıp kullanılan paketin hiç değinilmemesine şahit olmuşsunuzdur. Bu durum sinir bozucudur! İşte biz bunu size yaşatmaktan kaçınmaya çalıştık.
+>>>>>>> 239b7fb500cb7a4d3c75c443efced2364334381d
+
+Açıklama metinlerinde paket adları kalın harflerle (örn. **dplyr**) ve fonksiyonları `mutate()` şeklinde yazılır. Bir fonksiyonun hangi paketten geldiğini, ya en yakındaki metinde referanslayarak ya da kodu `dplyr::mutate()` şeklinde yazarak size açıklamaya çalıştık. Başta gereksiz görünebilir ancak bunu yukarıda bahsettiğimiz amaç uğruna, bilerek yapıyoruz.
+
+<<<<<<< HEAD
 
 <!-- ======================================================= -->
 <!-- ======================================================= -->
@@ -496,10 +538,15 @@ pacman::p_load(
   tidyverse   # data management and visualization
 )
 ```
+=======
+Paketler ve fonksiyonları hakkında daha fazla bilgi edinmek için [R basics] sayfasına bakabilirsiniz.
+>>>>>>> 239b7fb500cb7a4d3c75c443efced2364334381d
 
 
 
+### Kodlama stili {.unnumbered}
 
+<<<<<<< HEAD
 <!-- ======================================================= -->
 <!-- ======================================================= -->
 <!-- ======================================================= -->
@@ -548,8 +595,45 @@ skimr::skim_without_charts(linelist_raw)
 
 
  
+=======
+El kitabında sık sık "yeni satırlar" kullanıyoruz, bu da kodumuzun "uzun" görünmesine neden olabiliyor. Bunun birkaç sebebi var:
+
+* Kodun her küçük parçasına bitişik `#` ile açıklayıcı yorumlar yazabiliriz.
+* Genellikle daha uzun (dikey) kodun okunması daha kolaydır.
+* Kodların dar bir ekranda okunması daha kolaydır (ekranı yana kaydırmanıza gerek kalmaz).
+* Girintiler sayesinde hangi argümanların hangi fonksiyona ait olduğunu daha kolay anlayabilirsiniz.
+
+Sonuç olarak, *aşağıdaki gibi* yazılabilecek kod:
+
+```{r, eval=F}
+linelist %>% 
+  group_by(hospital) %>%  # satırları hastane (hospital) olarak gruplandır
+  slice_max(date, n = 1, with_ties = F) # eğer tarih (date) ile eşleşirse ilk satırı al
+```
+
+...şu şekilde yazılır:  
+
+```{r, eval=F}
+linelist %>% 
+  group_by(hospital) %>% # satırları hastane (hospital) olarak gruplandır
+  slice_max(
+    date,                # maksimum tarih değerine grubu sırala
+    n = 1,               # gruptaki satırlardan sadece ilkini al 
+    with_ties = F)       # eğer tarih (date) ile eşleşirse ilk satırı al
+```
+
+R kodu genel olarak yeni satır veya girintilerden etkilenmez. Kodu yazarken, virgülden sonra yeni bir satır başlatırsanız, program yeni satıra otomatik girinti uygular.
+
+Ayrıca, okunması daha kolay olduğu için kodu yazarken birçok boşluk kullandık (örneğin, 'n=1' yerine 'n = 1'). Siz de kodunuzu yazarken onu okuyabilecek insanları düşünerek yazmalısınız!
 
 
+
+### Terminoloji {.unnumbered}  
+>>>>>>> 239b7fb500cb7a4d3c75c443efced2364334381d
+
+Bu el kitabında, genellikle "değişkenler" ve "gözlemler" yerine "sütunlar" ve "satırlar"a atıfta bulunuyoruz. ["Tidy verileri"](https://tidyr.tidyverse.org/articles/tidy-data.html) ile ilgili bu makalede açıklandığı gibi, epidemiyolojik istatistiksel veri setlerinin çoğu yapısal olarak satır, sütun ve değerlerden oluşur.
+
+<<<<<<< HEAD
 
 
 
@@ -557,9 +641,17 @@ skimr::skim_without_charts(linelist_raw)
 <!-- ======================================================= -->
 <!-- ======================================================= -->
 ## Column names {} 
+=======
+*Değişkenler* aynı temel özelliği ölçen değerleri içerir (yaş grubu, çıktı veya başlangıç tarihi gibi). *Gözlemler* aynı birimde ölçülen tüm değerleri içerir (örneğin bir kişi, alan veya laboratuvar numunesi vb.). Dolayısıyla bu yönleri somut olarak tanımlamak daha zor olabilmektedir.
+
+"Tidy" veri kümelerinde her sütun bir değişken, her satır bir gözlem ve her hücre de tek bir değeri ifade etmektedir. Ancak karşılaştığınız bazı veri kümeleri bu kalıba sığmaz - "geniş" biçimli bir veri kümesinin birkaç sütuna bölünebilen değişkenleri olabilir ([Pivoting data] sayfasındaki bir örneğe bakın). Benzer şekilde, gözlemler de birkaç satıra bölünebilir.
+
+Bu el kitabı çoğunlukla, verileri yönetmek ve işlemek üzerine odaklanmıştır. O nedenle satır ve sütunlarda somut verilere atıfta bulunmayı, daha soyut gözlem ve değişkenlere tercih ettik. Bu yaklaşımımızın istisnası, daha fazla değişken ve gözlem referansıyla karşılaşacağınız veri analizi sayfalarıdır.
+>>>>>>> 239b7fb500cb7a4d3c75c443efced2364334381d
 
 In R, column *names* are the "header" or "top" value of a column. They are used to refer to columns in the code, and serve as a default label in figures.  
 
+<<<<<<< HEAD
 Other statistical software such as SAS and STATA use *"labels"* that co-exist as longer printed versions of the shorter column names. While R does offer the possibility of adding column labels to the data, this is not emphasized in most practice. To make column names "printer-friendly" for figures, one typically adjusts their display within the plotting commands that create the outputs (e.g. axis or legend titles of a plot, or column headers in a printed table - see the [scales section of the ggplot tips page](#ggplot_tips_scales) and [Tables for presentation] pages). If you want to assign column labels in the data, read more online [here](https://cran.r-project.org/web/packages/expss/vignettes/labels-support.html) and [here](https://cran.r-project.org/web/packages/labelled/vignettes/intro_labelled.html).  
 
 As R column names are used very often, so they must have "clean" syntax. We suggest the following:  
@@ -588,9 +680,45 @@ Some other statistical software such as SAS have variable *labels*
 
 
 ### Automatic cleaning {.unnumbered}  
+=======
+
+### Notlar {.unnumbered} 
+
+El kitabında karşılaşabileceğiniz not türleri şunlardır:  
+
+<span style="color: black;">**_NOT:_** Bu bir nottur.</span>  
+<span style="color: darkgreen;">**_İPUCU:_** Bu bir ipucudur.</span>  
+<span style="color: orange;">**_DİKKAT:_** Bu dikkatli yaklaşmanızı tavsiye eden bir nottur.</span>  
+<span style="color: red;">**_TEHLİKE:_** Bu bir uyarıdır.</span>  
+
+
+
+## Editöryal Kararlar  
+
+Aşağıda, paket ve işlev seçimiyle ilgili önemli editoryal kararları sizinle paylaşıyoruz. Bizimle aynı fikirde değilseniz veya değerlendirilmesi için yeni bir araç önermek isterseniz, lütfen [Github sayfamıza](https://github.com/epirhandbook/Epi_R_handbook) katılın ve yeni bir sohbet başlatın.
+
+
+**Paket, fonksiyon ve diğer editoryal kararlar tablosu**  
+
+
+Konu           |     Paket      |   Çıktı              |    Rasyoneli   
+----------------- | --------------------|------------------------|-----------------------------------------------
+Genel kodlama yaklaşımı|**tidyverse**, **data.table**, **base**|**tidyverse**, **data.table** üzerinde bir sayfa ve interneti olmayan okuyucular için **base** alternatifleri|**tidyverse** okunabilir, evrensel, en çok öğretilen pakettir 
+Paket yükleme|`library()`,`install.packages()`, `require()`, **pacman**|**pacman**|Çoklu paket indirme/yükleme süreçlerini kısaltır ve basitleştirir
+İçe ve dışa aktarma|**rio**, ve diğer pek çok paketler|**rio**|Birçok dosya türü için kolaylık sağlar
+İstatistik özetleri için gruplandırma|**dplyr** `group_by()`, **stats** `aggregate()`|**dplyr** `group_by()`|**tidyverse** vurgusu ile tutarlıdır
+Pivotlama|**tidyr** (pivot fonksiyonları), **reshape2** (melt/cast), **tidyr** (spread/gather)|**tidyr** (pivot fonksiyonları)|**reshape2** artık kullanımda değil, **tidyr** v1.0.0 itibariyle pivot fonksiyonlarını kullanmaktadır
+Sütun adlarını temizleme|**linelist**, **janitor**|**janitor**|Paketlerin birlikte kullanımı vurgulanmaktadır
+Epiweeks |**lubridate**, **aweek**, **tsibble**, **zoo**|genelde **lubridate**, özel durumlarda diğer paketler| **lubridate** esnek, tutarlı ve diğer paketleri koruyan bir seçenektir  
+ggplot etiketleri |`labs()`, `ggtitle()`/`ylab()`/`xlab()` |`labs()` |tüm etiketler tek bir yerde, kullanımı basittir  
+Faktöre çevir |`factor()`, **forcats**|**forcats**|çeşitli fonksiyonları da aynı komutta faktöre dönüşür
+Epidemi eğrileri|**incidence**, **ggplot2**, **EpiCurve**|**incidence2** hızlıdır, **ggplot2** ise detaylı ve güvenilirdir
+Birleştirme|`paste()`, `paste0()`, `str_glue()`, `glue()`|`str_glue()`|**stringr** fonksiyonlarını içerir, yapıştır fonksiyonlarından daha basit bir sentaks (sözdizimi) vardır
+>>>>>>> 239b7fb500cb7a4d3c75c443efced2364334381d
 
 The function `clean_names()` from the package **janitor** standardizes column names and makes them unique by doing the following:  
 
+<<<<<<< HEAD
 * Converts all names to consist of only underscores, numbers, and letters  
 * Accented characters are transliterated to ASCII (e.g. german o with umlaut becomes "o", spanish "enye" becomes "n")  
 * Capitalization preference for the new column names can be specified using the `case = ` argument ("snake" is default, alternatives include "sentence", "title", "small_camel"...)  
@@ -603,11 +731,20 @@ Below, the cleaning pipeline begins by using `clean_names()` on the raw linelist
 # pipe the raw dataset through the function clean_names(), assign result as "linelist"  
 linelist <- linelist_raw %>% 
   janitor::clean_names()
+=======
+## Büyük güncellemeler  
+
+
+Tarih           |Açıklama        
+---------------| ------------------------------------------    
+10 May 2021    |Versiyon 1.0.0'ın yayınlanması    
+>>>>>>> 239b7fb500cb7a4d3c75c443efced2364334381d
 
 # see the new column names
 names(linelist)
 ```
 
+<<<<<<< HEAD
 <span style="color: black;">**_NOTE:_** The last column name "...28" was changed to "x28".</span>
 
 
@@ -835,6 +972,18 @@ linelist_age <- select(linelist, case_id, contains("age"))
 names(linelist_age)
 ```
 
+=======
+## Oturum bilgisi (R, RStudio, packages)  
+
+Aşağıda, bu el Kitabının hazırlanması sırasında kullanılan R, RStudio ve R paketleri ve sürümlerine ilişkin bilgiler yer almaktadır. 
+
+
+```{r}
+sessioninfo::session_info()
+```
+
+
+>>>>>>> 239b7fb500cb7a4d3c75c443efced2364334381d
 
 
 #### Add to the pipe chain {.unnumbered}  
@@ -889,6 +1038,7 @@ linelist <- linelist %>%
   distinct()
 ```
 
+<<<<<<< HEAD
 After de-duplication there are ` nrow(linelist)` rows. Any removed rows would have been 100% duplicates of other rows.  
 
 Below, the `distinct()` command is added to the cleaning pipe chain:
@@ -3900,4 +4050,7 @@ Placeholder
 ## Resources {  }
 
 <!--chapter:end:new_pages/data_table.Rmd-->
+=======
+<!--chapter:end:new_pages/editorial_style.Rmd-->
+>>>>>>> 239b7fb500cb7a4d3c75c443efced2364334381d
 

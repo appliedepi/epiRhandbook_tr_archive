@@ -13,7 +13,7 @@
 * Dosyaları açtığınızda resimler ve İçindekiler'in yüklenmesi bir veya iki dakika sürebilir.
 * Çevrimdışı kitabın düzeni biraz farklıdır - solda İçindekiler Tablosu olan uzun bir alan görecekseniz. Belirli terimleri aramak için Ctrl+F (Cmd-F) tuşlarını kullanabilirsiniz.
 * İnternet bağlantınızı kesmeden önce uygun R paketlerini kurmanıza yardımcı olması için [Önerilen paketler] sayfasına bakın.
-* Tüm örnek verileri içeren R paketimizi **epirhandbook** kurun (kurulum işlemi aşağıda açıklanmıştır)
+* Tüm örnek verileri içeren R paketinizi **epirhandbook** kurun. (kurulum işlemi aşağıda açıklanmıştır)
 
 **El Kitabını iki farklı yoldan indirebilirsiniz:**  
 
@@ -68,7 +68,7 @@ El kitabındaki örnekleri "takip etmek" için örnek veri ve çıktıları indi
 
 Tüm verileri indirmenin en kolay yolu, R paketimiz olan **epirhandbook** kurmaktır. Bu paket tüm örnek verileri bilgisayarınızda seçtiğiniz bir klasöre kaydeden `get_data()` fonksiyonunu içerir.
 
-R paketini **epirhandbook**u kurmak için aşağıdaki kodu çalıştırın. Paketimiz CRAN'da bulunmamaktadır, bu yüzden kurmak için `p_install_gh()` fonksiyonunu kullanın. Parantez içindeki referans, Github organizasyonumuza ("*appliedepi*") ve **epirhandbook** proje adına atıfta bulunnmaktadır.
+R paketini **epirhandbook**u kurmak için aşağıdaki kodu çalıştırın. Paketimiz CRAN'da bulunmamaktadır. Bu yüzden kurmak için `p_install_gh()` fonksiyonunu kullanın. Parantez içindeki referans, Github organizasyonumuza ("*appliedepi*") ve **epirhandbook** proje adına atıfta bulunnmaktadır.
 
 ```{r, eval=F}
 # Epi R El Kitabı paketinin en son sürümünü indirin
@@ -85,7 +85,7 @@ pacman::p_load(epirhandbook)
 
 Bu işlemlerin ardından, örnek verileri bilgisayarınıza indirmek için paketin `get_data()` fonksiyonunu kullanın. Örnek verilerin *tamamını* indirmek için `get_data("all")` komutunu çalıştırın veya yalnızca bir dosyayı almak için tırnak işaretleri içinde ilgili dosya adı ve uzantısını yazın. 
 
-Veriler paketle birlikte indirilmiş olacaktır burada yapmanız gereken tek şey bilgisayarınızda indireceğiniz klasörü belirlemektir. İndirme konumunu seçmenize izin veren bir açılır pencere karşınıza çıkacaktır. Örnek veri ve çıktılar dahil yaklaşık 30 dosya olduğundan indirme konumunda yeni bir "veri" klasörü oluşturmanızı öneririz.
+Veriler paketle birlikte indirilmiş olacaktır. Burada yapmanız gereken tek şey bilgisayarınızda indireceğiniz klasörü belirlemektir. İndirme konumunu seçmenize izin veren bir açılır pencere karşınıza çıkacaktır. Örnek veri ve çıktılar dahil yaklaşık 30 dosya olduğundan indirme konumunda yeni bir "veri" klasörü oluşturmanızı öneririz.
 
 ```{r, eval=F}
 # tüm örnek verileri bilgisayarınızdaki bir klasöre indirin
@@ -102,7 +102,7 @@ get_data(file = "linelist_cleaned.rds")
 get_data("linelist_cleaned.rds")
 ```
 
-İstediğiniz dosyayı bilgisayarınıza kaydetmek için `get_data()`yı kullandıktan sonra, yine de onu R'ye aktarmanız gerekecektir. Ayrıntılar için [İçe ve dışa aktar] sayfasına bakabilirsiniz.
+İstediğiniz dosyayı bilgisayarınıza kaydetmek için `get_data()`yı kullandıktan sonra, yine de onu R'a aktarmanız gerekecektir. Ayrıntılar için [İçe ve dışa aktar] sayfasına bakabilirsiniz.
 
 Dilerseniz bu el kitabında kullanılan tüm verileri Github sayfamızın **["data" klasöründe](https://github.com/epirhandbook/Epi_R_handbook/tree/master/data)** inceleyebilirsiniz.
 
@@ -117,15 +117,15 @@ Bu seçenek, dosyaya özel bir bağlantı veya R komutu aracılığıyla Github 
 
 Aşağıdaki linkler, **outbreaks** paketindeki `ebola_sim` uygulama veri kümesinde yer alan kitabın ekibi tarafından genişletilen kurgusal bir Ebola salgına aittir.
 
-* <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_raw.xlsx' class='download-button'>"Ham" satır listesini indirmek için tıklayın (.xlsx)</span></a>. "Ham" vaka satır listesi, dağınık veriler içeren bir Excel tablosudur. [Verileri temizleme ve temel işlevler] sayfasını takip etmek için bunu kullanabilirsiniz.  
+* <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_raw.xlsx' class='download-button'>"Ham" satır listesini indirmek için tıklayın (.xlsx)</span></a>. "Ham" vaka satır listesi, dağınık veriler içeren bir excel tablosudur. [Verileri temizleme ve temel işlevler] sayfasını takip etmek için bunu kullanabilirsiniz.  
 
-* <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"Temiz" satır listesini indirmek için tıklayın (.rds)</a>. Bu el kitabının satır listesini kullanan diğer tüm sayfaları için bu dosyayı kullanabilirsiniz. Rds dosyası, sütun sınıflarını koruyan R'ye özgü bir dosya türüdür. Bu, verileri R'ye aktardıktan sonra temizlik yapma ihtiyacını azaltır.
+* <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"Temiz" satır listesini indirmek için tıklayın (.rds)</a>. Bu el kitabının satır listesini kullanan diğer tüm sayfaları için bu dosyayı kullanabilirsiniz. Rds dosyası, sütun sınıflarını koruyan R'a özgü bir dosya türüdür. Bu, verileri R'a aktardıktan sonra temizlik yapma ihtiyacını azaltır.
 
 *Diğer dosyalar:*  
 
 * <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.xlsx' class='download-button'>"Temiz" satır listesini Excel dosyası olarak indirmek için tıklayın</a>
 
-* Temizleme sayfasının bir kısmı bir "temizleme sözlüğü" (.csv dosyası) kullanır. Aşağıdaki komutları çalıştırarak doğrudan R'ye yükleyebilirsiniz:
+* Temizleme sayfasının bir kısmı bir "temizleme sözlüğü" (.csv dosyası) kullanır. Aşağıdaki komutları çalıştırarak doğrudan R'a yükleyebilirsiniz:
 
 ```{r, eval=F}
 pacman::p_load(rio) # rio paketini kurun/yükleyin
@@ -137,7 +137,7 @@ cleaning_dict <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/mast
 
 #### Sıtma sayısı verileri {#data_malaria .unnumbered}  
 
-Bu veriler, yaş grubu, tesis ve güne göre sıtma vakalarının kurgusal sayılarıdır. Rds dosyası, sütun sınıflarını koruyan R'ye özgü bir dosya türüdür. Bu, verileri R'ye aktardıktan sonra temizlik yapma ihtiyacını azaltır. 
+Bu veriler, yaş grubu, tesis ve güne göre sıtma vakalarının kurgusal sayılarıdır. Rds dosyası, sütun sınıflarını koruyan R'a özgü bir dosya türüdür. Bu, verileri R'a aktardıktan sonra temizlik yapma ihtiyacını azaltır. 
 
 <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/malaria_facility_count_data.rds' class='download-button'>
 	Sıtma sayılarını (.rds dosyası)
@@ -147,7 +147,7 @@ Bu veriler, yaş grubu, tesis ve güne göre sıtma vakalarının kurgusal sayı
 
 #### Likert ölçekli veri {.unnumbered}  
 
-Bunlar, [Demografik piramitler ve Likert ölçekleri] sayfasında kullanılan Likert tarzı bir anketten alınan kurgusal verilerdir. Aşağıdaki komutları çalıştırarak bu verileri doğrudan R'ye yükleyebilirsiniz:
+Bunlar, [Demografik Piramitler ve Likert Ölçekleri] sayfasında kullanılan likert tarzı bir anketten alınan kurgusal verilerdir. Aşağıdaki komutları çalıştırarak bu verileri doğrudan R'a yükleyebilirsiniz:
 
 ```{r, eval=F}
 pacman::p_load(rio) # rio paketini kurun/yükleyin
@@ -185,7 +185,7 @@ Aşağıda [R Markdown ile Kontrol Panelleri]'ndeki sayfayla ilişkili dosyaya b
 
 
 
-<span style="color: black;">**_NOT:_** Diğer yazılımlarda (örn. KoBo, DHIS2 Tracker, CommCare) yapılandırılmış temaslı izleme verileri farklı görünebilir. Bu sayfa için alternatif örnek veri veya içeriğe katkıda bulunmak isterseniz, lütfen [bize ulaşın](#contact_us).</span> 
+<span style="color: black;">**_NOT:_** Diğer yazılımlarda (örn. KoBo, DHIS2 Tracker, CommCare) yapılandırılmış temaslı izleme verileri farklı görünebilir. Bu sayfa için alternatif örnek veri veya içeriğe katkıda bulunmak isterseniz lütfen [bize ulaşın](#contact_us).</span> 
 
 <span style="color: darkgreen;">**_İPUCU:_** Go.Data kullanmak istiyorsanız ve örneklerinizin API'sine bağlanmak istiyorsanız, İçe ve Dışa Aktarma sayfasına [(API bölümü)](#import_api) ve [Go.Data Uygulama Topluluğu](https://community-godata.who.int/)'na bakabilirsiniz.</span>
 
@@ -194,7 +194,7 @@ Aşağıda [R Markdown ile Kontrol Panelleri]'ndeki sayfayla ilişkili dosyaya b
 
 Şekil dosyaları, her biri farklı uzantıya sahip birçok alt bileşen dosyasına sahiptir. Bir dosya ".shp" uzantısına sahipken, bir diğeri ".dbf", ".prj" vb. uzantıya sahip olabilir.
 
-[GIS temel bilgileri] sayfası, sıkıştırılmış şekil dosyaların indirebileceğiniz *Humanitarian Data Exchange* web sitesine ait bağlantılar barındırmaktadır.
+[GIS temel bilgileri] sayfası, sıkıştırılmış şekil dosyalarını indirebileceğiniz *Humanitarian Data Exchange* web sitesine ait bağlantıları barındırmaktadır.
 
 Örneğin sağlık tesisi puan verileri [buradan](https://data.humdata.org/dataset/hotosm_sierra_leone_health_facilities) indirilebilir. "hotosm_sierra_leone_health_facilities_points_shp.zip" dosyasını indirin. Bilgisayarınıza kaydettikten sonra, klasörü "açın". Farklı uzantılara sahip birkaç dosya göreceksiniz (örneğin ".shp", ".prj", ".shx") - bunların tümü bilgisayarınızda aynı klasöre kaydedilmelidir. Ardından, R'a aktarmak için ".shp" dosyasının dosya yolunu ve adını **sf** paketinden `st_read()` fonksiyonuna ekleyin ([GIS temel bilgileri] sayfasında açıklandığı gibi)
 
@@ -263,7 +263,7 @@ standard_pop_data <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/
 
 #### Zaman serileri ve salgın tespiti {#data_outbreak .unnumbered}  
 
-[Zaman serisi ve salgın tespiti] sayfasında Almanya 2002-2011'de rapor edilen campylobacter vakalarını **surveillance** R paketinde olduğu gibi kullanıyoruz. (*ek bilgi:* bu veri seti orijinalinden uyarlanmıştır, 2011'in son 3 aylık verileri demo amacıyla silinmiştir)
+[Zaman serisi ve salgın tespiti] sayfasında Almanya 2002-2011'de rapor edilen Campylobacter vakalarını **surveillance** R paketinde olduğu gibi kullanıyoruz. (*ek bilgi:* bu veri seti orijinalinden uyarlanmıştır, 2011'in son 3 aylık verileri demo amacıyla silinmiştir)
 
 <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/campylobacter_germany.xlsx' class='download-button'>
 	Almanya Campylobacter verilerini (.xlsx)
