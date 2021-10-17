@@ -18,237 +18,25 @@ site: bookdown::bookdown_site
 documentclass: book
 ---
 
+# output: bookdown::gitbook:
 
+Placeholder
 
-
-
-#  {-}
-
-```{r, out.width = "100%", fig.align = "center", echo=F}
-knitr::include_graphics(here::here("images", "Epi R Handbook banner beige 1500x500.png"))
-# library(knitr)
-# opts_chunk$set(list(echo = FALSE, eval = FALSE))
-```
-
-<meta name="description" content="The Epi R Handbook is an R reference manual for applied epidemiology and public health.">
-
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-
-<!-- <span style="color: red;">**THIS IS A DRAFT.  REVIEWERS GIVE FEEDBACK AT THIS [LINK](https://forms.gle/4RNdRRLGx67xW9yq9)**.</span> -->
-
-<!-- <span style="color: darkgreen;">**DO YOU LIKE THIS HANDBOOK? SHOULD SOMETHING BE CHANGED? PLEASE TELL US!**</span> -->
-
-<!-- <form target="_blank" action="https://forms.gle/A5SnRVws7tPD15Js9"> -->
-<!--     <input type="submit" value="FEEDBACK" /> -->
-<!-- </form> -->
-
-<!-- ======================================================= -->
-<!-- ## An R reference manual for applied epidemiology and public health {.unnumbered} -->
-
-
-<!-- <span style="color: brown;">**The Epi R Handbook is an R reference manual for applied epidemiology and public health.**</span> -->
-
-<!-- ## About this handbook   -->
 
 ## R for applied epidemiology and public health {-}  
-
-**This handbook strives to:**  
-
-* Serve as a quick R code reference manual  
-* Provide task-centered examples addressing common epidemiological problems  
-* Assist epidemiologists transitioning to R  
-* Be accessible in settings with low internet-connectivity via an **[offline version][Download handbook and data]**  
-
-
-<!-- * Use practical epi examples - cleaning case linelists, making transmission chains and epidemic curves, automated reports and dashboards, modeling incidence and making projections, demographic pyramids and rate standardization, record matching, outbreak detection, survey analysis, survival analysis, GIS basics, contact tracing, phylogenetic trees...   -->
-
-
-
-<!-- **How is this different than other R books?**   -->
-
-<!-- * It is community-driven - *written for epidemiologists by epidemiologists* in their spare time and leveraging experience in local, national, academic, and emergency settings   -->
-
-<!-- Dual-column created based on the rmarkdown cookbook here: https://bookdown.org/yihui/rmarkdown-cookbook/multi-column.html -->
-
-
-
-<br>
-
-
-:::: {style="display: flex;"}
-
-::: {}
-```{r, out.width = "100%", fig.align = "center", echo=F}
-knitr::include_graphics(here::here("images", "epiRhandbook_HexSticker_500x500.png"))
-```
-:::
-
-
-::: {.col data-latex="{0.05\textwidth}"}
-\ 
-<!-- an empty Div (with a white space), serving as
-a column separator -->
-:::
-
-::: {}
-<span style="color: black;">**Written by epidemiologists, for epidemiologists**</span>
-
-We are applied epis from around the world, writing in our spare time to offer this resource to the community. Your encouragement and feedback is most welcome:  
-
-* Structured **[feedback form](https://forms.gle/A5SnRVws7tPD15Js9)**  
-* Email **epiRhandbook@gmail.com** or tweet **[\@epiRhandbook](https://twitter.com/epirhandbook)**  
-* Submit issues to our **[Github repository](https://github.com/epirhandbook/Epi_R_handbook)**  
-
-:::
-
-::::
-
-
-
-
-<!-- ======================================================= -->
 ## How to use this handbook {-} 
-
-* Browse the pages in the Table of Contents, or use the search box
-* Click the "copy" icons to copy code  
-* You can follow-along with [the example data][Download handbook and data]  
-* See the "Resources" section of each page for further material  
-
-**Offline version**  
-
-See instructions in the [Download handbook and data] page.  
-
-**Languages**  
-
-We want to translate this into languages other than English. If you can help, please contact us.  
-
-
-
-<!-- ======================================================= -->
 ## Acknowledgements {-}  
-
-This handbook is produced by a collaboration of epidemiologists from around the world drawing upon experience with organizations including local, state, provincial, and national health agencies, the World Health Organization (WHO), Médecins Sans Frontières / Doctors without Borders (MSF), hospital systems, and academic institutions.
-
-This handbook is **not** an approved product of any specific organization. Although we strive for accuracy, we provide no guarantee of the content in this book.  
-
-
 ### Contributors {-}  
-
-**Editor:** [Neale Batra](https://www.linkedin.com/in/neale-batra/) 
-
-**Project core team:** [Neale Batra](https://www.linkedin.com/in/neale-batra/), [Alex Spina](https://github.com/aspina7), [Amrish Baidjoe](https://twitter.com/Ammer_B), Pat Keating, [Henry Laurenson-Schafer](https://github.com/henryls1), [Finlay Campbell](https://github.com/finlaycampbell)  
-
-**Authors**: [Neale Batra](https://www.linkedin.com/in/neale-batra/), [Alex Spina](https://github.com/aspina7), [Paula Blomquist](https://www.linkedin.com/in/paula-bianca-blomquist-53188186/), [Finlay Campbell](https://github.com/finlaycampbell), [Henry Laurenson-Schafer](https://github.com/henryls1), [Isaac Florence](www.Twitter.com/isaacatflorence), [Natalie Fischer](https://www.linkedin.com/in/nataliefischer211/), [Aminata Ndiaye](https://twitter.com/aminata_fadl), [Liza Coyer]( https://www.linkedin.com/in/liza-coyer-86022040/), [Jonathan Polonsky](https://twitter.com/jonny_polonsky), [Yurie Izawa](https://ch.linkedin.com/in/yurie-izawa-a1590319), [Chris Bailey](https://twitter.com/cbailey_58?lang=en), [Daniel Molling](https://www.linkedin.com/in/daniel-molling-4005716a/), [Isha Berry](https://twitter.com/ishaberry2), [Emma Buajitti](https://twitter.com/buajitti), [Mathilde Mousset](https://mathildemousset.wordpress.com/research/), [Sara Hollis](https://www.linkedin.com/in/saramhollis/), Wen Lin  
-
-**Reviewers**: Pat Keating, Annick Lenglet, Margot Charette, Danielly Xavier, Esther Kukielka, Michelle Sloan, Aybüke Koyuncu, Rachel Burke, Kate Kelsey, [Berhe Etsay](https://www.linkedin.com/in/berhe-etsay-5752b1154/), John Rossow, Mackenzie Zendt, James Wright, Laura Haskins, [Flavio Finger](ffinger.github.io), Tim Taylor, [Jae Hyoung Tim Lee](https://www.linkedin.com/in/jaehyoungtlee/), [Brianna Bradley](https://www.linkedin.com/in/brianna-bradley-bb8658155), [Wayne Enanoria](https://www.linkedin.com/in/wenanoria), Manual Albela Miranda, [Molly Mantus](https://www.linkedin.com/in/molly-mantus-174550150/), Pattama Ulrich, Joseph Timothy, Adam Vaughan, Olivia Varsaneux, Lionel Monteiro, Joao Muianga  
-
-**Illustrations**: Calder Fong  
-
-
-<!-- **Editor-in-Chief:** Neale Batra  -->
-
-<!-- **Project core team:** Neale Batra, Alex Spina, Amrish Baidjoe, Pat Keating, Henry Laurenson-Schafer, Finlay Campbell   -->
-
-<!-- **Authors**: Neale Batra, Alex Spina, Paula Blomquist, Finlay Campbell, Henry Laurenson-Schafer, [Isaac Florence](www.Twitter.com/isaacatflorence), Natalie Fischer, Aminata Ndiaye, Liza Coyer, Jonathan Polonsky, Yurie Izawa, Chris Bailey, Daniel Molling, Isha Berry, Emma Buajitti, Mathilde Mousset, Sara Hollis, Wen Lin   -->
-
-<!-- **Reviewers**: Pat Keating, Mathilde Mousset, Annick Lenglet, Margot Charette, Isha Berry, Paula Blomquist, Natalie Fischer, Daniely Xavier, Esther Kukielka, Michelle Sloan, Aybüke Koyuncu, Rachel Burke, Daniel Molling, Kate Kelsey, Berhe Etsay, John Rossow, Mackenzie Zendt, James Wright, Wayne Enanoria, Laura Haskins, Flavio Finger, Tim Taylor, Jae Hyoung Tim Lee, Brianna Bradley, Manual Albela Miranda, Molly Mantus, Priscilla Spencer, Pattama Ulrich, Joseph Timothy, Adam Vaughan, Olivia Varsaneux, Lionel Monteiro, Joao Muianga   -->
-
-
 ### Funding and support {-}  
-
-The handbook received supportive funding via a COVID-19 emergency capacity-building grant from [TEPHINET](https://www.tephinet.org/), the global network of Field Epidemiology Training Programs (FETPs).  
-
-Administrative support was provided by the EPIET Alumni Network ([EAN](https://epietalumni.net/)), with special thanks to Annika Wendland. EPIET is the European Programme for Intervention Epidemiology Training.  
-
-Special thanks to Médecins Sans Frontières (MSF) Operational Centre Amsterdam (OCA) for their support during the development of this handbook.  
-
-
-*This publication was supported by Cooperative Agreement number NU2GGH001873, funded by the Centers for Disease Control and Prevention through TEPHINET, a program of The Task Force for Global Health. Its contents are solely the responsibility of the authors and do not necessarily represent the official views of the Centers for Disease Control and Prevention, the Department of Health and Human Services, The Task Force for Global Health, Inc. or TEPHINET.*
-
-
-
 ### Inspiration {-}  
-
-The multitude of tutorials and vignettes that provided knowledge for development of handbook content are credited within their respective pages.  
-
-More generally, the following sources provided inspiration for this handbook:  
-[The "R4Epis" project](https://r4epis.netlify.app/) (a collaboration between MSF and RECON)  
-[R Epidemics Consortium (RECON)](https://www.repidemicsconsortium.org/)  
-[R for Data Science book (R4DS)](https://r4ds.had.co.nz/)  
-[bookdown: Authoring Books and Technical Documents with R Markdown](https://bookdown.org/yihui/bookdown/)  
-[Netlify](https://www.netlify.com) hosts this website  
-
-
-<!-- ### Image credits {-}   -->
-
-<!-- Images in logo from US CDC Public Health Image Library) include [2013 Yemen looking for mosquito breeding sites](https://phil.cdc.gov/Details.aspx?pid=19623), [Ebola virus](https://phil.cdc.gov/Details.aspx?pid=23186), and [Survey in Rajasthan](https://phil.cdc.gov/Details.aspx?pid=19838).   -->
-
-
 ## Terms of Use and Contribution {-}  
-
 ### License {.unnumbered} 
-
-<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
-
-
-Academic courses and epidemiologist training programs are welcome to use this handbook with their students. If you have questions about your intended use, email **epiRhandbook@gmail.com**.  
-
-
 ### Citation {.unnumbered}
-
-Batra, Neale, et al. The Epidemiologist R Handbook. 2021. <a rel="license" href="https://zenodo.org/badge/231610102.svg"><img alt="DOI" style="border-width:0" src="https://zenodo.org/badge/231610102.svg" /></a><br />
-
 ### Contribution {.unnumbered}  
-
-If you would like to make a content contribution, please contact with us first via Github issues or by email. We are implementing a schedule for updates and are creating a contributor guide.  
-
-Please note that the epiRhandbook project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
-
-
-```{r include=FALSE, cache=FALSE}
-
-# clear workspace
-rm(list = ls(all = TRUE))
-
-# clear all packages except base
-#lapply(names(sessionInfo()$loadedOnly), require, character.only = TRUE)
-#invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE, force=TRUE))
-
-# to ensure that tidyverse packages prevail
-filter <- dplyr::filter
-select <- dplyr::select
-summarise <- dplyr::summarise
-summary <- base::summary
-incidence <- incidence2::incidence
-
-#load core packages
-pacman::p_load(
-     rio,
-     here,
-     DT,
-     stringr,
-     lubridate,
-     tidyverse
-)
-
-# import the cleaned ebola linelist
-linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
-
-# import the count data - facility level
-#count_data <- rio::import(here::here("data", "facility_count_data.rds"))
-
-# Settings
-
-options(scipen=1, digits=7)
-
-# print only text (not code)
-#library(knitr)
-#opts_chunk$set(list(echo = FALSE, eval = FALSE))
-```
 
 <!--chapter:end:index.Rmd-->
 
-# (PART) Preview pages {.unnumbered}
+# (PART) About this book {.unnumbered}
 ```{r include=FALSE, cache=FALSE}
 
 # clear workspace
@@ -290,370 +78,2570 @@ options(scipen=1, digits=7)
 #opts_chunk$set(list(echo = FALSE, eval = FALSE))
 ```
 
-<!--chapter:end:new_pages/cat_preview.Rmd-->
+<!--chapter:end:new_pages/cat_about_book.Rmd-->
+
+
+# Önyazı ve teknik notlar { }
+
+Placeholder
+
+
+## Yaklaşım ve stil
+### R paketleri {.unnumbered}
+### Kodlama stili {.unnumbered}
+### Terminoloji {.unnumbered}  
+### Notlar {.unnumbered} 
+## Editöryal Kararlar  
+## Büyük güncellemeler  
+## Oturum bilgisi (R, RStudio, packages)  
+
+<!--chapter:end:new_pages/editorial_style.Rmd-->
+
 
 # El Kitabı ve verileri indirme  
 
-
-<!-- Note to self: If you want to create a download link to Github, right-click the "View Raw" button on Github, copy the address, and use that in the HTML below. -->
-
-
+Placeholder
 
 
 ## Çevrimdışı el kitabı indirme
-
-İnternet erişiminiz olmasa bile bu el kitabını web tarayıcınızda görüntüleyebilirsiniz. Bunun için HTML dosyalarını indirmeniz gerekmektedir. Epi R El Kitabını çevrimdışı kullanmayı düşünüyorsanız, bilmeniz gereken gereken birkaç nokta mevcut:
-
-* Dosyaları açtığınızda resimler ve İçindekiler'in yüklenmesi bir veya iki dakika sürebilir.
-* Çevrimdışı kitabın düzeni biraz farklıdır - solda İçindekiler Tablosu olan uzun bir alan görecekseniz. Belirli terimleri aramak için Ctrl+F (Cmd-F) tuşlarını kullanabilirsiniz.
-* İnternet bağlantınızı kesmeden önce uygun R paketlerini kurmanıza yardımcı olması için [Önerilen paketler] sayfasına bakın.
-* Tüm örnek verileri içeren R paketimizi **epirhandbook** kurun (kurulum işlemi aşağıda açıklanmıştır)
-
-**El Kitabını iki farklı yoldan indirebilirsiniz:**  
-
-
-
 ### İndirme linkini kullanarak {.unnumbered}  
-
-Linke hızlıca erişebilmek için, **bu linki sağ fare tuşunuzla tıklayın** [this link](https://github.com/epirhandbook/Epi_R_handbook/raw/master/offline_long/Epi_R_Handbook_offline.html) **ve "Farklı Kaydet" seçeneğini seçin**.  
-
-Mac kullanıyorsanız, Cmd'ye basılı tutarak farenizle tıklayın. Cep telefonu kullanıyorsanız, bağlantıyı basılı tutun ve "Bağlantıyı kaydet"i seçin. Kitap cihazınıza indirilecektir. Görseller olmadan HTML kodu içeren bir ekran görürseniz, yukarıdaki talimatları uyguladığınızdan emin olun veya ikinci seçeneği deneyin.
-
-
-
 ### R paketimizi kullanın {.unnumbered}  
-
-Sizin için **epirhandbook** adında bir R paketi tasarladık. El kitabını bilgisayarınıza indirebilmek için `download_book()` adlı bir fonksiyon oluşturduk. Bu fonksiyonu R programınızda kullanabilirsiniz.
-
-
-Bu pakette ayrıca `get_data()` adlı bir fonksiyon da mevcuttur. Bu fonskiyonla tüm örnek verileri bilgisayarınıza indirebilirsiniz.
-
-[Github sayfamızdan *appliedepi*](https://github.com/appliedepi/epirhandbook) **epirhandbook** R paketini indirmek için aşağıda verdiğimiz kodu kullanabilirsiniz. İndireceğiniz bu paket CRAN'da olmadığı için (Github'da kayıtlı) `p_install_gh()` özel fonksiyonunu kullanmanız gerekecektir.  
-
-
-```{r, eval=F}
-# Epi R El Kitabı paketinin en son sürümünü indirin
-pacman::p_install_gh("appliedepi/epirhandbook")
-```
-
-Şimdi, mevcut R oturumunuzda kullanmak üzere paketi yükleyin: 
-
-```{r, eval=F}
-# paketi kullanmak için yükleyin
-pacman::p_load(epirhandbook)
-```
-
-Ardından, el kitabını bilgisayarınıza indirmek için paketin `download_book()` (boş parantez ile) fonksiyonunu çalıştırın. RStudio kullandığınızı varsayarsak, dosyaları kaydetmeden önce konumu seçmenize izin veren bir pencere açılacaktır.  
-
-```{r, eval=F}
-# çevrimdışı el kitabını bilgisayarınıza indirin
-download_book()
-```
-
-
-
-
-
 ## Örnek bazlı verileri indirme 
-
-El kitabındaki örnekleri "takip etmek" için örnek veri ve çıktıları indirebilirsiniz.  
-
 ### R paketimizi kullanma {.unnumbered}  
-
-Tüm verileri indirmenin en kolay yolu, R paketimiz olan **epirhandbook** kurmaktır. Bu paket tüm örnek verileri bilgisayarınızda seçtiğiniz bir klasöre kaydeden `get_data()` fonksiyonunu içerir.
-
-R paketini **epirhandbook**u kurmak için aşağıdaki kodu çalıştırın. Paketimiz CRAN'da bulunmamaktadır, bu yüzden kurmak için `p_install_gh()` fonksiyonunu kullanın. Parantez içindeki referans, Github organizasyonumuza ("*appliedepi*") ve **epirhandbook** proje adına atıfta bulunnmaktadır.
-
-```{r, eval=F}
-# Epi R El Kitabı paketinin en son sürümünü indirin
-pacman::p_install_gh("appliedepi/epirhandbook")
-```
-
-
-Şimdi, mevcut R oturumunuzda kullanmak üzere paketi yükleyin: 
-
-```{r, eval=F}
-# paketi kullanmak için yükleyin
-pacman::p_load(epirhandbook)
-```
-
-Bu işlemlerin ardından, örnek verileri bilgisayarınıza indirmek için paketin `get_data()` fonksiyonunu kullanın. Örnek verilerin *tamamını* indirmek için `get_data("all")` komutunu çalıştırın veya yalnızca bir dosyayı almak için tırnak işaretleri içinde ilgili dosya adı ve uzantısını yazın. 
-
-Veriler paketle birlikte indirilmiş olacaktır burada yapmanız gereken tek şey bilgisayarınızda indireceğiniz klasörü belirlemektir. İndirme konumunu seçmenize izin veren bir açılır pencere karşınıza çıkacaktır. Örnek veri ve çıktılar dahil yaklaşık 30 dosya olduğundan indirme konumunda yeni bir "veri" klasörü oluşturmanızı öneririz.
-
-```{r, eval=F}
-# tüm örnek verileri bilgisayarınızdaki bir klasöre indirin
-get_data("all")
-
-# bilgisayarınızdaki bir klasöre yalnızca belli bir satırın verilerini indirin
-get_data(file = "linelist_cleaned.rds")
-
-```
-
-
-```{r, eval=F}
-# belirli bir dosyayı bilgisayarınızdaki bir klasöre indirin
-get_data("linelist_cleaned.rds")
-```
-
-İstediğiniz dosyayı bilgisayarınıza kaydetmek için `get_data()`yı kullandıktan sonra, yine de onu R'ye aktarmanız gerekecektir. Ayrıntılar için [İçe ve dışa aktar] sayfasına bakabilirsiniz.
-
-Dilerseniz bu el kitabında kullanılan tüm verileri Github sayfamızın **["data" klasöründe](https://github.com/epirhandbook/Epi_R_handbook/tree/master/data)** inceleyebilirsiniz.
-
-
-
 ### Tek tek indirme {.unnumbered}  
-
-Bu seçenek, dosyaya özel bir bağlantı veya R komutu aracılığıyla Github sayfamızdan dosyaları sırasıyla indirmeyi içermektedir. Bazı dosya türleri indirme düğmesine izin verirken, diğerleri bir R komutuyla indirilebilir.
-
-
 #### Vaka satır listesi {.unnumbered}
-
-Aşağıdaki linkler, **outbreaks** paketindeki `ebola_sim` uygulama veri kümesinde yer alan kitabın ekibi tarafından genişletilen kurgusal bir Ebola salgına aittir.
-
-* <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_raw.xlsx' class='download-button'>"Ham" satır listesini indirmek için tıklayın (.xlsx)</span></a>. "Ham" vaka satır listesi, dağınık veriler içeren bir Excel tablosudur. [Verileri temizleme ve temel işlevler] sayfasını takip etmek için bunu kullanabilirsiniz.  
-
-* <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"Temiz" satır listesini indirmek için tıklayın (.rds)</a>. Bu el kitabının satır listesini kullanan diğer tüm sayfaları için bu dosyayı kullanabilirsiniz. Rds dosyası, sütun sınıflarını koruyan R'ye özgü bir dosya türüdür. Bu, verileri R'ye aktardıktan sonra temizlik yapma ihtiyacını azaltır.
-
-*Diğer dosyalar:*  
-
-* <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.xlsx' class='download-button'>"Temiz" satır listesini Excel dosyası olarak indirmek için tıklayın</a>
-
-* Temizleme sayfasının bir kısmı bir "temizleme sözlüğü" (.csv dosyası) kullanır. Aşağıdaki komutları çalıştırarak doğrudan R'ye yükleyebilirsiniz:
-
-```{r, eval=F}
-pacman::p_load(rio) # rio paketini kurun/yükleyin
-
-# dosyayı doğrudan Github'dan içe aktarın
-cleaning_dict <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/cleaning_dict.csv")
-```
-
-
 #### Sıtma sayısı verileri {#data_malaria .unnumbered}  
-
-Bu veriler, yaş grubu, tesis ve güne göre sıtma vakalarının kurgusal sayılarıdır. Rds dosyası, sütun sınıflarını koruyan R'ye özgü bir dosya türüdür. Bu, verileri R'ye aktardıktan sonra temizlik yapma ihtiyacını azaltır. 
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/malaria_facility_count_data.rds' class='download-button'>
-	Sıtma sayılarını (.rds dosyası)
-	<span>indirmek için tıklayın.</span>
-</a>
-
-
 #### Likert ölçekli veri {.unnumbered}  
-
-Bunlar, [Demografik piramitler ve Likert ölçekleri] sayfasında kullanılan Likert tarzı bir anketten alınan kurgusal verilerdir. Aşağıdaki komutları çalıştırarak bu verileri doğrudan R'ye yükleyebilirsiniz:
-
-```{r, eval=F}
-pacman::p_load(rio) # rio paketini kurun/yükleyin
-
-# dosyayı doğrudan Github'dan içe aktarın
-likert_data <- import("https://raw.githubusercontent.com/nsbatra/Epi_R_handbook/master/data/likert_data.csv")
-```
-
-
 #### Esnek pano {.unnumbered}  
-
-Aşağıda [R Markdown ile Kontrol Panelleri]'ndeki sayfayla ilişkili dosyaya bağlantılar verilmiştir:
-
-* Salgın panosu ile ilgili R Markdown'ı indirmek için [linke](https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/flexdashboard/outbreak_dashboard.Rmd) sağ fare tuşuyla tıklayın (Mac için Cmd + tıkla) ve "Farklı Kaydet" seçeneğini seçin.  
-* HTML kontrol panelini indirmek için [linke](https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/flexdashboard/outbreak_dashboard_test.html) sağ fare tuşuyla tıklayın (Mac için Cmd + tıkla) ve "Farklı Kaydet" seçeneğini seçin.  
-
 #### Temaslı İzleme {.unnumbered} 
-
-[Temaslı İzleme] sayfası, aşağıdaki örnek verileri kullanarak kişi izleme verilerinin analizini göstermektedir. [Go.Data](https://github.com/WorldHealthOrganization/godata/tree/master/analytics/r-reporting). Sayfada kullanılan veriler aşağıdaki linklere tıklanarak .rds dosyaları olarak indirilebilir:
-
-<a href='https://github.com/WorldHealthOrganization/godata/blob/master/analytics/r-reporting/data/cases_clean.rds?raw=true' class='download-button'>
-	Vaka inceleme verilerini (.rds dosyası)
-	<span>indirmek için tıklayın.</span>
-</a>
-
-<a href='https://github.com/WorldHealthOrganization/godata/blob/master/analytics/r-reporting/data/contacts_clean.rds?raw=true' class='download-button'>
-	Temaslı kayıt verilerini (.rds dosyası)
-	<span>indirmek için tıklayın.</span>
-</a>
-
-<a href='https://github.com/WorldHealthOrganization/godata/blob/master/analytics/r-reporting/data/followups_clean.rds?raw=true' class='download-button'>
-	Temaslı takip verilerini (.rds dosyası)
-	<span>indirmek için tıklayın.</span>
-</a>
-
-
-
-<span style="color: black;">**_NOT:_** Diğer yazılımlarda (örn. KoBo, DHIS2 Tracker, CommCare) yapılandırılmış temaslı izleme verileri farklı görünebilir. Bu sayfa için alternatif örnek veri veya içeriğe katkıda bulunmak isterseniz, lütfen [bize ulaşın](#contact_us).</span> 
-
-<span style="color: darkgreen;">**_İPUCU:_** Go.Data kullanmak istiyorsanız ve örneklerinizin API'sine bağlanmak istiyorsanız, İçe ve Dışa Aktarma sayfasına [(API bölümü)](#import_api) ve [Go.Data Uygulama Topluluğu](https://community-godata.who.int/)'na bakabilirsiniz.</span>
-
-
 #### GIS {.unnumbered}  
-
-Şekil dosyaları, her biri farklı uzantıya sahip birçok alt bileşen dosyasına sahiptir. Bir dosya ".shp" uzantısına sahipken, bir diğeri ".dbf", ".prj" vb. uzantıya sahip olabilir.
-
-[GIS temel bilgileri] sayfası, sıkıştırılmış şekil dosyaların indirebileceğiniz *Humanitarian Data Exchange* web sitesine ait bağlantılar barındırmaktadır.
-
-Örneğin sağlık tesisi puan verileri [buradan](https://data.humdata.org/dataset/hotosm_sierra_leone_health_facilities) indirilebilir. "hotosm_sierra_leone_health_facilities_points_shp.zip" dosyasını indirin. Bilgisayarınıza kaydettikten sonra, klasörü "açın". Farklı uzantılara sahip birkaç dosya göreceksiniz (örneğin ".shp", ".prj", ".shx") - bunların tümü bilgisayarınızda aynı klasöre kaydedilmelidir. Ardından, R'a aktarmak için ".shp" dosyasının dosya yolunu ve adını **sf** paketinden `st_read()` fonksiyonuna ekleyin ([GIS temel bilgileri] sayfasında açıklandığı gibi)
-
-Tüm örnek verileri indirmek için Seçenek 1'i izlediyseniz (R paketimiz **epirhandbook** aracılığıyla), şekil dosyalarının tamamı içeride olacaktır.  
-
-
-Alternatif olarak, şekil dosyalarını Github sayfamızdaki "data" klasöründen indirebilirsiniz ("gis" alt klasörüne bakın). Ancak, *her bir* alt dosyayı ayrı ayrı bilgisayarınıza indirmeniz gerekeceğini unutmayın. Github'da her bir dosyaya tek tek tıklayın ve "İndir" butonuna basarak indirin. Aşağıda örnek olarak, "sle_adm3" şekil dosyasının Github bölümünde kayıtlı birçok alt dosyadan oluştuğunu görebilirsiniz.
-
-```{r out.height = "50%", fig.align = "center", echo=F}
-knitr::include_graphics(here::here("images", "download_shp.png"))
-```
-
-
 #### Filogenetik ağaçlar {.unnumbered}  
-
-[Filogenetik ağaçlar] sayfayasında, 299 Shigella sonnei örneğinin tüm genom dizilimi ve buna karşılık gelen vaka verilerinden (bir metin dosyası halinde) oluşturulan filogenetik ağacı Newick dosyası göreceksiniz. Belçika örneklerinden elde edilen veriler, ECDC EUPHEM asistanı tarafından yürütülen bir proje kapsamında üretilmiştir. Salmonella ve Shigella'dan elde edilen bu veriler Belçika NRC'si tarafından sağlanmaktadır.Bu veriler yayına dönüştürülme aşamasındadır. Kullanılan uluslararası veriler kamuya açık veri tabanlarına (ncbi) kayıtlı ve yayınlanmış verilerden elde edilmiştir.
-
-* "Shigella_tree.txt" filogenetik ağaç dosyasını indirmek için  [linke](https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/phylo/Shigella_tree.txt) sağ fare tuşuyla tıklayın (Mac için Cmd + tıkla) ve "Farklı Kaydet" seçeneğini seçin.  
-* Her örnekle ilgili ek bilgiler içeren "sample_data_Shigella_tree.csv" dosyasını indirmek için  [linke](https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/phylo/sample_data_Shigella_tree.csv) sağ fare tuşuyla tıklayın (Mac için Cmd + tıkla) ve "Farklı Kaydet" seçeneğini seçin.  
-* Yeni oluşturulan altküme ağacını görmek için  [linke](https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/phylo/Shigella_subtree_2.txt) sağ fare tuşuyla tıklayın (Mac için Cmd + tıkla) ve "Farklı Kaydet" seçeneğini seçin.  
-
-
-Daha sonra sayfada açıklandığı gibi **ape** paketinden `read.tree()` ile .txt dosyalarını içe aktarabilirsiniz.
-
-```{r, eval=F}
-ape::read.tree("Shigella_tree.txt")
-```
-
-
 #### Standardizasyon {.unnumbered}  
-
-[Standartlaştırılmış oranlar] ile ilgili sayfaya bakın. Verileri doğrudan internetteki Github sayfamızdan aşağıdaki komutlarla R oturumunuza yükleyebilirsiniz:
-
-
-```{r, eval=F}
-# rio paketini kurun/yükleyin
-pacman::p_load(rio) 
-
-##############
-# A Ülkesi
-##############
-# A ülkesi için demografi bilgilerini Github'dan içeri aktarın
-A_demo <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/country_demographics.csv")
-
-# A ülkesi için ölüm bilgilerini Github'dan içeri aktarın
-A_deaths <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/deaths_countryA.csv")
-
-##############
-# B Ülkesi
-##############
-# B ülkesi için demografi bilgilerini Github'dan içeri aktarın
-B_demo <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/country_demographics_2.csv")
-
-# B ülkesi için ölüm bilgilerini Github'dan içeri aktarın
-B_deaths <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/deaths_countryB.csv")
-
-
-###############
-# Referans
-###############
-# Referans demografik bilgileri Github'dan içeri aktarın
-standard_pop_data <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/world_standard_population_by_sex.csv")
-```
-
-
-
 #### Zaman serileri ve salgın tespiti {#data_outbreak .unnumbered}  
-
-[Zaman serisi ve salgın tespiti] sayfasında Almanya 2002-2011'de rapor edilen campylobacter vakalarını **surveillance** R paketinde olduğu gibi kullanıyoruz. (*ek bilgi:* bu veri seti orijinalinden uyarlanmıştır, 2011'in son 3 aylık verileri demo amacıyla silinmiştir)
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/campylobacter_germany.xlsx' class='download-button'>
-	Almanya Campylobacter verilerini (.xlsx)
-	<span> indirmek için tıklayın.</span>
-</a>
-
-Kitapta ayrıca Almanya 2002-2011 iklim verilerini kullanıyoruz (santigrat derece cinsinden sıcaklık ve milimetre cinsinden yağış bilgileri mevcut). Bu veriler, **ecmwfr** paketi kullanılarak EU Copernicus uydu yeniden analiz veri setinden indirilmiştir. Bunların hepsini indirmeniz ve zaman serisi sayfasında açıklandığı gibi `stars::read_stars()` ile içe aktarmanız gerekecektir.
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2002.nc' class='download-button'>
-	Almanya Hava Durumu 2002 verilerini(.nc dosyası)
-	<span> indirmek için tıklayın.</span>
-</a> 
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2003.nc' class='download-button'>
-	Almanya Hava Durumu 2003 verilerini (.nc dosyası)
-	<span> indirmek için tıklayın.</span>
-</a> 
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2004.nc' class='download-button'>
-	Almanya Hava Durumu 2004 verilerini (.nc dosyası)
-	<span> indirmek için tıklayın.</span>
-</a> 
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2005.nc' class='download-button'>
-	Almanya Hava Durumu 2005 verilerini (.nc dosyası)
-	<span> indirmek için tıklayın.</span>
-</a> 
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2006.nc' class='download-button'>
-	Almanya Hava Durumu 2006 verilerini (.nc dosyası)
-	<span> indirmek için tıklayın.</span>
-</a> 
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2007.nc' class='download-button'>
-	Almanya Hava Durumu 2007 verilerini (.nc dosyası)
-	<span> indirmek için tıklayın.</span>
-</a> 
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2008.nc' class='download-button'>
-	Almanya Hava Durumu 2008 verilerini (.nc dosyası)
-	<span> indirmek için tıklayın.</span>
-</a> 
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2009.nc' class='download-button'>
-	Almanya Hava Durumu 2009 verilerini (.nc dosyası)
-	<span> indirmek için tıklayın.</span>
-</a> 
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2010.nc' class='download-button'>
-	Almanya Hava Durumu 2010 verilerini (.nc dosyası)
-	<span> indirmek için tıklayın.</span>
-</a> 
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/weather/germany_weather2011.nc' class='download-button'>
-	Almanya Hava Durumu 2011 verilerini (.nc dosyası)
-	<span> indirmek için tıklayın.</span>
-</a>
-
-
-
 #### Anket analizi {#data_survey .unnumbered}  
-
-[Anket analizi](https://epirhandbook.com/survey-analysis.html) sayfası için MSF OCA anket şablonlarına dayalı kurgusal ölüm anketi verilerini kullandık. Bu kurgusal veriler ["R4Epis" projesi](https://r4epis.netlify.app/) kapsamında oluşturulmuştur.
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/surveys/survey_data.xlsx' class='download-button'>
-	Kurgusal anket verilerini (.xlsx)
-	<span> indirmek için tıklayın.</span>
-</a>
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/surveys/survey_dict.xlsx' class='download-button'>
-	Kurgusal anket veri sözlüğünü (.xlsx)
-	<span> indirmek için tıklayın.</span>
-</a>
-
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/surveys/population.xlsx' class='download-button'>
-	Kurgusal anket nüfus verilerini (.xlsx)
-	<span> indirmek için tıklayın.</span>
-</a>
-
-
-
-
 #### Shiny {#data_shiny .unnumbered}  
 
-[Shiny Gösterge Tabloları] ile ilgili sayfa, sıtma verilerini görüntülemek için uygulamanın yapısını göstermektedir.
+<!--chapter:end:new_pages/data_used.Rmd-->
 
-Shiny uygulamasını oluşturan R dosyalarını indirmek için:  
+# (PART) Basics {.unnumbered}
+```{r include=FALSE, cache=FALSE}
 
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/malaria_app/app.R' class='download-button'>Shiny uygulaması için hem kullanıcı arayüzünü hem de sunucu kodunu içeren app.R dosyasını<span> indirmek için burayı tıklayabilirsiniz.</span></a>
+# clear workspace
+rm(list = ls(all = TRUE))
 
-<a href='https://github.com/epirhandbook/Epi_R_handbook/blob/master/data/malaria_app/data/facility_count_data.rds' class='download-button'>Shiny uygulaması için sıtma verilerini içeren property_count_data.rds dosyasını indirmek için burayı tıklayabilirsiniz.<span></a> `here()` fonksiyonunun doğru çalışması için onu bir "data" klasöründe saklamayı unutmayın.
+# clear all packages except base
+#lapply(names(sessionInfo()$loadedOnly), require, character.only = TRUE)
+#invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE, force=TRUE))
 
-<a href='https://github.com/epirhandbook/Epi_R_handbook/blob/master/data/malaria_app/global.R' class='download-button'>Sayfada açıklandığı gibi, uygulama açılmadan önce çalışması gereken global.R dosyasını indirmek için burayı tıklayabilirsiniz.<span></a> Sayfada açıklandığı gibi, uygulama açılmadan önce çalıştırmayı unutmayın.
+# to ensure that tidyverse packages prevail
+filter <- dplyr::filter
+select <- dplyr::select
+summarise <- dplyr::summarise
+summary <- base::summary
+incidence <- incidence2::incidence
 
-<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/malaria_app/funcs/plot_epicurve.R' class='download-button'>global.R tarafından sağlanan plot_epicurve.R dosyasını indirmek için burayı tıklayabilirsiniz.<span></a> `here()` fonksiyonlarının doğru çalışması için onu bir "funcs" klasöründe saklamayı unutmayın.
+#load core packages
+pacman::p_load(
+     rio,
+     here,
+     DT,
+     stringr,
+     lubridate,
+     tidyverse
+)
 
+# import the cleaned ebola linelist
+linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
+
+# import the count data - facility level
+#count_data <- rio::import(here::here("data", "facility_count_data.rds"))
+
+# Settings
+
+options(scipen=1, digits=7)
+
+# print only text (not code)
+#library(knitr)
+#opts_chunk$set(list(echo = FALSE, eval = FALSE))
+```
+
+<!--chapter:end:new_pages/cat_basics.Rmd-->
+
+
+# R Basics {}
+
+Placeholder
+
+
+## Why use R?
+## Key terms  
+## Resources for learning {#learning}  
+### Resources within RStudio {.unnumbered}  
+### Cheatsheets {.unnumbered}
+### Twitter {.unnumbered}  
+### Free online resources {.unnumbered}  
+### Languages other than English {.unnumbered}  
+## Installation  
+### R and RStudio {.unnumbered}  
+### Other software you *may* need to install {.unnumbered} 
+#### TinyTex {.unnumbered}  
+#### Pandoc {.unnumbered}
+#### RTools {.unnumbered}  
+#### phantomjs {.unnumbered}  
+## RStudio {#rstudio}
+### RStudio orientation {.unnumbered}  
+### RStudio settings {.unnumbered}  
+### Keyboard shortcuts {.unnumbered}  
+## Functions {#functions}  
+### Simple functions {.unnumbered}  
+### Functions with multiple arguments {.unnumbered}  
+### Writing Functions {.unnumbered}  
+## Packages {#packages}  
+### Install and load {.unnumbered}  
+#### Your library {.unnumbered}  
+#### Install from CRAN {.unnumbered}  
+#### How to install and load {.unnumbered}  
+### Code syntax {.unnumbered}  
+### Function help {.unnumbered}  
+### Update packages {.unnumbered}  
+### Delete packages {.unnumbered}
+### Dependencies {.unnumbered}  
+### Masked functions {.unnumbered}  
+### Detach / unload {.unnumbered}  
+### Install older version {.unnumbered}  
+### Suggested packages {.unnumbered}  
+## Scripts {#scripts}
+### Commenting {.unnumbered}  
+### Style {.unnumbered}  
+### Example Script {.unnumbered}  
+### R markdown {.unnumbered}
+### R notebooks {.unnumbered}
+### Shiny {.unnumbered}
+### Code folding {.unnumbered}  
+## Working directory  
+### Recommended approach {.unnumbered}  
+### Set by command {.unnumbered}
+### Set manually {.unnumbered}  
+### Within an R project {.unnumbered}
+### Working directory in an R markdown {.unnumbered}
+### Providing file paths {.unnumbered}  
+## Objects {#objects}
+### Everything is an object {.unnumbered} 
+### Defining objects (`<-`) {.unnumbered}
+### Object structure {.unnumbered}  
+### Object classes  {.unnumbered}
+### Columns/Variables (`$`) {.unnumbered}  
+### Access/index with brackets (`[ ]`) {.unnumbered}  
+### Remove objects {.unnumbered} 
+## Piping (`%>%`)  
+### **Pipes** {.unnumbered}
+### Define intermediate objects {.unnumbered}
+## Key operators and functions {#operators}
+### Assignment operators {.unnumbered}  
+### Relational and logical operators {.unnumbered}  
+### Missing values {.unnumbered}
+### Mathematics and statistics {.unnumbered}  
+#### Mathematical operators {.unnumbered} 
+#### Mathematical functions {.unnumbered}
+#### Scientific notation {.unnumbered}
+#### Rounding {.unnumbered}  
+#### Statistical functions {.unnumbered}  
+#### Other useful functions {.unnumbered}  
+### `%in%` {.unnumbered}  
+## Errors & warnings  
+### Error versus Warning {.unnumbered}
+### General syntax tips {.unnumbered}
+### Code assists {.unnumbered}  
+
+<!--chapter:end:new_pages/basics.Rmd-->
+
+
+# R'a geçiş { }  
+
+Placeholder
+
+
+## Excel'den geçiş  
+### Faydaları {.unnumbered}  
+### Düzenli veri {.unnumbered}  
+### Fonksiyonlar {.unnumbered}  
+### Kodlar {.unnumbered}  
+### Excel'den R'a geçiş kaynakları {.unnumbered}
+### R-Excel etkileşimi {.unnumbered}  
+## Stata'dan geçiş 
+## SAS'dan geçiş  
+## Veri formatları
+
+<!--chapter:end:new_pages/transition_to_R.Rmd-->
+
+
+# Önerilen paketler
+
+Placeholder
+
+
+## Packages from CRAN  
+## Github paketleri 
+
+<!--chapter:end:new_pages/packages_suggested.Rmd-->
+
+
+# R projeleri {}  
+
+Placeholder
+
+
+## Önerilen kullanım 
+## Bir R projesi yaratma {}
+### Projeler arasında geçiş yapma {.unnumbered}
+### Ayarlar {.unnumbered}  
+### Organizasyon {.unnumbered}  
+### Versiyon kontrolü {.unnumbered}  
+## Örnekler
+## Kaynaklar {}
+
+<!--chapter:end:new_pages/r_projects.Rmd-->
+
+
+# Import and export {}
+
+Placeholder
+
+
+## Overview
+## The **rio** package {}  
+## The **here** package {#here}
+## File paths  
+### "Relative" file paths {.unnumbered}
+### "Absolute" file paths {.unnumbered}  
+### Select file manually {.unnumbered}
+## Import data  
+### Specific Excel sheets {.unnumbered}
+### Missing values {#import_missing .unnumbered} 
+### Skip rows {.unnumbered} 
+### Manage a second header row {.unnumbered}  
+#### Remove the second header row {.unnumbered}  
+#### Make a data dictionary {.unnumbered}  
+#### Combine the two header rows {.unnumbered}  
+### Google sheets {.unnumbered}
+## Multiple files - import, export, split, combine  
+## Import from Github {#import_github}
+### CSV files {.unnumbered}  
+### XLSX files {.unnumbered}  
+### Shapefiles {.unnumbered} 
+## Manual data entry {}
+### Entry by rows {.unnumbered}  
+### Entry by columns {.unnumbered}  
+### Pasting from clipboard {.unnumbered}  
+## Import most recent file  
+### Dates in file name {.unnumbered}  
+### Use the file info {.unnumbered}  
+## APIs {#import_api}
+### HTTP request {.unnumbered}  
+### Packages {.unnumbered}  
+### Publicly-available data {.unnumbered}  
+### Authentication required {.unnumbered}  
+## Export {}  
+### With **rio** package {.unnumbered}
+### To clipboard {.unnumbered}
+## RDS files {#import_rds}
+## Rdata files and lists {#import_rdata}
+## Saving plots {} 
+## Resources {} 
+
+<!--chapter:end:new_pages/importing.Rmd-->
+
+# (PART) Data Management {.unnumbered}
+```{r include=FALSE, cache=FALSE}
+
+# clear workspace
+rm(list = ls(all = TRUE))
+
+# clear all packages except base
+#lapply(names(sessionInfo()$loadedOnly), require, character.only = TRUE)
+#invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE, force=TRUE))
+
+# to ensure that tidyverse packages prevail
+filter <- dplyr::filter
+select <- dplyr::select
+summarise <- dplyr::summarise
+summary <- base::summary
+incidence <- incidence2::incidence
+
+#load core packages
+pacman::p_load(
+     rio,
+     here,
+     DT,
+     stringr,
+     lubridate,
+     tidyverse
+)
+
+# import the cleaned ebola linelist
+linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
+
+# import the count data - facility level
+#count_data <- rio::import(here::here("data", "facility_count_data.rds"))
+
+# Settings
+
+options(scipen=1, digits=7)
+
+# print only text (not code)
+#library(knitr)
+#opts_chunk$set(list(echo = FALSE, eval = FALSE))
+```
+
+<!--chapter:end:new_pages/cat_data_management.Rmd-->
+
+---
+output:
+  word_document: default
+  html_document: default
+---
+# Cleaning data and core functions {}
+
+
+```{r, out.height = "10%", fig.align = "center", echo=F}
+knitr::include_graphics(here::here("images", "cleaning.png"))
+```
+
+
+This page demonstrates common steps used in the process of "cleaning" a dataset, and also explains the use of many essential R data management functions.  
+
+To demonstrate data cleaning, this page begins by importing a raw case linelist dataset, and proceeds step-by-step through the cleaning process. In the R code, this manifests as a "pipe" chain, which references the "pipe" operator ` %>%` that passes a dataset from one operation to the next.  
+
+
+### Core functions {.unnumbered}  
+
+This handbook emphasizes use of the functions from the [**tidyverse**](https://www.tidyverse.org/) family of R packages. The essential R functions demonstrated in this page are listed below.  
+
+Many of these functions belong to the [**dplyr**](https://dplyr.tidyverse.org/) R package, which provides "verb" functions to solve data manipulation challenges (the name is a reference to a "data frame-[plier](https://www.thefreedictionary.com/plier#:~:text=also%20ply%C2%B7er%20(pl%C4%AB%E2%80%B2,holding%2C%20bending%2C%20or%20cutting.)"). **dplyr** is part of the **tidyverse** family of R packages (which also includes **ggplot2**, **tidyr**, **stringr**, **tibble**, **purrr**, **magrittr**, and **forcats** among others).  
+
+
+Function       | Utility                               | Package
+---------------|---------------------------------------|------------------------------
+` %>% `|"pipe" (pass) data from one function to the next|**magrittr** 
+`mutate()`|create, transform, and re-define columns|**dplyr**  
+`select()`|keep, remove, select, or re-name columns|**dplyr**
+`rename()`|rename columns|**dplyr** 
+`clean_names()`|standardize the syntax of column names|**janitor**
+`as.character()`, `as.numeric()`, `as.Date()`, etc.|convert the class of a column|**base** R
+`across()`|transform multiple columns at one time|**dplyr** 
+**tidyselect** functions|use logic to select columns|**tidyselect**   
+`filter()`|keep certain rows|**dplyr** 
+`distinct()`|de-duplicate rows|**dplyr** 
+`rowwise()`|operations by/within each row|**dplyr**  
+`add_row()`|add rows manually|**tibble** 
+`arrange()`|sort rows|**dplyr**
+`recode()`|re-code values in a column|**dplyr** 
+`case_when()`|re-code values in a column using more complex logical criteria|**dplyr** 
+`replace_na()`, `na_if()`, `coalesce()`|special functions for re-coding|**tidyr**  
+`age_categories()` and `cut()`|create categorical groups from a numeric column|**epikit** and **base** R
+`clean_variable_spelling()`|re-code/clean values using a data dictionary|**linelist**
+`which()`|apply logical criteria; return indices|**base** R
+
+If you want to see how these functions compare to Stata or SAS commands, see the page on [Transition to R].  
+
+You may encounter an alternative data management framework from the **data.table** R package with operators like `:=` and frequent use of brackets `[ ]`. This approach and syntax is briefly explained in the [Data Table] page.  
+
+### Nomenclature {.unnumbered}  
+
+In this handbook, we generally reference "columns" and "rows" instead of "variables" and "observations". As explained in this primer on ["tidy data"](https://tidyr.tidyverse.org/articles/tidy-data.html), most epidemiological statistical datasets consist structurally of rows, columns, and values.  
+
+*Variables* contain the values that measure the same underlying attribute (like age group, outcome, or date of onset). *Observations* contain all values measured on the same unit (e.g. a person, site, or lab sample). So these aspects can be more difficult to tangibly define.  
+
+In "tidy" datasets, each column is a variable, each row is an observation, and each cell is a single value. However some datasets you encounter will not fit this mold - a "wide" format dataset may have a variable split across several columns (see an example in the [Pivoting data] page). Likewise, observations could be split across several rows.  
+
+Most of this handbook is about managing and transforming data, so referring to the concrete data structures of rows and columns is more relevant than the more abstract observations and variables. Exceptions occur primarily in pages on data analysis, where you will see more references to variables and observations.  
+
+
+
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+## Cleaning pipeline
+
+**This page proceeds through typical cleaning steps, adding them sequentially to a cleaning pipe chain.**
+
+In epidemiological analysis and data processing, cleaning steps are often performed sequentially, linked together. In R, this often manifests as a cleaning "pipeline", where *the raw dataset is passed or "piped" from one cleaning step to another*.  
+
+Such chains utilize **dplyr** "verb" functions and the **magrittr** pipe operator `%>%`. This pipe begins with the "raw" data ("linelist_raw.xlsx") and ends with a "clean" R data frame (`linelist`) that can be used, saved, exported, etc.  
+
+In a cleaning pipeline the order of the steps is important. Cleaning steps might include:  
+
+* Importing of data  
+* Column names cleaned or changed  
+* De-duplication  
+* Column creation and transformation (e.g. re-coding or standardising values)  
+* Rows filtered or added  
+
+
+
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+## Load packages  
+
+This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+
+```{r, message = F}
+pacman::p_load(
+  rio,        # importing data  
+  here,       # relative file pathways  
+  janitor,    # data cleaning and tables
+  lubridate,  # working with dates
+  epikit,     # age_categories() function
+  tidyverse   # data management and visualization
+)
+```
+
+
+
+
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+## Import data  
+
+### Import {.unnumbered}  
+
+Here we import the "raw" case linelist Excel file using the `import()` function from the package **rio**. The **rio** package flexibly handles many types of files (e.g. .xlsx, .csv, .tsv, .rds. See the page on [Import and export] for more information and tips on unusual situations (e.g. skipping rows, setting missing values, importing Google sheets, etc).  
+
+If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_raw.xlsx' class='download-button'>click to download the "raw" linelist</a> (as .xlsx file).  
+
+If your dataset is large and takes a long time to import, it can be useful to have the import command be separate from the pipe chain and the "raw" saved as a distinct file. This also allows easy comparison between the original and cleaned versions.  
+
+Below we import the raw Excel file and save it as the data frame `linelist_raw`. We assume the file is located in your working directory or R project root, and so no sub-folders are specified in the file path.  
+
+```{r, echo=F, message=F}
+# HIDDEN FROM READER
+# actually load the data using here()
+linelist_raw <- rio::import(here::here("data", "case_linelists", "linelist_raw.xlsx"))
+```
+
+```{r, eval=F}
+linelist_raw <- import("linelist_raw.xlsx")
+```
+
+You can view the first 50 rows of the the data frame below. Note: the **base** R function `head(n)` allow you to view just the first `n` rows in the R console.  
+
+```{r message=FALSE, echo=F}
+# display the linelist data as a table
+DT::datatable(head(linelist_raw,50), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
+```
+### Review {.unnumbered}  
+
+You can use the function `skim()` from the package **skimr** to get an overview of the entire dataframe (see page on [Descriptive tables] for more info). Columns are summarised by class/type such as character, numeric. Note: "POSIXct" is a type of raw date class (see [Working with dates].  
+
+
+```{r, eval=F}
+skimr::skim(linelist_raw)
+```
+
+```{r, echo=F}
+skimr::skim_without_charts(linelist_raw)
+```
+
+
+
+
+ 
+
+
+
+
+
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+## Column names {} 
+
+In R, column *names* are the "header" or "top" value of a column. They are used to refer to columns in the code, and serve as a default label in figures.  
+
+Other statistical software such as SAS and STATA use *"labels"* that co-exist as longer printed versions of the shorter column names. While R does offer the possibility of adding column labels to the data, this is not emphasized in most practice. To make column names "printer-friendly" for figures, one typically adjusts their display within the plotting commands that create the outputs (e.g. axis or legend titles of a plot, or column headers in a printed table - see the [scales section of the ggplot tips page](#ggplot_tips_scales) and [Tables for presentation] pages). If you want to assign column labels in the data, read more online [here](https://cran.r-project.org/web/packages/expss/vignettes/labels-support.html) and [here](https://cran.r-project.org/web/packages/labelled/vignettes/intro_labelled.html).  
+
+As R column names are used very often, so they must have "clean" syntax. We suggest the following:  
+
+* Short names
+* No spaces (replace with underscores _ ) 
+* No unusual characters (&, #, <, >, ...)  
+* Similar style nomenclature (e.g. all date columns named like **date_**onset, **date_**report, **date_**death...)  
+
+The columns names of `linelist_raw` are printed below using `names()` from **base** R. We can see that initially:  
+
+* Some names contain spaces (e.g. `infection date`)  
+* Different naming patterns are used for dates (`date onset` vs. `infection date`)  
+* There must have been a *merged header* across the two last columns in the .xlsx. We know this because the name of two merged columns ("merged_header") was assigned by R to the first column, and the second column was assigned a placeholder  name "...28" (as it was then empty and is the 28th column).  
+
+```{r}
+names(linelist_raw)
+```
+
+<span style="color: black;">**_NOTE:_** To reference a column name that includes spaces, surround the name with back-ticks, for example: linelist$`` ` '\x60infection date\x60'` ``. note that on your keyboard, the back-tick (`) is different from the single quotation mark (').</span>
+
+
+### Labels {.unnumbered}  
+
+Some other statistical software such as SAS have variable *labels*
+
+
+### Automatic cleaning {.unnumbered}  
+
+The function `clean_names()` from the package **janitor** standardizes column names and makes them unique by doing the following:  
+
+* Converts all names to consist of only underscores, numbers, and letters  
+* Accented characters are transliterated to ASCII (e.g. german o with umlaut becomes "o", spanish "enye" becomes "n")  
+* Capitalization preference for the new column names can be specified using the `case = ` argument ("snake" is default, alternatives include "sentence", "title", "small_camel"...)  
+* You can specify specific name replacements by providing a vector to the `replace = ` argument (e.g. `replace = c(onset = "date_of_onset")`)  
+* Here is an online [vignette](https://cran.r-project.org/web/packages/janitor/vignettes/janitor.html#cleaning)  
+
+Below, the cleaning pipeline begins by using `clean_names()` on the raw linelist.  
+
+```{r clean_names}
+# pipe the raw dataset through the function clean_names(), assign result as "linelist"  
+linelist <- linelist_raw %>% 
+  janitor::clean_names()
+
+# see the new column names
+names(linelist)
+```
+
+<span style="color: black;">**_NOTE:_** The last column name "...28" was changed to "x28".</span>
+
+
+### Manual name cleaning {.unnumbered}  
+
+Re-naming columns manually is often necessary, even after the standardization step above. Below, re-naming is performed using the `rename()` function from the **dplyr** package, as part of a pipe chain. `rename()` uses the style `NEW = OLD` - the new column name is given before the old column name.  
+
+Below, a re-naming command is added to the cleaning pipeline. Spaces have been added strategically to align code for easier reading.  
+
+```{r}
+# CLEANING 'PIPE' CHAIN (starts with raw data and pipes it through cleaning steps)
+##################################################################################
+linelist <- linelist_raw %>%
+    
+    # standardize column name syntax
+    janitor::clean_names() %>% 
+    
+    # manually re-name columns
+           # NEW name             # OLD name
+    rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome)
+```
+
+
+Now you can see that the columns names have been changed:  
+
+```{r message=FALSE, echo=F}
+names(linelist)
+```
+
+
+#### Rename by column position {.unnumbered} 
+
+You can also rename by column position, instead of column name, for example:  
+
+```{r, eval=F}
+rename(newNameForFirstColumn  = 1,
+       newNameForSecondColumn = 2)
+```
+
+
+
+#### Rename via `select()` and `summarise()` {.unnumbered}  
+
+As a shortcut, you can also rename columns within the **dplyr** `select()` and `summarise()` functions. `select()` is used to keep only certain columns (and is covered later in this page). `summarise()` is covered in the [Grouping data] and [Descriptive tables] pages. These functions also uses the format `new_name = old_name`. Here is an example:  
+
+```{r, eval=F}
+linelist_raw %>% 
+  select(# NEW name             # OLD name
+         date_infection       = `infection date`,    # rename and KEEP ONLY these columns
+         date_hospitalisation = `hosp date`)
+```
+
+
+
+
+
+### Other challenges {.unnumbered}  
+
+
+#### Empty Excel column names {.unnumbered} 
+
+R cannot have dataset columns that do not have column names (headers). So, if you import an Excel dataset with data but no column headers, R will fill-in the headers with names like "...1" or "...2". The number represents the column number (e.g. if the 4th column in the dataset has no header, then R will name it "...4").  
+
+You can clean these names manually by referencing their position number (see example above), or their assigned name (`linelist_raw$...1`).  
+
+
+
+#### Merged Excel column names and cells {.unnumbered}  
+
+Merged cells in an Excel file are a common occurrence when receiving data. As explained in [Transition to R], merged cells can be nice for human reading of data, but are not "tidy data" and cause many problems for machine reading of data. R cannot accommodate merged cells.  
+
+Remind people doing data entry that **human-readable data is not the same as machine-readable data**. Strive to train users about the principles of [**tidy data**](https://r4ds.had.co.nz/tidy-data.html). If at all possible, try to change procedures so that data arrive in a tidy format without merged cells.  
+
+* Each variable must have its own column.  
+* Each observation must have its own row.  
+* Each value must have its own cell.  
+
+When using **rio**'s `import()` function, the value in a merged cell will be assigned to the first cell and subsequent cells will be empty.  
+
+One solution to deal with merged cells is to import the data with the function `readWorkbook()` from the package **openxlsx**. Set the argument `fillMergedCells = TRUE`. This gives the value in a merged cell to all cells within the merge range.
+
+```{r, eval=F}
+linelist_raw <- openxlsx::readWorkbook("linelist_raw.xlsx", fillMergedCells = TRUE)
+```
+
+<span style="color: red;">**_DANGER:_** If column names are merged with `readWorkbook()`, you will end up with duplicate column names, which you will need to fix manually - R does not work well with duplicate column names! You can re-name them by referencing their position (e.g. column 5), as explained in the section on manual column name cleaning.</span>
+
+
+
+
+
+
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+## Select or re-order columns {} 
+
+Use `select()` from **dplyr** to select the columns you want to retain, and to specify their order in the data frame. 
+
+<span style="color: orange;">**_CAUTION:_** In the examples below, the `linelist` data frame is modified with `select()` and displayed, but not saved. This is for demonstration purposes. The modified column names are printed by piping the data frame to `names()`.</span>
+
+**Here are ALL the column names in the linelist at this point in the cleaning pipe chain:**
+
+```{r}
+names(linelist)
+```
+
+### Keep columns {.unnumbered}  
+
+**Select only the columns you want to remain**  
+
+Put their names in the `select()` command, with no quotation marks. They will appear in the data frame in the order you provide. Note that if you include a column that does not exist, R will return an error (see use of `any_of()` below if you want no error in this situation).  
+
+```{r}
+# linelist dataset is piped through select() command, and names() prints just the column names
+linelist %>% 
+  select(case_id, date_onset, date_hospitalisation, fever) %>% 
+  names()  # display the column names
+```
+
+
+
+
+### "tidyselect" helper functions {#clean_tidyselect .unnumbered}  
+
+These helper functions exist to make it easy to specify columns to keep, discard, or transform. They are from the package **tidyselect**, which is included in **tidyverse** and underlies how columns are selected in **dplyr** functions.  
+
+For example, if you want to re-order the columns, `everything()` is a useful function to signify "all other columns not yet mentioned". The command below moves columns `date_onset` and `date_hospitalisation` to the beginning (left) of the dataset, but keeps all the other columns afterward. Note that `everything()` is written with empty parentheses:  
+
+```{r}
+# move date_onset and date_hospitalisation to beginning
+linelist %>% 
+  select(date_onset, date_hospitalisation, everything()) %>% 
+  names()
+```
+
+Here are other "tidyselect" helper functions that also work *within* **dplyr** functions like `select()`, `across()`, and `summarise()`:  
+
+* `everything()`  - all other columns not mentioned  
+* `last_col()`    - the last column  
+* `where()`       - applies a function to all columns and selects those which are TRUE  
+* `contains()`    - columns containing a character string  
+  * example: `select(contains("time"))`  
+* `starts_with()` - matches to a specified prefix  
+  * example: `select(starts_with("date_"))`  
+* `ends_with()`   - matches to a specified suffix  
+  * example: `select(ends_with("_post"))`  
+* `matches()`     - to apply a regular expression (regex)  
+  * example: `select(matches("[pt]al"))`  
+* `num_range()`   - a numerical range like x01, x02, x03  
+* `any_of()`      - matches IF column exists but returns no error if it is not found  
+  * example: `select(any_of(date_onset, date_death, cardiac_arrest))`  
+
+In addition, use normal operators such as `c()` to list several columns, `:` for consecutive columns, `!` for opposite, `&` for AND, and `|` for OR.  
+
+
+Use `where()` to specify logical criteria for columns. If providing a function inside `where()`, do not include the function's empty parentheses. The command below selects columns that are class Numeric.
+
+```{r}
+# select columns that are class Numeric
+linelist %>% 
+  select(where(is.numeric)) %>% 
+  names()
+```
+
+Use `contains()` to select only columns in which the column name contains a specified character string. `ends_with()` and `starts_with()` provide more nuance.  
+
+```{r}
+# select columns containing certain characters
+linelist %>% 
+  select(contains("date")) %>% 
+  names()
+```
+
+The function `matches()` works similarly to `contains()` but can be provided a regular expression (see page on [Characters and strings]), such as multiple strings separated by OR bars within the parentheses:  
+
+```{r}
+# searched for multiple character matches
+linelist %>% 
+  select(matches("onset|hosp|fev")) %>%   # note the OR symbol "|"
+  names()
+```
+
+<span style="color: orange;">**_CAUTION:_** If a column name that you specifically provide does not exist in the data, it can return an error and stop your code. Consider using `any_of()` to cite columns that may or may not exist, especially useful in negative (remove) selections.</span>
+
+Only one of these columns exists, but no error is produced and the code continues without stopping your cleaning chain.  
+
+```{r}
+linelist %>% 
+  select(any_of(c("date_onset", "village_origin", "village_detection", "village_residence", "village_travel"))) %>% 
+  names()
+```
+
+
+
+### Remove columns {.unnumbered} 
+
+**Indicate which columns to remove** by placing a minus symbol "-" in front of the column name (e.g. `select(-outcome)`), or a vector of column names (as below). All other columns will be retained. 
+
+```{r}
+linelist %>% 
+  select(-c(date_onset, fever:vomit)) %>% # remove date_onset and all columns from fever to vomit
+  names()
+```
+
+You can also remove a column using **base** R syntax, by defining it as `NULL`. For example:  
+
+```{r, eval=F}
+linelist$date_onset <- NULL   # deletes column with base R syntax 
+```
+
+
+
+### Standalone {.unnumbered}
+
+`select()` can also be used as an independent command (not in a pipe chain). In this case, the first argument is the original dataframe to be operated upon.  
+
+```{r}
+# Create a new linelist with id and age-related columns
+linelist_age <- select(linelist, case_id, contains("age"))
+
+# display the column names
+names(linelist_age)
+```
+
+
+
+#### Add to the pipe chain {.unnumbered}  
+
+In the `linelist_raw`, there are a few columns we do not need: `row_num`, `merged_header`, and `x28`. We remove them with a `select()` command in the cleaning pipe chain:  
+
+```{r}
+# CLEANING 'PIPE' CHAIN (starts with raw data and pipes it through cleaning steps)
+##################################################################################
+
+# begin cleaning pipe chain
+###########################
+linelist <- linelist_raw %>%
+    
+    # standardize column name syntax
+    janitor::clean_names() %>% 
+    
+    # manually re-name columns
+           # NEW name             # OLD name
+    rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome) %>% 
+    
+    # ABOVE ARE UPSTREAM CLEANING STEPS ALREADY DISCUSSED
+    #####################################################
+
+    # remove column
+    select(-c(row_num, merged_header, x28))
+```
+
+
+
+
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+## Deduplication
+
+
+See the handbook page on [De-duplication] for extensive options on how to de-duplicate data. Only a very simple row de-duplication example is presented here.  
+
+The package **dplyr** offers the `distinct()` function. This function examines every row and reduce the data frame to only the unique rows. That is, it removes rows that are 100% duplicates.  
+
+When evaluating duplicate rows, it takes into account a range of columns - by default it considers all columns. As shown in the de-duplication page, you can adjust this column range so that the uniqueness of rows is only evaluated in regards to certain columns.  
+
+In this simple example, we just add the empty command `distinct()` to the pipe chain. This ensures there are no rows that are 100% duplicates of other rows (evaluated across all columns).  
+
+We begin with ` nrow(linelist)` rows in `linelist`. 
+
+```{r}
+linelist <- linelist %>% 
+  distinct()
+```
+
+After de-duplication there are ` nrow(linelist)` rows. Any removed rows would have been 100% duplicates of other rows.  
+
+Below, the `distinct()` command is added to the cleaning pipe chain:
+
+```{r}
+# CLEANING 'PIPE' CHAIN (starts with raw data and pipes it through cleaning steps)
+##################################################################################
+
+# begin cleaning pipe chain
+###########################
+linelist <- linelist_raw %>%
+    
+    # standardize column name syntax
+    janitor::clean_names() %>% 
+    
+    # manually re-name columns
+           # NEW name             # OLD name
+    rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome) %>% 
+    
+    # remove column
+    select(-c(row_num, merged_header, x28)) %>% 
+  
+    # ABOVE ARE UPSTREAM CLEANING STEPS ALREADY DISCUSSED
+    #####################################################
+    
+    # de-duplicate
+    distinct()
+```
+
+
+
+
+
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+## Column creation and transformation { }
+
+
+**We recommend using the dplyr function `mutate()` to add a new column, or to modify an existing one.**  
+
+Below is an example of creating a new column with `mutate()`. The syntax is: `mutate(new_column_name = value or transformation)`  
+
+In Stata, this is similar to the command `generate`, but R's `mutate()` can also be used to modify an existing column.  
+
+
+### New columns {.unnumbered}
+
+The most basic `mutate()` command to create a new column might look like this. It creates a new column `new_col` where the value in every row is 10.  
+
+```{r, eval=F}
+linelist <- linelist %>% 
+  mutate(new_col = 10)
+```
+
+You can also reference values in other columns, to perform calculations. Below, a new column `bmi` is created to hold the Body Mass Index (BMI) for each case - as calculated using the formula BMI = kg/m^2, using column `ht_cm` and column `wt_kg`.  
+
+```{r}
+linelist <- linelist %>% 
+  mutate(bmi = wt_kg / (ht_cm/100)^2)
+```
+
+If creating multiple new columns, separate each with a comma and new line. Below are examples of new columns, including ones that consist of values from other columns combined using `str_glue()` from the **stringr** package (see page on [Characters and strings].  
+
+```{r}
+new_col_demo <- linelist %>%                       
+  mutate(
+    new_var_dup    = case_id,             # new column = duplicate/copy another existing column
+    new_var_static = 7,                   # new column = all values the same
+    new_var_static = new_var_static + 5,  # you can overwrite a column, and it can be a calculation using other variables
+    new_var_paste  = stringr::str_glue("{hospital} on ({date_hospitalisation})") # new column = pasting together values from other columns
+    ) %>% 
+  select(case_id, hospital, date_hospitalisation, contains("new"))        # show only new columns, for demonstration purposes
+```
+
+
+Review the new columns. For demonstration purposes, only the new columns and the columns used to create them are shown:  
+
+
+```{r message=FALSE, echo=F}
+# display the linelist data as a table
+DT::datatable(head(new_col_demo,50), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
+```
+
+<span style="color: darkgreen;">**_TIP:_** A variation on `mutate()` is the function `transmute()`. This function adds a new column just like `mutate()`, but also drops/removes all other columns that you do not mention within its parentheses.</span>
+
+
+```{r, eval=F}
+# HIDDEN FROM READER
+# removes new demo columns created above
+# linelist <- linelist %>% 
+#   select(-contains("new_var"))
+```
+
+
+
+### Convert column class {.unnumbered}
+  
+Columns containing values that are dates, numbers, or logical values (TRUE/FALSE) will only behave as expected if they are correctly classified. There is a difference between "2" of class character and 2 of class numeric!  
+
+There are ways to set column class during the import commands, but this is often cumbersome. See the [R Basics] section on object classes to learn more about converting the class of objects and columns.  
+
+First, let's run some checks on important columns to see if they are the correct class. We also saw this in the beginning when we ran `skim()`.  
+
+Currently, the class of the `age` column is character. To perform quantitative analyses, we need these numbers to be recognized as numeric! 
+
+```{r}
+class(linelist$age)
+```
+
+The class of the `date_onset` column is also character! To perform analyses, these dates must be recognized as dates! 
+ 
+```{r}
+class(linelist$date_onset)
+```
+
+
+To resolve this, use the ability of `mutate()` to re-define a column with a transformation. We define the column as itself, but converted to a different class. Here is a basic example, converting or ensuring that the column `age` is class Numeric:  
+
+```{r, eval=F}
+linelist <- linelist %>% 
+  mutate(age = as.numeric(age))
+```
+
+In a similar way, you can use `as.character()` and `as.logical()`. To convert to class Factor, you can use `factor()` from **base** R or `as_factor()` from **forcats**. Read more about this in the [Factors] page.  
+
+You must be careful when converting to class Date. Several methods are explained on the page [Working with dates]. Typically, the raw date values must all be in the same format for conversion to work correctly (e.g "MM/DD/YYYY", or "DD MM YYYY"). After converting to class Date, check your data to confirm that each value was converted correctly.  
+
+
+
+
+### Grouped data {.unnumbered}  
+
+If your data frame is already *grouped* (see page on [Grouping data]), `mutate()` may behave differently than if the data frame is not grouped. Any summarizing functions, like `mean()`, `median()`, `max()`, etc. will calculate by group, not by all the rows.     
+
+```{r, eval=F}
+# age normalized to mean of ALL rows
+linelist %>% 
+  mutate(age_norm = age / mean(age, na.rm=T))
+
+# age normalized to mean of hospital group
+linelist %>% 
+  group_by(hospital) %>% 
+  mutate(age_norm = age / mean(age, na.rm=T))
+```
+
+Read more about using `mutate ()` on grouped dataframes in this [tidyverse mutate documentation](https://dplyr.tidyverse.org/reference/mutate.html).  
+
+
+
+### Transform multiple columns {#clean_across .unnumbered}
+
+
+Often to write concise code you want to apply the same transformation to multiple columns at once. A transformation can be applied to multiple columns at once using the `across()` function from the package **dplyr** (also contained within **tidyverse** package). `across()` can be used with any **dplyr** function, but is commonly used within `select()`, `mutate()`, `filter()`, or `summarise()`. See how it is applied to `summarise()` in the page on [Descriptive tables].  
+
+Specify the columns to the argument `.cols = ` and the function(s) to apply to `.fns = `. Any additional arguments to provide to the `.fns` function can be included after a comma, still within `across()`.   
+
+#### `across()` column selection {.unnumbered}  
+
+Specify the columns to the argument `.cols = `. You can name them individually, or use "tidyselect" helper functions. Specify the function to `.fns = `. Note that using the function mode demonstrated below, the function is written *without* its parentheses ( ).  
+
+Here the transformation `as.character()` is applied to specific columns named within `across()`. 
+
+```{r, eval=F}
+linelist <- linelist %>% 
+  mutate(across(.cols = c(temp, ht_cm, wt_kg), .fns = as.character))
+```
+
+The "tidyselect" helper functions are available to assist you in specifying columns. They are detailed above in the section on Selecting and re-ordering columns, and they include: `everything()`, `last_col()`, `where()`, `starts_with()`, `ends_with()`, `contains()`, `matches()`, `num_range()` and `any_of()`.  
+
+Here is an example of how one would change **all columns** to character class:  
+
+```{r, eval=F}
+#to change all columns to character class
+linelist <- linelist %>% 
+  mutate(across(.cols = everything(), .fns = as.character))
+```
+
+Convert to character all columns where the name contains the string "date" (note the placement of commas and parentheses):  
+
+```{r, eval=F}
+#to change all columns to character class
+linelist <- linelist %>% 
+  mutate(across(.cols = contains("date"), .fns = as.character))
+```
+
+Below, an example of mutating the columns that are currently class POSIXct (a raw datetime class that shows timestamps) - in other words, where the function `is.POSIXct()` evaluates to `TRUE`. Then we want to apply the function `as.Date()` to these columns to convert them to a normal class Date.  
+
+```{r, eval=F}
+linelist <- linelist %>% 
+  mutate(across(.cols = where(is.POSIXct), .fns = as.Date))
+```
+
+* Note that within `across()` we also use the function `where()` as `is.POSIXct` is evaluating to either TRUE or FALSE.  
+* Note that `is.POSIXct()` is from the package **lubridate**. Other similar "is" functions like `is.character()`, `is.numeric()`, and `is.logical()` are from **base R**  
+
+#### `across()` functions {.unnumbered}
+
+You can read the documentation with `?across` for details on how to provide functions to `across()`. A few summary points: there are several ways to specify the function(s) to perform on a column and you can even define your own functions:  
+
+* You can provide the function name alone (e.g. `mean` or `as.character`)  
+* You can provide the function in **purrr**-style (e.g. `~ mean(.x, na.rm = TRUE)`) (see [this page][Iteration, loops, and lists])  
+* You can specify multiple functions by providing a list (e.g. `list(mean = mean, n_miss = ~ sum(is.na(.x))`).  
+  * If you provide multiple functions, multiple transformed columns will be returned per input column, with unique names in the format `col_fn`. You can adjust how the new columns are named with the `.names =` argument using **glue** syntax (see page on [Characters and strings]) where `{.col}` and `{.fn}` are shorthand for the input column and function.  
+  
+  
+Here are a few online resources on using `across()`: [creator Hadley Wickham's thoughts/rationale](https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/)
+
+
+
+
+### `coalesce()` {.unnumbered}  
+
+This **dplyr** function finds the first non-missing value at each position. It "fills-in" missing values with the first available value in an order you specify.
+
+Here is an example *outside the context of a data frame*: Let us say you have two vectors, one containing the patient's village of detection and another containing the patient's village of residence. You can use coalesce to pick the first non-missing value for each index:  
+
+```{r}
+village_detection <- c("a", "b", NA,  NA)
+village_residence <- c("a", "c", "a", "d")
+
+village <- coalesce(village_detection, village_residence)
+village    # print
+```
+
+This works the same if you provide data frame columns: for each row, the function will assign the new column value with the first non-missing value in the columns you provided (in order provided).
+
+```{r, eval=F}
+linelist <- linelist %>% 
+  mutate(village = coalesce(village_detection, village_residence))
+```
+
+This is an example of a "row-wise" operation. For more complicated row-wise calculations, see the section below on Row-wise calculations.  
+
+
+
+### Cumulative math {.unnumbered}
+
+If you want a column to reflect the cumulative sum/mean/min/max etc as assessed down the rows of a dataframe to that point, use the following functions:  
+
+`cumsum()` returns the cumulative sum, as shown below:  
+
+```{r}
+sum(c(2,4,15,10))     # returns only one number
+cumsum(c(2,4,15,10))  # returns the cumulative sum at each step
+```
+
+This can be used in a dataframe when making a new column. For example, to calculate the cumulative number of cases per day in an outbreak, consider code like this:  
+
+```{r, warning=F, message=F}
+cumulative_case_counts <- linelist %>%  # begin with case linelist
+  count(date_onset) %>%                 # count of rows per day, as column 'n'   
+  mutate(cumulative_cases = cumsum(n))  # new column, of the cumulative sum at each row
+```
+
+Below are the first 10 rows:  
+
+```{r}
+head(cumulative_case_counts, 10)
+```
+
+See the page on [Epidemic curves] for how to plot cumulative incidence with the epicurve.  
+
+See also:  
+`cumsum()`, `cummean()`, `cummin()`, `cummax()`, `cumany()`, `cumall()`  
+
+
+
+
+
+### Using **base** R {.unnumbered}  
+
+To define a new column (or re-define a column) using **base** R, write the name of data frame, connected with `$`, to the *new* column (or the column to be modified). Use the assignment operator `<-` to define the new value(s). Remember that when using **base** R you must specify the data frame name before the column name every time (e.g. `dataframe$column`). Here is an example of creating the `bmi` column using **base** R:  
+
+```{r, eval=F}
+linelist$bmi = linelist$wt_kg / (linelist$ht_cm / 100) ^ 2)
+```
+
+
+
+
+### Add to pipe chain {.unnumbered}  
+
+**Below, a new column is added to the pipe chain and some classes are converted.**  
+
+```{r }
+# CLEANING 'PIPE' CHAIN (starts with raw data and pipes it through cleaning steps)
+##################################################################################
+
+# begin cleaning pipe chain
+###########################
+linelist <- linelist_raw %>%
+    
+    # standardize column name syntax
+    janitor::clean_names() %>% 
+    
+    # manually re-name columns
+           # NEW name             # OLD name
+    rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome) %>% 
+    
+    # remove column
+    select(-c(row_num, merged_header, x28)) %>% 
+  
+    # de-duplicate
+    distinct() %>% 
+  
+    # ABOVE ARE UPSTREAM CLEANING STEPS ALREADY DISCUSSED
+    ###################################################
+    # add new column
+    mutate(bmi = wt_kg / (ht_cm/100)^2) %>% 
+  
+    # convert class of columns
+    mutate(across(contains("date"), as.Date), 
+           generation = as.numeric(generation),
+           age        = as.numeric(age)) 
+```
+
+
+
+
+
+## Re-code values
+
+Here are a few scenarios where you need to re-code (change) values:  
+
+* to edit one specific value (e.g. one date with an incorrect year or format)  
+* to reconcile values not spelled the same
+* to create a new column of categorical values  
+* to create a new column of numeric categories (e.g. age categories)  
+
+
+
+### Specific values {.unnumbered}  
+
+To change values manually you can use the `recode()` function within the `mutate()` function. 
+
+Imagine there is a nonsensical date in the data (e.g. "2014-14-15"): you could fix the date manually in the raw source data, or, you could write the change into the cleaning pipeline via `mutate()` and `recode()`. The latter is more transparent and reproducible to anyone else seeking to understand or repeat your analysis.  
+
+```{r, eval=F}
+# fix incorrect values                   # old value       # new value
+linelist <- linelist %>% 
+  mutate(date_onset = recode(date_onset, "2014-14-15" = "2014-04-15"))
+```
+
+The `mutate()` line above can be read as: "mutate the column `date_onset` to equal the column `date_onset` re-coded so that OLD VALUE is changed to NEW VALUE". Note that this pattern (OLD = NEW) for `recode()` is the opposite of most R patterns (new = old). The R development community is working on revising this.  
+
+**Here is another example re-coding multiple values within one column.** 
+
+In `linelist` the values in the column "hospital" must be cleaned. There are several different spellings and many missing values.
+
+```{r}
+table(linelist$hospital, useNA = "always")  # print table of all unique values, including missing  
+```
+
+The `recode()` command below re-defines the column "hospital" as the current column "hospital", but with the specified recode changes. Don't forget commas after each!  
+
+```{r}
+linelist <- linelist %>% 
+  mutate(hospital = recode(hospital,
+                     # for reference: OLD = NEW
+                      "Mitylira Hopital"  = "Military Hospital",
+                      "Mitylira Hospital" = "Military Hospital",
+                      "Military Hopital"  = "Military Hospital",
+                      "Port Hopital"      = "Port Hospital",
+                      "Central Hopital"   = "Central Hospital",
+                      "other"             = "Other",
+                      "St. Marks Maternity Hopital (SMMH)" = "St. Mark's Maternity Hospital (SMMH)"
+                      ))
+```
+
+
+Now we see the spellings in the `hospital` column have been corrected and consolidated:  
+
+```{r}
+table(linelist$hospital, useNA = "always")
+```
+
+<span style="color: darkgreen;">**_TIP:_** The number of spaces before and after an equals sign does not matter. Make your code easier to read by aligning the = for all or most rows. Also, consider adding a hashed comment row to clarify for future readers which side is OLD and which side is NEW. </span>  
+
+<span style="color: darkgreen;">**_TIP:_** Sometimes a *blank* character value exists in a dataset (not recognized as R's value for missing - `NA`). You can reference this value with two quotation marks with no space inbetween ("").</span>  
+
+
+
+
+### By logic {.unnumbered}
+
+Below we demonstrate how to re-code values in a column using logic and conditions:  
+
+* Using `replace()`, `ifelse()` and `if_else()` for simple logic
+* Using `case_when()` for more complex logic  
+
+
+
+### Simple logic {.unnumbered}  
+
+
+#### `replace()` {.unnumbered}  
+
+To re-code with simple logical criteria, you can use `replace()` within `mutate()`. `replace()` is a function from **base** R. Use a logic condition to specify the rows to change . The general syntax is:  
+
+`mutate(col_to_change = replace(col_to_change, criteria for rows, new value))`.  
+
+One common situation to use `replace()` is **changing just one value in one row, using an unique row identifier**. Below, the gender is changed to "Female" in the row where the column `case_id` is "2195".  
+
+```{r, eval=F}
+# Example: change gender of one specific observation to "Female" 
+linelist <- linelist %>% 
+  mutate(gender = replace(gender, case_id == "2195", "Female"))
+```
+
+The equivalent command using **base** R syntax and indexing brackets `[ ]` is below. It reads as "Change the value of the dataframe `linelist`'s column `gender` (for the rows where `linelist`'s column `case_id` has the value  '2195') to 'Female' ".   
+
+```{r, eval=F}
+linelist$gender[linelist$case_id == "2195"] <- "Female"
+```
+
+
+
+
+#### `ifelse()` and `if_else()` {.unnumbered}  
+
+Another tool for simple logic is `ifelse()` and its partner `if_else()`. However, in most cases for re-coding it is more clear to use `case_when()` (detailed below). These "if else" commands are simplified versions of an `if` and `else` programming statement. The general syntax is:  
+`ifelse(condition, value to return if condition evaluates to TRUE, value to return if condition evaluates to FALSE)` 
+
+Below, the column `source_known` is defined. Its value in a given row is set to "known" if the row's value in column `source` is *not* missing. If the value in `source` *is* missing, then the value in `source_known` is set to "unknown".  
+
+```{r, eval=F}
+linelist <- linelist %>% 
+  mutate(source_known = ifelse(!is.na(source), "known", "unknown"))
+```
+
+`if_else()` is a special version from **dplyr** that handles dates. Note that if the 'true' value is a date, the 'false' value must also qualify a date, hence using the special value `NA_real_` instead of just `NA`.
+
+```{r, eval=F}
+# Create a date of death column, which is NA if patient has not died.
+linelist <- linelist %>% 
+  mutate(date_death = if_else(outcome == "Death", date_outcome, NA_real_))
+```
+
+**Avoid stringing together many ifelse commands... use `case_when()` instead!** `case_when()` is much easier to read and you'll make fewer errors.  
+
+```{r, fig.align = "center", out.width = "100%", echo=F}
+knitr::include_graphics(here::here("images", "ifelse bad.png"))
+```
+
+Outside of the context of a data frame, if you want to have an object used in your code switch its value, consider using `switch()` from **base** R.  
+
+
+
+
+### Complex logic {#clean_case_when .unnumbered}  
+
+Use **dplyr**'s `case_when()` if you are re-coding into many new groups, or if you need to use complex logic statements to re-code values. This function evaluates every row in the data frame, assess whether the rows meets specified criteria, and assigns the correct new value.  
+
+`case_when()` commands consist of statements that have a Right-Hand Side (RHS) and a Left-Hand Side (LHS) separated by a "tilde" `~`. The logic criteria are in the left side and the pursuant values are in the right side of each statement. Statements are separated by commas.  
+
+For example, here we utilize the columns `age` and `age_unit` to create a column `age_years`:  
+
+
+```{r}
+linelist <- linelist %>% 
+  mutate(age_years = case_when(
+            age_unit == "years"  ~ age,       # if age is given in years
+            age_unit == "months" ~ age/12,    # if age is given in months
+            is.na(age_unit)      ~ age,       # if age unit is missing, assume years
+            TRUE                 ~ NA_real_)) # any other circumstance, assign missing
+```
+
+
+As each row in the data is evaluated, the criteria are applied/evaluated in the order the `case_when()` statements are written - from top-to-bottom. If the top criteria evaluates to `TRUE` for a given row, the RHS value is assigned, and the remaining criteria are not even tested for that row. Thus, it is best to write the most specific criteria first, and the most general last.  
+
+Along those lines, in your final statement, place `TRUE` on the left-side, which will capture any row that did not meet any of the previous criteria. The right-side of this statement could be assigned a value like "check me!" or missing.  
+
+
+<span style="color: red;">**_DANGER:_** **Vvalues on the right-side must all be the same class** - either numeric, character, date, logical, etc. To assign missing (`NA`), you may need to use special variations of `NA` such as `NA_character_`, `NA_real_` (for numeric or POSIX), and `as.Date(NA)`. Read more in [Working with dates].</span>  
+
+
+
+
+### Missing values {.unnumbered} 
+
+Below are special functions for handling missing values in the context of data cleaning.  
+
+See the page on [Missing data] for more detailed tips on identifying and handling missing values. For example, the `is.na()` function which logically tests for missingness.  
+
+
+**`replace_na()`**  
+
+To change missing values (`NA`) to a specific value, such as "Missing", use the **dplyr** function `replace_na()` within `mutate()`. Note that this is used in the same manner as `recode` above - the name of the variable must be repeated within `replace_na()`.  
+
+```{r}
+linelist <- linelist %>% 
+  mutate(hospital = replace_na(hospital, "Missing"))
+```
+
+
+**fct_explicit_na()**  
+
+This is a function from the **forcats** package. The **forcats** package handles columns of class Factor. Factors are R's way to handle *ordered* values such as `c("First", "Second", "Third")` or to set the order that values (e.g. hospitals) appear in tables and plots. See the page on [Factors].  
+
+If your data are class Factor and you try to convert `NA` to "Missing" by using `replace_na()`, you will get this error: `invalid factor level, NA generated`. You have tried to add "Missing" as a value, when it was not defined as a possible level of the factor, and it was rejected.  
+
+The easiest way to solve this is to use the **forcats** function `fct_explicit_na()` which converts a column to class factor, and converts `NA` values to the character "(Missing)".  
+
+```{r, eval=F}
+linelist %>% 
+  mutate(hospital = fct_explicit_na(hospital))
+```
+
+A slower alternative would be to add the factor level using `fct_expand()` and then convert the missing values.  
+
+**`na_if()`**  
+
+To convert a *specific value to* `NA`, use **dplyr**'s `na_if()`. The command below performs the opposite operation of `replace_na()`. In the example below, any values of "Missing" in the column `hospital` are converted to `NA`.  
+
+```{r}
+linelist <- linelist %>% 
+  mutate(hospital = na_if(hospital, "Missing"))
+```
+
+Note: `na_if()` **cannot be used for logic criteria** (e.g. "all values > 99") - use `replace()` or `case_when()` for this:  
+
+```{r, eval=F}
+# Convert temperatures above 40 to NA 
+linelist <- linelist %>% 
+  mutate(temp = replace(temp, temp > 40, NA))
+
+# Convert onset dates earlier than 1 Jan 2000 to missing
+linelist <- linelist %>% 
+  mutate(date_onset = replace(date_onset, date_onset > as.Date("2000-01-01"), NA))
+```
+
+
+
+
+### Cleaning dictionary {.unnumbered}
+
+Use the R package **linelist** and it's function `clean_variable_spelling()` to clean a data frame with a *cleaning dictionary*. **linelist** is a package developed by [RECON](https://github.com/reconhub/linelist) - the R Epidemics Consortium.  
+
+1) Create a cleaning dictionary with 3 columns:  
+    * A "from" column (the incorrect value)  
+    * A "to" column (the correct value)  
+    * A column specifying the column for the changes to be applied (or ".global" to apply to all columns)  
+
+Note: .global dictionary entries will be overridden by column-specific dictionary entries.  
+
+```{r, fig.align = "center", out.width = "100%", echo=F}
+knitr::include_graphics(here::here("images", "cleaning_dict.png"))
+```
+
+
+2) Import the dictionary file into R. This example can be downloaded via instructions on the [Download handbook and data] page.  
+
+```{r, echo=F}
+cleaning_dict <- rio::import(here("data", "case_linelists", "cleaning_dict.csv"))
+```
+
+```{r, eval=F}
+cleaning_dict <- import("cleaning_dict.csv")
+```
+
+3) Pass the raw linelist to `clean_variable_spelling()`, specifying to `wordlists = ` the cleaning dictionary data frame. The `spelling_vars = ` argument can be used to specify which column in the dictionary refers to the columns (3rd by default), or can be set to `NULL` to have the dictionary apply to all character and factor columns. Note this function can take a long time to run.  
+
+```{r}
+linelist <- linelist %>% 
+  linelist::clean_variable_spelling(
+    wordlists = cleaning_dict,
+    spelling_vars = "col",        # dict column containing column names, defaults to 3rd column in dict
+  )
+```
+
+Now scroll to the right to see how values have changed - particularly `gender` (lowercase to uppercase), and all the symptoms columns have been transformed from yes/no to 1/0.  
+
+```{r message=FALSE, echo=F}
+# display the linelist data as a table
+DT::datatable(head(linelist,50), rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
+```
+
+
+Note that your column names in the cleaning dictionary must correspond to the names *at this point* in your cleaning script. See this [online reference for the linelist package](https://www.repidemicsconsortium.org/linelist/reference/clean_data.html) for more details.
+
+
+
+
+
+#### Add to pipe chain {.unnumbered}  
+
+**Below, some new columns and column transformations are added to the pipe chain.**  
+
+```{r}
+# CLEANING 'PIPE' CHAIN (starts with raw data and pipes it through cleaning steps)
+##################################################################################
+
+# begin cleaning pipe chain
+###########################
+linelist <- linelist_raw %>%
+    
+    # standardize column name syntax
+    janitor::clean_names() %>% 
+    
+    # manually re-name columns
+           # NEW name             # OLD name
+    rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome) %>% 
+    
+    # remove column
+    select(-c(row_num, merged_header, x28)) %>% 
+  
+    # de-duplicate
+    distinct() %>% 
+  
+    # add column
+    mutate(bmi = wt_kg / (ht_cm/100)^2) %>%     
+
+    # convert class of columns
+    mutate(across(contains("date"), as.Date), 
+           generation = as.numeric(generation),
+           age        = as.numeric(age)) %>% 
+    
+    # add column: delay to hospitalisation
+    mutate(days_onset_hosp = as.numeric(date_hospitalisation - date_onset)) %>% 
+    
+   # ABOVE ARE UPSTREAM CLEANING STEPS ALREADY DISCUSSED
+   ###################################################
+
+    # clean values of hospital column
+    mutate(hospital = recode(hospital,
+                      # OLD = NEW
+                      "Mitylira Hopital"  = "Military Hospital",
+                      "Mitylira Hospital" = "Military Hospital",
+                      "Military Hopital"  = "Military Hospital",
+                      "Port Hopital"      = "Port Hospital",
+                      "Central Hopital"   = "Central Hospital",
+                      "other"             = "Other",
+                      "St. Marks Maternity Hopital (SMMH)" = "St. Mark's Maternity Hospital (SMMH)"
+                      )) %>% 
+    
+    mutate(hospital = replace_na(hospital, "Missing")) %>% 
+
+    # create age_years column (from age and age_unit)
+    mutate(age_years = case_when(
+          age_unit == "years" ~ age,
+          age_unit == "months" ~ age/12,
+          is.na(age_unit) ~ age,
+          TRUE ~ NA_real_))
+```
+
+
+
+
+
+
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+## Numeric categories {#num_cats}
+
+
+Here we describe some special approaches for creating categories from numerical columns. Common examples include age categories, groups of lab values, etc. Here we will discuss:  
+
+* `age_categories()`, from the **epikit** package  
+* `cut()`, from **base** R  
+* `case_when()`  
+* quantile breaks with `quantile()` and `ntile()` 
+
+
+### Review distribution {.unnumbered}
+
+For this example we will create an `age_cat` column using the `age_years` column.  
+
+```{r}
+#check the class of the linelist variable age
+class(linelist$age_years)
+```
+
+First, examine the distribution of your data, to make appropriate cut-points. See the page on [ggplot basics].  
+
+```{r, out.height='50%'}
+# examine the distribution
+hist(linelist$age_years)
+```
+
+```{r}
+summary(linelist$age_years, na.rm=T)
+```
+
+<span style="color: orange;">**_CAUTION:_** Sometimes, numeric variables will import as class "character". This occurs if there are non-numeric characters in some of the values, for example an entry of "2 months" for age, or (depending on your R locale settings) if a comma is used in the decimals place (e.g. "4,5" to mean four and one half years)..</span>
+
+
+<!-- ======================================================= -->
+### `age_categories()` {.unnumbered}
+
+With the **epikit** package, you can use the `age_categories()` function to easily categorize and label numeric columns (note: this function can be applied to non-age numeric variables too). As a bonum, the output column is automatically an ordered factor.  
+
+Here are the required inputs:  
+
+* A numeric vector (column)  
+* The `breakers = ` argument - provide a numeric vector of break points for the new groups  
+
+First, the simplest example:  
+
+```{r}
+# Simple example
+################
+pacman::p_load(epikit)                    # load package
+
+linelist <- linelist %>% 
+  mutate(
+    age_cat = age_categories(             # create new column
+      age_years,                            # numeric column to make groups from
+      breakers = c(0, 5, 10, 15, 20,        # break points
+                   30, 40, 50, 60, 70)))
+
+# show table
+table(linelist$age_cat, useNA = "always")
+```
+
+The break values you specify are by default the lower bounds - that is, they are included in the "higher" group / the groups are "open" on the lower/left side. As shown below, you can add 1 to each break value to achieve groups that are open at the top/right.
+ 
+```{r}
+# Include upper ends for the same categories
+############################################
+linelist <- linelist %>% 
+  mutate(
+    age_cat = age_categories(
+      age_years, 
+      breakers = c(0, 6, 11, 16, 21, 31, 41, 51, 61, 71)))
+
+# show table
+table(linelist$age_cat, useNA = "always")
+```
+
+
+You can adjust how the labels are displayed with `separator = `. The default is "-"  
+
+You can adjust how the top numbers are handled, with the `ceiling = ` arguemnt. To set an upper cut-off set `ceiling = TRUE`. In this use, the highest break value provided is a "ceiling" and a category "XX+" is not created. Any values above highest break value (or to `upper = `, if defined) are categorized as `NA`. Below is an example with `ceiling = TRUE`, so that there is no category of XX+ and values above 70 (the highest break value) are assigned as NA.  
+
+```{r}
+# With ceiling set to TRUE
+##########################
+linelist <- linelist %>% 
+  mutate(
+    age_cat = age_categories(
+      age_years, 
+      breakers = c(0, 5, 10, 15, 20, 30, 40, 50, 60, 70),
+      ceiling = TRUE)) # 70 is ceiling, all above become NA
+
+# show table
+table(linelist$age_cat, useNA = "always")
+```
+
+Alternatively, instead of `breakers = `, you can provide all of `lower = `, `upper = `, and `by = `:  
+
+* `lower = ` The lowest number you want considered - default is 0  
+* `upper = ` The highest number you want considered  
+* `by = `    The number of years between groups  
+
+```{r}
+linelist <- linelist %>% 
+  mutate(
+    age_cat = age_categories(
+      age_years, 
+      lower = 0,
+      upper = 100,
+      by = 10))
+
+# show table
+table(linelist$age_cat, useNA = "always")
+```
+
+
+See the function's Help page for more details (enter `?age_categories` in the R console). 
+
+
+<!-- ======================================================= -->
+### `cut()` {.unnumbered}
+
+`cut()` is a **base** R alternative to `age_categories()`, but I think you will see why `age_categories()` was developed to simplify this process. Some notable differences from `age_categories()` are:  
+
+* You do not need to install/load another package  
+* You can specify whether groups are open/closed on the right/left  
+* You must provide accurate labels yourself  
+* If you want 0 included in the lowest group you must specify this  
+
+The basic syntax within `cut()` is to first provide the numeric column to be cut (`age_years`), and then the *breaks* argument, which is a numeric vector `c()` of break points. Using `cut()`, the resulting column is an ordered factor.  
+
+By default, the categorization occurs so that the right/upper side is "open" and inclusive (and the left/lower side is "closed" or exclusive). This is the opposite behavior from the `age_categories()` function. The default labels use the notation "(A, B]", which means A is not included but B is. **Reverse this behavior by providing the `right = TRUE` argument**.   
+
+Thus, by default, "0" values are excluded from the lowest group, and categorized as `NA`! "0" values could be infants coded as age 0 so be careful! To change this, add the argument `include.lowest = TRUE` so that any "0" values will be included in the lowest group. The automatically-generated label for the lowest category will then be "[A],B]". Note that if you include the `include.lowest = TRUE` argument **and** `right = TRUE`, the extreme inclusion will now apply to the *highest* break point value and category, not the lowest.  
+
+You can provide a vector of customized labels using the `labels = ` argument. As these are manually written, be very careful to ensure they are accurate! Check your work using cross-tabulation, as described below. 
+
+An example of `cut()` applied to `age_years` to make the new variable `age_cat` is below:  
+
+```{r}
+# Create new variable, by cutting the numeric age variable
+# lower break is excluded but upper break is included in each category
+linelist <- linelist %>% 
+  mutate(
+    age_cat = cut(
+      age_years,
+      breaks = c(0, 5, 10, 15, 20,
+                 30, 50, 70, 100),
+      include.lowest = TRUE         # include 0 in lowest group
+      ))
+
+# tabulate the number of observations per group
+table(linelist$age_cat, useNA = "always")
+```
+
+
+**Check your work!!!** Verify that each age value was assigned to the correct category by cross-tabulating the numeric and category columns. Examine assignment of boundary values (e.g. 15, if neighboring categories are 10-15 and 16-20).  
+
+```{r}
+# Cross tabulation of the numeric and category columns. 
+table("Numeric Values" = linelist$age_years,   # names specified in table for clarity.
+      "Categories"     = linelist$age_cat,
+      useNA = "always")                        # don't forget to examine NA values
+```
+
+
+
+
+
+**Re-labeling `NA` values**
+
+You may want to assign `NA` values a label such as "Missing". Because the new column is class Factor (restricted values), you cannot simply mutate it with `replace_na()`, as this value will be rejected. Instead, use `fct_explicit_na()` from **forcats** as explained in the [Factors] page.   
+
+```{r}
+linelist <- linelist %>% 
+  
+  # cut() creates age_cat, automatically of class Factor      
+  mutate(age_cat = cut(
+    age_years,
+    breaks = c(0, 5, 10, 15, 20, 30, 50, 70, 100),          
+    right = FALSE,
+    include.lowest = TRUE,        
+    labels = c("0-4", "5-9", "10-14", "15-19", "20-29", "30-49", "50-69", "70-100")),
+         
+    # make missing values explicit
+    age_cat = fct_explicit_na(
+      age_cat,
+      na_level = "Missing age")  # you can specify the label
+  )    
+
+# table to view counts
+table(linelist$age_cat, useNA = "always")
+```
+
+**Quickly make breaks and labels**  
+
+For a fast way to make breaks and label vectors, use something like below. See the [R basics] page for references on `seq()` and `rep()`.  
+
+```{r, eval=F}
+# Make break points from 0 to 90 by 5
+age_seq = seq(from = 0, to = 90, by = 5)
+age_seq
+
+# Make labels for the above categories, assuming default cut() settings
+age_labels = paste0(age_seq + 1, "-", age_seq + 5)
+age_labels
+
+# check that both vectors are the same length
+length(age_seq) == length(age_labels)
+```
+
+
+Read more about `cut()` in its Help page by entering `?cut` in the R console.  
+
+
+
+
+### Quantile breaks {.unnumbered}  
+
+In common understanding, "quantiles" or "percentiles" typically refer to a value below which a proportion of values fall. For example, the 95th percentile of ages in `linelist` would be the age below which 95% of the age fall.  
+
+However in common speech, "quartiles" and "deciles" can also refer to the *groups of data* as equally divided into 4, or 10 groups (note there will be one more break point than group).    
+
+To get quantile break points, you can use `quantile()` from the **stats** package from **base** R. You provide a numeric vector (e.g. a column in a dataset) and vector of numeric probability values ranging from 0 to 1.0. The break points are returned as a numeric vector. Explore the details of the statistical methodologies by entering `?quantile`.  
+
+* If your input numeric vector has any missing values it is best to set `na.rm = TRUE`  
+* Set `names = FALSE` to get an un-named numeric vector  
+
+```{r}
+quantile(linelist$age_years,               # specify numeric vector to work on
+  probs = c(0, .25, .50, .75, .90, .95),   # specify the percentiles you want
+  na.rm = TRUE)                            # ignore missing values 
+```
+
+You can use the results of `quantile()` as break points in `age_categories()` or `cut()`. Below we create a new column `deciles` using `cut()` where the breaks are defined using `quantiles()` on `age_years`. Below, we display the results using `tabyl()` from **janitor** so you can see the percentages (see the [Descriptive tables] page). Note how they are not exactly 10% in each group.  
+
+```{r}
+linelist %>%                                # begin with linelist
+  mutate(deciles = cut(age_years,           # create new column decile as cut() on column age_years
+    breaks = quantile(                      # define cut breaks using quantile()
+      age_years,                               # operate on age_years
+      probs = seq(0, 1, by = 0.1),             # 0.0 to 1.0 by 0.1
+      na.rm = TRUE),                           # ignore missing values
+    include.lowest = TRUE)) %>%             # for cut() include age 0
+  janitor::tabyl(deciles)                   # pipe to table to display
+```
+
+### Evenly-sized groups {.unnumbered}  
+
+Another tool to make numeric groups is the the **dplyr** function `ntile()`, which attempts to break your data into n *evenly-sized groups* - *but be aware that unlike with `quantile()` the same value could appear in more than one group.* Provide the numeric vector and then the number of groups. The values in the new column created is just group "numbers" (e.g. 1 to 10), not the range of values themselves as when using `cut()`.  
+
+```{r}
+# make groups with ntile()
+ntile_data <- linelist %>% 
+  mutate(even_groups = ntile(age_years, 10))
+
+# make table of counts and proportions by group
+ntile_table <- ntile_data %>% 
+  janitor::tabyl(even_groups)
+  
+# attach min/max values to demonstrate ranges
+ntile_ranges <- ntile_data %>% 
+  group_by(even_groups) %>% 
+  summarise(
+    min = min(age_years, na.rm=T),
+    max = max(age_years, na.rm=T)
+  )
+
+# combine and print - note that values are present in multiple groups
+left_join(ntile_table, ntile_ranges, by = "even_groups")
+```
+
+
+<!-- ======================================================= -->
+### `case_when()` { .unnumbered}
+
+It is possible to use the **dplyr** function `case_when()` to create categories from a numeric column, but it is easier to use `age_categories()` from **epikit** or `cut()` because these will create an ordered factor automatically. 
+
+If using `case_when()`, please review the proper use as described earlier in the Re-code values section of this page. Also be aware that all right-hand side values must be of the same class. Thus, if you want `NA` on the right-side you should either write "Missing" or use the special `NA` value `NA_character_`.  
+
+
+### Add to pipe chain {.unnumbered}  
+
+Below, code to create two categorical age columns is added to the cleaning pipe chain:  
+
+```{r}
+# CLEANING 'PIPE' CHAIN (starts with raw data and pipes it through cleaning steps)
+##################################################################################
+
+# begin cleaning pipe chain
+###########################
+linelist <- linelist_raw %>%
+    
+    # standardize column name syntax
+    janitor::clean_names() %>% 
+    
+    # manually re-name columns
+           # NEW name             # OLD name
+    rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome) %>% 
+    
+    # remove column
+    select(-c(row_num, merged_header, x28)) %>% 
+  
+    # de-duplicate
+    distinct() %>% 
+
+    # add column
+    mutate(bmi = wt_kg / (ht_cm/100)^2) %>%     
+
+    # convert class of columns
+    mutate(across(contains("date"), as.Date), 
+           generation = as.numeric(generation),
+           age        = as.numeric(age)) %>% 
+    
+    # add column: delay to hospitalisation
+    mutate(days_onset_hosp = as.numeric(date_hospitalisation - date_onset)) %>% 
+    
+    # clean values of hospital column
+    mutate(hospital = recode(hospital,
+                      # OLD = NEW
+                      "Mitylira Hopital"  = "Military Hospital",
+                      "Mitylira Hospital" = "Military Hospital",
+                      "Military Hopital"  = "Military Hospital",
+                      "Port Hopital"      = "Port Hospital",
+                      "Central Hopital"   = "Central Hospital",
+                      "other"             = "Other",
+                      "St. Marks Maternity Hopital (SMMH)" = "St. Mark's Maternity Hospital (SMMH)"
+                      )) %>% 
+    
+    mutate(hospital = replace_na(hospital, "Missing")) %>% 
+
+    # create age_years column (from age and age_unit)
+    mutate(age_years = case_when(
+          age_unit == "years" ~ age,
+          age_unit == "months" ~ age/12,
+          is.na(age_unit) ~ age,
+          TRUE ~ NA_real_)) %>% 
+  
+    # ABOVE ARE UPSTREAM CLEANING STEPS ALREADY DISCUSSED
+    ###################################################   
+    mutate(
+          # age categories: custom
+          age_cat = epikit::age_categories(age_years, breakers = c(0, 5, 10, 15, 20, 30, 50, 70)),
+        
+          # age categories: 0 to 85 by 5s
+          age_cat5 = epikit::age_categories(age_years, breakers = seq(0, 85, 5)))
+```
+
+
+
+
+
+
+
+
+<!-- ======================================================= -->
+## Add rows  
+
+### One-by-one {.unnumbered}  
+
+Adding rows one-by-one manually is tedious but can be done with `add_row()` from **dplyr**. Remember that each column must contain values of only one class (either character, numeric, logical, etc.). So adding a row requires nuance to maintain this. 
+
+```{r, eval=F}
+linelist <- linelist %>% 
+  add_row(row_num = 666,
+          case_id = "abc",
+          generation = 4,
+          `infection date` = as.Date("2020-10-10"),
+          .before = 2)
+```
+
+Use `.before` and `.after.` to specify the placement of the row you want to add. `.before = 3` will put the new row before the current 3rd row. The default behavior is to add the row to the end. Columns not specified will be left empty (`NA`).  
+
+The new *row number* may look strange ("...23") but the row numbers in the pre-existing rows *have* changed. So if using the command twice, examine/test the insertion carefully.
+
+If a class you provide is off you will see an error like this:  
+
+```
+Error: Can't combine ..1$infection date <date> and ..2$infection date <character>.
+```
+
+(when inserting a row with a date value, remember to wrap the date in the function `as.Date()` like `as.Date("2020-10-10")`).
+
+
+### Bind rows {.unnumbered}  
+
+To combine datasets together by binding the rows of one dataframe to the bottom of another data frame, you can use `bind_rows()` from **dplyr**. This is explained in more detail in the page [Joining data].  
+
+
+
+
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+## Filter rows {  }
+
+
+A typical cleaning step after you have cleaned the columns and re-coded values is to *filter* the data frame for specific rows using the **dplyr** verb `filter()`.  
+
+Within `filter()`, specify the logic that must be `TRUE` for a row in the dataset to be kept. Below we show how to filter rows based on simple and complex logical conditions.  
+
+
+
+<!-- ======================================================= -->
+### Simple filter {.unnumbered} 
+
+This simple example re-defines the dataframe `linelist` as itself, having filtered the rows to meet a logical condition. **Only the rows where the logical statement within the parentheses evaluates to `TRUE` are kept.**  
+
+In this example, the logical statement is `gender == "f"`, which is asking whether the value in the column `gender` is equal to "f" (case sensitive).   
+
+Before the filter is applied, the number of rows in `linelist` is ` nrow(linelist)`.
+
+```{r, eval=F}
+linelist <- linelist %>% 
+  filter(gender == "f")   # keep only rows where gender is equal to "f"
+```
+
+After the filter is applied, the number of rows in `linelist` is ` linelist %>% filter(gender == "f") %>% nrow()`.
+
+
+### Filter out missing values {.unnumbered}  
+
+It is fairly common to want to filter out rows that have missing values. Resist the urge to write `filter(!is.na(column) & !is.na(column))` and instead use the **tidyr** function that is custom-built for this purpose: `drop_na()`. If run with empty parentheses, it removes rows with *any* missing values. Alternatively, you can provide names of specific columns to be evaluated for missingness, or use the "tidyselect" helper functions described [above](#clean_tidyselect).  
+
+```{r, eval=F}
+linelist %>% 
+  drop_na(case_id, age_years)  # drop rows with missing values for case_id or age_years
+```
+
+See the page on [Missing data] for many techniques to analyse and manage missingness in your data. 
+
+
+
+
+### Filter by row number {.unnumbered}  
+
+In a data frame or tibble, each row will usually have a "row number" that (when seen in R Viewer) appears to the left of the first column. It is not itself a true column in the data, but it can be used in a `filter()` statement.  
+
+To filter based on "row number", you can use the **dplyr** function `row_number()` with open parentheses as part of a logical filtering statement. Often you will use the `%in%` operator and a range of numbers as part of that logical statement, as shown below. To see the *first* N rows, you can also use the special **dplyr** function `head()`.   
+
+```{r, eval=F}
+# View first 100 rows
+linelist %>% head(100)     # or use tail() to see the n last rows
+
+# Show row 5 only
+linelist %>% filter(row_number() == 5)
+
+# View rows 2 through 20, and three specific columns
+linelist %>% filter(row_number() %in% 2:20) %>% select(date_onset, outcome, age)
+```
+
+You can also convert the row numbers to a true column by piping your data frame to the **tibble** function `rownames_to_column()` (do not put anything in the parentheses).  
+
+
+<!-- ======================================================= -->
+### Complex filter {.unnumbered} 
+
+More complex logical statements can be constructed using parentheses `( )`, OR `|`, negate `!`, `%in%`, and AND `&` operators. An example is below:  
+
+
+Note: You can use the `!` operator in front of a logical criteria to negate it. For example, `!is.na(column)` evaluates to true if the column value is *not* missing. Likewise `!column %in% c("a", "b", "c")` evaluates to true if the column value is *not* in the vector.  
+
+
+#### Examine the data  {.unnumbered}  
+
+Below is a simple one-line command to create a histogram of onset dates. See that a second smaller outbreak from 2012-2013 is also included in this raw dataset. **For our analyses, we want to remove entries from this earlier outbreak.**  
+
+```{r, out.width = "50%"}
+hist(linelist$date_onset, breaks = 50)
+```
+
+
+#### How filters handle missing numeric and date values {.unnumbered}  
+
+Can we just filter by `date_onset` to rows after June 2013? **Caution! Applying the code `filter(date_onset > as.Date("2013-06-01")))` would remove any rows in the later epidemic with a missing date of onset!**  
+
+<span style="color: red;">**_DANGER:_** Filtering to greater than (>) or less than (<) a date or number can remove any rows with missing values (`NA`)! This is because `NA` is treated as infinitely large and small.</span>
+
+*(See the page on [Working with dates] for more information on working with dates and the package **lubridate**)*
+
+#### Design the filter {.unnumbered}  
+
+Examine a cross-tabulation to make sure we exclude only the correct rows:  
+
+
+```{r}
+table(Hospital  = linelist$hospital,                     # hospital name
+      YearOnset = lubridate::year(linelist$date_onset),  # year of date_onset
+      useNA     = "always")                              # show missing values
+```
+
+What other criteria can we filter on to remove the first outbreak (in 2012 & 2013) from the dataset? We see that:  
+
+* The first epidemic  in 2012 & 2013 occurred at Hospital A, Hospital B, and that there were also 10 cases at Port Hospital.  
+* Hospitals A & B did *not* have cases in the second epidemic, but Port Hospital did.  
+
+We want to exclude:  
+
+* The ` nrow(linelist %>% filter(hospital %in% c("Hospital A", "Hospital B") | date_onset < as.Date("2013-06-01")))` rows with onset in 2012 and 2013 at either hospital A, B, or Port:  
+  * Exclude ` nrow(linelist %>% filter(date_onset < as.Date("2013-06-01")))` rows with onset in 2012 and 2013
+  * Exclude ` nrow(linelist %>% filter(hospital %in% c('Hospital A', 'Hospital B') & is.na(date_onset)))` rows from Hospitals A & B with missing onset dates  
+  * Do **not** exclude ` nrow(linelist %>% filter(!hospital %in% c('Hospital A', 'Hospital B') & is.na(date_onset)))` other rows with missing onset dates.  
+
+We start with a linelist of ` `nrow(linelist)`. Here is our filter statement:  
+
+```{r}
+linelist <- linelist %>% 
+  # keep rows where onset is after 1 June 2013 OR where onset is missing and it was a hospital OTHER than Hospital A or B
+  filter(date_onset > as.Date("2013-06-01") | (is.na(date_onset) & !hospital %in% c("Hospital A", "Hospital B")))
+
+nrow(linelist)
+```
+
+When we re-make the cross-tabulation, we see that Hospitals A & B are removed completely, and the 10 Port Hospital cases from 2012 & 2013 are removed, and all other values are the same - just as we wanted.  
+ 
+```{r}
+table(Hospital  = linelist$hospital,                     # hospital name
+      YearOnset = lubridate::year(linelist$date_onset),  # year of date_onset
+      useNA     = "always")                              # show missing values
+```
+
+Multiple statements can be included within one filter command (separated by commas), or you can always pipe to a separate filter() command for clarity.  
+
+
+*Note: some readers may notice that it would be easier to just filter by `date_hospitalisation` because it is 100% complete with no missing values. This is true. But `date_onset` is used for purposes of demonstrating a complex filter.* 
+
+
+
+
+### Standalone {.unnumbered}  
+
+Filtering can also be done as a stand-alone command (not part of a pipe chain). Like other **dplyr** verbs, in this case the first argument must be the dataset itself.  
+
+```{r, eval=F}
+# dataframe <- filter(dataframe, condition(s) for rows to keep)
+
+linelist <- filter(linelist, !is.na(case_id))
+```
+
+You can also use **base** R to subset using square brackets which reflect the [rows, columns] that you want to retain.  
+
+```{r, eval=F}
+# dataframe <- dataframe[row conditions, column conditions] (blank means keep all)
+
+linelist <- linelist[!is.na(case_id), ]
+```
+
+
+
+
+
+### Quickly review records {.unnumbered} 
+
+Often you want to quickly review a few records, for only a few columns. The **base** R function `View()` will print a data frame for viewing in your RStudio. 
+
+View the linelist in RStudio:  
+
+```{r, eval=F}
+View(linelist)
+```
+
+Here are two examples of viewing specific cells (specific rows, and specific columns):  
+
+
+**With dplyr functions `filter()` and `select()`:**  
+
+Within `View()`, pipe the dataset to `filter()` to keep certain rows, and then to `select()` to keep certain columns. For example, to review onset and hospitalization dates of 3 specific cases:   
+
+```{r, eval=F}
+View(linelist %>%
+       filter(case_id %in% c("11f8ea", "76b97a", "47a5f5")) %>%
+       select(date_onset, date_hospitalisation))
+```
+
+
+You can achieve the same with **base** R syntax, using brackets `[ ]` to subset you want to see. 
+
+```{r, eval=F}
+View(linelist[linelist$case_id %in% c("11f8ea", "76b97a", "47a5f5"), c("date_onset", "date_hospitalisation")])
+```
+
+
+
+
+
+#### Add to pipe chain {.unnumbered}  
+
+
+```{r}
+# CLEANING 'PIPE' CHAIN (starts with raw data and pipes it through cleaning steps)
+##################################################################################
+
+# begin cleaning pipe chain
+###########################
+linelist <- linelist_raw %>%
+    
+    # standardize column name syntax
+    janitor::clean_names() %>% 
+    
+    # manually re-name columns
+           # NEW name             # OLD name
+    rename(date_infection       = infection_date,
+           date_hospitalisation = hosp_date,
+           date_outcome         = date_of_outcome) %>% 
+    
+    # remove column
+    select(-c(row_num, merged_header, x28)) %>% 
+  
+    # de-duplicate
+    distinct() %>% 
+
+    # add column
+    mutate(bmi = wt_kg / (ht_cm/100)^2) %>%     
+
+    # convert class of columns
+    mutate(across(contains("date"), as.Date), 
+           generation = as.numeric(generation),
+           age        = as.numeric(age)) %>% 
+    
+    # add column: delay to hospitalisation
+    mutate(days_onset_hosp = as.numeric(date_hospitalisation - date_onset)) %>% 
+    
+    # clean values of hospital column
+    mutate(hospital = recode(hospital,
+                      # OLD = NEW
+                      "Mitylira Hopital"  = "Military Hospital",
+                      "Mitylira Hospital" = "Military Hospital",
+                      "Military Hopital"  = "Military Hospital",
+                      "Port Hopital"      = "Port Hospital",
+                      "Central Hopital"   = "Central Hospital",
+                      "other"             = "Other",
+                      "St. Marks Maternity Hopital (SMMH)" = "St. Mark's Maternity Hospital (SMMH)"
+                      )) %>% 
+    
+    mutate(hospital = replace_na(hospital, "Missing")) %>% 
+
+    # create age_years column (from age and age_unit)
+    mutate(age_years = case_when(
+          age_unit == "years" ~ age,
+          age_unit == "months" ~ age/12,
+          is.na(age_unit) ~ age,
+          TRUE ~ NA_real_)) %>% 
+  
+    mutate(
+          # age categories: custom
+          age_cat = epikit::age_categories(age_years, breakers = c(0, 5, 10, 15, 20, 30, 50, 70)),
+        
+          # age categories: 0 to 85 by 5s
+          age_cat5 = epikit::age_categories(age_years, breakers = seq(0, 85, 5))) %>% 
+    
+    # ABOVE ARE UPSTREAM CLEANING STEPS ALREADY DISCUSSED
+    ###################################################
+    filter(
+          # keep only rows where case_id is not missing
+          !is.na(case_id),  
+          
+          # also filter to keep only the second outbreak
+          date_onset > as.Date("2013-06-01") | (is.na(date_onset) & !hospital %in% c("Hospital A", "Hospital B")))
+```
+
+
+
+
+
+
+
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+<!-- ======================================================= -->
+## Row-wise calculations  
+
+If you want to perform a calculation within a row, you can use `rowwise()` from **dplyr**. See this online vignette on [row-wise calculations](https://cran.r-project.org/web/packages/dplyr/vignettes/rowwise.html).  
+For example, this code applies `rowwise()` and then creates a new column that sums the number of the specified symptom columns that have value "yes", for each row in the linelist. The columns are specified within `sum()` by name within a vector `c()`. `rowwise()` is essentially a special kind of `group_by()`, so it is best to use `ungroup()` when you are done (page on [Grouping data]).  
+
+```{r,}
+linelist %>%
+  rowwise() %>%
+  mutate(num_symptoms = sum(c(fever, chills, cough, aches, vomit) == "yes")) %>% 
+  ungroup() %>% 
+  select(fever, chills, cough, aches, vomit, num_symptoms) # for display
+```
+
+  
+As you specify the column to evaluate, you may want to use the  "tidyselect" helper functions described in the `select()` section of this page. You just have to make one adjustment (because you are not using them within a **dplyr** function like `select()` or `summarise()`).  
+
+Put the column-specification criteria within the **dplyr** function `c_across()`. This is because `c_across` ([documentation](https://dplyr.tidyverse.org/reference/c_across.html)) is designed to work with `rowwise()` specifically. For example, the following code:  
+
+* Applies `rowwise()` so the following operation (`sum()`) is applied within each row (not summing entire columns)  
+* Creates new column `num_NA_dates`, defined for each row as the number of columns (with name containing "date") for which `is.na()` evaluated to TRUE (they are missing data).  
+* `ungroup()` to remove the effects of `rowwise()` for subsequent steps  
+
+```{r,}
+linelist %>%
+  rowwise() %>%
+  mutate(num_NA_dates = sum(is.na(c_across(contains("date"))))) %>% 
+  ungroup() %>% 
+  select(num_NA_dates, contains("date")) # for display
+```
+
+You could also provide other functions, such as `max()` to get the latest or most recent date for each row:  
+
+```{r}
+linelist %>%
+  rowwise() %>%
+  mutate(latest_date = max(c_across(contains("date")), na.rm=T)) %>% 
+  ungroup() %>% 
+  select(latest_date, contains("date"))  # for display
+```
+
+
+## Arrange and sort  
+
+Use the **dplyr** function `arrange()` to sort or order the rows by column values.  
+
+Simple list the columns in the order they should be sorted on. Specify `.by_group = TRUE` if you want the sorting to to first occur by any *groupings* applied to the data (see page on [Grouping data]).  
+
+By default, column will be sorted in "ascending" order (which applies to numeric and also to character columns). You can sort a variable in "descending" order by wrapping it with `desc()`.  
+
+Sorting data with `arrange()` is particularly useful when making [Tables for presentation], using `slice()` to take the "top" rows per group, or setting factor level order by order of appearance.  
+
+For example, to sort the our linelist rows by `hospital`, then by `date_onset` in descending order, we would use:  
+
+```{r, eval=F}
+linelist %>% 
+   arrange(hospital, desc(date_onset))
+```
+
+
+```{r, echo=F}
+# HIDDEN
+#
+# convert one remaining old outbreak row to missing for ease
+linelist <- linelist %>% 
+  mutate(
+    date_hospitalisation = case_when(
+      date_hospitalisation < as.Date("2013-01-01") ~ as.Date(NA),
+      TRUE                                         ~ date_hospitalisation),
+    date_outcome = case_when(
+      date_outcome < as.Date("2013-01-01") ~ as.Date(NA),
+      TRUE                                 ~ date_outcome)
+    )
+
+#min(linelist$date_hospitalisation, na.rm=T)
+#min(linelist$date_outcome, na.rm=T)
+```
+
+
+
+```{r echo=F}
+# REARRANGE COLUMNS FOR EXPORT
+linelist <- linelist %>% 
+  select(case_id:gender, age, age_unit, age_years, age_cat, age_cat5, everything())
+```
+
+```{r echo=F}
+# EXPORT CLEANED LINELIST FILE TO "DATA" FOLDER
+rio::export(linelist, here::here("data", "case_linelists", "linelist_cleaned.xlsx"))
+rio::export(linelist, here::here("data", "case_linelists", "linelist_cleaned.rds"))
+```
+```{r include=FALSE, cache=FALSE}
+
+# clear workspace
+rm(list = ls(all = TRUE))
+
+# clear all packages except base
+#lapply(names(sessionInfo()$loadedOnly), require, character.only = TRUE)
+#invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE, force=TRUE))
+
+# to ensure that tidyverse packages prevail
+filter <- dplyr::filter
+select <- dplyr::select
+summarise <- dplyr::summarise
+summary <- base::summary
+incidence <- incidence2::incidence
+
+#load core packages
+pacman::p_load(
+     rio,
+     here,
+     DT,
+     stringr,
+     lubridate,
+     tidyverse
+)
+
+# import the cleaned ebola linelist
+linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
+
+# import the count data - facility level
+#count_data <- rio::import(here::here("data", "facility_count_data.rds"))
+
+# Settings
+
+options(scipen=1, digits=7)
+
+# print only text (not code)
+#library(knitr)
+#opts_chunk$set(list(echo = FALSE, eval = FALSE))
+```
+
+<!--chapter:end:new_pages/cleaning.Rmd-->
+
+
+# Working with dates {}
+
+Placeholder
+
+
+## Preparation
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}  
+## Current date  
+## Convert to Date  
+### **base** R {.unnumbered}  
+### **lubridate** {.unnumbered}  
+### Combine columns {.unnumbered}  
+## Excel dates
+## Messy dates  
+## Working with date-time class  
+### Convert dates with times {.unnumbered}  
+### Convert times alone {.unnumbered}  
+### Extract time {.unnumbered}  
+## Working with dates   
+### Extract date components {.unnumbered}  
+### Date math {.unnumbered}  
+### Date intervals {.unnumbered}  
+## Date display  
+### `format()` {.unnumbered}  
+### Month-Year {.unnumbered}  
+## Epidemiological weeks {#dates_epi_wks}
+### **lubridate** {.unnumbered}  
+### Weekly counts {.unnumbered}  
+### Epiweek alternatives {.unnumbered}  
+## Converting dates/time zones
+## Lagging and leading calculations  
+## Resources  
+
+<!--chapter:end:new_pages/dates.Rmd-->
+
+
+# Characters and strings { }  
+
+Placeholder
+
+
+## Preparation { }
+### Load packages {.unnumbered}  
+### Import data  {.unnumbered}  
+## Unite, split, and arrange { }
+### Combine strings {.unnumbered}
+### Dynamic strings {.unnumbered}
+### Unite columns  {#str_unite .unnumbered}
+### Split {.unnumbered}  
+### Split columns {.unnumbered}  
+### Arrange alphabetically {.unnumbered} 
+### base R functions {.unnumbered}
+## Clean and standardise  
+### Change case {.unnumbered}
+### Pad length  {#str_pad .unnumbered}
+### Truncate {.unnumbered} 
+### Standardize length {.unnumbered}
+### Remove leading/trailing whitespace {.unnumbered}  
+### Remove repeated whitespace within {.unnumbered}  
+### Wrap into paragraphs {.unnumbered}  
+## Handle by position { }
+### Extract by character position {.unnumbered}  
+### Extract by word position {.unnumbered} 
+### Replace by character position {.unnumbered} 
+### Evaluate length  {.unnumbered}
+## Patterns { }
+### Detect a pattern {.unnumbered}
+#### Convert commas to periods {.unnumbered}  
+### Replace all {.unnumbered}  
+### Detect within logic {.unnumbered}
+### Locate pattern position {.unnumbered}  
+### Extract a match {.unnumbered}  
+### Subset and count {.unnumbered}  
+### Regex groups {.unnumbered}
+## Special characters  
+## Regular expressions (regex) 
+## Regex and special characters { } 
+## Resources { }
+
+<!--chapter:end:new_pages/characters_strings.Rmd-->
+
+
+# Factors {}
+
+Placeholder
+
+
+## Preparation  
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}  
+### New categorical variable {#fct_newcat .unnumbered}  
+#### Create column {.unnumbered}  
+#### Default value order {.unnumbered}  
+## Convert to factor  
+## Add or drop levels  
+### Add {#fct_add .unnumbered}
+### Drop {.unnumbered}  
+## Adjust level order {#fct_adjust} 
+### Manually {.unnumbered} 
+### Within a plot {.unnumbered}  
+### Reverse {.unnumbered}  
+### By frequency {.unnumbered}  
+### By appearance {.unnumbered}  
+### By summary statistic of another column {.unnumbered}  
+### By "end" value {.unnumbered}  
+## Missing values {#fct_missing}  
+## Combine levels  
+### Manually {.unnumbered}  
+### Reduce into "Other" {.unnumbered}  
+### Reduce by frequency {.unnumbered}
+## Show all levels  
+### In plots {.unnumbered}  
+### In tables {.unnumbered}  
+## Epiweeks  
+### Epiweeks in a plot {.unnumbered}  
+### Epiweeks in the data {.unnumbered}  
+## Resources {} 
+
+<!--chapter:end:new_pages/factors.Rmd-->
+
+
+# Pivoting data {}
+
+Placeholder
+
+
+## Preparation  
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}
+### Malaria count data {-}  
+### Linelist case data {-}  
+## Wide-to-long {}
+### "Wide" format {.unnumbered}
+### `pivot_longer()` {.unnumbered}
+### Standard pivoting {.unnumbered}  
+### Pivoting data of multiple classes {.unnumbered}
+## Long-to-wide {}
+### Data {.unnumbered}
+### Pivot wider {.unnumbered}  
+## Fill 
+### Data {.unnumbered}
+### `fill()` {.unnumbered}
+## Resources  
+
+<!--chapter:end:new_pages/pivoting.Rmd-->
+
+
+# Grouping data { }  
+
+Placeholder
+
+
+## Preparation {  }
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}
+## Grouping {  }
+### Unique groups {.unnumbered}  
+### New columns {.unnumbered} 
+### Add/drop grouping columns {.unnumbered}  
+## Un-group  
+## Summarise {#group_summarise} 
+## Counts and tallies  
+### `tally()` {.unnumbered}  
+### `count()`  {.unnumbered}  
+### Add counts {.unnumbered}  
+### Add totals {.unnumbered} 
+## Grouping by date  
+### Linelist cases into days  {.unnumbered}  
+### Linelist cases into weeks {.unnumbered}  
+### Linelist cases into months {.unnumbered}
+### Daily counts into weeks {.unnumbered}
+#### Daily counts into months {.unnumbered}
+## Arranging grouped data
+## Filter on grouped data
+### `filter()` {.unnumbered}
+### Slice rows per group {.unnumbered} 
+### Filter on group size {#group_filter_grp_size .unnumbered} 
+## Mutate on grouped data  
+## Select on grouped data  
+## Resources {  }
+
+<!--chapter:end:new_pages/grouping.Rmd-->
+
+
+# Joining data { }  
+
+Placeholder
+
+
+## Preparation { }
+### Load packages {.unnumbered}
+### Import data {.unnumbered}
+### Example datasets {.unnumbered}
+#### "Miniature" case linelist {#joins_llmini .unnumbered}  
+#### Hospital information data frame {#joins_hosp_info .unnumbered}  
+### Pre-cleaning {.unnumbered}
+## **dplyr** joins { }
+### General syntax {.unnumbered}
+### Left and right joins {.unnumbered}  
+#### "Should I use a right join, or a left join?" {.unnumbered}  
+### Full join {.unnumbered} 
+### Inner join {.unnumbered} 
+### Semi join {.unnumbered} 
+### Anti join {.unnumbered} 
+#### Simple `anti_join()` example {.unnumbered}  
+#### Complex `anti_join()` example {.unnumbered}  
+## Probabalistic matching { }
+### Probabilistic matching {.unnumbered}  
+### Probabilistic deduplication {.unnumbered}  
+## Binding and aligning  
+### Bind rows {.unnumbered}
+### Bind columns {.unnumbered}
+#### Use `match()` to align ordering {.unnumbered}  
+## Resources { }
+
+<!--chapter:end:new_pages/joining_matching.Rmd-->
+
+
+# De-duplication {}  
+
+Placeholder
+
+
+## Preparation { }
+### Load packages {.unnumbered}
+### Import data {.unnumbered}
+#### Here is the data frame {#dedup_data .unnumbered}  
+## Deduplication { }
+### Examine duplicate rows {.unnumbered}  
+### Keep only unique rows  {.unnumbered}
+### Deduplicate elements in a vector {.unnumbered}  
+### Using **base** R {.unnumbered}
+## Slicing { }
+### Slice with groups  {.unnumbered}
+### Keep all but mark them  {.unnumbered}
+### Calculate row completeness {.unnumbered} 
+## Roll-up values {#str_rollup}
+### Roll-up values into one row {.unnumbered}  
+### Overwrite values/hierarchy {.unnumbered} 
+## Probabilistic de-duplication  
+## Resources { }
+
+<!--chapter:end:new_pages/deduplication.Rmd-->
+
+
+# Iteration, loops, and lists { }  
+
+Placeholder
+
+
+## Preparation {  }
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}  
+## *for loops* {  }
+### *for loops* in R {#iter_loops .unnumbered}  
+### Core components {.unnumbered}   
+### Sequence {.unnumbered}  
+### Operations  {.unnumbered}  
+### Container {.unnumbered}
+### Printing {.unnumbered}  
+### Testing your for loop {.unnumbered}
+### Looping plots {.unnumbered}
+### Tracking progress of a loop {.unnumbered} 
+## **purrr** and lists {#iter_purrr}
+### Load packages {.unnumbered}  
+### `map()` {.unnumbered}  
+#### Example - import and combine Excel sheets {#iter_combined .unnumbered}  
+### Split dataset and export {.unnumbered}  
+#### Split dataset {.unnumbered}  
+##### More than one `group_split()` column {.unnumbered}  
+#### Export as Excel sheets {.unnumbered}  
+#### Export as CSV files {.unnumbered}  
+### Custom functions {.unnumbered}  
+### Mapping a function across columns {.unnumbered}  
+### Extract from lists {.unnumbered}  
+#### Names of elements {.unnumbered}  
+#### Elements by name or position {.unnumbered}  
+#### `pluck()` {.unnumbered}  
+### Convert list to data frame {.unnumbered}  
+### Discard, keep, and compact lists {.unnumbered}  
+### `pmap()` {.unnumbered}
+## Apply functions  
+## Resources { }
+
+<!--chapter:end:new_pages/iteration.Rmd-->
+
+# (PART) Analysis {.unnumbered}
 
 ```{r include=FALSE, cache=FALSE}
 
@@ -696,5 +2684,1220 @@ options(scipen=1, digits=7)
 #opts_chunk$set(list(echo = FALSE, eval = FALSE))
 ```
 
-<!--chapter:end:new_pages/data_used.Rmd-->
+<!--chapter:end:new_pages/cat_analysis.Rmd-->
+
+
+# Descriptive tables { }
+
+Placeholder
+
+
+## Preparation {  }
+### Load packages {.unnumbered}
+### Import data {.unnumbered}
+## Browse data {  }
+### **skimr** package {.unnumbered}
+### Summary statistics {.unnumbered} 
+## **janitor** package {#tbl_janitor}  
+### Simple tabyl {.unnumbered}  
+### Cross-tabulation {.unnumbered}  
+### "Adorning" the tabyl {#tbl_adorn .unnumbered}  
+### Printing the tabyl {.unnumbered}
+### Use on other tables {.unnumbered}  
+### Saving the tabyl {.unnumbered}  
+### Statistics {#janitor_age_out_stats .unnumbered}  
+### Other tips {.unnumbered}  
+## **dplyr** package   
+### Get counts {.unnumbered}  
+### Show all levels {.unnumbered}  
+### Proportions {#tbl_dplyr_prop .unnumbered}  
+### Plotting {.unnumbered}  
+### Summary statistics {.unnumbered}  
+### Conditional statistics {.unnumbered}  
+### Glueing together {.unnumbered}  
+#### Percentiles {.unnumbered}  
+### Summarise aggregated data {.unnumbered}  
+### `across()` multiple columns {.unnumbered}  
+### Pivot wider {#tbls_pivot_wider .unnumbered}
+### Total rows {#tbl_dplyr_totals .unnumbered}  
+#### **janitor**'s `adorn_totals()` {.unnumbered}  
+#### `summarise()` on "total" data and then `bind_rows()` {.unnumbered}  
+## **gtsummary** package {#tbl_gt}   
+### Summary table {.unnumbered}
+### Adjustments {.unnumbered}  
+### Multi-line stats for continuous variables {.unnumbered}  
+## **base** R   
+### Proportions {.unnumbered}  
+### Totals {.unnumbered}  
+### Convert to data frame {.unnumbered}  
+## Resources {  }
+
+<!--chapter:end:new_pages/tables_descriptive.Rmd-->
+
+
+# Simple statistical tests { }
+
+Placeholder
+
+
+## Preparation {  }
+### Load packages {.unnumbered}
+### Import data {.unnumbered}
+## **base** R {}
+### T-tests {.unnumbered} 
+### Shapiro-Wilk test {.unnumbered}  
+### Wilcoxon rank sum test {.unnumbered}
+### Kruskal-Wallis test {.unnumbered}
+### Chi-squared test {.unnumbered} 
+## **rstatix** package {}
+### Summary statistics {.unnumbered}  
+### T-test {.unnumbered}  
+### Shapiro-Wilk test {.unnumbered}  
+### Wilcoxon rank sum test {.unnumbered}  
+### Kruskal-Wallis test {.unnumbered}  
+### Chi-squared test {.unnumbered}  
+## `gtsummary` package {#stats_gt}
+### Chi-squared test {.unnumbered}
+### T-tests {.unnumbered} 
+### Wilcoxon rank sum test{.unnumbered}
+### Kruskal-wallis test {.unnumbered}
+## Correlations 
+## Resources {  }
+
+<!--chapter:end:new_pages/stat_tests.Rmd-->
+
+
+# Univariate and multivariable regression { }
+
+Placeholder
+
+
+## Preparation {  }
+### Load packages {.unnumbered}
+### Import data {.unnumbered}
+### Clean data {.unnumbered}
+#### Store explanatory variables {.unnumbered}  
+#### Convert to 1's and 0's  {.unnumbered}   
+#### Drop rows with missing values {.unnumbered}  
+## Univariate {  }
+### **base** R {.unnumbered}
+#### Linear regression {.unnumbered}  
+#### Logistic regression {.unnumbered}  
+#### Univariate `glm()` {.unnumbered}
+#### Printing results {.unnumbered}
+#### Looping multiple univariate models {.unnumbered}  
+### **gtsummary** package {#reg_gt_uni .unnumbered}
+## Stratified {  }
+## Multivariable  
+### Conduct multivariable {.unnumbered}  
+#### Building the model {.unnumbered}  
+### Combine univariate and multivariable {.unnumbered}
+#### Combine with **gtsummary**  {.unnumbered}  
+#### Combine with **dplyr** {.unnumbered}  
+## Forest plot {  }
+### **ggplot2** package {.unnumbered}
+### **easystats** packages {.unnumbered}
+## Resources {  }
+
+<!--chapter:end:new_pages/regression.Rmd-->
+
+
+# Missing data { }
+
+Placeholder
+
+
+## Preparation { }
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}
+### Convert missing on import {.unnumbered}  
+## Missing values in R { }
+### `NA` {.unnumbered}  
+### Versions of `NA` {.unnumbered}  
+### `NULL` {.unnumbered}  
+### `NaN` {.unnumbered}  
+### `Inf` {.unnumbered}  
+### Examples {.unnumbered}  
+## Useful functions { }
+### `is.na()` and `!is.na()` {.unnumbered}  
+### `na.omit()` {.unnumbered}  
+### `drop_na()` {.unnumbered}  
+### `na.rm = TRUE` {.unnumbered}  
+## Assess missingness in a data frame { }
+### Quantifying missingness {.unnumbered}
+### Visualizing missingness {.unnumbered}  
+### Explore and visualize missingness relationships {.unnumbered} 
+### "Shadow" columns {.unnumbered}
+## Using data with missing values  
+### Filter out rows with missing values {.unnumbered}
+### Handling `NA` in `ggplot()` {.unnumbered}
+### `NA` in factors {.unnumbered}
+## Imputation { }
+### Types of missing data {.unnumbered}
+### Useful packages {.unnumbered}
+### Mean Imputation {.unnumbered}
+### Regression imputation {.unnumbered}
+### LOCF and BOCF {.unnumbered}
+### Multiple Imputation {.unnumbered}
+## Resources { }
+
+<!--chapter:end:new_pages/missing_data.Rmd-->
+
+
+# Standardised rates { }  
+
+Placeholder
+
+
+## Overview  
+## Preparation {  }
+### Load packages {.unnumbered}
+### Load population data {.unnumbered}  
+### Load death counts {.unnumbered}  
+### Clean populations and deaths {.unnumbered}  
+### Load reference population {.unnumbered}  
+### Clean reference population {.unnumbered}
+### Create dataset with standard population {#standard_all .unnumbered}  
+## **dsr** package {  }
+### Standardized rates {.unnumbered}
+### Standardized rate ratios {.unnumbered}
+### Standardized rate difference {.unnumbered}
+## **PHEindicatormethods** package {#standard_phe  }
+### Directly standardized rates {.unnumbered}
+### Indirectly standardized rates {#standard_indirect .unnumbered}
+## Resources {  }
+
+<!--chapter:end:new_pages/standardization.Rmd-->
+
+
+# Moving averages { }  
+
+Placeholder
+
+
+## Preparation {  }
+### Load packages {.unnumbered}
+### Import data {.unnumbered}
+## Calculate with **slider** {  }
+### Rolling by date  {#roll_index .unnumbered}  
+### Indexed data {.unnumbered}  
+### Rolling by group {#roll_slider_group .unnumbered}  
+## Calculate with **tidyquant** within `ggplot()` {  }
+## Resources {  }
+
+<!--chapter:end:new_pages/moving_average.Rmd-->
+
+
+# Time series and outbreak detection { }  
+
+Placeholder
+
+
+## Overview {  }
+## Preparation {  }
+### Packages {.unnumbered}
+### Load data {.unnumbered}
+### Clean data {.unnumbered}
+### Download climate data {.unnumbered} 
+### Load climate data {.unnumbered}
+## Time series data {  }
+### Duplicates {.unnumbered}
+### Missings {.unnumbered}
+## Descriptive analysis {  }
+### Moving averages {#timeseries_moving .unnumbered}
+### Periodicity {.unnumbered}
+### Decomposition {.unnumbered}
+### Autocorrelation {.unnumbered}
+## Fitting regressions {  }
+### Fourier terms {.unnumbered}
+### Negative binomial {.unnumbered}
+### Residuals {.unnumbered}
+## Relation of two time series {  }
+### Merging datasets {.unnumbered}
+### Descriptive analysis {.unnumbered}
+### Lags and cross-correlation {.unnumbered}
+### Negative binomial with two variables {.unnumbered}
+#### Residuals {.unnumbered}
+## Outbreak detection {  }
+### **trending** package {.unnumbered}
+#### Cut-off date { -}
+#### Add rows {.unnumbered}
+#### Fourier terms {.unnumbered}
+#### Split data and fit regression {.unnumbered}
+#### Prediction validation {.unnumbered}
+### **surveillance** package {.unnumbered}
+#### Farrington method {.unnumbered}
+#### GLRNB method {.unnumbered}
+## Interrupted timeseries {  }
+## Resources {  }
+
+<!--chapter:end:new_pages/time_series.Rmd-->
+
+
+# Epidemic modeling { }  
+
+Placeholder
+
+
+## Overview {  }
+## Preparation {  }
+## Estimating R<sub>t</sub> {  }
+### EpiNow2 vs. EpiEstim {.unnumbered}
+### EpiNow2 {.unnumbered}
+#### Estimating delay distributions {.unnumbered}
+#### Running **EpiNow2** {.unnumbered}
+#### Analysing outputs {.unnumbered}
+### EpiEstim {.unnumbered}
+#### Using serial interval estimates from the literature {.unnumbered}
+#### Using serial interval estimates from the data {.unnumbered}
+#### Specifying estimation time windows {.unnumbered}
+#### Analysing outputs {.unnumbered}
+## Projecting incidence {  }
+### EpiNow2 {.unnumbered}
+### projections {.unnumbered}
+#### Using serial interval estimates from the literature {.unnumbered}
+#### Using serial interval estimates from the data {.unnumbered}
+#### Projecting incidence {.unnumbered}
+## Resources {  }
+
+<!--chapter:end:new_pages/epidemic_models.Rmd-->
+
+
+# Contact tracing { }
+
+Placeholder
+
+
+## Preparation
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}
+#### Case data {.unnumbered}  
+#### Contacts data {.unnumbered}  
+#### Follow-up data {.unnumbered}  
+#### Relationships data {.unnumbered}  
+## Descriptive analyses  
+### Demographics {.unnumbered}  
+#### Age and Gender of contacts {.unnumbered}  
+### Contacts per case {.unnumbered}  
+## Contact Follow Up  
+### Data cleaning {.unnumbered}  
+### Plot over time {.unnumbered}  
+### Daily individual tracking  {.unnumbered}  
+### Analyse by group {.unnumbered}  
+## KPI Tables  
+## Transmission Matrices  
+## Resources  
+
+<!--chapter:end:new_pages/contact_tracing.Rmd-->
+
+
+# Survey analysis { }  
+
+Placeholder
+
+
+## Overview {  }
+## Preparation {  }
+### Packages {.unnumbered}
+### Load data {.unnumbered}
+### Clean data {.unnumbered}
+## Survey data {  }
+## Observation time {  }
+## Weighting {  }
+## Survey design objects {  }
+### **Survey** package  
+### **Srvyr** package  
+## Descriptive analysis {  }
+### Sampling bias 
+### Demographic pyramids 
+### Alluvial/sankey diagram
+## Weighted proportions {  }
+### **Survey** package 
+### **Srvyr** package 
+### **Sitrep** package 
+### **Gtsummary** package
+## Weighted ratios {  }
+### **Survey** package 
+### **Srvyr** package 
+## Resources {  }
+
+<!--chapter:end:new_pages/survey_analysis.Rmd-->
+
+
+# Survival analysis { }  
+
+Placeholder
+
+
+## Overview {}
+## Preparation {  }
+### Load packages {.unnumbered}  
+### Import dataset {.unnumbered}  
+### Data management and transformation {.unnumbered}
+## Basics of survival analysis {}
+### Building a surv-type object {.unnumbered}
+### Running initial analyses {.unnumbered}
+### Cumulative hazard {.unnumbered}  
+### Plotting Kaplan-Meir curves  {.unnumbered}
+## Comparison of survival curves 
+### Log rank test {.unnumbered}
+## Cox regression analysis {}
+### Fitting a Cox model {.unnumbered}
+### Forest plots {.unnumbered}
+## Time-dependent covariates in survival models {}
+### Time-dependent covariate setup {.unnumbered} 
+#### Add unique patient identifier {.unnumbered}  
+#### Expand patient rows {.unnumbered}  
+### Cox regression with time-dependent covariates {.unnumbered} 
+## Resources {  }
+
+<!--chapter:end:new_pages/survival_analysis.Rmd-->
+
+
+# GIS basics { }  
+
+Placeholder
+
+
+## Overview {  }
+## Key terms {}  
+### GIS software {.unnumbered}
+### Spatial data {.unnumbered}
+### Visualizing spatial data {.unnumbered}
+## Getting started with GIS  
+### Types of maps for visualizing your data {.unnumbered}
+## Preparation {  }
+### Load packages {.unnumbered}  
+### Sample case data {.unnumbered}
+### Admin boundary shapefiles {.unnumbered}  
+### Population data {.unnumbered}  
+### Health Facilities {.unnumbered}
+## Plotting coordinates {  }
+## Spatial joins {}
+### Points in polygon {.unnumbered}
+### Nearest neighbor {.unnumbered}
+### Buffers {.unnumbered} 
+### Other spatial joins {.unnumbered}  
+## Choropleth maps {}  
+## Mapping with ggplot2
+## Basemaps { }
+### OpenStreetMap {.unnumbered} 
+## Contoured density heatmaps {}
+### Time series heatmap {.unnumbered}
+## Spatial statistics
+### Spatial relationships {.unnumbered}  
+### Spatial autocorrelation {.unnumbered}  
+### Spatial regression {.unnumbered}  
+## Resources {  }
+
+<!--chapter:end:new_pages/gis.Rmd-->
+
+# (PART) Data Visualization {.unnumbered}
+```{r include=FALSE, cache=FALSE}
+
+# clear workspace
+rm(list = ls(all = TRUE))
+
+# clear all packages except base
+#lapply(names(sessionInfo()$loadedOnly), require, character.only = TRUE)
+#invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE, force=TRUE))
+
+# to ensure that tidyverse packages prevail
+filter <- dplyr::filter
+select <- dplyr::select
+summarise <- dplyr::summarise
+summary <- base::summary
+incidence <- incidence2::incidence
+
+#load core packages
+pacman::p_load(
+     rio,
+     here,
+     DT,
+     stringr,
+     lubridate,
+     tidyverse
+)
+
+# import the cleaned ebola linelist
+linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
+
+# import the count data - facility level
+#count_data <- rio::import(here::here("data", "facility_count_data.rds"))
+
+# Settings
+
+options(scipen=1, digits=7)
+
+# print only text (not code)
+#library(knitr)
+#opts_chunk$set(list(echo = FALSE, eval = FALSE))
+```
+
+<!--chapter:end:new_pages/cat_data_viz.Rmd-->
+
+
+# Tables for presentation { }  
+
+Placeholder
+
+
+## Preparation {  }
+### Load packages {.unnumbered} 
+### Import data {.unnumbered}  
+### Prepare table {.unnumbered}  
+## Basic flextable {  }
+### Create a flextable {.unnumbered}  
+### Column width {.unnumbered}
+### Column headers {.unnumbered}
+### Borders and background {.unnumbered}  
+### Font and alignment {.unnumbered}
+### Merge cells {.unnumbered}  
+### Background color {.unnumbered}
+## Conditional formatting {  }
+## All code together {#tbl_pres_all}  
+## Saving your table {  }
+### Save single table {.unnumbered}
+### Print table in R markdown {.unnumbered}  
+## Resources {  }
+
+<!--chapter:end:new_pages/tables_presentation.Rmd-->
+
+
+# ggplot basics {}
+
+Placeholder
+
+
+## Preparation {}
+### Load packages {.unnumbered}
+### Import data {.unnumbered}  
+### General cleaning {.unnumbered}
+### Pivoting longer {.unnumbered}
+## Basics of ggplot {}
+## `ggplot()`  
+## Geoms  
+## Mapping data to the plot {#ggplot_basics_mapping}  
+### Plot aesthetics {.unnumbered}  
+### Set to a static value {.unnumbered}  
+### Scaled to column values {.unnumbered}  
+### Where to make mapping assignments {#ggplot_basics_map_loc .unnumbered}
+### Groups {#ggplotgroups .unnumbered}  
+## Facets / Small-multiples {#ggplot_basics_facet}  
+### `facet_wrap()` {.unnumbered}
+### `facet_grid()` {.unnumbered}  
+### Free or fixed axes {.unnumbered}  
+### Factor level order in facets {.unnumbered}  
+## Storing plots  
+### Saving plots {.unnumbered}
+### Modifying saved plots {.unnumbered}  
+### Exporting plots {.unnumbered}   
+## Labels 
+## Themes {#ggplot_basics_themes} 
+### Complete themes {.unnumbered}  
+### Modify theme {.unnumbered}  
+## Colors  
+## Piping into **ggplot2**   
+## Plot continuous data
+### Histograms {.unnumbered}
+### Box plots {.unnumbered}
+### Violin, jitter, and sina plots {.unnumbered}
+### Two continuous variables  {.unnumbered}
+### Three continuous variables {.unnumbered}  
+## Plot categorical data  
+### Preparation  {.unnumbered}
+#### Data structure {.unnumbered}  
+#### Column class and value ordering {.unnumbered}  
+### `geom_bar()` {#ggplot_basics_bars .unnumbered}  
+### `geom_col()` {.unnumbered}  
+### `geom_histogram()` {.unnumbered}  
+## Resources  
+
+<!--chapter:end:new_pages/ggplot_basics.Rmd-->
+
+
+# ggplot tips {}
+
+Placeholder
+
+
+## Preparation {}
+### Load packages {.unnumbered}
+### Import data {.unnumbered}  
+## Scales for color, fill, axes, etc. {#ggplot_tips_colors}
+### Color schemes
+### Scales {#ggplot_tips_scales .unnumbered}  
+### Scale arguments {.unnumbered}  
+### Manual adjustments {.unnumbered}  
+### Continuous axes scales {.unnumbered}  
+#### Display percents {.unnumbered}  
+#### Log scale {.unnumbered}  
+### Gradient scales {.unnumbered}  
+### Palettes {.unnumbered}  
+#### Colorbrewer and Viridis {.unnumbered}
+## Change order of discrete variables {}  
+#### **ggthemr** {.unnnumbered}  
+## Contour lines  
+## Marginal distributions  
+## Smart Labeling {}  
+## Time axes {}
+## Highlighting {}
+## Plotting multiple datasets  
+## Combine plots {}
+### `plot_grid()` {.unnumbered}
+### Combine legends {.unnumbered}  
+### Inset plots {.unnumbered} 
+## Dual axes {}
+## Packages to help you  
+### Point-and-click **ggplot2** with **equisse**  {.unnumbered}
+## Miscellaneous  
+### Numeric display {.unnumbered}  
+## Resources
+
+<!--chapter:end:new_pages/ggplot_tips.Rmd-->
+
+
+# Epidemic curves { }  
+
+Placeholder
+
+
+## Preparation
+### Packages {.unnumbered}  
+### Import data {.unnumbered}
+### Set parameters {.unnumbered}
+### Verify dates {.unnumbered}
+## Epicurves with **incidence2** package { }
+### Simple example {.unnumbered}
+### Change time interval of case aggregation {.unnumbered}  
+### Groups {.unnumbered}
+### Filtered data {.unnumbered}
+### Aggregated counts {.unnumbered}
+### Facets/small multiples {.unnumbered}  
+### Modifications with `plot()` {.unnumbered} 
+### Modifications with ggplot2 {.unnumbered}
+### Change colors  {.unnumbered}  
+#### Specify a palette {.unnumbered}  
+#### Specify manually {.unnumbered}  
+### Adjust level order {.unnumbered}  
+### Vertical gridlines {.unnumbered}  
+### Cumulative incidence {.unnumbered}  
+### Rolling average  {.unnumbered}
+## Epicurves with ggplot2 { }
+### Specify case bins {.unnumbered}  
+### Weekly epicurve example {.unnumbered}  
+#### Sunday weeks {.unnumbered}  
+### Group/color by value {.unnumbered}
+### Adjust colors {.unnumbered}  
+### Adjust level order {.unnumbered}  
+### Adjust legend {.unnumbered}
+### Bars side-by-side {.unnumbered}  
+### Axis limits {.unnumbered}  
+### Date-axis labels/gridlines {.unnumbered} 
+#### Demonstrations {.unnumbered}
+### Aggregated data {.unnumbered} 
+#### Plotting daily counts {.unnumbered}  
+#### Plotting weekly counts {.unnumbered}
+### Moving averages {.unnumbered}
+### Faceting/small-multiples {.unnumbered}
+#### Total epidemic in facet background {.unnumbered}
+#### One facet with data {.unnumbered}  
+## Tentative data  
+### Using `annotate()` {.unnumbered}
+### Bars color {.unnumbered}  
+## Multi-level date labels  
+## Dual-axis { }  
+## Cumulative Incidence {}
+## Resources { }
+
+<!--chapter:end:new_pages/epicurves.Rmd-->
+
+
+# Demographic pyramids and Likert-scales {}  
+
+Placeholder
+
+
+## Preparation {}
+### Load packages {.unnumbered}
+### Import data {.unnumbered}  
+### Cleaning {.unnumbered}  
+## **apyramid** package {}
+### Linelist data {.unnumbered}  
+#### Missing values {.unnumbered}  
+#### Proportions, colors, & aesthetics {.unnumbered}  
+### Aggregated data {.unnumbered}  
+## `ggplot()` {#demo_pyr_gg}
+### Preparation {.unnumbered}
+### Constructing the plot {.unnumbered} 
+### Compare to baseline  {.unnumbered} 
+## Likert scale {}
+## Resources {}
+
+<!--chapter:end:new_pages/age_pyramid.Rmd-->
+
+
+# Heat plots { }  
+
+Placeholder
+
+
+## Preparation { }
+### Load packages {.unnumbered}  
+## Transmission matrix  
+### Data preparation {.unnumbered}  
+#### Make cases data frame {.unnumbered} 
+#### Make infectors data frame {.unnumbered}  
+### Create heat plot {.unnumbered}  
+## Reporting metrics over time { }
+### Data preparation {.unnumbered}
+#### Aggregate and summarize {.unnumbered}
+### Create heat plot {.unnumbered}
+### Basic {.unnumbered}  
+### Cleaned plot {.unnumbered}
+### Ordered y-axis {.unnumbered}  
+### Display values {.unnumbered}  
+## Resources { }
+
+<!--chapter:end:new_pages/heatmaps.Rmd-->
+
+
+# Diagrams and charts { }  
+
+Placeholder
+
+
+## Preparation { }
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}  
+## Flow diagrams { }
+### Simple examples {.unnumbered} 
+### Syntax  {.unnumbered}
+### Complex examples  {.unnumbered}
+### Outputs  {.unnumbered}
+### Parameterized figures {.unnumbered} 
+## Alluvial/Sankey Diagrams { }
+### Load packages {.unnumbered}  
+### Plotting from dataset {.unnumbered} 
+## Event timelines { }
+## DAGs { }
+## Resources { }
+
+<!--chapter:end:new_pages/diagrams.Rmd-->
+
+
+# Combinations analysis { }  
+
+Placeholder
+
+
+## Preparation {  }
+### Load packages {.unnumbered}
+### Import data {.unnumbered}  
+### Re-format values {.unnumbered}  
+## **ggupset** {  }
+## `UpSetR` {  }
+## Resources {  }
+
+<!--chapter:end:new_pages/combination_analysis.Rmd-->
+
+
+# Transmission chains { }
+
+Placeholder
+
+
+## Overview {  }
+## Preparation {  }
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}
+### Creating an epicontacts object {.unnumbered}
+## Handling {  }
+### Subsetting {.unnumbered}
+### Accessing IDs {.unnumbered}
+## Visualization {  }
+### Basic plotting {.unnumbered}
+#### Visualising node attributes {.unnumbered}
+#### Visualising edge attributes {.unnumbered}
+### Temporal axis {.unnumbered}
+#### Specifying transmission tree shape {.unnumbered}
+#### Saving plots and figures {.unnumbered}
+### Timelines {.unnumbered}
+## Analysis {  }
+### Summarising {.unnumbered}
+### Pairwise characteristics {.unnumbered}
+### Identifying clusters {.unnumbered}
+### Calculating degrees {.unnumbered}
+## Resources {  }
+
+<!--chapter:end:new_pages/transmission_chains.Rmd-->
+
+
+# Phylogenetic trees {}  
+
+Placeholder
+
+
+## Overview {}
+## Preparation {}
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}  
+### Clean and inspect {.unnumbered}  
+## Simple tree visualization {}
+### Different tree layouts {.unnumbered}  
+### Simple tree plus sample data {.unnumbered}  
+## Tree manipulation {}
+### Zoom in {.unnumbered}  
+### Collapsing branches {.unnumbered} 
+### Subsetting a tree {.unnumbered} 
+### Rotating nodes in a tree {.unnumbered} 
+### Example subtree with sample data annotation {.unnumbered} 
+## More complex trees: adding heatmaps of sample data {.unnumbered}
+## Resources {}
+
+<!--chapter:end:new_pages/phylogenetic_trees.Rmd-->
+
+
+# Interactive plots { }  
+
+Placeholder
+
+
+## Preparation {  }
+### Load packages {.unnumbered}  
+### Start with a `ggplot()` {.unnumbered}  
+### Import data {.unnumbered}
+## Plot with `ggplotly()` {  }
+## Modifications {  }
+### File size {.unnumbered}  
+### Buttons {.unnumbered}  
+## Heat tiles {  }
+## Resources {  }
+
+<!--chapter:end:new_pages/interactive_plots.Rmd-->
+
+# (PART) Reports and dashboards {.unnumbered}
+```{r include=FALSE, cache=FALSE}
+
+# clear workspace
+rm(list = ls(all = TRUE))
+
+# clear all packages except base
+#lapply(names(sessionInfo()$loadedOnly), require, character.only = TRUE)
+#invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE, force=TRUE))
+
+# to ensure that tidyverse packages prevail
+filter <- dplyr::filter
+select <- dplyr::select
+summarise <- dplyr::summarise
+summary <- base::summary
+incidence <- incidence2::incidence
+
+#load core packages
+pacman::p_load(
+     rio,
+     here,
+     DT,
+     stringr,
+     lubridate,
+     tidyverse
+)
+
+# import the cleaned ebola linelist
+linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
+
+# import the count data - facility level
+#count_data <- rio::import(here::here("data", "facility_count_data.rds"))
+
+# Settings
+
+options(scipen=1, digits=7)
+
+# print only text (not code)
+#library(knitr)
+#opts_chunk$set(list(echo = FALSE, eval = FALSE))
+```
+
+<!--chapter:end:new_pages/cat_reports_dashboards.Rmd-->
+
+
+# Reports with R Markdown { }  
+
+Placeholder
+
+
+## Preparation {  }
+## Getting started {  }
+### Install rmarkdown R package {.unnumbered}
+### Starting a new Rmd file {.unnumbered}
+### Important to know {.unnumbered}
+## R Markdown components {  }
+### YAML metadata {.unnumbered}
+### Text {.unnumbered}
+#### New lines {.unnumbered}  
+#### Case {.unnumbered}  
+#### Color {.unnumbered}  
+#### Titles and headings {.unnumbered}  
+#### Bullets and numbering {.unnumbered}  
+#### Comment out text {.unnumbered}
+### Code chunks {.unnumbered}
+#### In-text R code {.unnumbered}  
+### Images {.unnumbered}  
+### Tables {.unnumbered}  
+### Tabbed sections {.unnumbered}  
+## File structure {}
+### Self-contained Rmd {.unnumbered}  
+#### Source other files {.unnumbered}
+### Runfile {.unnumbered}  
+### Folder strucutre {.unnumbered}  
+## Producing the document  
+### Option 1: "Knit" button {.unnumbered}  
+### Option 2: `render()` command {.unnumbered}
+###  Options 3: **reportfactory**  package {.unnumbered}  
+## Parameterised reports {  }
+### Setting parameters {.unnumbered}
+#### Option 1: Set parameters within YAML {.unnumbered}
+#### Option 2: Set parameters within `render()` {.unnumbered}  
+#### Option 3: Set parameters using a Graphical User Interface {.unnumbered}  
+### Parameterized example {.unnumbered} 
+### Parameterisation without `params` {.unnumbered}
+## Looping reports  {  }
+## Templates  
+### Word documents {.unnumbered}
+### Powerpoint documents {.unnumbered}
+### Integrating templates into the YAML {.unnumbered}
+### Formatting HTML files {.unnumbered}
+## Dynamic content  
+### Tables {.unnumbered}  
+### HTML widgets {.unnumbered}
+## Resources {  }
+
+<!--chapter:end:new_pages/rmarkdown.Rmd-->
+
+
+# Organizing routine reports {  }  
+
+Placeholder
+
+
+## Preparation
+### Load packages {.unnumbered}  
+## New factory  
+## Create a report  
+## Compile  
+### Compile by name {.unnumbered}  
+### Compile by number {.unnumbered}
+### Compile all {.unnumbered}
+### Compile from sub-folder {.unnumbered}  
+### Parameterization {.unnumbered}
+### Using a "run-file" {.unnumbered}  
+## Outputs  
+## Miscellaneous  
+### Knit {.unnumbered} 
+### Scripts {.unnumbered}  
+### Extras {.unnumbered} 
+## Resources {  }
+
+<!--chapter:end:new_pages/reportfactory.Rmd-->
+
+
+# Dashboards with R Markdown { }
+
+Placeholder
+
+
+## Preparation
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}  
+## Create new R Markdown  
+## The script  
+### YAML {.unnumbered}  
+### Code chunks {.unnumbered}  
+### Narrative text {.unnumbered}  
+### Headings {.unnumbered}  
+## Section attributes  
+## Layout {#layout}  
+### Pages {.unnumbered}  
+### Orientation {.unnumbered}  
+### Tabs {.unnumbered} 
+## Adding content  
+### Text {.unnumbered}  
+### Tables {.unnumbered}  
+### Plots {.unnumbered}  
+### Interactive plots {.unnumbered}  
+### HTML widgets {.unnumbered}
+## Code organization
+## Shiny  
+### Settings {.unnumbered}  
+### Worked example {.unnumbered}  
+### Other examples {.unnumbered}  
+## Sharing  
+## Resources  
+
+<!--chapter:end:new_pages/flexdashboard.Rmd-->
+
+
+# Dashboards with Shiny { }  
+
+Placeholder
+
+
+## Preparation  
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}  
+## The structure of a shiny app {  }
+### Basic file structures {.unnumbered}  
+### The server and the ui {.unnumbered}
+### Before you start to build an app {.unnumbered}
+## Building a UI 
+## Loading data into our app
+## Developing an app server
+## Adding more functionality
+### Adding static text {.unnumbered}  
+### Adding a link {.unnumbered}
+### Adding a download button {.unnumbered}
+### Adding a facility selector {.unnumbered}  
+### Adding another tab with a table {.unnumbered}
+## Sharing shiny apps
+## Further reading
+## Recommended extension packages
+## Recommended resources
+
+<!--chapter:end:new_pages/shiny_basics.Rmd-->
+
+# (PART) Miscellaneous {.unnumbered}
+```{r include=FALSE, cache=FALSE}
+
+# clear workspace
+rm(list = ls(all = TRUE))
+
+# clear all packages except base
+#lapply(names(sessionInfo()$loadedOnly), require, character.only = TRUE)
+#invisible(lapply(paste0('package:', names(sessionInfo()$otherPkgs)), detach, character.only=TRUE, unload=TRUE, force=TRUE))
+
+# to ensure that tidyverse packages prevail
+filter <- dplyr::filter
+select <- dplyr::select
+summarise <- dplyr::summarise
+summary <- base::summary
+incidence <- incidence2::incidence
+
+#load core packages
+pacman::p_load(
+     rio,
+     here,
+     DT,
+     stringr,
+     lubridate,
+     tidyverse
+)
+
+# import the cleaned ebola linelist
+linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
+
+# import the count data - facility level
+#count_data <- rio::import(here::here("data", "facility_count_data.rds"))
+
+# Settings
+
+options(scipen=1, digits=7)
+
+# print only text (not code)
+#library(knitr)
+#opts_chunk$set(list(echo = FALSE, eval = FALSE))
+```
+
+<!--chapter:end:new_pages/cat_misc.Rmd-->
+
+
+# Writing functions  
+
+Placeholder
+
+
+## Preparation {  }
+### Load packages {-}
+### Import data {-}
+## Functions  
+## Why would you use a function? 
+## How does R  build functions?
+## Basic syntax and structure
+## Examples  
+### Return proportion tables for several columns {.unnumbered}  
+## Using **purrr**: writing functions that can be iteratively applied
+### Modify class of multiple columns in a dataset {.unnumbered}  
+### Iteratively produce graphs for different levels of a variable {.unnumbered}
+### Iteratively produce tables for different levels of a variable {.unnumbered}
+## Tips and best Practices for well functioning functions
+### Naming and syntax {.unnumbered}
+### Column names and tidy evaluation {.unnumbered}  
+### Testing and Error handling {.unnumbered}
+## Resources
+
+<!--chapter:end:new_pages/writing_functions.Rmd-->
+
+
+# Directory interactions { }  
+
+Placeholder
+
+
+## Preparation  
+### **fs** package {.unnumbered}  
+### Print directory as a dendrogram tree {.unnumbered}  
+## List files in a directory  
+## File information  
+## Check if exists  
+### R objects {.unnumbered}  
+### Directories {.unnumbered}  
+### Files {.unnumbered}  
+## Create  
+### Directories {.unnumbered}  
+### Files {.unnumbered}  
+### Create if does not exists {.unnumbered}  
+## Delete
+### R objects {.unnumbered}  
+### Directories {.unnumbered}  
+### Files {.unnumbered}  
+## Running other files  
+### `source()` {.unnumbered}  
+### `render()` {.unnumbered}  
+### Run files in a directory {.unnumbered}
+### Import files in a directory  {.unnumbered}
+## **base** R  
+## Resources {  }
+
+<!--chapter:end:new_pages/directories.Rmd-->
+
+
+# Version control and collaboration with Git and Github
+
+Placeholder
+
+
+## What is Git?
+## Why use the combo Git and Github?
+### This sounds complicated, I am not a programmer {-}
+## Setup
+### Install Git {.unnumbered}
+### Install an interface (optional but recommended) {.unnumbered}
+### Github account {.unnumbered}
+## Vocabulary, concepts and basic functions
+### Repository {.unnumbered}
+### Commits {.unnumbered}
+### Branches {.unnumbered}
+### Local and remote repositories {.unnumbered}
+## Get started: create a new repository
+### Start-up files {.unnumbered}
+### Create a new repository in Github {.unnumbered}
+### Clone from a Github repository {.unnumbered}
+#### In Rstudio {.unnumbered}
+#### In Github Desktop {.unnumbered}
+### New Github repo from existing R project {.unnumbered}
+### What does it look like now? {.unnumbered}
+#### In RStudio {-}
+#### In Github Desktop {-}
+## Git + Github workflow
+### Process overview {.unnumbered}
+## Create a new branch
+### In Rstudio Git pane {.unnumbered}
+### In Github Desktop {.unnumbered}
+### In console {.unnumbered}
+## Commit changes
+### In Rstudio {.unnumbered}
+### In Github Desktop {.unnumbered}
+### In console {.unnumbered}
+### Amend a previous commit {.unnumbered}
+## Pull and push changes up to Github
+#### In Rstudio {.unnumbered}
+#### In Github Desktop {.unnumbered}
+#### Console {.unnumbered}
+### I want to pull but I have local work {.unnumbered}
+## Merge branch into Main 
+### Locally in Github Desktop {.unnumbered}
+### In console {.unnumbered}
+### In Github: submitting pull requests {.unnumbered}
+### Resolving conflicts {.unnumbered}
+### Delete your branch {.unnumbered}
+#### Github + Rstudio
+#### In Github Desktop
+### Forking {.unnumbered}
+## What we learned
+## Git commands {#git}
+### Recommended learning {.unnumbered}
+### Where to enter commands {.unnumbered}
+### Sample commands {.unnumbered}
+## Resources
+
+<!--chapter:end:new_pages/collaboration.Rmd-->
+
+
+# Common errors  
+
+Placeholder
+
+
+## Interpreting error messages  
+## Common errors  
+### Typo errors {.unnumbered}  
+### Package errors {.unnumbered}  
+### Object errors {.unnumbered}  
+### Function syntax errors {.unnumbered}
+### Logic errors {.unnumbered}  
+### Factor errors {.unnumbered}  
+### Plotting errors {.unnumbered}  
+### R Markdown errors {.unnumbered}  
+### Miscellaneous {.unnumbered}  
+## Resources { }
+
+<!--chapter:end:new_pages/errors.Rmd-->
+
+
+# Getting help  
+
+Placeholder
+
+
+## Github issues  
+## Reproducible example  
+### The **reprex** package {.unnumbered}  
+### Minimal data {.unnumbered}  
+## Posting to a forum  
+## Resources { }
+
+<!--chapter:end:new_pages/help.Rmd-->
+
+
+# R on network drives { }  
+
+Placeholder
+
+
+## Overview {  }
+## RStudio as administrator  
+## Useful commands 
+## Troubleshooting common errors {  }
+
+<!--chapter:end:new_pages/network_drives.Rmd-->
+
+
+# Data Table { }  
+
+Placeholder
+
+
+## Intro to data tables {  }
+## Load packages and import data { }
+### Load packages {.unnumbered}  
+### Import data {.unnumbered}
+## The i argument: selecting and filtering rows{ }
+### Using helper functions for filtering {.unnumbered}  
+## The j argument: selecting and computing on columns{ }
+### Selecting columns {.unnumbered} 
+### Computing on columns {.unnumbered} 
+## The by argument: computing by groups{ }
+## Adding and updating to data tables { }
+## Resources {  }
+
+<!--chapter:end:new_pages/data_table.Rmd-->
 
