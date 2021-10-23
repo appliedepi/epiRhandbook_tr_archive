@@ -1,61 +1,61 @@
 
-# Joining data { }  
+# Veri Birleştirme { }  
 
 ```{r out.width = c('50%'), fig.show='hold', echo=F}
 knitr::include_graphics(here::here("images", "left-join.gif"))
 ```
 
-*Above: an animated example of a left join ([image source](https://github.com/gadenbuie/tidyexplain/tree/master/images))*  
+*Yukarıda: sol birleştirmenin animasyonlu bir örneği ([görüntünün kaynağı](https://github.com/gadenbuie/tidyexplain/tree/master/images))*
 
 
-This page describes ways to "join", "match", "link" "bind", and otherwise combine data frames.  
+Bu sayfa, "birleştirme(join)", "eşleştirme(match)", "ilişkilendirme(link)" "bağlantı kurma(bind)" ve veri çerçevelerini başka şekilde harmanlamanın yollarını açıklamaktadır.
 
-It is uncommon that your epidemiological analysis or workflow does not involve multiple sources of data, and the linkage of multiple datasets. Perhaps you need to connect laboratory data to patient clinical outcomes, or Google mobility data to infectious disease trends, or even a dataset at one stage of analysis to a transformed version of itself.
+Epidemiyolojik analizinizin veya iş akışınızın birden çok veri kaynağını ve birden çok veri kümesinin bağlantısını içermemesi nadir görülen bir durumdur. Belki de laboratuvar verilerini hastanın klinik sonuçlarına veya Google mobilite verilerini bulaşıcı hastalık eğilimlerine, hatta analizin bir aşamasındaki bir veri kümesini kendisinin dönüştürülmüş bir versiyonuna bağlamanız gerekebilir.
 
-In this page we demonstrate code to:  
+Bu sayfada aşağıdakilere yönelik kodu gösteriyoruz:
 
-* Conduct *joins* of two data frames such that rows are matched based on common values in identifier columns  
-* Join two data frames based on *probabilistic* (likely) matches between values  
-* Expand a data frame by directly *binding* or ("appending") rows or columns from another data frame  
+* Satırların tanımlayıcı sütunlarındaki ortak değerlere göre eşleştirileceği şekilde iki veri çerçevesinin *birleştirilmesi*
+* Değerler arasındaki *olasılıklı* (likely) eşleşmelere dayalı iki veri çerçevesini birleştirme
+* Başka bir veri çerçevesinden satırları veya sütunları doğrudan *bağlayarak* veya ("ekleyerek") bir veri çerçevesini genişletme
 
 
-<!-- ======================================================= -->
-## Preparation { }
+<!-- ============================================ ========= -->
+## Hazırlık { }
 
-### Load packages {.unnumbered}
+### Paketleri yükleme {.unnumbered}
 
-This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Bu kod parçası, analizler için gerekli olan paketlerin yüklenmesini gösterir. Bu el kitabında, gerekirse paketi kuran *ve* kullanım için yükleyen **pacman**'dan 'p_load()' vurgusunu yapıyoruz. **base** R'dan `library()` ile kurulu paketleri de yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R basics] sayfasına bakın.
 
 ```{r}
 pacman::p_load(
-  rio,            # import and export
-  here,           # locate files 
-  tidyverse,      # data management and visualisation
-  RecordLinkage,  # probabilistic matches
-  fastLink        # probabilistic matches
+  rio,            # içe aktar ve dışa aktar
+  here,           # dosyaların yerini belirle
+  tidyverse,      # veri yönetimi ve görselleştirme
+  RecordLinkage,  # olasılıksal eşleşme
+  fastLink        # olasılıksal eşleşme
 )
 ```
 
 
 
-### Import data {.unnumbered}
+### Verileri içe aktarma {.unnumbered}
 
-To begin, we import the cleaned linelist of cases from a simulated Ebola epidemic. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file). Import data with the `import()` function from the **rio** package (it handles many file types like .xlsx, .csv, .rds - see the [Import and export] page for details).  
+Başlamak için, simüle edilmiş bir Ebola salgınından temizlenmiş vaka listesini içe aktarıyoruz. Takip etmek isterseniz <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (.rds dosyası olarak). **rio** paketinden `import()` fonksiyonuyla verileri içe aktarın (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe aktarma ve dışa aktarma] sayfasına bakın).  
 
 ```{r, echo=F}
-# import the linelist into R
+# satır listesini R'a içe aktarma
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
 ```
 
 ```{r, eval=F}
-# import case linelist 
+# vaka satır listesini içe aktarma 
 linelist <- import("linelist_cleaned.rds")
 ```
 
-The first 50 rows of the linelist are displayed below.
+Satır listesinin ilk 50 satırı aşağıda gösterilmiştir.
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# satır listesi verilerini tablo olarak göster
 DT::datatable(head(linelist, 50), rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
@@ -63,26 +63,26 @@ DT::datatable(head(linelist, 50), rownames = FALSE, filter="top", options = list
 
 
 <!-- ======================================================= -->
-### Example datasets {.unnumbered}
+### Örnek veri kümeleri {.unnumbered}
 
-In the joining section below, we will use the following datasets:  
+Aşağıdaki birleştirme bölümünde, aşağıdaki veri kümelerini kullanacağız:
 
-1) A "miniature" version of the case `linelist`, containing only the columns `case_id`, `date_onset`, and `hospital`, and only the first 10 rows  
-2) A separate data frame named `hosp_info`, which contains more details about each hospital  
+1) Yalnızca "case_id", "date_onset" ve "hospital" sütunlarını ve yalnızca ilk 10 satırı içeren "vaka satır listesinin" "minyatür" versiyonu
+2) Her hastane hakkında daha fazla ayrıntı içeren "hosp_info" adlı ayrı bir veri çerçevesi
 
-In the section on probabilistic matching, we will use two different small datasets. The code to create those datasets is given in that section.  
-
-
+Olasılıksal eşleştirme bölümünde iki farklı küçük veri seti kullanacağız. Bu veri kümelerini oluşturacak kod o bölümde verilmiştir.
 
 
-#### "Miniature" case linelist {#joins_llmini .unnumbered}  
 
-Below is the the miniature case linelist, which contains only 10 rows and only columns `case_id`, `date_onset`, and `hospital`.  
+
+#### "Minyatür" vaka satır listesi {#joins_llmini .unnumbered}
+
+Aşağıda, yalnızca 10 satır ve yalnızca "case_id", "date_onset" ve "hospital" sütunlarını içeren minyatür vaka satır listesi bulunmaktadır. 
 
 ```{r}
-linelist_mini <- linelist %>%                 # start with original linelist
-  select(case_id, date_onset, hospital) %>%   # select columns
-  head(10)                                    # only take the first 10 rows
+linelist_mini <- linelist %>%                 # orijinal satır listesiyle başla
+  select(case_id, date_onset, hospital) %>%   # sütunları seç
+  head(10)                                    # sadece ilk 10 satırı al
 ```
 
 ```{r message=FALSE, echo=F}
@@ -92,12 +92,12 @@ DT::datatable(linelist_mini, rownames = FALSE, options = list(pageLength = nrow(
 
 
 
-#### Hospital information data frame {#joins_hosp_info .unnumbered}  
+#### Hastane bilgi veri çerçevesi {#joins_hosp_info .unnumbered}
 
-Below is the code to create a separate data frame with additional information about seven hospitals (the catchment population, and the level of care available). Note that the name "Military Hospital" belongs to two different hospitals - one a primary level serving 10000 residents and the other a secondary level serving 50280 residents.  
+Aşağıda, yedi hastane hakkında ek bilgi içeren ayrı bir veri çerçevesi oluşturma kodu verilmiştir (çalışma alanı nüfusu ve mevcut bakım düzeyi). "Askeri Hastane" adının iki farklı hastaneye ait olduğunu unutmayın - biri 10000 kişiye hizmet veren birinci basamak ve diğeri 50280 kişiye hizmet veren ikinci basamak.
 
 ```{r}
-# Make the hospital information data frame
+#Hastane bilgi veri çerçevesini yapın
 hosp_info = data.frame(
   hosp_name     = c("central hospital", "military", "military", "port", "St. Mark's", "ignace", "sisters"),
   catchment_pop = c(1950280, 40500, 10000, 50280, 12000, 5000, 4200),
@@ -105,10 +105,10 @@ hosp_info = data.frame(
 )
 ```
 
-Here is this data frame:  
+İşte bu veri çerçevesi: 
 
 ```{r message=FALSE, echo=F}
-# display the hospital data as a table
+# hastane verilerini bir tablo olarak göster
 DT::datatable(hosp_info, rownames = FALSE, options = list(pageLength = nrow(hosp_info)))
 ```
 
@@ -117,41 +117,41 @@ DT::datatable(hosp_info, rownames = FALSE, options = list(pageLength = nrow(hosp
 
 
 <!-- ======================================================= -->
-### Pre-cleaning {.unnumbered}
+### Ön temizleme {.unnumbered}
 
-Traditional joins (non-probabilistic) are case-sensitive and require exact character matches between values in the two data frames. To demonstrate some of the cleaning steps you might need to do before initiating a join, we will clean and align the `linelist_mini` and `hosp_info` datasets now.  
+Geleneksel birleştirmeler (olasılıksız) büyük/küçük harfe duyarlıdır ve iki veri çerçevesindeki değerler arasında tam karakter eşleşmeleri gerektirir. Bir birleştirmeyi başlatmadan önce yapmanız gerekebilecek bazı temizleme adımlarını göstermek için, şimdi 'linelist_mini' ve 'hosp_info' veri kümelerini temizleyip hizalayacağız.
 
-**Identify differences**  
+**Farklılıkları tanımlayın**
 
-We need the values of the `hosp_name` column in the `hosp_info` data frame to match the values of the `hospital` column in the `linelist_mini` data frame.  
+'linelist_mini' veri çerçevesindeki 'hospital' sütununun değerleriyle eşleşmesi için 'hosp_info' veri çerçevesindeki 'hosp_name' sütununun değerlerine ihtiyacımız var.
 
-Here are the values in the `linelist_mini` data frame, printed with the **base** R function `unique()`:  
+**base** R fonksiyonu 'unique()' ile yazdırılan 'linelist_mini' veri çerçevesindeki değerler şunlardır:
 
 ```{r}
 unique(linelist_mini$hospital)
 ```
 
-and here are the values in the `hosp_info` data frame:  
+ve burada "hosp_info" veri çerçevesindeki değerler: 
 
 ```{r}
 unique(hosp_info$hosp_name)
 ```
 
-You can see that while some of the hospitals exist in both data frames, there are many differences in spelling.  
+Her iki veri çerçevesinde de bazı hastaneler varken, yazımda birçok farklılık olduğunu görebilirsiniz.
 
 
+**Değerleri hizala**
 
-**Align values**  
+`hosp_info` veri çerçevesindeki değerleri temizleyerek başlıyoruz. [Temizleme verileri ve temel fonksiyonlar] sayfasında açıklandığı gibi, **dplyr**'in `case_while()` fonksiyonunu kullanarak değerleri mantıksal kriterlerle yeniden kodlayabiliriz. Her iki veri çerçevesinde de bulunan dört hastane için değerleri, 'linelist_mini' içindeki değerlerle uyumlu olacak şekilde değiştiriyoruz. Diğer hastanelerde değerleri olduğu gibi bırakıyoruz (`TRUE ~ hosp_name`).
 
-We begin by cleaning the values in the `hosp_info` data frame. As explained in the [Cleaning data and core functions] page, we can re-code values with logical criteria using **dplyr**'s `case_when()` function. For the four hospitals that exist in both data frames we change the values to align with the values in `linelist_mini`. The other hospitals we leave the values as they are (`TRUE ~ hosp_name`).   
-
-<span style="color: orange;">**_CAUTION:_** Typically when cleaning one should create a new column (e.g. `hosp_name_clean`), but for ease of demonstration we show modification of the old column</span>
+<span style="color: orange;">**_UYARI:_** Genellikle temizlik yapılırken yeni bir sütun oluşturulmalıdır (ör. `hosp_name_clean`),
+ancak gösterim kolaylığı için eski sütunun modifikasyonunu gösteriyoruz</span>
 
 ```{r}
 hosp_info <- hosp_info %>% 
   mutate(
     hosp_name = case_when(
-      # criteria                         # new value
+      # criteria                         # yeni değer
       hosp_name == "military"          ~ "Military Hospital",
       hosp_name == "port"              ~ "Port Hospital",
       hosp_name == "St. Mark's"        ~ "St. Mark's Maternity Hospital (SMMH)",
@@ -161,13 +161,13 @@ hosp_info <- hosp_info %>%
     )
 ```
 
-The hospital names that appear in both data frames are aligned. There are two hospitals in `hosp_info` that are not present in `linelist_mini` - we will deal with these later, in the join.  
+Her iki veri çerçevesinde de görünen hastane adları hizalanmıştır. "Hosp_info"da "linelist_mini"de bulunmayan iki hastane vardır - bunları daha sonra, birleştirmede ele alacağız.
 
 ```{r}
 unique(hosp_info$hosp_name)
 ```
 
-Prior to a join, it is often easiest to convert a column to all lowercase or all uppercase. If you need to convert all values in a column to UPPER or lower case, use `mutate()` and wrap the column with one of these functions from **stringr**, as shown in the page on [Characters and strings].  
+Birleştirmeden önce, bir sütunu tamamen küçük harfe veya tamamı büyük harfe dönüştürmek genellikle en kolayıdır. Bir sütundaki tüm değerleri BÜYÜK veya küçük harfe dönüştürmeniz gerekiyorsa, 'mutate()' kullanın ve sütunu**stringr**' fonksiyonlarından biriyle sarın. [Karakterler ve dizeler] sayfasında gösterildiği gibi  
 
 `str_to_upper()`  
 `str_to_upper()`  
@@ -177,94 +177,94 @@ Prior to a join, it is often easiest to convert a column to all lowercase or all
 
 
 <!-- ======================================================= -->
-## **dplyr** joins { }
+## **dplyr** birleştirmeleri { }
 
-The **dplyr** package offers several different join functions. **dplyr** is included in the **tidyverse** package. These join functions are described below, with simple use cases.  
+**dplyr** paketi birkaç farklı birleştirme fonksiyonu sunar. **dplyr**, **tidyverse** paketine dahildir. Bu birleştirme fonksiyonları, basit kullanım durumları ile aşağıda açıklanmıştır.
 
-Many thanks to [https://github.com/gadenbuie](https://github.com/gadenbuie/tidyexplain/tree/master/images) for the informative gifs!  
-
-
+Bilgilendirici gifler için [https://github.com/gadenbuie](https://github.com/gadenbuie/tidyexplain/tree/master/images)'e çok teşekkürler!
 
 
-<!-- ======================================================= -->
-### General syntax {.unnumbered}
 
-The join commands can be run as standalone commands to join two data frames into a new object, or they can be used within a pipe chain (`%>%`) to merge one data frame into another as it is being cleaned or otherwise modified.  
 
-In the example below, the function `left_join()` is used as a standalone command to create the a new `joined_data` data frame. The inputs are data frames 1 and 2 (`df1` and `df2`). The first data frame listed is the baseline data frame, and the second one listed is joined *to* it.  
+<!-- ============================================ ========= -->
+### Genel sözdizimi {.unnumbered}
 
-The third argument `by = ` is where you specify the columns in each data frame that will be used to aligns the rows in the two data frames. If the names of these columns are different, provide them within a `c()` vector as shown below, where the rows are matched on the basis of common values between the column `ID` in `df1` and the column `identifier` in `df2`.   
+Birleştirme komutları, iki veri çerçevesini yeni bir nesnede birleştirmek için bağımsız komutlar olarak çalıştırılabilir veya bir veri çerçevesini temizlenirken veya başka bir şekilde değiştirilirken bir veri çerçevesini diğerine birleştirmek için bir tünel zincirinde ("%>%") kullanılabilir. .
+
+Aşağıdaki örnekte, "left_join()" fonksiyonu, yeni bir "joined_data" veri çerçevesi oluşturmak için bağımsız bir komut olarak kullanılır. Girişler, veri çerçeveleri 1 ve 2'dir (`df1` ve `df2`). Listelenen ilk veri çerçevesi temel veri çerçevesidir ve listelenen ikincisi *buna* birleştirilir.
+
+Üçüncü argüman "by =", iki veri çerçevesindeki satırları hizalamak için kullanılacak her veri çerçevesindeki sütunları belirttiğiniz yerdir. Bu sütunların adları farklıysa, bunları aşağıda gösterildiği gibi bir "c()" vektörü içinde sağlayın; burada satırlar "df1"deki "ID" sütunu ile "df2"deki "tanımlayıcı" sütunu arasındaki ortak değerler temelinde eşleştirilir.
 
 ```{r, eval=F}
-# Join based on common values between column "ID" (first data frame) and column "identifier" (second data frame)
+# "ID" sütunu (ilk veri çerçevesi) ve "tanımlayıcı" sütunu (ikinci veri çerçevesi) arasındaki ortak değerlere göre birleştirme
 joined_data <- left_join(df1, df2, by = c("ID" = "identifier"))
 ```
 
-If the `by` columns in both data frames have the exact same name, you can just provide this one name, within quotes.  
+Her iki veri çerçevesindeki "by" sütunları tam olarak aynı ada sahipse, bu tek adı tırnak içinde verebilirsiniz.  
 
 ```{r, eval=F}
-# Joint based on common values in column "ID" in both data frames
+# Her iki veri çerçevesindeki "ID" sütunundaki ortak değerlere dayalı birleştirme
 joined_data <- left_join(df1, df2, by = "ID")
 ```
 
-If you are joining the data frames based on common values across multiple fields, list these fields within the `c()` vector. This example joins rows if the values in three columns in each dataset align exactly.  
+Birden çok alandaki ortak değerlere dayalı veri çerçevelerini birleştiriyorsanız, bu alanları "c()" vektörü içinde listeleyin. Bu örnek, her veri kümesindeki üç sütundaki değerler tam olarak aynı hizadaysa satırları birleştirir.
 
 ```{r, eval=F}
-# join based on same first name, last name, and age
+# aynı isim-soyisim ve yaşa sahip olanları birleştirme
 joined_data <- left_join(df1, df2, by = c("name" = "firstname", "surname" = "lastname", "Age" = "age"))
 ```
 
 
-The join commands can also be run within a pipe chain. This will modify the data frame being piped. 
+Birleştirme komutları bir tünel zinciri içinde de çalıştırılabilir. Bu, aktarılan veri çerçevesini değiştirecektir.
 
-In the example below, `df1` is is passed through the pipes, `df2` is joined to it, and `df` is thus modified and re-defined.  
+Aşağıdaki örnekte 'df1' tünellerden geçirilmekte, 'df2' ile birleştirilmekte ve böylece 'df' değiştirilip yeniden tanımlanmaktadır.
 
 ```{r eval=F}
 df1 <- df1 %>%
-  filter(date_onset < as.Date("2020-03-05")) %>% # miscellaneous cleaning 
-  left_join(df2, by = c("ID" = "identifier"))    # join df2 to df1
+  filter(date_onset < as.Date("2020-03-05")) %>% # öok yönlü temizlik
+  left_join(df2, by = c("ID" = "identifier"))    # df2 yi df1 e birleştirmek
 ```
 
 
-<span style="color: orange;">**_CAUTION:_** Joins are case-specific! Therefore it is useful to convert all values to lowercase or uppercase prior to joining. See the page on characters/strings.</span>
+<span style="color: orange;">**_UYARI:_** Birleştirmeler büyük/küçük harfe özeldir! Bu nedenle, birleştirmeden önce tüm değerleri küçük harfe veya büyük harfe dönüştürmek yararlıdır. Karakterler/dizeler ile ilgili sayfaya bakınız.</span>
 
 
 
 
 
 <!-- ======================================================= -->
-### Left and right joins {.unnumbered}  
+### Sol ve sağ birleşimler {.unnumbered}
 
-**A left or right join is commonly used to add information to a data frame** - new information is added only to rows that already existed in the baseline data frame. These are common joins in epidemiological work as they are used to add information from one dataset into another. 
+**Bir veri çerçevesine bilgi eklemek için yaygın olarak sol veya sağ birleşim kullanılır** - yeni bilgiler yalnızca temel veri çerçevesinde zaten var olan satırlara eklenir. Bunlar, bir veri kümesinden diğerine bilgi eklemek için kullanıldıkları için epidemiyolojik çalışmalarda yaygın olarak kullanılan birleştirmelerdir.
 
-In using these joins, the written order of the data frames in the command is important*.  
+Bu birleştirmeleri kullanırken, komuttaki veri çerçevelerinin yazılı sırası önemlidir*.
 
-* In a *left join*, the *first* data frame written is the baseline  
-* In a *right join*, the *second* data frame written is the baseline  
+* Bir *sol birleştirmede*, yazılan *ilk* veri çerçevesi temel satırdır
+* Bir *sağ birleştirmede*, yazılan *ikinci* veri çerçevesi temel satırdır
 
-**All rows of the baseline data frame are kept.** Information in the other (secondary) data frame is joined to the baseline data frame *only if there is a match via the identifier column(s)*. In addition:  
+**Temel veri çerçevesinin tüm satırları tutulur.** Diğer (ikincil) veri çerçevesindeki bilgiler, temel veri çerçevesine *yalnızca tanımlayıcı sütun(lar)ı aracılığıyla bir eşleşme varsa* birleştirilir. Ek olarak:
 
-* Rows in the secondary data frame that do not match are dropped.  
-* If there are many baseline rows that match to one row in the secondary data frame (many-to-one), the secondary information is added to *each matching baseline row*.  
-* If a baseline row matches to multiple rows in the secondary data frame (one-to-many), all combinations are given, meaning *new rows may be added to your returned data frame!*  
+* İkincil veri çerçevesindeki eşleşmeyen satırlar atlanır.
+* İkincil veri çerçevesindeki bir satırla eşleşen çok sayıda temel satır varsa (çoktan bire), ikincil bilgiler *eşleşen her bir temel satıra* eklenir.
+* Bir temel satır, ikincil veri çerçevesindeki birden çok satırla eşleşirse (bire çok), tüm kombinasyonlar verilir, yani *döndürülen veri çerçevenize yeni satırlar eklenebilir!*
 
-Animated examples of left and right joins ([image source](https://github.com/gadenbuie/tidyexplain/tree/master/images))
+Sol ve sağ birleştirmelerin animasyonlu örnekleri ([image source](https://github.com/gadenbuie/tidyexplain/tree/master/images))
 
 ```{r out.width = c('50%'), fig.show='hold', echo=F}
 knitr::include_graphics(here::here("images", "left-join.gif"))
 knitr::include_graphics(here::here("images", "right-join.gif"))
 ```
 
-**Example**  
+**Örnek**
 
-Below is the output of a `left_join()` of `hosp_info` (secondary data frame, [view here](#joins_hosp_info))  *into* `linelist_mini` (baseline data frame, [view here](#joins_llmini)). The original `linelist_mini` has ` nrow(linelist_mini)` rows. The modified `linelist_mini` is displayed. Note the following:  
+Aşağıda, "hosp_info"nun (ikincil veri çerçevesi, [buradan görüntüleyebilirsiniz](#joins_hosp_info)) "linelist_mini"ye (temel veri çerçevesi, [buradan görüntüleyebilirsiniz](#joins_llmini)) bir "left_join()" çıktısı verilmiştir. Orijinal "linelist_mini", "nrow(linelist_mini)" satırlarına sahiptir. Değiştirilen "linelist_mini" görüntülenir. Aşağıdakilere dikkat ediniz:
 
-* Two new columns, `catchment_pop` and `level` have been added on the left side of `linelist_mini`  
-* All original rows of the baseline data frame `linelist_mini` are kept  
-* Any original rows of `linelist_mini` for "Military Hospital" are duplicated because it matched to *two* rows in the secondary data frame, so both combinations are returned  
-* The join identifier column of the secondary dataset (`hosp_name`) has disappeared because it is redundant with the identifier column in the primary dataset (`hospital`)  
-* When a baseline row did not match to any secondary row (e.g. when `hospital` is "Other" or "Missing"), `NA` (blank) fills in the columns from the secondary data frame  
-* Rows in the secondary data frame with no match to the baseline data frame ("sisters" and "ignace" hospitals) were dropped  
+* "linelist_mini"nin sol tarafına iki yeni sütun, "catchment_pop" ve "level" eklendi
+* 'linelist_mini' temel veri çerçevesinin tüm orijinal satırları tutulur
+* "Askeri Hastane" için herhangi bir orijinal "linelist_mini" satırı, ikincil veri çerçevesindeki *iki* satırla eşleştiği için çoğaltılır, bu nedenle her iki kombinasyon da döndürülür
+* İkincil veri kümesinin (`hosp_name`) birleştirme tanımlayıcı sütunu, birincil veri kümesindeki ("hastane") tanımlayıcı sütunuyla gereksiz olduğundan kayboldu
+* Temel satır herhangi bir ikincil satırla eşleşmediğinde (örneğin, "hastane" "Diğer" veya "Eksik" olduğunda), "NA" (boşluk) ikincil veri çerçevesindeki sütunları doldurur
+* İkincil veri çerçevesindeki temel veri çerçevesiyle eşleşmeyen satırlar ("kızkardeşler" ve "ignace" hastaneleri) çıkarıldı.
 
 
 ```{r, eval=F}
@@ -282,59 +282,57 @@ linelist_mini %>%
 
 
 
-#### "Should I use a right join, or a left join?" {.unnumbered}  
+#### "Sağ birleştirme mi yoksa sol birleştirme mi kullanmalıyım?" {.unnumbered}
 
-To answer the above question, ask yourself "which data frame should retain all of its rows?" - use this one as the baseline. A *left join* keep all the rows in the first data frame written in the command, whereas a *right join* keeps all the rows in the second data frame.  
+Yukarıdaki soruyu yanıtlamak için kendinize "hangi veri çerçevesinin tüm satırlarını tutması gerektiğini" sorun. - bunu temel satır olarak kullanın. *sol birleştirme* komutta yazılan ilk veri çerçevesindeki tüm satırları tutarken, *sağ birleştirme* tüm satırları ikinci veri çerçevesinde tutar.
 
-The two commands below achieve the same output - 10 rows of `hosp_info` joined *into* a `linelist_mini` baseline, but they use different joins. The result is that the column order will differ based on whether `hosp_info` arrives from the right (in the left join) or arrives from the left (in the right join). The order of the rows may also shift accordingly. But both of these consequences can be subsequently addressed, using `select()` to re-order columns or `arrange()` to sort rows.  
+Aşağıdaki iki komut aynı çıktıyı elde eder - 10 satır "hosp_info" bir "linelist_mini" temel satırına katılmıştır, ancak farklı birleşimler kullanırlar. Sonuç olarak, sütun sırası, "hosp_info"nun sağdan mı (sol birleştirmede) yoksa soldan mı (sağ birleştirmede) geldiğine bağlı olarak farklılık gösterecektir. Sıraların sırası da buna göre değişebilir. Ancak bu sonuçların her ikisi de daha sonra, sütunları yeniden sıralamak için "select()" veya satırları sıralamak için "arrange()" kullanılarak ele alınabilir.
 
 ```{r, eval=F}
-# The two commands below achieve the same data, but with differently ordered rows and columns
+# Aşağıdaki iki komut aynı verileri elde eder, ancak farklı sıralı satırlar ve sütunlarla
 left_join(linelist_mini, hosp_info, by = c("hospital" = "hosp_name"))
 right_join(hosp_info, linelist_mini, by = c("hosp_name" = "hospital"))
 ```
-
-Here is the result of `hosp_info` into `linelist_mini` via a left join (new columns incoming from the right)
+Sol birleşim yoluyla 'hosp_info'nun 'linelist_mini' içindeki sonucu (sağdan gelen yeni sütunlar)
 
 ```{r message=FALSE, echo=F}
 left_join(linelist_mini, hosp_info, by = c("hospital" = "hosp_name")) %>% 
   DT::datatable(rownames = FALSE, options = list(pageLength = 11))
 ```
-
-Here is the result of `hosp_info` into  `linelist_mini` via a right join (new columns incoming from the left)  
+İşte sağ birleştirme yoluyla 'hosp_info'nun 'linelist_mini' içindeki sonucu (soldan gelen yeni sütunlar)
 
 ```{r message=FALSE, echo=F}
 right_join(hosp_info, linelist_mini, by = c("hosp_name" = "hospital")) %>% 
   DT::datatable(rownames = FALSE, options = list(pageLength = 11))
 ```
 
-Also consider whether your use-case is within a pipe chain (`%>%`). If the dataset in the pipes is the baseline, you will likely use a left join to add data to it.
+Ayrıca kullanım durumunuzun bir tünel zinciri (`%>%`) içinde olup olmadığını da göz önünde bulundurun. Borulardaki veri kümesi temel satır ise, buna veri eklemek için büyük olasılıkla bir sol birleştirme kullanacaksınız.
 
 
 <!-- ======================================================= -->
-### Full join {.unnumbered} 
+### Tam birleşme {.unnumbered}
 
-**A full join is the most *inclusive* of the joins** - it returns all rows from both data frames.  
+**Tam birleşim, birleşimlerin en *kapsayıcısıdır** - her iki veri çerçevesinden tüm satırları döndürür.
 
-If there are any rows present in one and not the other (where no match was found), the data frame will include them and become longer. `NA` missing values are used to fill-in any gaps created. As you join, watch the number of columns and rows carefully to troubleshoot case-sensitivity and exact character matches. 
+Birinde mevcut olan ve diğerinde olmayan satırlar varsa (eşleşmenin bulunmadığı durumlarda), veri çerçevesi bunları içerecek ve daha uzun olacaktır. "NA" eksik değerleri, oluşturulan boşlukları doldurmak için kullanılır. Birleştirirken, büyük/küçük harf duyarlılığı ve tam karakter eşleşmeleriyle ilgili sorunları gidermek için sütun ve satır sayısını dikkatle izleyin.
 
-The "baseline" data frame is the one written first in the command. Adjustment of this will not impact which records are returned by the join, but it can impact the resulting column order, row order, and which identifier columns are retained.  
+"Temel satır" veri çerçevesi, komutta ilk yazılan çerçevedir. Bunun ayarlanması, birleştirme tarafından hangi kayıtların döndürüleceğini etkilemez, ancak sonuçta elde edilen sütun sırasını, satır sırasını ve hangi tanımlayıcı sütunların tutulacağını etkileyebilir.
 
 ```{r out.width = c('50%'), fig.show='hold', echo=F}
 knitr::include_graphics(here::here("images", "full-join.gif"))
 ```
 
-Animated example of a full join ([image source](https://github.com/gadenbuie/tidyexplain/tree/master/images))
+Tam birleştirmenin animasyonlu örneği ([görüntü kaynağı](https://github.com/gadenbuie/tidyexplain/tree/master/images))
 
-**Example**  
+**Örnek**
 
-Below is the output of a `full_join()` of `hosp_info` (originally ` nrow(hosp_info)`, [view here](#joins_hosp_info))  *into* `linelist_mini` (originally ` nrow(linelist_mini)`, [view here](#joins_llmini)). Note the following:  
+`linelist_mini`nin(başlangıçta`nrow(linelist_mini)`, [buradan görüntüleyebilirsiniz](#joins_llmini) *içine* `hosp_info`'nun `full_join()`'i (başlangıçta  nrow(hosp_info)`, [buradan görüntüleyebilirsiniz](#joins_hosp_info)) çıktısı aşağıda yer almaktadır. Aşağıdakilere dikkat ediniz:  
 
-* All baseline rows are kept (`linelist_mini`)  
-* Rows in the secondary that do not match to the baseline are kept ("ignace" and "sisters"), with values in the corresponding baseline columns  `case_id` and `onset` filled in with missing values  
-* Likewise, rows in the baseline data frame that do not match to the secondary ("Other" and "Missing") are kept, with secondary columns ` catchment_pop` and `level` filled-in with missing values  
-* In the case of one-to-many or many-to-one matches (e.g. rows for "Military Hospital"), all possible combinations are returned (lengthening the final data frame)  
-* Only the identifier column from the baseline is kept (`hospital`)  
+* Tüm temel satırlar tutulur (`linelist_mini`)
+* İkincil satırda temel satırla eşleşmeyen satırlar tutulur ("ignace" ve "sisters"), karşılık gelen "case_id" ve "onset" sütunlarındaki değerler eksik değerlerle doldurulur
+* Benzer şekilde, temel veri çerçevesindeki ikincil ile eşleşmeyen satırlar ("Diğer" ve "Eksik") tutulur, ikincil sütunlar "catchment_pop" ve "level" eksik değerlerle doldurulur
+* Bire çoğa veya çoğa bire eşleşmelerde (ör. "Askeri Hastane" satırları), tüm olası kombinasyonlar döndürülür (son veri çerçevesini uzatarak)
+* Yalnızca temel satırdan tanımlayıcı sütun tutulur ("hastane")
 
 
 ```{r, eval=F}
@@ -353,27 +351,26 @@ linelist_mini %>%
 
 
 <!-- ======================================================= -->
-### Inner join {.unnumbered} 
+### İç birleştirme {.unnumbered}
 
-**An inner join is the most *restrictive* of the joins** - it returns only rows with matches across both data frames.  
-This means that the number of rows in the baseline data frame may actually *reduce*. Adjustment of which data frame is the "baseline" (written first in the function) will not impact which rows are returned, but it will impact the column order, row order, and which identifier columns are retained.   
+**İç birleştirme, birleştirmelerin en *kısıtlayıcısıdır** - yalnızca her iki veri çerçevesinde eşleşen satırları döndürür.
+Bu, temel veri çerçevesindeki satır sayısının gerçekten *azalabileceği* anlamına gelir. Hangi veri çerçevesinin "temel satır" (işlevde ilk olarak yazılır) olduğunun ayarlanması, hangi satırların döndürüleceğini etkilemez, ancak sütun sırasını, satır sırasını ve hangi tanımlayıcı sütunların tutulacağını etkiler.
 
 
 ```{r out.width = c('50%'), fig.show='hold', echo=F}
 knitr::include_graphics(here::here("images", "inner-join.gif"))
 ```
 
-Animated example of an inner join ([image source](https://github.com/gadenbuie/tidyexplain/tree/master/images))
+İç birleştirmenin animasyonlu örneği ([görüntü kaynağı](https://github.com/gadenbuie/tidyexplain/tree/master/images))
 
 
-**Example**  
+**Örnek**
 
-Below is the output of an `inner_join()` of `linelist_mini` (baseline) with `hosp_info` (secondary). Note the following:  
+Aşağıda, "hosp_info" (ikincil) ile "linelist_mini"nin (temel satır) bir "inner_join()" çıktısı bulunmaktadır. Aşağıdakilere dikkat ediniz:
 
-* Baseline rows with no match to the secondary data are removed (rows where `hospital` is "Missing" or "Other")  
-* Likewise, rows from the secondary data frame that had no match in the baseline are removed (rows where `hosp_name` is "sisters" or "ignace")  
-* Only the identifier column from the baseline is kept (`hospital`)  
-
+* İkincil verilerle eşleşmeyen temel satırlar kaldırılır ("hastane"nin "Eksik" veya "Diğer" olduğu satırlar)
+* Benzer şekilde, temel satırla eşleşmeyen ikincil veri çerçevesindeki satırlar kaldırılır ("hosp_name"nin "kız kardeşler" veya "ignace" olduğu satırlar)
+* Yalnızca temel satırdan tanımlayıcı sütun tutulur ("hastane")
 
 ```{r, eval=F}
 linelist_mini %>% 
@@ -393,19 +390,19 @@ linelist_mini %>%
 
 
 <!-- ======================================================= -->
-### Semi join {.unnumbered} 
+### Yarım birleştirme {.unnumbered}
 
-A semi join is a "filtering join" which uses another dataset *not to add rows or columns, but to perform filtering*.  
+Yarım birleştirme, başka bir veri kümesini *satır veya sütun eklemek için değil, filtreleme* gerçekleştirmek için kullanan bir "filtreleme birleştirme"dir.
 
-A **semi-join keeps all observations in the baseline data frame that have a match in the secondary data frame** (but does not add new columns nor duplicate any rows for multiple matches). Read more about these "filtering" joins [here](https://towardsdatascience.com/level-up-with-semi-joins-in-r-a068426096e0).  
+Bir **yarım birleştirme, ikincil veri çerçevesinde bir eşleşmeye sahip olan temel veri çerçevesindeki tüm gözlemleri tutar** (ancak yeni sütunlar eklemez veya birden çok eşleşme için herhangi bir satırı çoğaltmaz). Bu "filtreleme" birleşimleri hakkında daha fazla bilgiyi buradan okuyabilirsiniz [buradan](https://towardsdatascience.com/level-up-with-semi-joins-in-r-a068426096e0).  
 
 ```{r out.width = c('50%'), fig.show='hold', echo=F}
 knitr::include_graphics(here::here("images", "semi-join.gif"))
 ```
 
-Animated example of a semi join ([image source](https://github.com/gadenbuie/tidyexplain/tree/master/images))
+Yarım birleştirmenin animasyonlu örneği ([görüntü kaynağı](https://github.com/gadenbuie/tidyexplain/tree/master/images))
 
-As an example, the below code returns rows from the `hosp_info` data frame that have matches in `linelist_mini` based on hospital name.  
+Örnek olarak, aşağıdaki kod, hastane adına göre "linelist_mini" içinde eşleşmeleri olan "hosp_info" veri çerçevesinden satırları döndürür.
 
 ```{r}
 hosp_info %>% 
@@ -415,26 +412,26 @@ hosp_info %>%
 
 
 <!-- ======================================================= -->
-### Anti join {.unnumbered} 
+###  Karşıt birleştirme {.unnumbered}
 
-**The anti join is another "filtering join" that returns rows in the baseline data frame that *do not* have a match in the secondary data frame.**  
+**Karşıt birleştirme 'anti_join()', temel veri çerçevesindeki ikincil veri çerçevesinde eşleşmeyen* satırları döndüren başka bir "filtreleme birleştirme"dir.**
 
-Read more about filtering joins [here](https://towardsdatascience.com/level-up-with-semi-joins-in-r-a068426096e0).  
+Birleştirmeleri filtreleme hakkında daha fazla bilgiyi buradan okuyabilirsiniz [buradan](https://towardsdatascience.com/level-up-with-semi-joins-in-r-a068426096e0).
 
-Common scenarios for an anti-join include identifying records not present in another data frame, troubleshooting spelling in a join (reviewing records that *should have* matched), and examining records that were excluded after another join.  
+Bir karşıt birleştirme için yaygın senaryolar arasında başka bir veri çerçevesinde mevcut olmayan kayıtların belirlenmesi, bir birleştirmedeki yazım hatalarının giderilmesi (eşleşmesi *gereken* kayıtların gözden geçirilmesi) ve başka bir birleştirmeden sonra hariç tutulan kayıtların incelenmesi yer alır.
 
-**As with `right_join()` and `left_join()`, the *baseline* data frame (listed first) is important**. The returned rows are from the baseline data frame only. Notice in the gif below that row in the secondary data frame (purple row 4) is not returned even though it does not match with the baseline.  
+**'right_join()' ve 'left_join()' ile olduğu gibi, *temel* veri çerçevesi (ilk olarak listelenmiştir) önemlidir**. Döndürülen satırlar yalnızca temel veri çerçevesindendir. Alttaki gifte, ikincil veri çerçevesindeki o satırın (mor satır 4), taban çizgisiyle eşleşmemesine rağmen döndürülmediğine dikkat edin.
 
 ```{r out.width = c('50%'), fig.show='hold', echo=F}
 knitr::include_graphics(here::here("images", "anti-join.gif"))
 ```
 
-Animated example of an anti join ([image source](https://github.com/gadenbuie/tidyexplain/tree/master/images))
+Karşıt birleştirmenin animasyonlu örneği ([görüntü kaynağı](https://github.com/gadenbuie/tidyexplain/tree/master/images))
 
 
-#### Simple `anti_join()` example {.unnumbered}  
+#### Basit `anti_join()` örneği {.unnumbered}
 
-For a simple example, let's find the `hosp_info` hospitals that do not have any cases present in `linelist_mini`. We list `hosp_info` first, as the baseline data frame. The hospitals which are not present in `linelist_mini` are returned.  
+Basit bir örnek için, 'linelist_mini' içinde herhangi bir vaka bulunmayan 'hosp_info' hastanelerini bulalım. Temel veri çerçevesi olarak önce 'hosp_info'yu listeleriz. 'linelist_mini' içinde bulunmayan hastaneler iade edilir.
 
 ```{r, eval=F}
 hosp_info %>% 
@@ -448,9 +445,9 @@ hosp_info %>%
 ```
 
 
-#### Complex `anti_join()` example {.unnumbered}  
+#### Karmaşık `anti_join()` örneği {.unnumbered}
 
-For another example, let us say we ran an `inner_join()` between `linelist_mini` and `hosp_info`. This returns only a subset of the original `linelist_mini` records, as some are not present in `hosp_info`.  
+Başka bir örnek için, "linelist_mini" ve "hosp_info" arasında bir "inner_join()" çalıştırdığımızı varsayalım. Bazıları "hosp_info" içinde bulunmadığından, bu, orijinal "linelist_mini" kayıtlarının yalnızca bir alt kümesini döndürür. 
 
 ```{r, eval=F}
 linelist_mini %>% 
@@ -463,7 +460,7 @@ linelist_mini %>%
   DT::datatable(rownames = FALSE, options = list(pageLength = 8))
 ```
 
-To review the `linelist_mini` records that were excluded during the inner join, we can run an anti-join with the same settings (`linelist_mini` as the baseline).  
+İç birleştirme sırasında hariç tutulan 'linelist_mini' kayıtlarını gözden geçirmek için aynı ayarlarla (temel satır olarak 'linelist_mini')  bir ayrıştırma (anti-join) çalıştırabiliriz.  
 
 ```{r, eval = F}
 linelist_mini %>% 
@@ -476,33 +473,30 @@ linelist_mini %>%
   DT::datatable(rownames = FALSE, options = list(pageLength = 8))
 ```
 
-
-To see the `hosp_info` records that were excluded in the inner join, we could also run an anti-join with `hosp_info` as the baseline data frame.  
-
+İç birleşimde hariç tutulan 'hosp_info' kayıtlarını görmek için, temel veri çerçevesi olarak 'hosp_info' ile bir ayrıştırma çalıştırabiliriz.
 
 
-<!-- ======================================================= -->
-## Probabalistic matching { }
 
-If you do not have a unique identifier common across datasets to join on, consider using a probabilistic matching algorithm. This would find matches between records based on similarity (e.g. Jaro–Winkler string distance, or numeric distance).  Below is a simple example using the package **fastLink** .  
+<!-- ============================================ ========= -->
+## Olasılıksal eşleştirme { }
 
-**Load packages**  
+Katılmak için veri kümeleri arasında ortak benzersiz bir tanımlayıcınız yoksa, olasılıklı bir eşleştirme algoritması kullanmayı düşünün. Bu, benzerliğe dayalı olarak kayıtlar arasındaki eşleşmeleri bulur (örneğin, Jaro–Winkler dizi mesafesi veya sayısal mesafe). Aşağıda **fastLink** paketini kullanan basit bir örnek verilmiştir.
+
+**Paketleri yükle**
 
 ```{r}
 pacman::p_load(
-  tidyverse,      # data manipulation and visualization
-  fastLink        # record matching
+  tidyverse,      # veri işleme ve görselleştirme
+  fastLink        # kayıt eşleştirme
   )
 ```
 
+Olasılıksal eşleşmeyi göstermek için kullanacağımız iki küçük örnek veri kümesi ("durumlar" ve "test_sonuçları"):
 
-Here are two small example datasets that we will use to demonstrate the probabilistic matching (`cases` and `test_results`):  
-
-Here is the code used to make the datasets:  
-
+Veri kümelerini oluşturmak için kullanılan kod:
 
 ```{r}
-# make datasets
+# veri kümeleri yapmak
 
 cases <- tribble(
   ~gender, ~first,      ~middle,     ~last,        ~yr,   ~mon, ~day, ~district,
@@ -538,38 +532,38 @@ results <- tribble(
 ```
 
 
-**The `cases` dataset has 9 records** of patients who are awaiting test results.  
+**"vakalar" veri kümesinde, test sonuçlarını bekleyen hastaların 9 kaydı** vardır.  
 
 ```{r message=FALSE, echo=F}
-# display the hospital data as a table
+# hastane verisini tabloda göster
 DT::datatable(cases, rownames = FALSE, options = list(pageLength = nrow(cases), scrollX=T), class = 'white-space: nowrap')
 ```
 
 
 
-**The `test_results` dataset** has 14 records and contains the column `result`, which we want to add to the records in `cases` based on probabilistic matching of records.  
+**`test_results` veri kümesi** 14 kayıt içerir ve kayıtların olasılıksal eşleşmesine dayalı olarak `vakalar`daki kayıtlara eklemek istediğimiz `sonuç` sütununu içerir. 
 
 ```{r message=FALSE, echo=F}
-# display the hospital data as a table
+#  hastane verisini tabloda göster
 DT::datatable(results, rownames = FALSE, options = list(pageLength = nrow(results), scrollX=T), class = 'white-space: nowrap')
 ```
 
-### Probabilistic matching {.unnumbered}  
+### Olasılıksal eşleşme {.unnumbered}
 
-The `fastLink()` function from the **fastLink** package can be used to apply a matching algorithm. Here is the basic information. You can read more detail by entering `?fastLink` in your console.  
+**fastLink** paketindeki `fastLink()` fonksiyonu, bir eşleştirme algoritması uygulamak için kullanılabilir. İşte temel bilgiler. Konsolunuza `?fastLink` girerek daha fazla ayrıntı okuyabilirsiniz.
 
-* Define the two data frames for comparison to arguments `dfA = ` and `dfB = `  
-* In `varnames = ` give all column names to be used for matching. They must all exist in both `dfA` and `dfB`.  
-* In `stringdist.match = ` give columns from those in `varnames` to be evaluated on string "distance".  
-* In `numeric.match = ` give columns from those in `varnames` to be evaluated on numeric distance.  
-* Missing values are ignored  
-* By default, each row in either data frame is matched to at most one row in the other data frame. If you want to see all the evaluated matches, set `dedupe.matches = FALSE`. The deduplication is done using Winkler's linear assignment solution.  
+* `dfA = ` ve `dfB = ` değişkenleriyle karşılaştırmak için iki veri çerçevesini tanımlayın.
+* `varnames =` içinde eşleştirme için kullanılacak tüm sütun adlarını verin. Hepsi hem "dfA" hem de "dfB" içinde bulunmalıdır.
+* `stringdist.match =` içinde, "distance" dizesinde değerlendirilmek üzere `varnames` içindekilerden sütunlar verin.
+* 'numeric.match = ' içinde, 'varnames' içindekilerden sayısal mesafeye göre değerlendirilecek sütunlar verin.
+* Eksik değerler dikkate alınmaz
+* Varsayılan olarak, herhangi bir veri çerçevesindeki her satır, diğer veri çerçevesindeki en fazla bir satırla eşleştirilir. Değerlendirilen tüm eşleşmeleri görmek istiyorsanız, "dedupe.matches = FALSE" olarak ayarlayın. Tekilleştirme, Winkler'in doğrusal atama çözümü kullanılarak yapılır.
 
-*Tip: split one date column into three separate numeric columns using `day()`, `month()`, and `year()` from **lubridate** package*  
+*İpucu: **lubridate** paketinden 'day()', 'ay()' ve 'year()' kullanarak bir tarih sütununu üç ayrı sayısal sütuna ayırın*
 
-The default threshold for matches is 0.94 (`threshold.match = `) but you can adjust it higher or lower. If you define the threshold, consider that higher thresholds could yield more false-negatives (rows that do not match which actually should match) and likewise a lower threshold could yield more false-positive matches.  
+Eşleşmeler için varsayılan eşik 0,94'tür (`threshold.match = `), ancak bunu daha yüksek veya daha düşük olarak ayarlayabilirsiniz. Eşiği tanımlarsanız, daha yüksek eşiklerin daha fazla yanlış-negatif (aslında eşleşmesi gereken eşleşmeyen satırlar) verebileceğini ve aynı şekilde daha düşük bir eşiğin daha fazla yanlış-pozitif eşleşmeler sağlayabileceğini düşünün.
 
-Below, the data are matched on string distance across the name and district columns, and on numeric distance for year, month, and day of birth. A match threshold of 95% probability is set.  
+Aşağıda, veriler, ad ve bölge sütunları boyunca harf dizisi mesafesine ve yıl, ay ve doğum günü için sayısal mesafeye göre eşleştirilir. %95 olasılıkla bir eşleşme eşiği belirlenir.
 
 
 ```{r, message=F, warning=F}
@@ -582,86 +576,86 @@ fl_output <- fastLink::fastLink(
   threshold.match = 0.95)
 ```
 
-**Review matches**  
+**Eşleşmelerin incelenmesi**
 
-We defined the object returned from `fastLink()` as `fl_output`. It is of class `list`, and it actually contains several data frames within it, detailing the results of the matching. One of these data frames is `matches`, which contains the most likely matches across `cases` and `results`. You can access this "matches" data frame with `fl_output$matches`. Below, it is saved as `my_matches` for ease of accessing later.    
+`fastLink()`den dönen nesneyi `fl_output` olarak tanımladık. 'list' sınıfında yer alır ve aslında içinde eşleşmenin sonuçlarını detaylandıran birkaç veri çerçevesi içerir. Bu veri çerçevelerinden biri, "durumlar" ve "sonuçlar" arasındaki en olası eşleşmeleri içeren "eşleşmeler"dir. Bu "eşleşmelere" veri çerçevesine `fl_output$matches` ile erişebilirsiniz. Aşağıda, daha sonra erişim kolaylığı için 'my_matches' olarak kaydedilmiştir.
 
-When `my_matches` is printed, you see two column vectors: the pairs of row numbers/indices (also called "rownames") in `cases` ("inds.a") and in `results` ("inds.b") representing the best matches. If a row number from a datafrane is missing, then no match was found in the other data frame at the specified match threshold.    
+"my_matches" yazdırıldığında, iki sütun vektörü görürsünüz: "cases" ("inds.a") ve "results" ("inds.b") içindeki satır numaraları/indeks ("satır adları" olarak da adlandırılır) çiftleri en iyi eşleşmeleri temsil eder. Bir veri çerçevesinden bir satır numarası eksikse, belirtilen eşleşme eşiğinde diğer veri çerçevesinde hiçbir eşleşme bulunamaz. 
 
 ```{r}
-# print matches
+# eşleşmeleri yazdır
 my_matches <- fl_output$matches
 my_matches
 ```
 
-Things to note:  
+  Dikkat edilmesi gerekenler:
 
-* Matches occurred despite slight differences in name spelling and dates of birth:  
-  * "Tony B. Smith" matched to "Anthony B Smith"  
-  * "Maria Rodriguez" matched to "Marialisa Rodrigues"  
-  * "Betty Chase" matched to "Elizabeth Chase"  
-  * "Olivier Laurent De Bordeaux" matched to "Oliver Laurent De Bordow" (missing date of birth ignored)  
-* One row from `cases` (for "Blessing Adebayo", row 9) had no good match in `results`, so it is not present in `my_matches`.  
-
-
+* İsim yazımında ve doğum tarihlerinde küçük farklılıklar olmasına rağmen eşleşmeler gerçekleşti:
+  * "Tony B. Smith", "Anthony B Smith" ile eşleşti
+  * "Maria Rodriguez", "Marialisa Rodrigues" ile eşleşti
+  * "Betty Chase", "Elizabeth Chase" ile eşleşti
+  * "Olivier Laurent De Bordeaux", "Oliver Laurent De Bordow" ile eşleştirildi (eksik doğum tarihi dikkate alınmadı)
+* "Cases" bir satır ("Blessing Adebayo" için, 9. satır) "results"da iyi bir eşleşmeye sahip değildi, bu nedenle "eşleşmelerim"de yer verilmedi.
 
 
-**Join based on the probabilistic matches**  
 
-To use these matches to join `results` to `cases`, one strategy is:  
 
-1) Use `left_join()` to join `my_matches` to `cases` (matching rownames in `cases` to "inds.a" in `my_matches`)  
-2) Then use another `left_join()` to join `results` to `cases` (matching the newly-acquired "inds.b" in `cases` to rownames in `results`)  
+**Olasılıklı eşleşmelere göre birleştirme**
 
-Before the joins, we should clean the three data frames:  
+Bu eşleşmeleri "results" "cases" birleştirmek için strateji şudur:
 
-* Both `dfA` and `dfB` should have their row numbers ("rowname") converted to a proper column.  
-* Both the columns in `my_matches` are converted to class character, so they can be joined to the character rownames  
+1) "my_matches"ı "cases" ile birleştirmek için "left_join()"i kullanın ("cases"deki satır adlarını "my_matches" içindeki "inds.a" ile eşleştirme)
+2) Ardından, "results"ı "cases" ile birleştirmek için başka bir "left_join()" kullanın ("vakalar"daki yeni edinilen "inds.b"yi "results"daki satır adlarıyla eşleştirin)
+
+Birleştirmelerden önce üç veri çerçevesini temizlemeliyiz:
+
+* Hem "dfA" hem de "dfB" satır numaraları ("satır adı") uygun bir sütuna dönüştürülmelidir.
+* `my_matches` içindeki her iki sütun da sınıf karakterine dönüştürülür, böylece karakter satır adlarına birleştirilebilirler.
 
 ```{r}
-# Clean data prior to joining
+# Eşleştirmeden önce verileri temizleyin
 #############################
 
-# convert cases rownames to a column 
+# vaka satır adlarını bir sütuna dönüştür 
 cases_clean <- cases %>% rownames_to_column()
 
-# convert test_results rownames to a column
+# test_results satır adlarını bir sütuna dönüştür
 results_clean <- results %>% rownames_to_column()  
 
-# convert all columns in matches dataset to character, so they can be joined to the rownames
+# eşleşen veri kümesindeki tüm sütunları karaktere dönüştürün, böylece satır adlarına birleştirilebilirler
 matches_clean <- my_matches %>%
   mutate(across(everything(), as.character))
 
 
 
-# Join matches to dfA, then add dfB
-###################################
-# column "inds.b" is added to dfA
+# Eşleşmeleri dfA ile birleştirin, ardından dfB ekleyin
+##################################
+# "inds.b" sütunu dfA'ya eklendi
 complete <- left_join(cases_clean, matches_clean, by = c("rowname" = "inds.a"))
 
-# column(s) from dfB are added 
+#dfB'den sütun(lar) eklendi
 complete <- left_join(complete, results_clean, by = c("inds.b" = "rowname"))
 ```
 
-As performed using the code above, the resulting data frame `complete` will contain *all* columns from both `cases` and `results`. Many will be appended with suffixes ".x" and ".y", because the column names would otherwise be duplicated.  
+Yukarıdaki kod kullanılarak gerçekleştirildiği gibi, elde edilen "tamamlandı" veri çerçevesi hem "durumlardan" hem de "sonuçlardan" *tüm* sütunları içerecektir. Sütun adları aksi takdirde yineleneceğinden, birçoğuna ".x" ve ".y" son ekleri eklenecektir.
 
 ```{r message=FALSE, echo=F}
 DT::datatable(complete, rownames = FALSE, options = list(pageLength = nrow(complete), scrollX=T), class = 'white-space: nowrap')
 ```
 
-Alternatively, to achieve only the "original" 9 records in `cases` with the new column(s) from `results`, use `select()` on `results` before the joins, so that it contains only rownames and the columns that you want to add to `cases` (e.g. the column `result`).  
+Alternatif olarak, "results"dan yeni sütun(lar)la "cases" yalnızca "orijinal" 9 kaydı elde etmek için, birleştirmeden önce "results"da "select()"i kullanın, böylece yalnızca satır adlarını ve "cases" (örneğin "result" sütunu) eklemek istediğiniz sütunları içerir.  
 
 ```{r}
 cases_clean <- cases %>% rownames_to_column()
 
 results_clean <- results %>%
   rownames_to_column() %>% 
-  select(rowname, result)    # select only certain columns 
+  select(rowname, result)    # sadece belirli sütunları seç
 
 matches_clean <- my_matches %>%
   mutate(across(everything(), as.character))
 
-# joins
+# birleştirme
 complete <- left_join(cases_clean, matches_clean, by = c("rowname" = "inds.a"))
 complete <- left_join(complete, results_clean, by = c("inds.b" = "rowname"))
 ```
@@ -672,30 +666,30 @@ DT::datatable(complete, rownames = FALSE, options = list(pageLength = nrow(compl
 ```
 
 
-If you want to subset either dataset to only the rows that matched, you can use the codes below:  
+Her iki veri kümesini de yalnızca eşleşen satırlara alt kümelemek isterseniz aşağıdaki kodları kullanabilirsiniz:
 
 ```{r}
-cases_matched <- cases[my_matches$inds.a,]  # Rows in cases that matched to a row in results
-results_matched <- results[my_matches$inds.b,]  # Rows in results that matched to a row in cases
+cases_matched <- cases[my_matches$inds.a,]  # Sonuçlarda bir satırla eşleşen vakalarda satırlar
+results_matched <- results[my_matches$inds.b,]  # Vakalardaki bir satırla eşleşen sonuçlardaki satırlar
 ```
 
-Or, to see only the rows that did **not** match:  
+Veya yalnızca **eşleşmeyen** satırları görmek için:
 
 ```{r}
-cases_not_matched <- cases[!rownames(cases) %in% my_matches$inds.a,]  # Rows in cases that did NOT match to a row in results
-results_not_matched <- results[!rownames(results) %in% my_matches$inds.b,]  # Rows in results that did NOT match to a row in cases
+cases_not_matched <- cases[!rownames(cases) %in% my_matches$inds.a,]  # Sonuçlarda bir satırla eşleşmeyen vakalardaki satırlar
+results_not_matched <- results[!rownames(results) %in% my_matches$inds.b,]  # Bir satırla eşleşmeyen sonuçlardaki satırlars
 ```
 
 
-### Probabilistic deduplication {.unnumbered}  
+### Olasılıksal veri tekilleştirme {.unnumbered}
 
-Probabilistic matching can be used to deduplicate a dataset as well. See the page on deduplication for other methods of deduplication.  
+Olasılıksal eşleştirme, bir veri kümesini tekilleştirmek için de kullanılabilir. Diğer veri tekilleştirme yöntemleri için veri tekilleştirme sayfasına bakabilirsiniz.
 
-Here we began with the `cases` dataset, but are now calling it `cases_dup`, as it has 2 additional rows that could be duplicates of previous rows:
-See "Tony" with "Anthony", and "Marialisa Rodrigues" with "Maria Rodriguez".  
+Burada "cases" veri kümesiyle başladık, ancak önceki satırların kopyası olabilecek 2 ek satırı olduğundan şimdi buna "cases_dup" adını veriyoruz:
+"Anthony" ile "Tony" ve "Maria Rodriguez" ile "Marialisa Rodrigues" i inceleyiniz.
 
 ```{r, echo=F}
-## Add duplicates
+## Yinelenenleri ekle
 #cases_dup <- rbind(cases, cases[sample(1:nrow(cases), 3, replace = FALSE),])
 
 cases_dup <- tribble(
@@ -720,10 +714,10 @@ DT::datatable(cases_dup, rownames = FALSE, options = list(pageLength = nrow(case
 ```
 
 
-Run `fastLink()` like before, but compare the `cases_dup` data frame to itself. When the two data frames provided are identical, the function assumes you want to de-duplicate. Note we do not specify `stringdist.match = ` or `numeric.match = ` as we did previously.  
+Daha önce olduğu gibi "fastLink()"i çalıştırın, ancak "cases_dup" veri çerçevesini kendisiyle karşılaştırın. Sağlanan iki veri çerçevesi aynı olduğunda, fonksiyon, çoğaltmayı kaldırmak istediğinizi varsayar. Daha önce yaptığımız gibi `stringdist.match =` veya `numeric.match =` belirtmediğimizi unutmayın.
 
 ```{r, message = F, warning = F}
-## Run fastLink on the same dataset
+## Aynı veri kümesinde fastLink'i çalıştırın
 dedupe_output <- fastLink(
   dfA = cases_dup,
   dfB = cases_dup,
@@ -731,24 +725,23 @@ dedupe_output <- fastLink(
 )
 ```
 
-Now, you can review the potential duplicates with `getMatches()`. Provide the data frame as both `dfA = ` and `dfB = `, and provide the output of the `fastLink()` function as `fl.out = `.  `fl.out` must be of class `fastLink.dedupe`, or in other words, the result of `fastLink()`.  
-
+Şimdi, `getMatches()` ile olası kopyaları inceleyebilirsiniz. Veri çerçevesini hem 'dfA = ' hem de 'dfB = ' olarak sağlayın ve 'fastLink()' fonksiyonunun çıktısını 'fl.out = ' olarak sağlayın. "fl.out", "fastLink.dedupe" sınıfında veya başka bir deyişle "fastLink()"in sonucu olmalıdır. 
 
 ```{r}
-## Run getMatches()
+## getMatches() çalıştır
 cases_dedupe <- getMatches(
   dfA = cases_dup,
   dfB = cases_dup,
   fl.out = dedupe_output)
 ```
 
-See the right-most column, which indicates the duplicate IDs - the final two rows are identified as being likely duplicates of rows 2 and 3.  
+Yinelenen kimlikleri gösteren en sağdaki sütuna bakın - son iki satır, 2. ve 3. satırların olası kopyaları olarak tanımlanır.
 
 ```{r message=FALSE, echo=F}
 DT::datatable(cases_dedupe, rownames = FALSE, options = list(pageLength = nrow(cases_dedupe)))
 ```
 
-To return the row numbers of rows which are likely duplicates, you can count the number of rows per unique value in the `dedupe.ids` column, and then filter to keep only those with more than one row. In this case this leaves rows 2 and 3.  
+Büyük olasılıkla yinelenen satırların satır numaralarını döndürmek için, "dedupe.ids" sütunundaki benzersiz değer başına satır sayısını sayabilir ve ardından yalnızca birden fazla satıra sahip olanları tutmak için filtre uygulayabilirsiniz. Bu durumda 2. ve 3. satırları bırakır. 
 
 ```{r}
 cases_dedupe %>% 
@@ -756,96 +749,95 @@ cases_dedupe %>%
   filter(n > 1)
 ```
 
-To inspect the whole rows of the likely duplicates, put the row number in this command:  
+Muhtemel kopyaların tüm satırlarını incelemek için satır numarasını bu komuta girin:
 
 ```{r}
-# displays row 2 and all likely duplicates of it
+# 2. satırı ve tüm olası kopyalarını görüntüler
 cases_dedupe[cases_dedupe$dedupe.ids == 2,]   
 ```
 
 
 
-## Binding and aligning  
+## Bağlama ve hizalama
 
-Another method of combining two data frames is "binding" them together. You can also think of this as "appending" or "adding" rows or columns.  
+İki veri çerçevesini birleştirmenin başka bir yöntemi, onları birbirine "bağlamaktır". Bunu satır veya sütunları "eklemek" olarak da düşünebilirsiniz.
 
-This section will also discuss how to "align" the order of rows of one data frame to the order in another data frame. This topic is discussed below in the section on Binding columns.  
+Bu bölümde ayrıca bir veri çerçevesinin satır sırasının başka bir veri çerçevesindeki sıraya nasıl "hizalanacağı" tartışılacaktır. Bu konu aşağıda Sütunları bağlama bölümünde tartışılmaktadır.
 
 
 
-### Bind rows {.unnumbered}
+### Satırları bağlama {.unnumbered}
 
-To bind rows of one data frame to the bottom of another data frame, use `bind_rows()` from **dplyr**. It is very inclusive, so any column present in either data frame will be included in the output. A few notes:  
+Bir veri çerçevesinin satırlarını başka bir veri çerçevesinin altına bağlamak için, **dplyr**'den `bind_rows()` kullanın. Çok kapsayıcıdır, bu nedenle her iki veri çerçevesinde bulunan herhangi bir sütun çıktıya dahil edilecektir. Birkaç not:
 
-* Unlike the **base** R version `row.bind()`, **dplyr**'s `bind_rows()` does not require that the order of columns be the same in both data frames. As long as the column names are spelled identically, it will align them correctly.  
-* You can optionally specify the argument `.id = `. Provide a character column name. This will produce a new column that serves to identify which data frame each row originally came from.  
-* You can use `bind_rows()` on a `list` of similarly-structured data frames to combine them into one data frame. See an example in the [Iteration, loops, and lists] page involving the import of multiple linelists with **purrr**.  
+* **base** R sürümü 'row.bind()'den farklı olarak, **dplyr**'nin 'bind_rows()' fonksiyonu, sütunların sırasının her iki veri çerçevesinde de aynı olmasını gerektirmez. Sütun adları aynı şekilde yazıldığı sürece, bunları doğru şekilde hizalayacaktır.
+* İsteğe bağlı olarak `.id = ` argümanını belirtebilirsiniz. Bir karakter sütun adı sağlayın. Bu, her satırın orijinal olarak hangi veri çerçevesinden geldiğini belirlemeye yarayan yeni bir sütun üretecektir.
+* Benzer şekilde yapılandırılmış veri çerçevelerinin bir 'listesinde' onları tek bir veri çerçevesinde birleştirmek için 'bind_rows()' kullanabilirsiniz. **purrr** ile birden çok satır listesinin içe aktarılmasını içeren [Yineleme, döngüler ve listeler] sayfasındaki bir örneğe bakın.
 
-One common example of row binding is to bind a "total" row onto a descriptive table made with **dplyr**'s `summarise()` function. Below we create a table of case counts and median CT values by hospital with a total row.  
+Satır bağlamanın yaygın bir örneği, "toplam" bir satırı **dplyr**'nin `summarise()` fonksiyonuyla yapılmış açıklayıcı bir tabloya bağlamaktır. Aşağıda, toplam satır ile hastaneye göre vaka sayıları ve medyan CT değerleri tablosu oluşturulmuştur.
 
-The function `summarise()` is used on data grouped by hospital to return a summary data frame by hospital. But the function `summarise()` does not automatically produce a "totals" row, so we create it by summarising the data *again*, but with the data not grouped by hospital. This produces a second data frame of just one row. We can then bind these data frames together to achieve the final table.  
+"Summarise()" fonksiyonu, hastaneye göre bir özet veri çerçevesi döndürmek için hastaneye göre gruplandırılmış verilerde kullanılır. Ancak `summarise()` fonksiyonu otomatik olarak bir "toplamlar" satırı oluşturmaz, bu nedenle verileri *tekrar* özetleyerek, ancak hastane tarafından gruplandırılmamış verilerle oluştururuz. Bu, yalnızca bir satırdan oluşan ikinci bir veri çerçevesi üretir. Daha sonra nihai tabloya ulaşmak için bu veri çerçevelerini birbirine bağlayabiliriz.
 
-See other worked examples like this in the [Descriptive tables] and [Tables for presentation] pages.  
+[Açıklayıcı tablolar] ve [Sunum için tablolar] sayfalarında bunun gibi diğer çalışılmış örnekleri inceleyibilirsiniz.
 
 
 ```{r}
-# Create core table
+# Çekirdek tablo oluştur
 ###################
 hosp_summary <- linelist %>% 
-  group_by(hospital) %>%                        # Group data by hospital
-  summarise(                                    # Create new summary columns of indicators of interest
-    cases = n(),                                  # Number of rows per hospital-outcome group     
-    ct_value_med = median(ct_blood, na.rm=T))     # median CT value per group
+  group_by(hospital) %>%                        # Verileri hastaneye göre gruplandır
+  summarise(                                    # İlgilenilen göstergelerin yeni özet sütunları oluşturun
+    cases = n(),                                  # Hastane-çıktı grubu başına satır sayısı     
+    ct_value_med = median(ct_blood, na.rm=T))     # grup başına medyan CT değeri
 ```
 
-Here is the `hosp_summary` data frame:  
+İşte "hosp_summary" veri çerçevesi:
 
 ```{r message=FALSE, echo=F}
 DT::datatable(hosp_summary, rownames = FALSE, options = list(pageLength = nrow(10)))
 ```
 
-Create a data frame with the "total" statistics (*not grouped by hospital*). This will return just one row.  
+"Toplam" istatistiklerle (*hastaneye göre gruplandırılmamış*) bir veri çerçevesi oluşturun. Bu sadece bir satır döndürür.
 
 ```{r}
-# create totals
+# Toplamları oluştur
 ###############
 totals <- linelist %>% 
   summarise(
-    cases = n(),                               # Number of rows for whole dataset     
-    ct_value_med = median(ct_blood, na.rm=T))  # Median CT for whole dataset
+    cases = n(),                               # Tüm veri kümesi için satır sayısı    
+    ct_value_med = median(ct_blood, na.rm=T))  # Tüm veri seti için medyan CT
 ```
 
-And below is that `totals` data frame. Note how there are only two columns. These columns are also in `hosp_summary`, but there is one column in `hosp_summary` that is not in `totals` (`hospital`).  
+Ve aşağıda bu "totals" veri çerçevesi var. Sadece iki sütunun nasıl olduğuna dikkat edin. Bu sütunlar da "hosp_summary" içindedir, ancak "hosp_summary"de "totals" ("hastane") içinde olmayan bir sütun vardır.  
 
 ```{r message=FALSE, echo=F}
 DT::datatable(totals, rownames = FALSE, options = list(pageLength = nrow(10)))
 ```
 
-Now we can bind the rows together with `bind_rows()`.  
+Artık satırları `bind_rows()` ile birbirine bağlayabiliriz.
 
 ```{r}
-# Bind data frames together
+# Veri çerçevelerini birbirine bağla
 combined <- bind_rows(hosp_summary, totals)
 ```
 
-Now we can view the result. See how in the final row, an empty `NA` value fills in for the column `hospital` that was not in `hosp_summary`. As explained in the [Tables for presentation] page, you could "fill-in" this cell with "Total" using `replace_na()`.  
+Artık sonucu görebiliriz. Son satırda, "hosp_summary"de olmayan "hospital" sütunu için boş bir "NA" değerinin nasıl doldurulduğunu görün. [Sunum için tablolar] sayfasında açıklandığı gibi, `replace_na()` kullanarak bu hücreyi "Total" ile "doldurabilirsiniz".  
 
 ```{r message=FALSE, echo=F}
 DT::datatable(combined, rownames = FALSE, options = list(pageLength = nrow(10)))
 ```
 
 
-### Bind columns {.unnumbered}
+### Sütunları bağla {.unnumbered}
 
-There is a similar **dplyr** function `bind_cols()` which you can use to combine two data frames sideways. Note that rows are matched to each other *by position* (not like a *join* above) - for example the 12th row in each data frame will be aligned.  
+İki veri çerçevesini yanlara birleştirmek için kullanabileceğiniz benzer bir **dplyr** fonksiyonu `bind_cols()` vardır. Satırların birbiriyle *konuma göre* eşleştirildiğini unutmayınız (yukarıdaki *birleştirme* gibi değil). Örneğin her veri çerçevesindeki 12. satır hizalanacaktır.
 
-For an example, we bind several summary tables together. In order to do this, we also demonstrate how to re-arrange the order of rows in one data frame to match the order in another data frame, with `match()`.    
+Örneğin, birkaç özet tabloyu birbirine bağlarız. Bunu yapmak için, aynı zamanda, bir veri çerçevesindeki satırların sırasının, 'match()' ile başka bir veri çerçevesindeki sıra ile eşleşecek şekilde nasıl yeniden düzenleneceğini de gösteriyoruz.
 
-Here we define `case_info` as a summary data frame of linelist cases, by hospital, with the number of cases and the number of deaths.
-
+Burada 'vaka_bilgisi'ni, hastaneye göre, vaka sayısı ve ölüm sayısı ile birlikte sıralı vakaların özet veri çerçevesi olarak tanımlıyoruz.
 
 ```{r}
-# Case information
+# Vaka bilgisi
 case_info <- linelist %>% 
   group_by(hospital) %>% 
   summarise(
@@ -858,7 +850,7 @@ case_info <- linelist %>%
 DT::datatable(case_info, rownames = FALSE, options = list(pageLength = nrow(10)))
 ```
 
-And let's say that here is a different data frame `contact_fu` containing information on the percent of exposed contacts investigated and "followed-up", again by hospital. 
+Ve diyelim ki burada yine hastane tarafından araştırılan ve "takip edilen" maruz kalan temasların yüzdesi hakkında bilgi içeren farklı bir "contact_fu" veri çerçevesi var. 
 
 ```{r}
 contact_fu <- data.frame(
@@ -872,19 +864,19 @@ contact_fu <- data.frame(
 DT::datatable(contact_fu, rownames = FALSE, options = list(pageLength = nrow(10)))
 ```
 
-Note that the hospitals are the same, but are in different orders in each data frame. The easiest solution would be to use a `left_join()` on the `hospital` column, but you could also use `bind_cols()` with one extra step.  
+Hastanelerin aynı olduğunu, ancak her veri çerçevesinde farklı sıralarda olduğunu unutmayın. En kolay çözüm, 'hastane' sütununda bir 'left_join()' kullanmak olacaktır, ancak fazladan bir adımla 'bind_cols()' da kullanabilirsiniz.
 
-#### Use `match()` to align ordering {.unnumbered}  
+#### Sırasını hizalamak için `match()` kullanımı {.unnumbered}
 
-Because the row orders are different, a simple `bind_cols()` command would result in a mis-match of data. To fix this we can use `match()` from **base** R to align the rows of a data frame in the same order as in another. We assume for this approach that there are no duplicate values in either data frame.  
+Satır sıraları farklı olduğundan, basit bir "bind_cols()" komutu, verilerin yanlış eşleşmesine neden olur. Bunu düzeltmek için, bir veri çerçevesinin satırlarını diğeriyle aynı sırada hizalamak için **base** R'dan 'match()' kullanabiliriz. Bu yaklaşım için her iki veri çerçevesinde de yinelenen değer olmadığını varsayıyoruz.
 
-When we use `match()`, the syntax is `match(TARGET ORDER VECTOR, DATA FRAME COLUMN TO CHANGE)`, where the first argument is the desired order (either a stand-alone vector, or in this case a column in a data frame), and the second argument is the data frame column in the data frame that will be re-ordered. The output of `match()` is a vector of numbers representing the correct position ordering. You can read more with `?match`.  
+'match()' kullandığımızda, sözdizimi 'match(HEDEF SIRA VEKTÖR, DEĞİŞTİRİLECEK VERİ ÇERÇEVESİ SÜTUNU)' şeklindedir, burada ilk değişken istenen sıradır (ya bağımsız bir vektör, ya da bu durumda bir veri çerçevesi) ve ikinci değişken, yeniden sıralanacak veri çerçevesindeki veri çerçevesi sütunudur. "match()" çıktısı, doğru konum sıralamasını temsil eden bir sayı vektörüdür. Daha fazlasını `?match` ile okuyabilirsiniz.
 
 ```{r}
 match(case_info$hospital, contact_fu$hospital)
 ```
 
-You can use this numeric vector to re-order the data frame - place it within subset brackets `[ ]` *before the comma*. Read more about **base** R bracket subset syntax in the [R basics] page. The command below creates a new data frame, defined as the old one in which the rows are ordered in the numeric vector above.  
+Veri çerçevesini yeniden sıralamak için bu sayısal vektörü kullanabilirsiniz - onu '[ ]' alt küme parantezleri içine *virgülden önce* yerleştirin. [R temelleri] sayfasında **temel** R köşeli ayraç alt kümesi sözdizimi hakkında daha fazla bilgi edinin. Aşağıdaki komut, satırların yukarıdaki sayısal vektörde sıralandığı eskisi olarak tanımlanan yeni bir veri çerçevesi oluşturur.
 
 ```{r}
 contact_fu_aligned <- contact_fu[match(case_info$hospital, contact_fu$hospital),]
@@ -895,32 +887,31 @@ contact_fu_aligned <- contact_fu[match(case_info$hospital, contact_fu$hospital),
 DT::datatable(contact_fu_aligned, rownames = FALSE, options = list(pageLength = nrow(10)))
 ```
 
-Now we can bind the data frame columns together, with the correct row order. Note that some columns are duplicated and will require cleaning with `rename()`. Read more aboout `bind_rows()` [here](https://dplyr.tidyverse.org/reference/bind.html).  
+Artık veri çerçevesi sütunlarını doğru satır sırası ile birbirine bağlayabiliriz. Bazı sütunların çoğaltıldığını ve 'rename()' ile temizlenmesi gerekeceğini unutmayın. `bind_rows()` hakkında daha fazla bilgi edinmek için tıklayınız. [buradan](https://dplyr.tidyverse.org/reference/bind.html).  
 
 ```{r}
 bind_cols(case_info, contact_fu)
 ```
 
-A **base** R alternative to `bind_cols` is `cbind()`, which performs the same operation.  
+"bind_cols"e bir **base** R alternatifi, aynı işlemi gerçekleştiren "cbind()"dir.
 
 
 
 
-<!-- ======================================================= -->
-## Resources { }
+<!-- ============================================ ========= -->
+## Kaynaklar { }
 
-The [tidyverse page on joins](https://dplyr.tidyverse.org/reference/join.html)  
+[Birleşimlerdeki tidyverse sayfası](https://dplyr.tidyverse.org/reference/join.html)
 
-The [R for Data Science page on relational data](https://r4ds.had.co.nz/relational-data.html)  
+[İlişkisel verilerle ilgili Veri Bilimi için R sayfası](https://r4ds.had.co.nz/relational-data.html)
 
-Th [tidyverse page on dplyr](https://dplyr.tidyverse.org/reference/bind.html) on binding  
+[dplyr'deki tidyverse sayfası](https://dplyr.tidyverse.org/reference/bind.html) ciltleme hakkında
 
-A vignette on [fastLink](https://github.com/kosukeimai/fastLink) at the package's Github page  
+Paketin Github sayfasındaki betimlemesi [fastLink](https://github.com/kosukeimai/fastLink)
 
-Publication describing methodology of [fastLink](https://imai.fas.harvard.edu/research/files/linkage.pdf)  
+Metodolojisini açıklayan yayın[fastLink](https://imai.fas.harvard.edu/research/files/linkage.pdf) 
 
-Publication describing [RecordLinkage package](https://journal.r-project.org/archive/2010/RJ-2010-017/RJ-2010-017.pdf)
-
-
+[RecordLinkage paketini] açıklayan yayın
+(https://journal.r-project.org/archive/2010/RJ-2010-017/RJ-2010-017.pdf)
 
 
