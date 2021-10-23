@@ -2,7 +2,7 @@
 <!-- ======================================================= -->
 <!-- ======================================================= -->
 <!-- ======================================================= -->
-# Pivoting data {}
+# Verilerin pivotlanması {}
 
 ```{r, warning=F, message=F, out.height = c('50%'), fig.align="center", fig.show='hold', echo=F}
 knitr::include_graphics(here::here("images", "pivoting", "Pivoting_500x500.png"))
@@ -14,40 +14,39 @@ knitr::include_graphics(here::here("images", "pivoting", "Pivoting_500x500.png")
 
 
 
-When managing data, *pivoting* can be understood to refer to one of two processes:  
+Verileri yönetirken, *pivotlama* aşağıdaki iki süreçten birini tarif eder:
 
-1. The creation of *pivot tables*, which are tables of statistics that summarise the data of a more extensive table  
-2. The conversion of a table from **long** to **wide** format, or vice versa. 
+1. Daha kapsamlı bir tablonun verilerini özetleyen istatistik tabloları olan *pivot tabloların* oluşturulması 
+2. Bir tablonun **uzun** formattan **geniş** formata dönüştürülmesi veya tam tersi. 
 
-**In this page, we will focus on the latter definition.** The former is a crucial step in data analysis, and is covered elsewhere in the [Grouping data] and [Descriptive tables] pages. 
+**Bu sayfada, ikinci tanıma odaklanacağız.** İlk tanım, veri analizinde çok önemli bir adımdır ancak [Verileri gruplandırma] ve [Tanımlayıcı tablolar] sayfalarında ele alınmıştır.
 
-This page discusses the formats of data. It is useful to be aware of the idea of "tidy data", in which each variable has it's own column, each observation has it's own row, and each value has it's own cell. More about this topic can be found [at this online chapter in R for Data Science](https://r4ds.had.co.nz/tidy-data.html). 
-
-
+Bu sayfada veri biçimleri tartışılmaktadır. Her değişkenin kendi sütununa, her gözlemin kendi satırına ve her değerin kendi hücresine sahip olduğu “düzenli-tidy veri” felsefesi akılda tutulmalıdır. Bu konu hakkında daha fazla bilgiyi [Veri Bilimi için R çevrimiçi](https://r4ds.had.co.nz/tidy-data.html) bölümünde bulabilirsiniz.
 
 
 
-## Preparation  
 
-### Load packages {.unnumbered}  
+## Hazırlık  
 
-This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+### Paketlerin yüklenmesi {.unnumbered}  
+
+Bu kod bloğu, analizler için gerekli olan paketlerin yüklenmesini gösterir. Bu el kitabında, gereken durumlarda paketi kuran *ve* kullanım için yükleyen **pacman**'ın `p_load()` fonksiyonunun kullanımı vurgulanmıştır. Ayrıca, R tabanından `library()` ile kurulu paketleri yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R temelleri] sayfasına bakın.
 
 ```{r}
 pacman::p_load(
-  rio,          # File import
-  here,         # File locator
-  tidyverse)    # data management + ggplot2 graphics
+  rio,          # Dosyanın içe aktarımı
+  here,         # Dosyanın konumu
+  tidyverse)    # veri yönetimi + ggplot2 grafik paketi
 ```
 
 
 
-### Import data {.unnumbered}
+### Verinin içeri aktarımı {.unnumbered}
 
 
-### Malaria count data {-}  
+### Sıtma hastalığı için sayım verisi {-}  
 
-In this page, we will use a fictional dataset of daily malaria cases, by facility and age group. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/malaria_facility_count_data.rds' class='download-button'>click here to download (as .rds file)<span></a>. Import data with the `import()` function from the **rio** package (it handles many file types like .xlsx, .csv, .rds - see the [Import and export] page for details).  
+Bu sayfada, kuruluş ve yaş grubuna göre günlük sıtma vakalarını içeren kurgusal bir veri setini inceleyeceğiz. Adımları takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/malaria_facility_count_data.rds' class='download-button'>veri setini indirmek için buraya tıklayın (.rds dosyası formatında)</a>. Verileri **rio** paketinden `import()` fonksiyonuyla içe aktarın (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için İçe Aktarma ve Dışa Aktarma sayfasına bakın).
 
 ```{r, echo=F}
 count_data <- rio::import(here::here("data", "malaria_facility_count_data.rds")) %>% 
@@ -55,30 +54,30 @@ count_data <- rio::import(here::here("data", "malaria_facility_count_data.rds"))
 ```
 
 ```{r, eval=F}
-# Import data
+# Verinin içeri aktarımı
 count_data <- import("malaria_facility_count_data.rds")
 ```
 
-The first 50 rows are displayed below.
+İlk 50 satır aşağıda gösterilmiştir.
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# satır listesini tablo olarak göster
 DT::datatable(head(count_data, 50), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
 
-### Linelist case data {-}  
+### Satır listesi verisi {-}  
 
-In the later part of this page, we will also use the dataset of cases from a simulated Ebola epidemic. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file). Import your data with the `import()` function from the **rio** package (it accepts many file types like .xlsx, .rds, .csv - see the [Import and export] page for details).  
+Bu sayfanın sonraki bölümünde, simüle edilmiş bir Ebola salgını vakalarını içeren veri setini de kullanacağız. Devam etmek istiyorsanız, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>“temiz” satır listesini (.rds dosyası olarak) indirmek için tıklayın.</a> Verilerinizi **rio** paketinden `import()` işleviyle içe aktarın (.xlsx, .rds, .csv gibi birçok dosya türünü kabul eder - ayrıntılar için İçe Aktarma ve Dışa Aktarma sayfasına bakın).
 
 ```{r, echo=F}
-# import the linelist into R
+# satır listesini R'a aktar
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
 ```
 
 
 ```{r, eval=F}
-# import your dataset
+# Verinin içeri aktarımı
 linelist <- import("linelist_cleaned.xlsx")
 ```
 
@@ -89,7 +88,7 @@ linelist <- import("linelist_cleaned.xlsx")
 
 
 <!-- ======================================================= -->
-## Wide-to-long {}
+## Genişten uzuna {}
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "pivoting", "pivot_longer_new.png"))
@@ -97,52 +96,48 @@ knitr::include_graphics(here::here("images", "pivoting", "pivot_longer_new.png")
 
 
 <!-- ======================================================= -->
-### "Wide" format {.unnumbered}
+### “Geniş” format {.unnumbered}
 
-Data are often entered and stored in a "wide" format - where a subject's characteristics or responses are stored in a single row. While this may be useful for presentation, it is not ideal for some types of analysis.  
+Veriler genellikle "geniş" bir biçimde girilir ve saklanır - burada bir gözlemin (kişinin) özellikleri veya yanıtları tek bir satırda depolanır. Bu sunum için faydalı olsa da, bazı analiz türleri için ideal değildir.  
 
-Let us take the `count_data` dataset imported in the Preparation section above as an example. You can see that each row represents a "facility-day". The actual case counts (the right-most columns) are stored in a "wide" format such that the information for every age group on a given facility-day is stored in a single row.  
+Örnek olarak yukarıdaki Hazırlık bölümünde içe aktarılan `count_data` veri setini ele alalım. Her satırın bir “tesis-gününü” temsil ettiğini görebilirsiniz. Gerçek vaka sayıları (en sağdaki sütunlar), belirli bir tesis günündeki farklı yaş grubuna ait bilgilerin ayrı sütunlar halinde ancak tek bir satırda saklanacağı şekilde “geniş” bir formatta bulunur.
 
 ```{r, echo=F}
 DT::datatable(count_data, rownames = FALSE, options = list(pageLength = 5, scrollX=T) )
 ```
 
-Each observation in this dataset refers to the malaria counts at one of 65 facilities on a given date, ranging from ` count_data$data_date %>% min()` to ` count_data$data_date %>% max()`. These facilities are located in one `Province` (North) and four `District`s (Spring, Bolo, Dingo, and Barnard). The dataset provides the overall counts of malaria, as well as age-specific counts in each of three age groups - <4 years, 5-14 years, and 15 years and older.
+Bu veri tabanındaki ScriptEach gözlemi, belirli bir tarihteki 65 tesisten birindeki sıtma sayımlarını gösterir; bu sayı, `count_data$data_date %>% min()` ile `count_data$data_date %>% max()` arasında değişir. Bu tesisler bir `Province (il)` (North) ve dört `District (ilçe)`de (Spring, Bolo, Dingo ve Barnard) bulunmaktadır. Veri seti, genel sıtma sayılarının yanı sıra üç yaş grubunun her birinde - <4 yaş, 5-14 yaş ve 15 yaş ve üzeri - yaşa özel sayıları da içermektedir.
 
-"Wide" data like this are not adhering to "tidy data" standards, because the column headers do not actually represent "variables" - they represent *values* of a hypothetical "age group" variable. 
+Bunun gibi "geniş" veriler "düzenli veri" standartlarına uymaz, çünkü sütun başlıkları aslında "değişkenleri" temsil etmez - bunlar hipotetik bir "yaş grubu" *değişkenini* temsil eder.
+
+Bu format, bilgileri bir tabloda sunmak veya vaka raporu formlarına veri girmek (örn. Excel'de) için faydalı olabilir. Ancak, analiz aşamasında, bu veriler tipik olarak "düzenli veri" standartlarıyla daha uyumlu "daha uzun" bir formata dönüştürülmelidir. Özellikle R paketi **ggplot2**, veriler "uzun" formatta olduğunda en iyi sonuçları verir.  
 
 
-This format can be useful for presenting the information in a table, or for entering data (e.g. in Excel) from case report forms. However, in the analysis stage, these data typically should be transformed to a "longer" format more aligned with "tidy data" standards. The plotting R package **ggplot2** in particular works best when data are in a "long" format.  
-
-
-Visualising the *total* malaria counts over time poses no difficulty with the data in it's current format:
+*Toplam* sıtma sayılarının zamana göre görselleştirilmesinde, mevcut formattaki verilerle herhangi bir zorluk yaşanmaz:
 
 ```{r, warning=F, message=F}
 ggplot(count_data) +
   geom_col(aes(x = data_date, y = malaria_tot), width = 1)
 ```
 
-However, what if we wanted to display the relative contributions of each age group to this total count? In this case, we need to ensure that the variable of interest (age group), appears in the dataset in a single column that can be passed to `{ggplot2}`'s "mapping aesthetics" `aes()` argument.
-
-
+Ancak, her yaş grubunun bu toplam sayıya göreli katkılarını göstermek istersek ne olur? Bu durumda, ilgilenilen değişkenin (yaş grubu), veri kümesinde `{ggplot2}`'nin "haritalama estetiği" `aes()` argümanına aktarılabilecek tek bir sütunda bulunması gerekir.
 
 
 <!-- ======================================================= -->
 ### `pivot_longer()` {.unnumbered}
 
-The **tidyr** function `pivot_longer()` makes data "longer". **tidyr** is part of the **tidyverse** of R packages.  
+**tidyr** fonksiyonu `pivot_longer()`, verileri "daha uzun" formata getirir. **tidyr**, R paketlerinin **tidyverse** kümesinin bir parçasıdır.
 
-It accepts a range of columns to transform (specified to `cols = `). Therefore, it can operate on only a part of a dataset. This is useful for the malaria data, as we only want to pivot the case count columns.  
+Bu fonksiyon, dönüştürülecek bir dizi sütunu kabul eder (`cols =` argümanı ile belirtilir). Bu nedenle, bir veri tabanının yalnızca bir kısmıyla çalışabilir. Bu fonksiyonla yalnızca vaka sayısı sütunlarını döndürmek istediğimizden, kullandığımız veritabanı için yararlıdı  
 
-In this process, you will end up with two "new" columns - one with the categories (the former column names), and one with the corresponding values (e.g. case counts). You can accept the default names for these new columns, or you can specify your own to `names_to = ` and `values_to = ` respectively.  
+Bu süreçte, biri kategorileri (eski sütun adları) ve diğeri de karşılık gelen değerleri (ör. vaka sayıları) içeren iki "yeni" sütun elde edeceksiniz. Bu yeni sütunlar için varsayılan adları kabul edebilir veya kendi adlarınızı sırasıyla `names_to =` ve `values_to =`  argümanlarıyla belirtebilirsiniz. 
 
-Let's see `pivot_longer()` in action... 
-
+`Pivot_longer()`'ı çalışırken görelim… 
 
 
 ### Standard pivoting {.unnumbered}  
 
-We want to use **tidyr**'s `pivot_longer()` function to convert the "wide" data to a "long" format. Specifically, to convert the four numeric columns with data on malaria counts to two new columns: one which holds the *age groups* and one which holds the corresponding *values*.  
+"Geniş" verileri "uzun" bir biçime dönüştürmek için **tidyr**'in `pivot_longer()` fonksiyonunu kullanmak istiyoruz. Spesifik olarak, sıtma sayılarına ilişkin verileri içeren dört sayısal sütunu iki yeni sütuna dönüştürmek istiyoruz. İki yeni sütundan biri *yaş gruplarını* ve diğeri yaş gruplarına karşılık gelen *değerleri* içerecektir.
 
 ```{r, eval=F}
 df_long <- count_data %>% 
@@ -153,43 +148,42 @@ df_long <- count_data %>%
 df_long
 ```
 
-Notice that the newly created data frame (`df_long`) has more rows (12,152 vs 3,038); it has become *longer*. In fact, it is precisely four times as long, because each row in the original dataset now represents four rows in df_long, one for each of the malaria count observations (<4y, 5-14y, 15y+, and total).
+Yeni oluşturulan veri çerçevesinin (`df_long`) daha fazla satırı olduğuna dikkat edin (12.152'ye karşı 3.038); böylece veri çerçevesi daha *uzun* bir şekle sahip olur. Aslında, eski versiyonuna göre tam olarak dört kat daha uzundur, çünkü orijinal veri kümesindeki her satır şimdi `df_long`'da dört satırı temsil etmektedir (her bir sıtma sayımı gözlemi yaş grubu için bir tane (<4y, 5-14y, 15y+ ve toplam)).
 
-In addition to becoming longer, the new dataset has fewer columns (8 vs 10), as the data previously stored in four columns (those beginning with the prefix `malaria_`) is now stored in two. 
+Daha önce dört sütunda (`malaria_` ön ekiyle başlayanlar) depolanan veriler şimdi iki sütunda depolandığından, daha uzun olmanın yanı sıra, yeni veri kümesi daha az sütuna (8'e karşı 10) sahiptir.
 
-Since the names of these four columns all begin with the prefix `malaria_`, we could have made use of the handy "tidyselect" function `starts_with()` to achieve the same result (see the page [Cleaning data and core functions] for more of these helper functions).  
+Bu dört sütunun adlarının tümü `malaria_` önekiyle başladığından, aynı sonucu elde etmek için kullanışlı "tidyselect" `start_with()` işlevini kullanabilirdik (bu yardımcı işlevlerin daha fazlası için [Verileri temizleme ve temel işlevler] sayfasına bakın).
+
 
 ```{r}
-# provide column with a tidyselect helper function
+# tidyselect yardımcı işleviyle sütun sağlayın
 count_data %>% 
   pivot_longer(
     cols = starts_with("malaria_")
   )
 ```
 
-or by position: 
+ya da pozisyona göre:
 
 ```{r, eval=F}
-# provide columns by position
+# pozisyona göre sütun sağlamak
 count_data %>% 
   pivot_longer(
     cols = 6:9
   )
 ```
 
-or by named range:
+veya adlandırılmış aralığa göre:
 
 ```{r, eval=F}
-# provide range of consecutive columns
+# ardışık sütun aralıkları sağlama
 count_data %>% 
   pivot_longer(
     cols = `malaria_rdt_0-4`:malaria_tot
   )
 ```
 
-
-
-These two new columns are given the default names of `name` and `value`, but we can override these defaults to provide more meaningful names, which can help remember what is stored within, using the `names_to` and `values_to` arguments. Let's use the names `age_group` and `counts`:
+Bu iki yeni sütuna varsayılan `ad` ve `değerler` verilir, ancak istediğimiz adları verebilmek için bu varsayılan adları geçersiz kılabiliriz; `names_to` ve `values_to` argümanlarını kullanarak yeni sütunlarda hangi bilgilerin depolandığını hatırlayabiliriz. `Age_group` adlarını ve sayılarını kullanalım:
 
 ```{r}
 df_long <- 
@@ -203,7 +197,7 @@ df_long <-
 df_long
 ```
 
-We can now pass this new dataset to `{ggplot2}`, and map the new column `count` to the y-axis and new column `age_group` to the `fill = ` argument (the column internal color). This will display the malaria counts in a stacked bar chart, by age group:
+Şimdi bu yeni veri kümesini `{ggplot2}`'ye aktarabiliriz ve yeni sütunlardaki `count` y eksenine ve yeni `age_group` sütununu `fill =` argümanına (sütun iç kısmının rengi) atayabiliriz. Bu komut, çubuk grafikte yaş grubuna göre sıtma sayılarını gösterir:
 
 ```{r, warning=F, message=F}
 ggplot(data = df_long) +
@@ -213,11 +207,11 @@ ggplot(data = df_long) +
   )
 ```
 
-Examine this new plot, and compare it with the plot we created earlier - *what has gone wrong?*  
+Bu yeni grafiği inceleyin ve daha önce oluşturduğumuz grafikle karşılaştırın – *Sizce yanlış giden ne?*
 
-We have encountered a common problem when wrangling surveillance data - we have also included the total counts from the `malaria_tot` column, so the magnitude of each bar in the plot is twice as high as it should be. 
+Sürveyans verilerini incelerken yaygın bir sorunla karşılaştık: Grafikteki her çubuğun boyu olması gerekenin iki katıdır, çünkü grafiğe `malaria_tot` sütunundaki toplam sayıları da dahil ettik.
 
-We can handle this in a number of ways. We could simply filter these totals from the dataset before we pass it to `ggplot()`:
+Bu sorunu birkaç şekilde halledebiliriz. `ggplot()`'a aktarmadan önce bu toplamları veri kümesinden filtreleyebiliriz:
 
 ```{r, warning=F, message=F}
 df_long %>% 
@@ -229,7 +223,7 @@ df_long %>%
   )
 ```
 
-Alternatively, we could have excluded this variable when we ran `pivot_longer()`, thereby maintaining it in the dataset as a separate variable. See how its values "expand" to fill the new rows. 
+Alternatif olarak, `pivot_longer()`'ı çalıştırdığımızda bu değişkeni hariç tutabilirdik, böylece sorun oluşturan bu değişkeni ayrı bir değişken olarak veri kümesinde tutabilirdik. Değerlerin yeni satırları doldurmak için nasıl "genişlediğini" inceleyin.
 
 ```{r, warning=F, message=F}
 count_data %>% 
@@ -241,18 +235,15 @@ count_data %>%
 ```
 
 
+### Birden çok sınıfa ait verinin pivotlanması {.unnumbered}
 
+Yukarıdaki örnek, daha uzun şekilde pivotlamak istediğiniz tüm sütunların aynı sınıfta olduğu durumlarda (karakter, sayısal, mantıksal…) iyi çalışır.
 
+Bununla birlikte, bir saha epidemiyoloğu olarak, bu konuda uzman olmayanlar tarafından hazırlanan ve standart dışı verilerle çalışacağınız birçok durum olacaktır - Hadley Wickham'ın **Düzenli Veri** ilkeleri üzerine [ufuk açıcı makalesinde](https://vita.had.co.nz/papers/tidy-data.pdf) Tolstoy'a atıfta bulunarak belirttiği gibi "Düzenli veri kümelerinin hepsi birbirine benzer, ancak her dağınık veri kümesi kendi tarzında dağınıktır, aynı aileler gibi."
 
-### Pivoting data of multiple classes {.unnumbered}
+Karşılaşacağınız özellikle yaygın bir sorun, farklı veri sınıfları içeren sütunları döndürme ihtiyacı olacaktır. Bu pivot işlemi, farklı veri türlerinin tek bir sütunda depolanmasına neden olur ve bu durum istenmeyen bir sonuçtur. Bunun yarattığı karışıklığı ortadan kaldırmak için çeşitli yaklaşımlar vardır. Ancak bu duruma düşmemek için `pivot_longer()` kullanımında uygulanabilecek önemli bir adım vardır.
 
-The above example works well in situations in which all the columns you want to "pivot longer" are of the same class (character, numeric, logical...). 
-
-However, there will be many cases when, as a field epidemiologist, you will be working with data that was prepared by non-specialists and which follow their own non-standard logic - as Hadley Wickham noted (referencing Tolstoy) in his [seminal article](https://vita.had.co.nz/papers/tidy-data.pdf) on **Tidy Data** principles: "Like families, tidy datasets are all alike but every messy dataset is messy in its own way."
-
-One particularly common problem you will encounter will be the need to pivot columns that contain different classes of data. This pivot will result in storing these different data types in a single column, which is not a good situation. There are various approaches one can take to separate out the mess this creates, but there is an important step you can take using `pivot_longer()` to avoid creating such a situation yourself.
-
-Take a situation in which there have been a series of observations at different time steps for each of three items A, B and C. Examples of such items could be individuals (e.g. contacts of an Ebola case being traced each day for 21 days) or remote village health posts being monitored once per year to ensure they are still functional. Let's use the contact tracing example. Imagine that the data are stored as follows:
+A, B ve C öğelerinin her biri için farklı zamanlarda bir dizi gözlemin olduğu bir durumu ele alın. Bu öğeler örneğin farklı bireyler (örneğin 21 gün boyunca her gün bir Ebola vakasının temaslıları) veya hala çalışır durumda olduklarından emin olmak için yılda bir kez izlenen sağlık ocakları olabilir. Temaslı kişilerini izlemini ele alalım. Verilerin aşağıdaki gibi kaydedildiğini düşünelim:
 
 
 ```{r, message=FALSE, echo=F}
@@ -269,11 +260,11 @@ DT::datatable(df, rownames = FALSE)
 
 ```
 
-As can be seen, the data are a bit complicated. Each row stores information about one item, but with the time series running further and further away to the right as time progresses. Moreover, the column classes alternate between date and character values.  
+Verinin durumu başlangıçta karmaşıktır. Her satır, bir öğe hakkında veri içerir, ancak zaman serilerinde zamandaki ilerleme ile sütunlarda sağa doğru ilerleme izlenmektedir. Ayrıca, sütun sınıfları sırayla tarih ve karakter değerleri almaktadır.  
 
-One particularly bad example of this encountered by this author involved cholera surveillance data, in which 8 new columns of observations were added *each day* over the course of __4 years__. Simply opening the Excel file in which these data were stored took >10 minuntes on my laptop!
+Bu araştırmacının karşılaştığı kötü bir örnek, 4 yıl boyunca *her gün* 8 yeni gözlem sütununun eklendiği kolera sürveyans verilerini içeriyordu. Bu verilerin depolandığı Excel dosyasını açmak, dizüstü bilgisayarda 10 dakikan fazla zaman almıştır.
 
-In order to work with these data, we need to transform the data frame to long format, but keeping the separation between a `date` column and a `character` (status) column, for each observation for each item. If we don't, we might end up with a mixture of variable types in a single column (a very big "no-no" when it comes to data management and tidy data):
+Bu verilerle çalışmak için, veri çerçevesini uzun biçime dönüştürmemiz, ancak her öğeye ait tüm gözlemler için `date` ve `character` (durum) sütunu arasındaki ayrımı korumamız gerekir. Bunu yapmazsak, tek bir sütunda değişken türleri karışık şekilde bulunur (Veri yönetimi ve düzenli veriler söz konusu olduğunda gerçekten istenmeyen bir durumdur):
 
 ```{r}
 df %>% 
@@ -284,16 +275,16 @@ df %>%
 
 ```
 
-Above, our pivot has merged *dates* and *characters* into a single `value` column. R will react by converting the entire column to class character, and the utility of the dates is lost.  
+Yukarıda, pivot komutu, *tarihleri* ve *karakterleri* tek bir değer sütununda birleştirdi. Bu durumda R, tüm sütunu sınıf karakterine dönüştür ve tarih özellikleri kaybolur.  
 
-To prevent this situation, we can take advantage of the syntax structure of the original column names. There is a common naming structure, with the observation number, an underscore, and then either "status" or "date". We can leverage this syntax to keep these two data types in separate columns after the pivot. 
+Bu durumu önlemek için orijinal sütun adlarının sintaks yapısından yararlanabiliriz. Gözlem numarası, alt çizgi ve ardından “durum” veya “tarih” bilgisi içeren ortak bir adlandırma şeklini kullanmak faydalıdır. Pivot sonrası bu iki veri türünü ayrı sütunlarda tutmak için bu sintakstan yararlanabiliriz.
 
-We do this by:  
+Bunu şu şekilde yapıyoruz:
 
-* Providing a character vector to the `names_to = ` argument, with the second item being (`".value"` ). This special term indicates that the pivoted columns will be split based on a character in their name...  
-* You must also provide the "splitting" character to the `names_sep = ` argument. In this case, it is the underscore "_".  
+* İkinci öğe (`".value"`) olmak üzere, `names_to =` argümanına bir karakter vektörü yazmalısınız. Bu özel terim, pivot sütunlarının adlarındaki bir karaktere göre nasıl bölüneceğini belirtir. 
+* Ayrıca, `name_sep =` argümanına “splitting-ayırma” karakterini de yazmalısınız. Bu durumda, ayırma karakteri alt çizgidir ( "_”)
 
-Thus, the naming and split of new columns is based around the underscore in the existing variable names.  
+Bu nedenle, yeni sütunların adlandırılması ve bölünmesi, mevcut değişken adlarındaki alt çizgiye göre gerçekleşir. 
 
 ```{r}
 
@@ -309,11 +300,11 @@ df_long
 
 ```
 
-__Finishing touches__:
+__Son dokunuşlar__:
 
-Note that the `date` column is currently in *character* class - we can easily convert this into it's proper date class using the `mutate()` and `as_date()` functions described in the [Working with dates] page.  
+Tarih sütununun şu anda *character* sınıfında olduğuna dikkat edin. [Tarihlerle çalışma] sayfasında açıklanan `mutate()` ve `as_date()` fonksiyonlarını kullanarak sınıfı kolayca uygun tarih sınıfına dönüştürebiliriz.
 
-We may also want to convert the `observation` column to a `numeric` format by dropping the "obs" prefix and converting to numeric. We cando this with `str_remove_all()` from the **stringr** package (see the [Characters and strings] page).  
+Ayrıca, "obs" ön ekini silerek `observation` sütununu `sayısal` bir biçime dönüştürmek isteyebiliriz. Bunu **stringr** paketinden `str_remove_all()` ile yapabiliriz ([Karakterler ve dizeler] sayfasına bakın).
 
 ```{r}
 
@@ -331,7 +322,7 @@ df_long
 
 ```
 
-And now, we can start to work with the data in this format, e.g. by plotting a descriptive heat tile:  
+Ve şimdi bu formattaki verilerle çalışmaya başlayabiliriz, örn. açıklayıcı bir ısı döşemesi çizerek: 
 
 ```{r}
 ggplot(data = df_long, mapping = aes(x = date, y = id, fill = status)) +
@@ -350,30 +341,28 @@ ggplot(data = df_long, mapping = aes(x = date, y = id, fill = status)) +
 
 
 <!-- ======================================================= -->
-## Long-to-wide {}
+## Uzundan genişe {}
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "pivoting", "pivot_wider_new.png"))
 ```
 
+Bazı durumlarda, bir veri tabanını daha geniş bir formata dönüştürmek isteyebiliriz. Bunun için `pivot_wider()` fonksiyonunu kullanabiliriz.
 
-In some instances, we may wish to convert a dataset to a wider format. For this, we can use the `pivot_wider()` function.
+Analiz sonuçlarını okuyucu için daha anlaşılır bir formata dönüştürmek istediğimiz zamandır (örneğin, [Sunum için bir tablo][Tables for presentation]), bu fonksiyonu. Genellikle bu işlem, bir gözlem için değerlerin birden çok satıra yayıldığı bir veri kümesinin, bu değerlerin tek bir satırda depolandığı bir formata dönüştürülmesini içerir.
 
-A typical use-case is when we want to transform the results of an analysis into a format which is more digestible for the reader (such as a [Table for presentation][Tables for presentation]). Usually, this involves transforming a dataset in which information for one subject is are spread over multiple rows into a format in which that information is stored in a single row.
+### Veri {.unnumbered}
 
-### Data {.unnumbered}
+Sayfanın bu bölümü için, vaka başına bir satır içeren satır listesini kullanacağız ([Hazırlık](#pivot_prep) bölümüne bakın).
 
-For this section of the page, we will use the case linelist (see the [Preparation](#pivot_prep) section), which contains one row per case.  
-
-Here are the first 50 rows:  
+İlk 50 satır: 
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# satır listesini tablo olarak göster
 DT::datatable(head(linelist, 50), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-
-Suppose that we want to know the counts of individuals in the different age groups, by gender:
+Farklı yaş gruplarındaki bireylerin sayısını cinsiyete göre bilmek istediğimizi varsayalım:
 
 ```{r}
 df_wide <- 
@@ -383,18 +372,18 @@ df_wide <-
 df_wide
 ```
 
-This gives us a long dataset that is great for producing visualisations in **ggplot2**, but not ideal for presentation in a table:
+Bu bize, **ggplot2**'de görselleştirme için harika, ancak tabloda sunum için ideal olmayan uzun bir veri tabanı sağlar:
 
 ```{r}
 ggplot(df_wide) +
   geom_col(aes(x = age_cat, y = n, fill = gender))
 ```
 
-### Pivot wider {.unnumbered}  
+### Daha geniş olarak pivotlama {.unnumbered}  
 
-Therefore, we can use `pivot_wider()` to transform the data into a better format for inclusion as tables in our reports.  
+Bu nedenle, verileri raporlara tablo olarak dahil etmek amaçlı olarak daha uygun biçime dönüştürmek için `pivot_wider()`'ı kullanabiliriz.
 
-The argument `names_from` specifies the column *from* which to generate the new column *names*, while the argument `values_from` specifies the column *from* which to take the *values* to populate the cells. The argument `id_cols = ` is optional, but can be provided a vector of column names that should not be pivoted, and will thus identify each row.  
+name_from argümanı, yeni sütun adlarının oluşturulacağı *names* sütunu belirtirken; `values_from` argümanı, hücreleri doldurmak için gereken değerlerin alınacağı sütunu belirtir. `id_cols =` argümanı isteğe bağlıdır, ancak döndürülmemesi gereken satırları içeren sütun adları vektörünü içerir ..  
 
 ```{r}
 table_wide <- 
@@ -408,7 +397,7 @@ table_wide <-
 table_wide
 ```
 
-This table is much more reader-friendly, and therefore better for inclusion in our reports. You can convert into a pretty table with several packages including **flextable** and **knitr**. This process is elaborated in the page [Tables for presentation].  
+Bu tablo daha okuyucu dostudur ve bu nedenle raporlarımıza dahil edilmesi daha uygundur. **Flextable** ve **knitr** dahil olmak üzere çeşitli paketlerle güzel bir tablolar oluşturulabilir. Bu süreç [Sunum için tablolar] sayfasında daha detaylı olarak anlatılmıştır.  
 
 ```{r}
 table_wide %>% 
@@ -422,14 +411,14 @@ table_wide %>%
 
 
 <!-- ======================================================= -->
-## Fill 
+## Doldurma 
 
-In some situations after a `pivot`, and more commonly after a `bind`, we are left with gaps in some cells that we would like to fill.  
+Bazı durumlarda pivot işlemi sonrası ve daha yaygın olarak bir birleştirme sonrası, bazı hücrelerde doldurmak istediğimiz boşluklar kalır.  
 
 <!-- ======================================================= -->
-### Data {.unnumbered}
+### Veri {.unnumbered}
 
-For example, take two datasets, each with observations for the measurement number, the name of the facility, and the case count at that time. However, the second dataset also has a variable `Year`. 
+Örneğin, ölçüm numarası, tesisin adı ve o andaki vaka sayısı için gözlemleri olan iki veri tabanını inceleyelim. Ancak, ikinci veri kümesinde ek olarak `Year` değişkeni vardır.
 
 ```{r}
 df1 <- 
@@ -459,8 +448,7 @@ df2 <-
 df2
 ```
 
-
-When we perform a `bind_rows()` to join the two datasets together, the `Year` variable is filled with `NA` for those rows where there was no prior information (i.e. the first dataset):
+İki veri kümesini birleştirmek için bir `bind_rows()` işlemi gerçekleştirdiğimizde, `Year` değişkeni, ön bilgi bulunmayan satırlar için (yani ilk veri kümesinde) `NA` ile doldurulur:
 
 
 ```{r}
@@ -475,14 +463,14 @@ df_combined
 <!-- ======================================================= -->
 ### `fill()` {.unnumbered}
 
-In this case, `Year` is a useful variable to include, particularly if we want to explore trends over time. Therefore, we use `fill()` to *fill* in those empty cells, by specifying the column to fill and the direction (in this case **up**):
+Bu durumda, özellikle zaman içindeki eğilimleri keşfetmek istiyorsak, yıl dahil etmek için yararlı bir değişkendir. Bu nedenle, doldurulacak sütunu ve *doldurma* yönünü (bu durumda **yukarı**) belirterek boş hücreleri doldurmak için `fill()` komutunu kullanırız:
 
 ```{r}
 df_combined %>% 
   fill(Year, .direction = "up")
 ```
 
-Alternatively, we can rearrange the data so that we would need to fill in a downward direction:
+Alternatif olarak, verileri aşağı yönde dolduracak şekilde yeniden düzenleyebiliriz:
 
 ```{r}
 df_combined <- 
@@ -498,7 +486,7 @@ df_combined <-
 df_combined
 ```
 
-We now have a useful dataset for plotting:
+Artık görselleştirmek için kullanışlı bir veri setimiz var:
 
 ```{r}
 ggplot(df_combined) +
@@ -506,7 +494,7 @@ ggplot(df_combined) +
   geom_col()
 ```
 
-But less useful for presenting in a table, so let's practice converting this long, untidy dataframe into a wider, tidy dataframe:
+Ancak bu form tablo halinde sunmak için daha az kullanışlıdır, bu yüzden uzun, düzensiz veri çerçevesini daha geniş, düzenli bir veri çerçevesine dönüştürme alıştırması yapalım:
 
 ```{r}
 df_combined %>% 
@@ -522,7 +510,7 @@ df_combined %>%
   kableExtra::column_spec(column = 5, bold = TRUE) 
 ```
 
-N.B. In this case, we had to specify to only include the three variables `Facility`, `Year`, and `Cases` as the additional variable `Measurement` would interfere with the creation of the table:
+Not:  Bu durumda, ek değişken olan “ölçüm” tablonun oluşturulmasına engel olacağından, yalnızca `Facility`, `Year` ve `Cases` değişkenleri dahil edilmelidir:
 
 ```{r}
 df_combined %>% 
@@ -533,7 +521,7 @@ df_combined %>%
   knitr::kable()
 ```
 
-## Resources  
+## Kaynaklar  
 
-Here is a helpful [tutorial](https://datacarpentry.org/r-socialsci/03-dplyr-tidyr/index.html)
+Yararlı bir [eğitim](https://datacarpentry.org/r-socialsci/03-dplyr-tidyr/index.html)
 
