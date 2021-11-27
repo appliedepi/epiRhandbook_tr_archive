@@ -329,20 +329,20 @@ trans_matrix +
 
 # Ölçeklendirmek 3+ renk
 trans_matrix + 
-  scale_fill_gradientn(    # 3-color scale (low/mid/high)
+  scale_fill_gradientn(    # 3 renkli ölçek (low/mid/high)
     colors = c("blue", "yellow","red") # y dönüş için yeterli
   )+
   labs(title = "3-color scale")
 
-# Use of rescale() to adjust placement of colors along scale
+# Ölçek boyunca renklerin yerleşimini ayarlamak için rescale() kullanımı
 trans_matrix + 
-  scale_fill_gradientn(    # provide any number of colors
+  scale_fill_gradientn(    # herhangi bir sayıda rengi sağlamak
     colors = c("blue", "yellow","red", "black"),
-    values = scales::rescale(c(0, 0.05, 0.07, 0.10, 0.15, 0.20, 0.3, 0.5)) # positions for colors are rescaled between 0 and 1
+    values = scales::rescale(c(0, 0.05, 0.07, 0.10, 0.15, 0.20, 0.3, 0.5)) # renkler için konumlar 0 ile 1 arasında yeniden ölçeklenir
     )+
   labs(title = "Colors not evenly positioned")
 
-# use of limits to cut-off values that get fill color
+# dolgu rengini alan kesme değerleri için sınırların kullanılması
 trans_matrix + 
   scale_fill_gradientn(    
     colors = c("blue", "yellow","red"),
@@ -365,15 +365,15 @@ Grafiğinizi bu [renk körlüğü simülatöründe](https://www.color-blindness.
 İşte çeşitli renk şemaları kullanan [ggplot basics] sayfasından bir örnek.
 
 ```{r, out.width=c('50%'), fig.show='hold', warning=F, message=F} 
-symp_plot <- linelist %>%                                         # begin with linelist
-  select(c(case_id, fever, chills, cough, aches, vomit)) %>%     # select columns
-  pivot_longer(                                                  # pivot longer
+symp_plot <- linelist %>%                                         # satırlistesi ile başla
+  select(c(case_id, fever, chills, cough, aches, vomit)) %>%     # sütunları seç
+  pivot_longer(                                                  # daha uzun döndür
     cols = -case_id,                                  
     names_to = "symptom_name",
     values_to = "symptom_is_present") %>%
-  mutate(                                                        # replace missing values
+  mutate(                                                        # eksik verileri tamamla
     symptom_is_present = replace_na(symptom_is_present, "unknown")) %>% 
-  ggplot(                                                        # begin ggplot!
+  ggplot(                                                        # ggplot'a başla
     mapping = aes(x = symptom_name, fill = symptom_is_present))+
   geom_bar(position = "fill", col = "black") +                    
   theme_classic() +
@@ -383,22 +383,22 @@ symp_plot <- linelist %>%                                         # begin with l
     y = "Symptom status (proportion)"
   )
 
-symp_plot  # print with default colors
+symp_plot  # kendinden olan renkleri yazdır
 
 #################################
-# print with manually-specified colors
+# el ile özelleştirdiğin renkleri yazdır
 symp_plot +
   scale_fill_manual(
-    values = c("yes" = "black",         # explicitly define colours
+    values = c("yes" = "black",         # renkleri açıkça tanımla
                "no" = "white",
                "unknown" = "grey"),
-    breaks = c("yes", "no", "unknown"), # order the factors correctly
-    name = ""                           # set legend to no title
+    breaks = c("yes", "no", "unknown"), # faktörleri doğru sırala
+    name = ""                           # lejandı başlıksız olarak ayarla
 
   ) 
 
 #################################
-# print with viridis discrete colors
+# viridis ile ayrık renklerle yazdırın
 symp_plot +
   scale_fill_viridis_d(
     breaks = c("yes", "no", "unknown"),
@@ -419,8 +419,8 @@ Yaş gruplarını kullanarak yaygın bir örneğe bakabiliriz - varsayılan olar
 
 ```{r, , warning=F, message=F}
 ggplot(
-  data = linelist %>% drop_na(age_cat5),                         # remove rows where age_cat5 is missing
-  mapping = aes(x = fct_relevel(age_cat5, "5-9", after = 1))) +  # relevel factor
+  data = linelist %>% drop_na(age_cat5),                         # age_cat5'in eksik olduğu satırları kaldırın
+  mapping = aes(x = fct_relevel(age_cat5, "5-9", after = 1))) +  # faktörü yeniden seviyelendirin
 
   geom_bar() +
   
@@ -830,14 +830,14 @@ p2 <- linelist %>%
 
 # p1'den lejandı çıkar (p1'den + lejand)
 leg_p1 <- cowplot::get_legend(p1 +
-                                theme(legend.position = "right",        # extract vertical legend
-                                      legend.justification = c(0,0.5))+ # so legends  align
-                                labs(fill = "Outcome"))                 # title of legend
+                                theme(legend.position = "right",        # dikey lejandı çıkar
+                                      legend.justification = c(0,0.5))+ # böylece lejandlar hizalanır
+                                labs(fill = "Outcome"))                 # lejand başlığı
 # p2'den lejandı çıkar (p2'den + lejand)
 leg_p2 <- cowplot::get_legend(p2 + 
-                                theme(legend.position = "right",         # extract vertical legend   
-                                      legend.justification = c(0,0.5))+  # so legends align
-                                labs(fill = "Age Category"))             # title of legend
+                                theme(legend.position = "right",            
+                                      legend.justification = c(0,0.5))+  
+                                labs(fill = "Age Category"))             
 
 # lejand hizalaması için boş bir grafik oluşturun
 #blank_p <- patchwork::plot_spacer() + theme_void()
