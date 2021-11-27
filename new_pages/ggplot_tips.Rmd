@@ -1,5 +1,5 @@
 
-# ggplot ipuçları {}
+# ggplot ipuçları {} 
 
 Bu sayfada, ggplot'larınızı keskin ve gösterişli hale getirmek için ipuçlarını ve püf noktalarını ele alacağız. Temel bilgiler için [ggplot temelleri] sayfasına bakabilirsiniz.
 
