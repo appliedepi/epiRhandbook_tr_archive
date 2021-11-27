@@ -1,35 +1,32 @@
 
-# ggplot tips {}
+# ggplot ipuçları {}
 
-In this page we will cover tips and tricks to make your ggplots sharp and fancy. See the page on [ggplot basics] for the fundamentals.  
+Bu sayfada, ggplot'larınızı keskin ve gösterişli hale getirmek için ipuçlarını ve püf noktalarını ele alacağız. Temel bilgiler için [ggplot temelleri] sayfasına bakabilirsiniz.
 
-There a several extensive [**ggplot2** tutorials](https://ggplot2.tidyverse.org/) linked in the Resources section. You can also download this [data visualization with ggplot cheatsheet](https://rstudio.com/resources/cheatsheets/) from the RStudio website. We strongly recommend that you peruse for inspiration at the [R graph gallery](https://www.r-graph-gallery.com/) and [Data-to-viz](https://www.data-to-viz.com/caveats.html). 
+Kaynaklar bölümünde bağlantılı birkaç kapsamlı [**ggplot2** eğitimi](https://ggplot2.tidyverse.org/) vardır. Bu [ggplot hatırlatma sayfası ile veri görselleştirmeyi](https://rstudio.com/resources/cheatsheets/) RStudio web sitesinden de indirebilirsiniz. İlham almak için [R grafiği galerisi](https://www.r-graph-gallery.com/) ve [Data-to-viz](https://www.data-to-viz.com/caveats.html) sayfalarını incelemenizi şiddetle tavsiye ederiz.
 
+## Hazırlık {}
 
+### Paketleri yükleme {.unnumbered}
 
-<!-- ======================================================= -->
-## Preparation {}
-
-### Load packages {.unnumbered}
-
-This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Bu kod parçası, analizler için gereken paketlerin yüklenmesini gösterir. Bu el kitabında, gerekirse paketi kuran *ve* kullanım için yükleyen **pacman**'dan 'p_load()' vurgusunu yapıyoruz. R **tabanı**ndan `library()` ile kurulu paketleri de yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R basics] sayfasına bakabilirsiniz.
 
 ```{r}
 pacman::p_load(
-  tidyverse,      # includes ggplot2 and other
-  rio,            # import/export
-  here,           # file locator
-  stringr,        # working with characters   
-  scales,         # transform numbers
-  ggrepel,        # smartly-placed labels
-  gghighlight,    # highlight one part of plot
-  RColorBrewer    # color scales
+  tidyverse,      # ggplot2 ve diğerlerini içerir
+  rio,            # içe / dışa aktar
+  here,           # dosyayı bul
+  stringr,        # karakterlerle çalışmak   
+  scales,         # sayıları çevirmek
+  ggrepel,        # akıllıca yerleştirilmiş etiketler
+  gghighlight,    # arsanın bir bölümünü vurgula
+  RColorBrewer    # renk skalaları
 )
 ```
 
-### Import data {.unnumbered}  
+### Verileri içe aktarma {.unnumbered}
 
-For this page, we import the dataset of cases from a simulated Ebola epidemic. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file). Import data with the `import()` function from the **rio** package (it handles many file types like .xlsx, .csv, .rds - see the [Import and export] page for details).  
+Bu sayfa için, simüle edilmiş bir Ebola salgınından vakaların veri setini içe aktarıyoruz. Takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" dosyasını indirmek için tıklayın.</a> (.rds dosyası olarak). **rio** paketinden `import()` fonksiyonuyla verileri içe aktarın (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe aktarma ve dışa aktarma] sayfasına bakabilirsiniz).
 
 ```{r,  echo=F}
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
@@ -40,62 +37,55 @@ linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.r
 linelist <- rio::import("linelist_cleaned.rds")
 ```
 
-The first 50 rows of the linelist are displayed below.
+Satır listesinin ilk 50 satırı aşağıda görüntülenir.
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# satır listesi verilerini tablo olarak göster
 DT::datatable(head(linelist, 50), rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
+## Renk, dolgu, eksen vb. için ölçekler {#ggplot_tips_colors}
 
+**ggplot2**'de, çizilen verilerin estetiği (ör. boyut, renk, şekil, dolgu, çizim ekseni) verilerdeki sütunlarla eşlendiğinde, tam görüntü ilgili "ölçek" komutuyla ayarlanabilir. Bu bölümde bazı yaygın ölçek ayarlamalarını açıklıyoruz.
 
+### Renk şemaları
 
-<!-- ======================================================= -->
-## Scales for color, fill, axes, etc. {#ggplot_tips_colors}
+**ggplot2** ile başlangıçta anlaşılması zor olabilecek bir şey, renk şemalarının kontrolüdür. Bu bölümün noktalar, çubuklar, çizgiler, döşemeler vb. *çizim nesnelerinin* (geomlar/şekiller) rengini tartıştığını unutmayın. Aksesuar metninin, başlıkların veya arka plan renginin rengini ayarlamak için  [ggplot temelleri] sayfasının bölümü olan [Temalar](#ggplot_basics_themes) bölümüne bakınız.
 
-In **ggplot2**, when aesthetics of plotted data (e.g. size, color, shape, fill, plot axis) are mapped to columns in the data, the exact display can be adjusted with the corresponding "scale" command. In this section we explain some common scale adjustments.  
+*Arsa nesnelerinin* "rengini" kontrol etmek için, ya `renk = ` estetiğini (*dış* renk) ya da `dolgu = ` estetiğini (*iç* renk) ayarlayacaksınız. Bu modelin bir istisnası, gerçekten yalnızca noktanın rengini (iç ve dış) kontrol eden 'color = ' öğesini kontrol edebileceğiniz 'geom_point()' fonksiyonudur.
 
-
-
-### Color schemes
-
-One thing that can initially be difficult to understand with **ggplot2** is control of color schemes. Note that this section discusses the color of *plot objects* (geoms/shapes) such as points, bars, lines, tiles, etc. To adjust color of accessory text, titles, or background color see the [Themes](#ggplot_basics_themes) section of the [ggplot basics] page. 
-
-To control "color" of *plot objects* you will be adjusting either the `color = ` aesthetic (the *exterior* color) or the `fill = ` aesthetic (the *interior* color). One exception to this pattern is `geom_point()`, where you really only get to control `color = `, which controls the color of the point (interior and exterior).  
-
-When setting colour or fill you can use colour names recognized by R like `"red"` (see [complete list](http://sape.inf.usi.ch/quick-reference/ggplot2/colour) or enter `?colors`), or a specific hex colour such as `"#ff0505"`.
+Renk veya dolguyu ayarlarken "kırmızı" gibi R tarafından tanınan renk adlarını kullanabilir (bkz. [tam liste](http://sape.inf.usi.ch/quick-reference/ggplot2/color) veya `?colors`) veya "#ff0505"` gibi belirli bir onaltılık renkler kullanılabilir.
 
 ```{r, warning=F, message=F}
 # histogram - 
-ggplot(data = linelist, mapping = aes(x = age))+       # set data and axes
-  geom_histogram(              # display histogram
-    binwidth = 7,                # width of bins
-    color = "red",               # bin line color
-    fill = "lightblue")          # bin interior color (fill) 
+ggplot(data = linelist, mapping = aes(x = age))+       # veri ve eksenleri ayarla
+  geom_histogram(                # histogram göster
+    binwidth = 7,                # kutu genişliği
+    color = "red",               # kutu çizgi rengi
+    fill = "lightblue")          # kutu iç rengi (dolgu) 
 ```
 
 
-
-As explained the [ggplot basics] section on [mapping data to the plot](#ggplot_basics_mapping), aesthetics such as `fill = ` and `color = ` can be defined either *outside* of a `mapping = aes()` statement or *inside* of one. If *outside* the `aes()`, the assigned value should be static (e.g. `color = "blue"`) and will apply for *all* data plotted by the geom. If *inside*, the aesthetic should be mapped to a column, like `color = hospital`, and the expression will vary by the value for that row in the data. A few examples:  
+[Gggplot temelleri] bölümünde [verileri çizime eşleme](#ggplot_basics_mapping) ile ilgili olarak açıklandığı gibi, 'fill = ' ve 'color = ' gibi estetikler bir 'mapping = aes()' ifadesinin *dışında*  veya birinin *içinde* tanımlanabilir. "aes()" * dışında* ise, atanan değer statik olmalıdır (ör. 'color= "mavi"') ve geom tarafından çizilen *tüm* veriler için geçerli olacaktır. *içeride* ise, estetik, 'renk = hastane"' gibi bir sütuna eşlenmelidir ve ifade, verilerdeki o satırın değerine göre değişecektir. Birkaç örnek:
 
 ```{r, out.width=c('50%', '50%'), fig.show='hold', warning=F, message=F}
-# Static color for points and for line
+# Noktalar ve çizgi için statik renk
 ggplot(data = linelist, mapping = aes(x = age, y = wt_kg))+     
   geom_point(color = "purple")+
   geom_vline(xintercept = 50, color = "orange")+
   labs(title = "Static color for points and line")
 
-# Color mapped to continuous column
+# Sürekli sütuna eşlenen renk
 ggplot(data = linelist, mapping = aes(x = age, y = wt_kg))+     
   geom_point(mapping = aes(color = temp))+         
   labs(title = "Color mapped to continuous column")
 
-# Color mapped to discrete column
+# Ayrık sütuna eşlenen renk
 ggplot(data = linelist, mapping = aes(x = age, y = wt_kg))+     
   geom_point(mapping = aes(color = gender))+         
   labs(title = "Color mapped to discrete column")
 
-# bar plot, fill to discrete column, color to static value
+# çubuk grafiği, ayrı sütuna doldur, statik değere renk
 ggplot(data = linelist, mapping = aes(x = hospital))+     
   geom_bar(mapping = aes(fill = gender), color = "yellow")+         
   labs(title = "Fill mapped to discrete column, static color")
@@ -103,93 +93,93 @@ ggplot(data = linelist, mapping = aes(x = hospital))+
 ```
 
 
-### Scales {#ggplot_tips_scales .unnumbered}  
+### Ölçekler {#ggplot_tips_scales .unnumbered} 
 
-Once you map a column to a plot aesthetic (e.g. `x = `, `y = `, `fill = `, `color = `...), your plot will gain a scale/legend. See above how the scale can be continuous, discrete, date, etc. values depending on the class of the assigned column. If you have multiple aesthetics mapped to columns, your plot will have multiple scales.  
+Bir sütunu bir çizim estetiğine eşlediğinizde (örneğin, `x = `, `y = `, `fill = `, `color = `...), grafiğiniz bir ölçek/lejand kazanacaktır. Yukarıda, atanan sütunun sınıfına bağlı olarak ölçeğin sürekli, ayrık, tarih vb. değerlerinin nasıl olabileceğini görün. Sütunlara eşlenmiş birden fazla estetiğiniz varsa, arsanızın birden çok ölçeği olacaktır.
 
-You can control the scales with the appropriate `scales_()` function. The scale functions of **ggplot()** have 3 parts that are written like this: `scale_AESTHETIC_METHOD()`.  
+Uygun `scales_()` fonksiyonu ile terazileri kontrol edebilirsiniz. **ggplot()**'un ölçek fonksiyonlarının şu şekilde yazılmış 3 bölümü vardır: `scale_AESTHETIC_METHOD()`.
 
-1) The first part, `scale_()`, is fixed.  
-2) The second part, the AESTHETIC, should be the aesthetic that you want to adjust the scale for (`_fill_`, `_shape_`, `_color_`, `_size_`, `_alpha_`...) - the options here also include `_x_` and `_y_`.  
-3) The third part, the METHOD, will be either `_discrete()`, `continuous()`, `_date()`, `_gradient()`, or `_manual()` depending on the class of the column and *how* you want to control it. There are others, but these are the most-often used.  
+1) İlk kısım olan `scale_()` düzeltildi.
+2) İkinci kısım olan ESTETİK, ölçeği ayarlamak istediğiniz estetik olmalıdır (`_fill_`, `_shape_`, `_color_`, `_size_`, `_alpha_`...) - buradaki seçenekler de '_x_' ve '_y_' içerir.
+3) Üçüncü kısım olan YÖNTEM, sütunun sınıfına ve nasıl kontrol etmek istediğine bağlı olarak `_discrete()`, `continuous()`, `_date()`, `_gradient()` veya `_manual()` olacaktır. Başkaları da var, ancak bunlar en sık kullanılanlardır.
 
-Be sure that you use the correct function for the scale! Otherwise your scale command will not appear to change anything. If you have multiple scales, you may use multiple scale functions to adjust them! For example:  
+Tartı için doğru işlevi kullandığınızdan emin olun! Aksi takdirde, ölçek komutunuz hiçbir şeyi değiştirmiş gibi görünmeyecektir. Birden fazla teraziniz varsa, bunları ayarlamak için birden fazla terazi işlevi kullanabilirsiniz! Örneğin:
 
-### Scale arguments {.unnumbered}  
+### Ölçek değişkenleri {.unnumbered}
 
-Each kind of scale has its own arguments, though there is some overlap. Query the function like `?scale_color_discrete` in the R console to see the function argument documentation.  
+Bazı örtüşmeler olsa da, her tür ölçeğin kendi değişkenleri vardır. Fonksiyon değişkeni belgelerini görmek için R konsolunda `?scale_color_discrete` gibi fonksiyonu sorgulayabilirsiniz.
 
-For continuous scales, use `breaks = ` to provide a sequence of values with `seq()` (take `to = `, `from = `, and `by = ` as shown in the example below. Set `expand = c(0,0)` to eliminate padding space around the axes (this can be used on any `_x_` or `_y_` scale.  
+Sürekli ölçekler için, 'seq()' ile bir değerler dizisi sağlamak için 'breaks = ' kullanın (aşağıdaki örnekte gösterildiği gibi 'to = ', 'from = ' ve 'by = ' alın. Eksenlerin etrafındaki dolgu alanını ortadan kaldırmak için "expand= c(0,0)" değerini ayarlayın (bu herhangi bir "_x_" veya "_y_" ölçeğinde kullanılabilir.
 
-For discrete scales, you can adjust the order of level appearance with `breaks = `, and how the values display with the `labels = ` argument. Provide a character vector to each of those (see example below). You can also drop `NA` easily by setting `na.translate = FALSE`.  
+Ayrık ölçekler için, seviye görünümünün sırasını `breaks =` ile ve değerlerin nasıl görüntüleneceğini `labels =` değişkeniyle ayarlayabilirsiniz. Bunların her birine bir karakter vektörü sağlayın (aşağıdaki örneğe bakın). Ayrıca, "na.translate = FALSE" ayarını yaparak "NA"yı kolayca bırakabilirsiniz.
 
-The nuances of date scales are covered more extensively in the [Epidemic curves] page.  
-
-
-### Manual adjustments {.unnumbered}  
-
-One of the most useful tricks is using "manual" scaling functions to explicitly assign colors as you desire. These are functions with the syntax `scale_xxx_manual()` (e.g. `scale_colour_manual()` or `scale_fill_manual()`). Each of the below arguments are demonstrated in the code example below.  
-
-* Assign colors to data values with the `values = ` argument  
-* Specify a color for `NA` with `na.value = `  
-* Change how the values are *written* in the legend with the `labels = ` argument  
-* Change the legend title with `name = `  
+Tarih ölçeklerinin nüansları, [Salgın eğrileri] sayfasında daha kapsamlı bir şekilde ele alınmaktadır.
 
 
-Below, we create a bar plot and show how it appears by default, and then with three scales adjusted - the continuous y-axis scale, the discrete x-axis scale, and manual adjustment of the fill (interior bar color).  
+### Manuel ayarlamalar {.unnumbered}
+
+En kullanışlı püf noktalardan biri, renkleri açıkça istediğiniz gibi atamak için "manuel" ölçekleme fonksiyonlarını kullanmaktır. Bunlar, "scale_xxx_manual()" sözdizimine sahiptir(ör. "scale_colour_manual()" veya "scale_fill_manual()"). Aşağıdaki bağımsız değişkenlerin her biri aşağıdaki kod örneğinde gösterilmiştir.
+
+* `values =` değişkeniyle veri değerlerine renkler atayın
+* 'NA' için 'na.value = ' ile bir renk belirtin
+* Göstergede değerlerin nasıl *yazılacağını* `labels = ` değişkeni ile değiştirin
+* Gösterge başlığını `name = ` ile değiştirin
+
+
+Aşağıda, bir çubuk grafiği oluşturuyoruz ve varsayılan olarak nasıl göründüğünü gösteriyoruz ve ardından üç ölçek ayarlıyoruz - sürekli y ekseni ölçeği, ayrık x ekseni ölçeği ve dolgunun manuel olarak ayarlanması (iç çubuk rengi).
 
 
 ```{r, warning=F, message=F}
-# BASELINE - no scale adjustment
+# TEMEL - ölçek ayarı yok
 ggplot(data = linelist)+
   geom_bar(mapping = aes(x = outcome, fill = gender))+
   labs(title = "Baseline - no scale adjustments")
 
-# SCALES ADJUSTED
+# AYARLANAN ÖLÇEKLER
 ggplot(data = linelist)+
   
   geom_bar(mapping = aes(x = outcome, fill = gender), color = "black")+
   
-  theme_minimal()+                   # simplify background
+  theme_minimal()+                   # arka planı basitleştir
   
-  scale_y_continuous(                # continuous scale for y-axis (counts)
-    expand = c(0,0),                 # no padding
+  scale_y_continuous(                # y ekseni için sürekli ölçek (sayılar)
+    expand = c(0,0),                 # dolgu yok
     breaks = seq(from = 0,
                  to = 3000,
                  by = 500))+
   
-  scale_x_discrete(                   # discrete scale for x-axis (gender)
-    expand = c(0,0),                  # no padding
-    drop = FALSE,                     # show all factor levels (even if not in data)
-    na.translate = FALSE,             # remove NA outcomes from plot
-    labels = c("Died", "Recovered"))+ # Change display of values
+  scale_x_discrete(                   # x ekseni için ayrık ölçek (cinsiyet)
+    expand = c(0,0),                  # dolgu yok
+    drop = FALSE,                     # tüm faktör seviyelerini göster (verilerde olmasa bile)
+    na.translate = FALSE,             # Boş sonuçlarını grafikten kaldır
+    labels = c("Died", "Recovered"))+ # Değerlerin gösterimini değiştir
     
   
-  scale_fill_manual(                  # Manually specify fill (bar interior color)
-    values = c("m" = "violetred",     # reference values in data to assign colors
+  scale_fill_manual(                  # Dolguyu manuel olarak belirtin (çubuk iç rengi)
+    values = c("m" = "violetred",     # renk atamak için verilerdeki referans değerleri
                "f" = "aquamarine"),
-    labels = c("m" = "Male",          # re-label the legend (use "=" assignment to avoid mistakes)
+    labels = c("m" = "Male",          # lejandı yeniden etiketleyin (hataları önlemek için "=" atamasını kullanın)
               "f" = "Female",
               "Missing"),
-    name = "Gender",                  # title of legend
-    na.value = "grey"                 # assign a color for missing values
+    name = "Gender",                  # lejand başlığı
+    na.value = "grey"                 # eksik değerler için bir renk atama
   )+
-  labs(title = "Adjustment of scales") # Adjust the title of the fill legend
+  labs(title = "Adjustment of scales") # Doldurma açıklamasının başlığını ayarlayın
 ```
 
-### Continuous axes scales {.unnumbered}  
+### Sürekli eksen ölçekleri {.unnumbered}
 
-When data are mapping to the plot axes, these too can be adjusted with scales commands. A common example is adjusting the display of an axis (e.g. y-axis) that is mapped to a column with continuous data. 
+Veriler çizim eksenlerine eşlendiğinde, bunlar da ölçek komutlarıyla ayarlanabilir. Yaygın bir örnek, sürekli veriler içeren bir sütuna eşlenen bir eksenin (ör. y ekseni) görüntüsünü ayarlamaktır.
 
-We may want to adjust the breaks or display of the values in the ggplot using `scale_y_continuous()`. As noted above, use the argument `breaks = ` to provide a sequence of values that will serve as "breaks" along the scale. These are the values at which numbers will display. To this argument, you can provide a `c()` vector containing the desired break values, or you can provide a regular sequence of numbers using the **base** R function `seq()`. This `seq()` function accepts `to = `, `from = `, and `by = `.
+`scale_y_continuous()` kullanarak ggplot'taki değerlerin kesintilerini veya gösterimini ayarlamak isteyebiliriz. Yukarıda belirtildiği gibi, ölçek boyunca "kesmeler" olarak hizmet edecek bir değerler dizisi sağlamak için "kesmeler =" bağımsız değişkenini kullanın. Bunlar sayıların görüntüleneceği değerlerdir. Bu bağımsız değişkene, istenen kesme değerlerini içeren bir "c()" vektörü sağlayabilir veya R tabanı fonksiyonu "seq()" kullanarak düzenli bir sayı dizisi sağlayabilirsiniz. Bu 'seq()' fonksiyonu 'to = ', 'from = ' ve 'by = ' kabul eder.
 
 ```{r, warning=F, message=F, out.width=c('50%', '50%'), fig.show='hold'}
-# BASELINE - no scale adjustment
+# TEMEL - ölçek ayarı yok
 ggplot(data = linelist)+
   geom_bar(mapping = aes(x = outcome, fill = gender))+
   labs(title = "Baseline - no scale adjustments")
 
-# 
+
 ggplot(data = linelist)+
   geom_bar(mapping = aes(x = outcome, fill = gender))+
   scale_y_continuous(
@@ -204,23 +194,23 @@ ggplot(data = linelist)+
 
 
 
-#### Display percents {.unnumbered}  
+#### Yüzdeleri göster {.unnumbered}
 
-If your original data values are proportions, you can easily display them as percents with "%" by providing `labels = scales::percent` in your scales command, as shown below.  
+Orijinal veri değerleriniz oranlarsa, aşağıda gösterildiği gibi ölçekler komutunuzda `labels = scales::percent` sağlayarak bunları kolayca "%" ile yüzdeler olarak görüntüleyebilirsiniz.
 
-While an alternative would be to convert the values to character and add a "%" character to the end, this approach will cause complications because your data will no longer be continuous numeric values. 
+Bir alternatif, değerleri karaktere dönüştürmek ve sona "%" karakteri eklemek olsa da, verileriniz artık sürekli sayısal değerler olmayacağından bu yaklaşım sorunlara yol açacaktır.
 
 
 ```{r, warning=F, message=F, out.width=c('50%', '50%'), fig.show='hold'}
-# Original y-axis proportions
+# Orjinal y ekseni oranları
 #############################
-linelist %>%                                   # start with linelist
-  group_by(hospital) %>%                       # group data by hospital
-  summarise(                                   # create summary columns
-    n = n(),                                     # total number of rows in group
-    deaths = sum(outcome == "Death", na.rm=T),   # number of deaths in group
-    prop_death = deaths/n) %>%                   # proportion deaths in group
-  ggplot(                                      # begin plotting
+linelist %>%                                   # satır listesi ile başlama
+  group_by(hospital) %>%                       # veriyi hastaneye göre gruplandırma
+  summarise(                                   # özet kolonlar oluşturma
+    n = n(),                                     # gruptaki toplam satır sayısı
+    deaths = sum(outcome == "Death", na.rm=T),   # gruptaki ölüm sayısı
+    prop_death = deaths/n) %>%                   # gruptaki ölüm oranı
+  ggplot(                                      # çizime başlama
     mapping = aes(
       x = hospital,
       y = prop_death))+ 
@@ -230,7 +220,7 @@ linelist %>%                                   # start with linelist
 
 
 
-# Display y-axis proportions as percents
+# Y ekseni oranlarını yüzdelik olarak gösterme
 ########################################
 linelist %>%         
   group_by(hospital) %>% 
@@ -246,14 +236,14 @@ linelist %>%
   theme_minimal()+
   labs(title = "Display y-axis as percents (%)")+
   scale_y_continuous(
-    labels = scales::percent                    # display proportions as percents
+    labels = scales::percent                   
   )
 
 ```
 
-#### Log scale {.unnumbered}  
+#### Logaritmik ölçeği {.unnumbered}
 
-To transform a continuous axis to log scale, add `trans = "log2"` to the scale command. For purposes of example, we create a data frame of regions with their respective `preparedness_index` and cumulative cases values.  
+Sürekli bir ekseni logaritmik ölçeğine dönüştürmek için, ölçek komutuna `trans = "log2"` ekleyin. Örnek olarak, ilgili 'preparedness_index' ve kümülatif vaka değerleri ile bölgelerin bir veri çerçevesini oluşturuyoruz.
 
 ```{r}
 plot_data <- data.frame(
@@ -265,35 +255,35 @@ plot_data <- data.frame(
 plot_data
 ```
 
-The cumulative cases for region "I" are dramatically greater than all the other regions. In circumstances like this, you may elect to display the y-axis using a log scale so the reader can see differences between the regions with fewer cumulative cases.  
+"I" bölgesi için kümülatif vakalar, diğer tüm bölgelerden çarpıcı biçimde daha fazladır. Bunun gibi durumlarda, okuyucunun daha az kümülatif vaka ile bölgeler arasındaki farklılıkları görebilmesi için bir logaritmik ölçeği kullanarak y eksenini görüntülemeyi seçebilirsiniz.
 
 ```{r, warning=F, message=F, out.width=c('50%', '50%'), fig.show='hold'}
-# Original y-axis
+# Orijinal y ekseni
 preparedness_plot <- ggplot(data = plot_data,  
        mapping = aes(
          x = preparedness_index,
          y = cases_cumulative))+
-  geom_point(size = 2)+            # points for each region 
+  geom_point(size = 2)+            # her bölgeye nokta 
   geom_text(
     mapping = aes(label = region),
-    vjust = 1.5)+                  # add text labels
+    vjust = 1.5)+                  # yazı etiketleri ekleme
   theme_minimal()
 
-preparedness_plot                  # print original plot
+preparedness_plot                  # orijinal grafiği yazdıe
 
 
-# print with y-axis transformed
-preparedness_plot+                   # begin with plot saved above
-  scale_y_continuous(trans = "log2") # add transformation for y-axis
+# dönüştürülmüş y ekseni ile yazdır
+preparedness_plot+                   # yukarıda kaydedilen grafik ile başlayın
+  scale_y_continuous(trans = "log2") # y ekseni için dönüşüm ekle
 ```
 
 
 
-### Gradient scales {.unnumbered}  
+### Gradyan ölçekleri {.unnumbered}
 
-Fill gradient scales can involve additional nuance. The defaults are usually quite pleasing, but you may want to adjust the values, cutoffs, etc.  
+Dolgu gradyan ölçekleri ek nüanslar içerebilir. Varsayılanlar genellikle oldukça hoştur, ancak değerleri, kesmeleri vb. ayarlamak isteyebilirsiniz.
 
-To demonstrate how to adjust a continuous color scale, we'll use a data set from the [Contact tracing] page that contains the ages of cases and of their source cases.  
+Sürekli bir renk skalasının nasıl ayarlanacağını göstermek için, vakaların yaşlarını ve kaynak vakalarını içeren [Temaslı izlemi] sayfasından bir veri seti kullanacağız.
 
 
 ```{r, warning=F, message=F}
@@ -301,7 +291,7 @@ case_source_relationships <- rio::import(here::here("data", "godata", "relations
   select(source_age, target_age) 
 ```
 
-Below, we produce a "raster" heat tile density plot. We won't elaborate how (see the link in paragraph above) but we will focus on how we can adjust the color scale. Read more about the `stat_density2d()` **ggplot2** function [here](https://ggplot2.tidyverse.org/reference/geom_density_2d.html). Note how the `fill` scale is *continuous*.  
+Aşağıda, bir "hücresel" ısı karosu yoğunluk grafiği üretiyoruz. Nasıl olduğunu detaylandırmayacağız (yukarıdaki paragraftaki bağlantıya bakabilirsiniz) ancak renk skalasını nasıl ayarlayabileceğimize odaklanacağız. `stat_density2d()` **ggplot2** fonksiyonu hakkında [buradan](https://ggplot2.tidyverse.org/reference/geom_density_2d.html) daha fazla bilgi edinebilirsiniz. `fill` ölçeğinin nasıl *sürekli* olduğuna dikkat edin. 
 
 ```{r, warn=F, message=F}
 trans_matrix <- ggplot(
@@ -314,33 +304,33 @@ trans_matrix <- ggplot(
   theme_minimal()
 ```
 
-Now we show some variations on the fill scale: 
+Şimdi doldurma ölçeğinde bazı varyasyonlar gösteriyoruz:
 
 ```{r, out.width=c('50%', '50%'), fig.show='hold', warning=F, message=F}
 trans_matrix
 trans_matrix + scale_fill_viridis_c(option = "plasma")
 ```
 
-Now we show some examples of actually adjusting the break points of the scale:  
+Şimdi ölçeğin kırılma noktalarını ayarlamanın bazı örneklerini gösteriyoruz:
 
-* `scale_fill_gradient()` accepts two colors (high/low)  
-* `scale_fill_gradientn()` accepts a vector of any length of colors to `values = ` (intermediate values will be interpolated)  
-* Use [`scales::rescale()`](https://www.rdocumentation.org/packages/scales/versions/0.4.1/topics/rescale) to adjust how colors are positioned along the gradient; it rescales your vector of positions to be between 0 and 1.  
+* `scale_fill_gradient()` iki rengi kabul eder (yüksek/düşük)
+* `scale_fill_gradientn()` herhangi bir uzunluktaki bir renk vektörünü "değerler =" olarak kabul eder (ara değerler eklemlenmiş olacaktır) 
+* [`scales::rescale()`](https://www.rdocumentation.org/packages/scales/versions/0.4.1/topics/rescale) renklerin gradyan boyunca nasıl konumlandırılacağını ayarlamak için kullanılır. Konum vektörünüzü 0 ile 1 arasında olacak şekilde yeniden ölçeklendirir.
 
 
 ```{r, out.width=c('50%', '50%'), fig.show='hold', warning=F, message=F}
 trans_matrix + 
-  scale_fill_gradient(     # 2-sided gradient scale
-    low = "aquamarine",    # low value
-    high = "purple",       # high value
-    na.value = "grey",     # value for NA
-    name = "Density")+     # Legend title
+  scale_fill_gradient(     # Çift taraflı gradyan ölçeği
+    low = "aquamarine",    # düşük değer
+    high = "purple",       # yüksek değer
+    na.value = "grey",     # Boş için değer
+    name = "Density")+     # Lejand Başlığı
   labs(title = "Manually specify high/low colors")
 
-# 3+ colors to scale
+# Ölçeklendirmek 3+ renk
 trans_matrix + 
   scale_fill_gradientn(    # 3-color scale (low/mid/high)
-    colors = c("blue", "yellow","red") # provide colors in vector
+    colors = c("blue", "yellow","red") # y dönüş için yeterli
   )+
   labs(title = "3-color scale")
 
@@ -361,19 +351,18 @@ trans_matrix +
 
 ```
 
+### Paletler {.unnumbered}
 
-### Palettes {.unnumbered}  
+#### Colorbrewer ve Viridis {.unnumbered}
+Daha genel olarak, önceden tanımlanmış paletler istiyorsanız, "scale_xxx_brewer" veya "scale_xxx_viridis_y" fonksiyonlarını kullanabilirsiniz.
 
-#### Colorbrewer and Viridis {.unnumbered}
-More generally, if you want predefined palettes, you can use the `scale_xxx_brewer` or `scale_xxx_viridis_y` functions.  
+'brewer' fonksiyonları [colorbrewer.org](colorbrewer.org) paletlerinden çizim yapabilir.
 
-The 'brewer' functions can draw from [colorbrewer.org](colorbrewer.org) palettes.  
+'viridis' fonksiyonları, viridis (renk körü dostu!) paletlerinden alınmıştır, bunlar "hem renkli hem de siyah-beyaz olarak algısal olarak tek biçimli renk haritaları sağlar. Ayrıca, yaygın renk körlüğü biçimlerine sahip izleyiciler tarafından algılanmak üzere tasarlanmıştır. (daha fazlasını [buradan](https://ggplot2.tidyverse.org/reference/scale_viridis.html) ve [buradan](https://bids.github.io/colormap/) okuyabilirsiniz). Fonksiyonun sonunda bunu belirterek paletin ayrık, sürekli veya ikili olup olmadığını tanımlayın (örneğin ayrık 'scale_xxx_viridis_d' dir).
 
-The 'viridis' functions draw from viridis (colourblind friendly!) palettes, which "provide colour maps that are perceptually uniform in both colour and black-and-white. They are also designed to be perceived by viewers with common forms of colour blindness." (read more [here](https://ggplot2.tidyverse.org/reference/scale_viridis.html) and [here](https://bids.github.io/colormap/)). Define if the palette is discrete, continuous, or binned by specifying this at the end of the function (e.g. discrete is `scale_xxx_viridis_d`).
+Grafiğinizi bu [renk körlüğü simülatöründe](https://www.color-blindness.com/coblis-color-blindness-simulator/) test etmeniz önerilir. Kırmızı/yeşil renk düzeniniz varsa, bunun yerine soğuk (kırmızı-mavi) bir şema deneyin [burada](https://www.visualisingdata.com/2019/08/five-ways-to-design-for-red-green-colour-blindness/#:~:text=The%20pink%2Dred%20through%20to,green%20hues%20used%20by%20default.)
 
-It is advised that you test your plot in this [color blindness simulator](https://www.color-blindness.com/coblis-color-blindness-simulator/). If you have a red/green color scheme, try a "hot-cold" (red-blue) scheme instead as described [here](https://www.visualisingdata.com/2019/08/five-ways-to-design-for-red-green-colour-blindness/#:~:text=The%20pink%2Dred%20through%20to,green%20hues%20used%20by%20default.)  
-
-Here is an example from the [ggplot basics] page, using various color schemes. 
+İşte çeşitli renk şemaları kullanan [ggplot basics] sayfasından bir örnek.
 
 ```{r, out.width=c('50%'), fig.show='hold', warning=F, message=F} 
 symp_plot <- linelist %>%                                         # begin with linelist
@@ -422,12 +411,11 @@ symp_plot +
 
 
 <!-- ======================================================= -->
-## Change order of discrete variables {}  
+## Ayrık değişkenlerin sırasını değiştirmek {}
 
-Changing the order that discrete variables appear in is often difficult to understand for people who are new to `ggplot2` graphs. It's easy to understand how to do this however once you understand how `ggplot2` handles discrete variables under the hood. Generally speaking, if a discrete varaible is used, it is automatically converted to a `factor` type - which orders factors by alphabetical order by default. To handle this, you simply have to reorder the factor levels to reflect the order you would like them to appear in the chart. For more detailed information on how to reorder `factor` objects, see the factor section of the guide. 
+Kesikli değişkenlerin göründüğü sırayı değiştirmek, genellikle "ggplot2" grafiklerinde yeni olan kişiler için anlaşılması zordur. Bunu nasıl yapacağınızı anlamak kolaydır, ancak 'ggplot2'nin başlık altında ayrık değişkenleri nasıl ele aldığını anladıktan sonra. Genel olarak konuşursak, ayrı bir değişken kullanılıyorsa, otomatik olarak bir "faktör" türüne dönüştürülür - bu, faktörleri varsayılan olarak alfabetik sıraya göre sıralar. Bunu halletmek için, grafikte görünmesini istediğiniz sırayı yansıtacak şekilde faktör düzeylerini yeniden sıralamanız yeterlidir. "Faktör" nesnelerinin nasıl yeniden sıralanacağı hakkında daha ayrıntılı bilgi için kılavuzun faktör bölümüne bakabilirsiniz.
 
-We can look at a common example using age groups - by default the 5-9 age group will be placed in the middle of the age groups (given alphanumeric order), but we can move it behind the 0-4 age group of the chart by releveling the factors.
-
+Yaş gruplarını kullanarak yaygın bir örneğe bakabiliriz - varsayılan olarak 5-9 yaş grubu yaş gruplarının ortasına yerleştirilir (alfanumerik sıra verilir), ancak faktörleri yeniden seviyelendirerek onu 0-4 yaş grubunun arkasına  taşıyabiliriz.
 
 ```{r, , warning=F, message=F}
 ggplot(
@@ -444,18 +432,18 @@ ggplot(
 
 ```
 
-#### **ggthemr** {.unnnumbered}  
+#### **ggthemr** {.unnnumbered}
 
-Also consider using the **ggthemr** package. You can download this package from Github using the instructions [here](https://github.com/Mikata-Project/ggthemr). It offers palettes that are very aesthetically pleasing, but be aware that these typically have a maximum number of values that can be limiting if you want more than 7 or 8 colors.  
-
-
+Ayrıca **ggthemr** paketini kullanmayı düşünün. Bu paketi [buradaki](https://github.com/Mikata-Project/ggthemr) talimatları kullanarak Github'dan indirebilirsiniz. Estetik açıdan çok hoş paletler sunar, ancak bunların tipik olarak 7 veya 8'den fazla renk istiyorsanız sınırlayıcı olabilecek maksimum sayıda değere sahip olduğunu unutmayın.
 
 
 
 
-## Contour lines  
 
-Contour plots are helpful when you have many points that might cover each other ("overplotting"). The case-source data used above are again plotted, but more simply using `stat_density2d()` and `stat_density2d_filled()` to produce discrete contour levels - like a topographical map. Read more about the statistics [here](https://ggplot2.tidyverse.org/reference/geom_density_2d.html).  
+
+## Kontur çizgileri
+
+Kontur grafikleri, birbirini kapsayabilecek birçok noktanız olduğunda ("üst çizim") yardımcı olur. Yukarıda kullanılan durum-kaynak verileri tekrar çizilir, ancak daha basit bir şekilde 'stat_density2d()' ve 'stat_density2d_filled()' kullanılarak - bir topografik harita gibi - ayrı kontur seviyeleri elde edilir. İstatistikler hakkında daha fazla bilgiyi [buradan](https://ggplot2.tidyverse.org/reference/geom_density_2d.html) okuyabilirsiniz.
 
 
 ```{r, out.width=c('50%'), fig.show='hold', warning=F, message=F}
@@ -477,47 +465,47 @@ case_source_relationships %>%
 
 
 
-## Marginal distributions  
+## Marjinal dağılımlar
 
-To show the distributions on the edges of a `geom_point()` scatterplot, you can use the **ggExtra** package and its function `ggMarginal()`. Save your original ggplot as an object, then pass it to `ggMarginal()` as shown below. Here are the key arguments:  
+Bir "geom_point()" dağılım grafiğinin kenarlarındaki dağılımları göstermek için, **ggExtra** paketini ve onun "ggMarginal()" fonksiyonunu kullanabilirsiniz. Orijinal ggplot'unuzu bir nesne olarak kaydedin, ardından aşağıda gösterildiği gibi `ggMarginal()` öğesine iletin. İşte temel değikenler:
 
-* You must specify the `type = ` as either "histogram", "density" "boxplot", "violin", or "densigram".  
-* By default, marginal plots will appear for both axes. You can set `margins = ` to "x" or "y" if you only want one.  
-* Other optional arguments include `fill = ` (bar color), `color = ` (line color), `size = ` (plot size relative to margin size, so larger number makes the marginal plot smaller).  
-* You can provide other axis-specific arguments to `xparams = ` and `yparams = `. For example, to have different histogram bin sizes, as shown below.  
+* `type = ` değerini "histogram", "density" "boxplot", "violin" veya "densigram" olarak belirtmelisiniz.
+* Varsayılan olarak, her iki eksen için de marjinal grafikler görünecektir. Yalnızca bir tane istiyorsanız, `margins =` öğesini "x" veya "y" olarak ayarlayabilirsiniz.
+* Diğer isteğe bağlı argümanlar arasında `fill = ` (çubuk rengi), `color = ` (çizgi rengi), `size = ` (sınır boyutuna göre grafik boyutu, dolayısıyla daha büyük sayı marjinal grafiği küçültür).
+* `xparams = ` ve `yparams =` için eksene özel başka değişkenler sağlayabilirsiniz. Örneğin, aşağıda gösterildiği gibi farklı histogram kutusu boyutlarına sahip olunablir.
 
-You can have the marginal plots reflect groups (columns that have been assigned to `color = ` in your `ggplot()` mapped aesthetics). If this is the case, set the `ggMarginal()` argument `groupColour = ` or `groupFill = ` to `TRUE`, as shown below.  
+Marjinal grafiklerin grupları yansıtmasını sağlayabilirsiniz ("ggplot()" eşleme estetiğinizde "color =" a atanan sütunlar). Bu durumda, "ggMarginal()" bağımsız değişkeni "groupColour =" veya "groupFill =" aşağıda gösterildiği gibi "TRUE" olarak ayarlayın.
 
-Read more at [this vignette](https://cran.r-project.org/web/packages/ggExtra/vignettes/ggExtra.html), in the [R Graph Gallery](https://www.r-graph-gallery.com/277-marginal-histogram-for-ggplot2.html) or the function R documentation `?ggMarginal`.  
+Detaylı bilgiye R fonksiyonu `?ggMarginal` veya [Bu gösterim](https://cran.r-project.org/web/packages/ggExtra/vignettes/ggExtra.html), [R Graph Gallery](https://www.r-graph-gallery.com/277-marginal-histogram-for-ggplot2.html) yoluyla erişebilirsiniz.
 
 ```{r, message=FALSE, warning=FALSE}
-# Install/load ggExtra
+# ggExtra'yı kurun/yükleyin
 pacman::p_load(ggExtra)
 
-# Basic scatter plot of weight and age
+# Ağırlık ve yaşın temel saçılım grafiği
 scatter_plot <- ggplot(data = linelist)+
   geom_point(mapping = aes(y = wt_kg, x = age)) +
   labs(title = "Scatter plot of weight and age")
 ```
 
-To add marginal histograms use `type = "histogram"`. You can optionally set `groupFill = TRUE` to get stacked histograms.     
+Marjinal histogramlar eklemek için `type = "histogram"` kullanın. Sıralanmış histogramları almak için isteğe bağlı olarak "groupFill = TRUE" ayarını yapabilirsiniz.
 
 ```{r, message=FALSE, warning=FALSE}
-# with histograms
+# histogramlar ile
 ggMarginal(
-  scatter_plot,                     # add marginal histograms
-  type = "histogram",               # specify histograms
-  fill = "lightblue",               # bar fill
-  xparams = list(binwidth = 10),    # other parameters for x-axis marginal
-  yparams = list(binwidth = 5))     # other parameters for y-axis marginal
+  scatter_plot,                     # marjinal histogramlar ekle
+  type = "histogram",               # histogramları belirtmek
+  fill = "lightblue",               # çubuk doldurma
+  xparams = list(binwidth = 10),    # x ekseni marjinali için diğer parametreler
+  yparams = list(binwidth = 5))     # y ekseni marjinal için diğer parametreler
 ```
 
-Marginal density plot with grouped/colored values:  
+Gruplandırılmış/renkli değerlerle marjinal yoğunluk grafiği:
 
 ```{r, message=FALSE, warning=FALSE}
 
-# Scatter plot, colored by outcome
-# Outcome column is assigned as color in ggplot. groupFill in ggMarginal set to TRUE
+# Sonuca göre renklendirilmiş dağılım grafiği
+# Sonuç sütunu ggplot'ta renk olarak atanır. (groupFill in ggMarginal TRUE olarak ayarlandı)
 scatter_plot_color <- ggplot(data = linelist %>% drop_na(gender))+
   geom_point(mapping = aes(y = wt_kg, x = age, color = gender)) +
   labs(title = "Scatter plot of weight and age")+
@@ -526,91 +514,91 @@ scatter_plot_color <- ggplot(data = linelist %>% drop_na(gender))+
 ggMarginal(scatter_plot_color, type = "density", groupFill = TRUE)
 ```
 
-Set the `size = ` arguemnt to adjust the relative size of the marginal plot. Smaller number makes a larger marginal plot. You also set `color = `. Below are is a marginal boxplot, with demonstration of the `margins = ` argument so it appears on only one axis:  
+Marjinal grafiğin göreli boyutunu ayarlamak için `size =` değişkenini ayarlayın. Daha küçük sayı, daha büyük bir marjinal grafik yapar. Ayrıca `color=`  ve aşağıda, yalnızca bir eksende görünmesi için "margins =" değişkeni gösterimi ile bir marjinal kutu grafiği verilmiştir:
 
 ```{r, message=FALSE, warning=FALSE}
-# with boxplot 
+# kutu grafiği ile 
 ggMarginal(
   scatter_plot,
-  margins = "x",      # only show x-axis marginal plot
+  margins = "x",      # sadece x ekseni marjinal grafiğini göster
   type = "boxplot")   
 ```
 
 
 
 <!-- ======================================================= -->
-## Smart Labeling {}  
+## Akıllı Etiketleme {}
 
-In **ggplot2**, it is also possible to add text to plots. However, this comes with the notable limitation where text labels often clash with data points in a plot, making them look messy or hard to read. There is no ideal way to deal with this in the base package, but there is a **ggplot2** add-on, known as **ggrepel** that makes dealing with this very simple! 
+**ggplot2**'de çizimlere metin eklemek de mümkündür. Bununla birlikte, metin etiketlerinin genellikle bir grafikteki veri noktalarıyla çatıştığı, dağınık veya okunması zor görünmelerine neden olan dikkate değer bir sınırlama mevcuttur. Temel pakette bununla başa çıkmanın ideal bir yolu yoktur, ancak bununla uğraşmayı çok basit hale getiren **ggrepel** olarak bilinen bir **ggplot2** eklentisi vardır.
 
-The **ggrepel** package provides two new functions, `geom_label_repel()` and `geom_text_repel()`, which replace `geom_label()` and `geom_text()`. Simply use these functions instead of the base functions to produce neat labels. Within the function, map the aesthetics `aes()` as always, but include the argument `label = ` to which you provide a column name containing the values you want to display (e.g. patient id, or name, etc.). You can make more complex labels by combining columns and newlines (`\n`) within `str_glue()` as shown below.  
+**ggrepel** paketi, "geom_label()" ve "geom_text()" fonksiyonlarının yerine geçen "geom_label_repel()" ve "geom_text_repel()" adlı iki yeni fonksiyon sağlar. Düzgün etiketler üretmek için bunları kullanabilirsiniz. Fonksiyon içinde, "aes()" estetiğini her zaman olduğu gibi eşleştirin, ancak görüntülemek istediğiniz değerleri (örneğin hasta kimliği veya adı vb.) içeren bir sütun adı sağladığınız "label =" bağımsız değişkenini eklemiş olun. Aşağıda gösterildiği gibi `str_glue()` içindeki sütunları ve yeni satırları (`\n`) birleştirerek daha karmaşık etiketler oluşturabilirsiniz.
 
-A few tips:  
+Birkaç ipucu:
 
-* Use `min.segment.length = 0` to always draw line segments, or `min.segment.length = Inf` to never draw them  
-* Use `size = ` outside of `aes()` to set text size  
-* Use `force = ` to change the degree of repulsion between labels and their respective points (default is 1)  
-* Include `fill = ` within `aes()` to have label colored by value  
-  * A letter "a" may appear in the legend - add `guides(fill = guide_legend(override.aes = aes(color = NA)))+` to remove it  
+* Her zaman çizgi parçaları çizmek için "min.segment.length = 0" veya onları asla çizmemek için "min.segment.length = Inf" kullanın
+* Metin boyutunu ayarlamak için `aes()` dışında `size =` kullanın
+* Etiketler ve ilgili noktaları arasındaki itme derecesini değiştirmek için `force =` kullanın (varsayılan 1'dir)
+* Etiketin değere göre renklendirilmesi için 'aes()' içine 'fill = ' ekleyin
+  * Lejandda bir "a" harfi görünebilir - onu kaldırmak için `guides(fill = guide_legend(override.aes ​​= aes(color = NA)))+` ekleyin
 
-See this is very in-depth [tutorial](https://ggrepel.slowkow.com/articles/examples.html) for more.  
+Daha fazlası için ayrıntılı şu eğitime başvurabilirsiniz. [eğitim](https://ggrepel.slowkow.com/articles/examples.html).
 
 ```{r, , warning=F, message=F}
 pacman::p_load(ggrepel)
 
-linelist %>%                                               # start with linelist
-  group_by(hospital) %>%                                   # group by hospital
-  summarise(                                               # create new dataset with summary values per hospital
-    n_cases = n(),                                           # number of cases per hospital
-    delay_mean = round(mean(days_onset_hosp, na.rm=T),1),    # mean delay per hospital
+linelist %>%                                               # vaka listesi ile başla
+  group_by(hospital) %>%                                   # hastaneye göre gruplandır
+  summarise(                                               # hastane başına özet değerlerle yeni veri seti oluşturun
+    n_cases = n(),                                           # hastane başına vaka sayısı
+    delay_mean = round(mean(days_onset_hosp, na.rm=T),1),    # hastane başına ortalama gecikme
   ) %>% 
-  ggplot(mapping = aes(x = n_cases, y = delay_mean))+      # send data frame to ggplot
-  geom_point(size = 2)+                                    # add points
-  geom_label_repel(                                        # add point labels
+  ggplot(mapping = aes(x = n_cases, y = delay_mean))+      # veri çerçevesini ggplot'a gönder
+  geom_point(size = 2)+                                    # puan ekle
+  geom_label_repel(                                        # nokta etiketleri ekle
     mapping = aes(
       label = stringr::str_glue(
-        "{hospital}\n{n_cases} cases, {delay_mean} days")  # how label displays
+        "{hospital}\n{n_cases} cases, {delay_mean} days")  # etiket nasıl görüntülenir
       ), 
-    size = 3,                                              # text size in labels
-    min.segment.length = 0)+                               # show all line segments                
-  labs(                                                    # add axes labels
+    size = 3,                                              # etiketlerdeki metin boyutu
+    min.segment.length = 0)+                               # tüm çizgi parçalarını göster              
+  labs(                                                    # eksen etiketleri ekle
     title = "Mean delay to admission, by hospital",
     x = "Number of cases",
     y = "Mean delay (days)")
 ```
 
-You can label only a subset of the data points - by using standard `ggplot()` syntax to provide different `data = ` for each `geom` layer of the plot. Below, All cases are plotted, but only a few are labeled.    
+Grafiğin her bir "geom" katmanı için farklı "data =" sağlamak üzere standart "ggplot()" sözdizimini kullanarak, veri noktalarının yalnızca bir alt kümesini etiketleyebilirsiniz. Aşağıda, tüm durumlar çizilmiştir, ancak yalnızca birkaçı etiketlenmiştir.
 
 ```{r, warning=F, message=FALSE}
 
 ggplot()+
-  # All points in grey
+  # Tüm noktalar gri
   geom_point(
-    data = linelist,                                   # all data provided to this layer
+    data = linelist,                                   # bu katmana sağlanan tüm veriler
     mapping = aes(x = ht_cm, y = wt_kg),
     color = "grey",
-    alpha = 0.5)+                                              # grey and semi-transparent
+    alpha = 0.5)+                                              # gri ve yarı şeffaf
   
-  # Few points in black
+  # Birkaç nokta siyah
   geom_point(
-    data = linelist %>% filter(days_onset_hosp > 15),  # filtered data provided to this layer
+    data = linelist %>% filter(days_onset_hosp > 15),  # bu katmana sağlanan filtrelenmiş veriler
     mapping = aes(x = ht_cm, y = wt_kg),
-    alpha = 1)+                                                # default black and not transparent
+    alpha = 1)+                                                # varsayılan siyah, şeffaf değil
   
-  # point labels for few points
+  # birkaç nokta için nokta etiketleri
   geom_label_repel(
-    data = linelist %>% filter(days_onset_hosp > 15),  # filter the data for the labels
+    data = linelist %>% filter(days_onset_hosp > 15),  # etiketler için verileri filtreleyin
     mapping = aes(
       x = ht_cm,
       y = wt_kg,
-      fill = outcome,                                          # label color by outcome
-      label = stringr::str_glue("Delay: {days_onset_hosp}d")), # label created with str_glue()
-    min.segment.length = 0) +                                  # show line segments for all
+      fill = outcome,                                          # sonuca göre etiket rengi
+      label = stringr::str_glue("Delay: {days_onset_hosp}d")), # str_glue() ile oluşturulan etiket
+    min.segment.length = 0) +                                  # hepsi için çizgi parçalarını göster
   
-  # remove letter "a" from inside legend boxes
+  # "a" harfini gösterge kutularından çıkarın
   guides(fill = guide_legend(override.aes = aes(color = NA)))+
   
-  # axis labels
+  # eksen etiketleri
   labs(
     title = "Cases with long delay to admission",
     y = "weight (kg)",
@@ -622,25 +610,25 @@ ggplot()+
 
 
 <!-- ======================================================= -->
-## Time axes {}
+## Zaman eksenleri {}
 
-Working with time axes in ggplot can seem daunting, but is made very easy with a few key functions. Remember that when working with time or date that you should ensure that the correct variables are formatted as date or datetime class - see the [Working with dates] page for more information on this, or [Epidemic curves] page (ggplot section) for examples.
+ggplot'ta zaman eksenleriyle çalışmak göz korkutucu görünebilir, ancak birkaç temel fonksiyonla çok kolay hale getirilmiştir. Saat veya tarihle çalışırken, doğru değişkenlerin tarih veya tarih-saat sınıfı olarak biçimlendirildiğinden emin olmanız gerektiğini unutmayın - bu konuda daha fazla bilgi için [Tarihlerle çalışma] sayfasına veya örnekler için [Salgın eğrileri] sayfasına (ggplot bölümü) bakabilirsiniz.
 
-The single most useful set of functions for working with dates in `ggplot2` are the scale functions (`scale_x_date()`, `scale_x_datetime()`, and their cognate y-axis functions). These functions let you define how often you have axis labels, and how to format axis labels. To find out how to format dates, see the _working with dates_ section again! You can use the `date_breaks` and `date_labels` arguments to specify how dates should look:
+"ggplot2"de tarihlerle çalışmak için en kullanışlı fonksiyon kümesi, ölçeklerdir ('scale_x_date()', 'scale_x_datetime()') ve bunların aynı kökteki y ekseni fonksiyonları). Eksen etiketlerine ne sıklıkla sahip olduğunuzu ve eksen etiketlerinin nasıl biçimlendirileceğini tanımlamanıza olanak tanır. Tarihlerin nasıl biçimlendirileceğini öğrenmek için _tarihlerle çalışma_ bölümüne tekrar bakın! Tarihlerin nasıl görüneceğini belirtmek için "date_breaks" ve "date_labels" bağımsız değişkenlerini kullanabilirsiniz:
 
-  1. `date_breaks` allows you to specify how often axis breaks occur - you can pass a string here (e.g. `"3 months"`, or "`2 days"`)
+  1. "date_breaks", eksen kırılmalarının ne sıklıkta gerçekleşeceğini belirlemenize olanak tanır - buraya bir dize iletebilirsiniz (örneğin ""3 ay"" veya "2 gün"')
   
-  2. `date_labels` allows you to define the format dates are shown in. You can pass a date format string to these arguments (e.g. `"%b-%d-%Y"`):
+  2. "date_labels", tarihlerin gösterildiği biçimi tanımlamanıza olanak tanır. Bu bağımsız değişkenlere bir tarih biçimi dizesi iletebilirsiniz (örneğin ""%b-%d-%Y"`):
 
 
 ```{r, , warning=F, message=F}
-# make epi curve by date of onset when available
+# mevcut olduğunda başlangıç tarihine göre salgın eğrisi yapın
 ggplot(linelist, aes(x = date_onset)) +
   geom_histogram(binwidth = 7) +
   scale_x_date(
-    # 1 break every 1 month
+    # 1 ayda 1 mola
     date_breaks = "1 months",
-    # labels should show month then date
+    # etiketler aydan sonra tarihi göstermelidir
     date_labels = "%b %d"
   ) +
   theme_classic()
@@ -650,42 +638,42 @@ ggplot(linelist, aes(x = date_onset)) +
 
 
 <!-- ======================================================= -->
-## Highlighting {}
+## Vurgulama {}
 
-Highlighting specific elements in a chart is a useful way to draw attention to a specific instance of a variable while also providing information on the dispersion of the full dataset. While this is not easily done in base **ggplot2**, there is an external package that can help to do this known as **gghighlight**. This is easy to use within the ggplot syntax.
+Bir grafikteki belirli öğelerin vurgulanması, bir değişkenin belirli bir örneğine dikkat çekmenin ve aynı zamanda tüm veri kümesinin dağılımı hakkında bilgi sağlamanın yararlı bir yoludur. Bu, **ggplot2** tabanında kolayca yapılmasa da, bunu yapmanıza yardımcı olabilecek **gghighlight** olarak bilinen harici bir paket vardır. Bunun ggplot sözdizimi içinde kullanımı kolaydır.
 
-The **gghighlight** package uses the `gghighlight()` function to achieve this effect. To use this function, supply a logical statement to the function - this can have quite flexible outcomes, but here we'll show an example of the age distribution of cases in our linelist, highlighting them by outcome.
+**gghighlight** paketi, bu efekti elde etmek için 'gghighlight()' fonksiyonunu kullanır. Kullanmak için, fonksiyona mantıklı bir ifade sağlayın - bunun oldukça esnek sonuçları olabilir, ancak burada satır listemizdeki vakaların yaş dağılımının bir örneğini sonuca göre vurgulayarak göstereceğiz.
 
 ```{r, , warning=F, message=F}
-# load gghighlight
+# gghighlight yükle
 library(gghighlight)
 
-# replace NA values with unknown in the outcome variable
+# sonuç değişkeninde NA değerlerini bilinmeyenle değiştirin
 linelist <- linelist %>%
   mutate(outcome = replace_na(outcome, "Unknown"))
 
-# produce a histogram of all cases by age
+# yaşa göre tüm vakaların bir histogramını üretmek
 ggplot(
   data = linelist,
   mapping = aes(x = age_years, fill = outcome)) +
   geom_histogram() + 
-  gghighlight::gghighlight(outcome == "Death")     # highlight instances where the patient has died.
+  gghighlight::gghighlight(outcome == "Death")     # Hastanın öldüğü durumları vurgulayın.
 
 ```
 
-This also works well with faceting functions - it allows the user to produce facet plots with the background data highlighted that doesn't apply to the facet! Below we count cases by week and plot the epidemic curves by hospital (`color = ` and `facet_wrap()` set to `hospital` column).  
+Bu aynı zamanda faset fonksiyonları ile de iyi çalışır - kullanıcının, faset için geçerli olmayan vurgulanmış arka plan verileriyle faset grafikleri oluşturmasını sağlar! Aşağıda vakaları haftaya göre sayıyor ve hastaneye göre salgın eğrilerini çiziyoruz ("color =" ve "facet_wrap()", "hastane" sütununa ayarlı).
 
 ```{r, , warning=F, message=F}
 
-# produce a histogram of all cases by age
+# yaşa göre tüm vakaların bir histogramını üretmek
 linelist %>% 
   count(week = lubridate::floor_date(date_hospitalisation, "week"),
         hospital) %>% 
   ggplot()+
   geom_line(aes(x = week, y = n, color = hospital))+
   theme_minimal()+
-  gghighlight::gghighlight() +                      # highlight instances where the patient has died
-  facet_wrap(~hospital)                              # make facets by outcome
+  gghighlight::gghighlight() +                      # Hastanın öldüğü örnekleri vurgulayın
+  facet_wrap(~hospital)                              # sonuca göre yönler yapmak
 
 ```
 
@@ -693,47 +681,43 @@ linelist %>%
 
 
 
-## Plotting multiple datasets  
+## Birden çok veri kümesini çizme
 
-Note that properly aligning axes to plot from multiple datasets in the same plot can be difficult. Consider one of the following strategies:  
+Aynı çizimdeki birden çok veri kümesinden çizim yapmak için eksenleri düzgün şekilde hizalamanın zor olabileceğini unutmayın. Aşağıdaki stratejilerden birini düşünün:
 
-* Merge the data prior to plotting, and convert to "long" format with a column reflecting the dataset  
-* Use **cowplot** or a similar package to combine two plots (see below)  
-
-
+* Çizimden önce verileri birleştirin ve veri kümesini yansıtan bir sütunla "uzun" biçime dönüştürün
+* İki grafiği birleştirmek için **cowplot** veya benzer bir paket kullanın (aşağıya bakın)
 
 
+<!-- ============================================ ========= -->
+## Grafikleri birleştirmek {}
 
+Grafikleri birleştirmek için çok yararlı olan iki paket **cowplot** ve **patchwork**'tür. Bu sayfada, ara sıra **patchwork** kullanımıyla çoğunlukla **cowplot**'a odaklanacağız.
 
-<!-- ======================================================= -->
-## Combine plots {}
+İşte çevrimiçi [cowplot'a giriş](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html). Her fonksiyon için daha kapsamlı belgeleri çevrimiçi olarak [buradan](https://www.rdocumentation.org/packages/cowplot/versions/1.1.1) okuyabilirsiniz. Aşağıda en yaygın kullanım durumlarından ve fonksiyonlarından birkaçını ele alacağız.
 
-Two packages that are very useful for combining plots are **cowplot** and **patchwork**. In this page we will mostly focus on **cowplot**, with occassional use of **patchwork**.  
-
-Here is the online [introduction to cowplot](https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html). You can read the more extensive documentation for each function online [here](https://www.rdocumentation.org/packages/cowplot/versions/1.1.1). We will cover a few of the most common use cases and functions below.  
-
-The **cowplot** package works in tandem with **ggplot2** - essentially, you use it to arrange and combine ggplots and their legends into compound figures. It can also accept **base** R graphics.  
+**cowplot** paketi **ggplot2** ile birlikte çalışır - temel olarak, onu ggplot'ları ve açıklamalarını bileşik rakamlarda düzenlemek ve birleştirmek için kullanırsınız. Ayrıca R  **tabanı** grafiklerini de kabul edebilir.
 
 ```{r}
 pacman::p_load(
-  tidyverse,      # data manipulation and visualisation
-  cowplot,        # combine plots
-  patchwork       # combine plots
+  tidyverse,      # veri işleme ve görselleştirme
+  cowplot,        # grafikleri birleştir
+  patchwork       # grafikleri birleştir
 )
 ```
 
 
-While faceting (described in the [ggplot basics] page) is a convenient approach to plotting, sometimes its not possible to get the results you want from its relatively restrictive approach. Here, you may choose to combine plots by sticking them together into a larger plot. There are three well known packages that are great for this - **cowplot**, **gridExtra**, and **patchwork**. However, these packages largely do the same things, so we'll focus on **cowplot** for this section. 
+Yönlendirme ([ggplot temelleri] sayfasında açıklanmıştır) çizim için uygun bir yaklaşım olsa da, bazen nispeten kısıtlayıcı yaklaşımından istediğiniz sonuçları elde etmek mümkün değildir. Burada, grafikleri daha büyük bir alana yapıştırarak birleştirmeyi seçebilirsiniz. Bunun için çok iyi bilinen üç paket vardır - **cowplot**, **gridExtra** ve **patchwork**. Ancak, bu paketler büyük ölçüde aynı şeyleri yapar, bu nedenle bu bölüm için **cowplot** üzerine odaklanacağız.
 
 ### `plot_grid()` {.unnumbered}
 
-The **cowplot** package has a fairly wide range of functions, but the easiest use of it can be achieved through the use of `plot_grid()`. This is effectively a way to arrange predefined plots in a grid formation. We can work through another example with the malaria dataset - here we can plot the total cases by district, and also show the epidemic curve over time.
+**cowplot** paketi oldukça geniş bir fonksiyon yelpazesine sahiptir, ancak bunun en kolay kullanımı `plot_grid()` kullanılarak elde edilebilir. Bu, bir ızgara oluşumunda önceden tanımlanmış grafikleri düzenlemenin etkili bir yoludur. Sıtma veri seti ile başka bir örnek üzerinde çalışabiliriz - burada toplam vakaları bölgeye göre çizebilir ve ayrıca zaman içindeki salgın eğrisini gösterebiliriz.
 
 
 ```{r, , warning=F, message=F}
 malaria_data <- rio::import(here::here("data", "malaria_facility_count_data.rds")) 
 
-# bar chart of total cases by district
+# ilçeye göre toplam vakaların çubuk grafiği
 p1 <- ggplot(malaria_data, aes(x = District, y = malaria_tot)) +
   geom_bar(stat = "identity") +
   labs(
@@ -743,7 +727,7 @@ p1 <- ggplot(malaria_data, aes(x = District, y = malaria_tot)) +
   ) +
   theme_minimal()
 
-# epidemic curve over time
+# zamanla salgın eğrisi
 p2 <- ggplot(malaria_data, aes(x = data_date, y = malaria_tot)) +
   geom_col(width = 1) +
   labs(
@@ -753,10 +737,10 @@ p2 <- ggplot(malaria_data, aes(x = data_date, y = malaria_tot)) +
   theme_minimal()
 
 cowplot::plot_grid(p1, p2,
-                  # 1 column and two rows - stacked on top of each other
+                  # 1 sütun ve iki satır - üst üste yığılmış
                    ncol = 1,
                    nrow = 2,
-                   # top plot is 2/3 as tall as second
+                   # üst arsa, saniyenin 2/3'ü kadar uzun
                    rel_heights = c(2, 3))
 
 
@@ -765,19 +749,19 @@ cowplot::plot_grid(p1, p2,
 
 
 
-### Combine legends {.unnumbered}  
+### Göstergeleri birleştir {.unnumbered}
 
-If your plots have the same legend, combining them is relatively straight-forward. Simple use the **cowplot** approach above to combine the plots, but remove the legend from one of them (de-duplicate).  
+Grafikleriniz aynı göstergelere sahipse, bunları birleştirmek nispeten basittir. Grafikleri birleştirmek için yukarıdaki **cowplot** yaklaşımını kullanın, ancak göstergeyi bunlardan birinden kaldırın (tekrarlanacaktır).
 
-If your plots have different legends, you must use an alternative approach:  
+Grafikleriniz farklı göstergelere sahipse, alternatif bir yaklaşım kullanmalısınız:
 
-1) Create and save your plots *without legends* using `theme(legend.position = "none")`  
-2) Extract the legends from each plot using `get_legend()` as shown below - *but extract legends from the plots modified to actually show the legend*  
-3) Combine the legends into a legends panel  
-4) Combine the plots and legends panel  
+1) `theme(legend.position = "none")` kullanarak grafiklerinizi göstergeler *olmadan* oluşturun ve kaydedin
+2) Aşağıda gösterildiği gibi `get_legend()` kullanarak her bir grafikten göstergeleri ayıklayın - *ancak lejantı gerçekten göstermek için değiştirilmiş grafiklerden lejantları çıkarın*
+3) Göstergeleri bir gösterge panelinde birleştirin
+4) Grafikler ve göstergeler panelini birleştirin
 
 
-For demonstration we show the two plots separately, and then arranged in a grid with their own legends showing (ugly and inefficient use of space):  
+Örnek için iki grafiği ayrı ayrı gösteriyoruz ve sonra kendi açıklamaları (çirkin ve verimsiz alan kullanımı) gösteren bir ızgarada düzenliyoruz:
 
 ```{r, out.width=c('50%'), fig.show='hold', warning=F, message=F}
 p1 <- linelist %>% 
@@ -804,17 +788,17 @@ p2 <- linelist %>%
 
 ```
 
-Here is how the two plots look when combined using `plot_grid()` without combining their legends:  
+İki grafik, lejantlarını/göstergelerini birleştirmeden "plot_grid()" kullanılarak birleştirildiğinde şöyle görünür:
 
 ```{r, warning=F, message=F}
 cowplot::plot_grid(p1, p2, rel_widths = c(0.3))
 ```
 
-And now we show how to combine the legends. Essentially what we do is to define each plot *without* its legend (`theme(legend.position = "none"`), and then we define each plot's legend *separately*, using the `get_legend()` function from **cowplot**. When we extract the legend from the saved plot, we need to add `+` the legend back in, including specifying the placement ("right") and smaller adjustments for alignment of the legends and their titles. Then, we combine the legends together vertically, and then combine the two plots with the newly-combined legends. Voila!  
+Ve şimdi göstergeleri nasıl birleştireceğimizi gösteriyoruz. Esasen yaptığımız şey, her bir grafiği *açıklaması olmadan* tanımlamaktır (`theme(legend.position = "none"`) ve sonra `get_legend()` fonksiyonunu kullanarak her bir grafiğin göstergesini *ayrı ayrı* **cowplot** dan tanımlarız. Kaydedilen çizimden lejandı çıkardığımızda, lejandı tekrar `+' eklememiz gerekiyor, buna yerleşimi belirtmek ("sağ") ve lejandların ve başlıklarının hizalanması için daha küçük ayarlamalar da dahildir. Lejandları dikey olarak bir araya getirin ve ardından iki grafiği yeniden birleştirin.  
 
 ```{r, warning=F, message=F}
 
-# Define plot 1 without legend
+# Açıklama olmadan grafik 1'i tanımlayın
 p1 <- linelist %>% 
   mutate(hospital = recode(hospital, "St. Mark's Maternity Hospital (SMMH)" = "St. Marks")) %>% 
   count(hospital, outcome) %>% 
@@ -827,7 +811,7 @@ p1 <- linelist %>%
   labs(title = "Cases by outcome")
 
 
-# Define plot 2 without legend
+# Açıklama olmadan grafik 2'yi tanımlayın
 p2 <- linelist %>% 
   mutate(hospital = recode(hospital, "St. Mark's Maternity Hospital (SMMH)" = "St. Marks")) %>% 
   count(hospital, age_cat) %>% 
@@ -844,49 +828,49 @@ p2 <- linelist %>%
   labs(title = "Cases by age")
 
 
-# extract legend from p1 (from p1 + legend)
+# p1'den lejandı çıkar (p1'den + lejand)
 leg_p1 <- cowplot::get_legend(p1 +
                                 theme(legend.position = "right",        # extract vertical legend
                                       legend.justification = c(0,0.5))+ # so legends  align
                                 labs(fill = "Outcome"))                 # title of legend
-# extract legend from p2 (from p2 + legend)
+# p2'den lejandı çıkar (p2'den + lejand)
 leg_p2 <- cowplot::get_legend(p2 + 
                                 theme(legend.position = "right",         # extract vertical legend   
                                       legend.justification = c(0,0.5))+  # so legends align
                                 labs(fill = "Age Category"))             # title of legend
 
-# create a blank plot for legend alignment
+# lejand hizalaması için boş bir grafik oluşturun
 #blank_p <- patchwork::plot_spacer() + theme_void()
 
-# create legends panel, can be one on top of the other (or use spacer commented above)
+# lejand paneli oluşturun, üst üste olabilir (veya yukarıda yorumlanan aralayıcıyı kullanın)
 legends <- cowplot::plot_grid(leg_p1, leg_p2, nrow = 2, rel_heights = c(.3, .7))
 
-# combine two plots and the combined legends panel
+# iki grafiği ve birleştirilmiş lejand panelini birleştirin
 combined <- cowplot::plot_grid(p1, p2, legends, ncol = 3, rel_widths = c(.4, .4, .2))
 
-combined  # print
+combined  # yazdır
 
 
 ```
 
-This solution was learned from [this post](https://stackoverflow.com/questions/52060601/ggplot-multiple-legends-arrangement) with a minor fix to align legends from [this post](https://github.com/wilkelab/cowplot/issues/33).  
+Bu çözüm, [bu gönderiden](https://stackoverflow.com/questions/52060601/ggplot-multiple-legends-arrangement) öğrenildi ve lejandları [bu gönderiden](https://github.com/wilkelab/cowplot/issues/33) hizalamak için küçük bir düzeltme yapıldı.
 
 
-<span style="color: darkgreen;">**_TIP:_** Fun note - the "cow" in **cowplot** comes from the creator's name - Claus O. Wilke.</span>  
+<span style="color: darkgreen;">**_İPUCU:_** Eğlenceli not - **cowplot**'taki "inek-COW", yaratıcının adından gelir - Claus O. Wilke.</span>
 
 
-### Inset plots {.unnumbered} 
+### Ek grafikler {.unnumbered}
 
-You can inset one plot in another using **cowplot**. Here are things to be aware of:  
+**cowplot** kullanarak bir grafiği diğerine yerleştirebilirsiniz. İşte dikkat edilmesi gerekenler:
 
-* Define the main plot with `theme_half_open()` from **cowplot**; it may be best to have the legend either on top or bottom  
-* Define the inset plot. Best is to have a plot where you do not need a legend. You can remove plot theme elements with `element_blank()` as shown below.  
-* Combine them by applying `ggdraw()` to the main plot, then adding `draw_plot()` on the inset plot and specifying the coordinates (x and y of lower left corner), height and width as proportion of the whole main plot.  
+* Ana grafiği **cowplot**'tan `theme_half_open()` ile tanımlayın; lejandın üstte veya altta olması en iyisi olabilir
+* İç metin grafiğini tanımlayın. En iyisi, bir lejanda ihtiyacınız olmayan bir grafiğe sahip olmaktır. Aşağıda gösterildiği gibi `element_blank()` ile çizim teması öğelerini kaldırabilirsiniz.
+* Bunları ana çizime ggdraw()' uygulayarak birleştirin, ardından içteki çizime 'draw_plot()' ekleyerek ve koordinatları (sol alt köşenin x ve y), tüm ana grafiğin oranı olarak yüksekliği ve genişliği belirterek birleştirin . 
 
 
 ```{r, out.width=c('100%'), fig.show='hold', warning=F, message=F}
 
-# Define main plot
+# Ana grafiği tanımla
 main_plot <- ggplot(data = linelist)+
   geom_histogram(aes(x = date_onset, fill = hospital))+
   scale_fill_brewer(type = "qual", palette = 1, na.value = "grey")+ 
@@ -895,7 +879,7 @@ main_plot <- ggplot(data = linelist)+
   labs(title = "Epidemic curve and outcomes by hospital")
 
 
-# Define inset plot
+# İç metin grafiğini tanımlayın
 inset_plot <- linelist %>% 
   mutate(hospital = recode(hospital, "St. Mark's Maternity Hospital (SMMH)" = "St. Marks")) %>% 
   count(hospital, outcome) %>% 
@@ -909,7 +893,7 @@ inset_plot <- linelist %>%
     labs(title = "Cases by outcome") 
 
 
-# Combine main with inset
+# Ana öğeyi iç metinle birleştirin
 cowplot::ggdraw(main_plot)+
      draw_plot(inset_plot,
                x = .6, y = .55,    #x = .07, y = .65,
@@ -918,36 +902,36 @@ cowplot::ggdraw(main_plot)+
 ```
 
 
-This technique is explained more in these two vignettes:  
+Bu teknik, bu iki gösterim içinde daha fazla açıklanmıştır:
 
-[Wilke lab](https://wilkelab.org/cowplot/articles/drawing_with_on_plots.html)  
-[draw_plot() documentation](https://www.rdocumentation.org/packages/cowplot/versions/1.1.1/topics/draw_plot)
-
-
+[Wilke laboratuvarı](https://wilkelab.org/cowplot/articles/drawing_with_on_plots.html)
+[draw_plot() belgeleri](https://www.rdocumentation.org/packages/cowplot/versions/1.1.1/topics/draw_plot)
 
 
-<!-- ======================================================= -->
-## Dual axes {}
 
-A secondary y-axis is often a requested addition to a `ggplot2` graph. While there is a robust debate about the validity of such graphs in the data visualization community, and they are often not recommended, your manager may still want them. Below, we present one method to achieve them: using the **cowplot** package to combine two separate plots.  
 
-This approach involves creating two separate plots - one with a y-axis on the left, and the other with y-axis on the right. Both will use a specific `theme_cowplot()` and must have the same x-axis. Then in a third command the two plots are aligned and overlaid on top of each other. The functionalities of **cowplot**, of which this is only one, are described in depth at this [site](https://wilkelab.org/cowplot/articles/aligning_plots.html).  
+<!-- ============================================ ========= -->
+## Çift eksen {}
 
-To demonstrate this technique we will overlay the epidemic curve with a line of the weekly percent of patients who died. We use this example because the alignment of dates on the x-axis is more complex than say, aligning a bar chart with another plot. Some things to note:  
+İkincil bir y ekseni genellikle bir "ggplot2" grafiğine istenen bir ektir. Veri görselleştirme topluluğunda bu tür grafiklerin geçerliliği hakkında güçlü bir tartışma olsa da ve bunlar genellikle önerilmese de, yöneticiniz yine de bunları isteyebilir. Aşağıda, bunları elde etmek için bir yöntem sunuyoruz: iki ayrı grafiği birleştirmek için **cowplot** paketini kullanmak.
 
-* The epicurve and the line are aggregated into weeks prior to plotting *and* the `date_breaks` and `date_labels` are identical - we do this so that the x-axes of the two plots are the same when they are overlaid.  
-* The y-axis is moved to the right-side for plot 2 with the `position = ` argument of `scale_y_continuous()`.  
-* Both plots make use of `theme_cowplot()`  
+Bu yaklaşım, biri solda y ekseni ve diğeri sağda y ekseni olan iki ayrı grafik oluşturmayı içerir. Her ikisi de belirli bir "theme_cowplot()" kullanır ve aynı x eksenine sahip olmalıdır. Daha sonra üçüncü bir komutta iki grafik hizalanır ve üst üste bindirilir. Bu  **cowplot**'un özelliği [sitede](https://wilkelab.org/cowplot/articles/aligning_plots.html) ayrıntılı olarak açıklanmaktadır.
 
-Note there is another example of this technique in the [Epidemic curves] page - overlaying cumulative incidence on top of the epicurve.  
+Bu tekniği göstermek için, salgın eğrisini, ölen hastaların haftalık yüzdesinin bir çizgisiyle kaplayacağız. Bu örneği, x eksenindeki tarihlerin hizalanmasını, bir çubuk grafiği başka bir grafikle hizalamaktan daha karmaşık olduğu için kullanıyoruz. Dikkat edilmesi gereken bazı şeyler:
 
-**Make plot 1**  
-This is essentially the epicurve. We use `geom_area()` just to demonstrate its use (area under a line, by default)  
+* Salgın eğrisi ve çizgi, çizimden önceki haftalarda toplanır *ve* "tarih_araları" ve "tarih_etiketleri" aynıdır - bunu, üst üste bindirildiklerinde iki grafiğin x-eksenlerinin aynı olması için yaparız.
+* y ekseni, 'scale_y_continuous()' un 'position = ' değişkeni ile 2. grafik için sağ tarafa taşınır.
+* Her iki grafik de `theme_cowplot()` fonksiyonunu kullanır
+
+[Salgın eğrileri] sayfasında bu tekniğin başka bir örneğine dikkat çekilmiştir - kümülatif insidansı eğri üzerine bindirerek.
+
+** 1. Grafiği Üretmek**
+Bu aslında salgın eğrisidir. Sadece kullanımını göstermek için `geom_area()` kullanıyoruz (varsayılan olarak bir çizginin altındaki alan)
 
 ```{r, warning=F, message=F}
-pacman::p_load(cowplot)            # load/install cowplot
+pacman::p_load(cowplot)            # Cowplot'u yükle/kur
 
-p1 <- linelist %>%                 # save plot as object
+p1 <- linelist %>%                 # grafiği nesne olarak kaydet
      count(
        epiweek = lubridate::floor_date(date_onset, "week")) %>% 
      ggplot()+
@@ -960,15 +944,15 @@ p1 <- linelist %>%                 # save plot as object
        y = "Weekly cases"
      )
 
-p1                                      # view plot 
+p1                                      # grafiği göster
 ```
 
-**Make plot 2**  
-Create the second plot showing a line of the weekly percent of cases who died.  
+**2. Grafiği Üretmek**
+Ölen vakaların haftalık yüzdesinin bir satırını gösteren ikinci grafiği oluşturun. 
 
 ```{r, warning=F, message=F}
 
-p2 <- linelist %>%         # save plot as object
+p2 <- linelist %>%         # grafiği nesne olarak kaydet
      group_by(
        epiweek = lubridate::floor_date(date_onset, "week")) %>% 
      summarise(
@@ -988,17 +972,17 @@ p2 <- linelist %>%         # save plot as object
             title = "Weekly case incidence and percent deaths"
           )
 
-p2     # view plot
+p2     # grafiği göster
 ```
 
-Now we align the plot using the function `align_plots()`, specifying horizontal and vertical alignment ("hv", could also be "h", "v", "none"). We specify alignment of all axes as well (top, bottom, left, and right) with "tblr". The output is of class list (2 elements).    
+Şimdi yatay ve dikey hizalamayı ("hv", "h", "v", "none" da olabilir) belirterek, `align_plots()` fonksiyonunu kullanarak grafiği hizalıyoruz. "tblr" ile tüm eksenlerin (üst, alt, sol ve sağ) hizalamasını da belirtiyoruz. Çıktı sınıf listesidir (2 eleman).
 
-Then we draw the two plots together using `ggdraw()` (from **cowplot**) and referencing the two parts of the `aligned_plots` object.  
+Ardından, ggdraw()'ı (**cowplot**'tan) kullanarak ve 'aligned_plots' nesnesinin iki parçasına atıfta bulunarak iki grafiği birlikte çiziyoruz.
 
 ```{r, warning=F, message=F}
-aligned_plots <- cowplot::align_plots(p1, p2, align="hv", axis="tblr")         # align the two plots and save them as list
-aligned_plotted <- ggdraw(aligned_plots[[1]]) + draw_plot(aligned_plots[[2]])  # overlay them and save the visual plot
-aligned_plotted                                                                # print the overlayed plots
+aligned_plots <- cowplot::align_plots(p1, p2, align="hv", axis="tblr")         # iki grafiği hizalayın ve liste olarak kaydedin
+aligned_plotted <- ggdraw(aligned_plots[[1]]) + draw_plot(aligned_plots[[2]])  # üst üste bindirin ve görsel grafiği kaydedin
+aligned_plotted                                                                # bindirilmiş grafikleri yazdır
 
 ```
 
@@ -1061,44 +1045,40 @@ aligned_plotted                                                                #
 
 
 
-## Packages to help you  
+## Size yardımcı olacak paketler
 
 
-There are some really neat R packages specifically designed to help you navigate **ggplot2**:  
+**ggplot2**'de gezinmenize yardımcı olmak için özel olarak tasarlanmış gerçekten anlaşılır bazı R paketleri vardır:
 
 
-### Point-and-click **ggplot2** with **equisse**  {.unnumbered}
+### İşaretle ve tıkla **ggplot2** ile **equisse** {.unnumbered}
 
-"This addin allows you to interactively explore your data by visualizing it with the ggplot2 package. It allows you to draw bar plots, curves, scatter plots, histograms, boxplot and sf objects, then export the graph or retrieve the code to reproduce the graph."
+"Bu eklenti, verilerinizi ggplot2 paketi ile görselleştirerek etkileşimli olarak keşfetmenizi sağlar. Çubuk grafikler, eğriler, dağılım grafikleri, histogramlar, kutu grafiği ve sf nesneleri çizmenize, ardından grafiği dışa aktarmanıza veya grafiği yeniden oluşturmak için kodu almanıza olanak tanır."
 
-Install and then launch the addin via the RStudio menu or with `esquisse::esquisser()`.
+Eklentiyi RStudio menüsü veya `esquisse::esquisser()` ile kurun ve başlatın.
 
-See the [Github page](https://github.com/dreamRs/esquisse)
+[Github sayfasına](https://github.com/dreamRs/esquisse) bakabilirsiniz.
 
-[Documentation](https://dreamrs.github.io/esquisse/index.html)
-
-
-
+[Belgeler](https://dreamrs.github.io/esquisse/index.html)
 
 
 
 
 
+## Çeşitli
 
-## Miscellaneous  
 
+### Sayısal ekran {.unnumbered}
 
-### Numeric display {.unnumbered}  
-
-You can disable scientific notation by running this command prior to plotting.  
+Çizimden önce bu komutu çalıştırarak bilimsel gösterimi devre dışı bırakabilirsiniz.
 
 ```{r, eval=F}
 options(scipen=999)
 ```
 
-Or apply `number_format()` from the **scales** package to a specific value or column, as shown below.  
+Veya **scales** paketinden `number_format()` öğesini aşağıda gösterildiği gibi belirli bir değere veya sütuna uygulayın.
 
-Use functions from the package **scales** to easily adjust how numbers are displayed. These can be applied to columns in your data frame, but are shown on individual numbers for purpose of example.  
+Sayıların nasıl görüntüleneceğini kolayca ayarlamak için **scales** paketindeki fonksiyonları kullanın. Bunlar, veri çerçevenizdeki sütunlara uygulanabilir, ancak örnek olarak tek tek sayılarda gösterilir. 
 
 ```{r}
 scales::number(6.2e5)
@@ -1110,37 +1090,37 @@ scales::dollar(56)
 scales::scientific(100000)
 ```
 
-## Resources
+## Kaynaklar
 
-Inspiration
-[ggplot graph gallery](https://www.tidyverse.org/blog/2018/07/ggplot2-3-0-0/)
+Esinlenme
+[ggplot grafik galerisi](https://www.tidyverse.org/blog/2018/07/ggplot2-3-0-0/)
 
-Presentation of data
-European Centre for Disease Prevention and Control [Guidelines of presentation of surveillance data](https://ecdc.europa.eu/sites/portal/files/documents/Guidelines%20for%20presentation%20of%20surveillance%20data-final-with-cover-for-we....pdf) 
+Verilerin sunumu
+Avrupa Hastalık Önleme ve Kontrol Merkezi [Sürveyans verilerinin sunumuna ilişkin kılavuzlar](https://ecdc.europa.eu/sites/portal/files/documents/Guidelines%20for%20presentation%20of%20surveillance%20data-final-with-cover-for-we....pdf)
 
 
-Facets and labellers
-[Using labellers for facet strips](http://www.cookbook-r.com/Graphs/Facets_(ggplot2)/#modifying-facet-label-text)
-[Labellers](https://ggplot2.tidyverse.org/reference/labellers.html)
+Yönler ve etiketleyiciler
+[Yüz şeritleri için etiketleyici kullanma](http://www.cookbook-r.com/Graphs/Facets_(ggplot2)/#modifying-facet-label-text)
+[Etiketçiler](https://ggplot2.tidyverse.org/reference/labellers.html)
 
-Adjusting order with factors
-[fct_reorder](https://forcats.tidyverse.org/reference/fct_reorder.html)  
-[fct_inorder](https://forcats.tidyverse.org/reference/fct_inorder.html)  
-[How to reorder a boxplot](https://cmdlinetips.com/2019/02/how-to-reorder-a-boxplot-in-r/)  
-[Reorder a variable in ggplot2](https://www.r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html)  
-[R for Data Science - Factors](https://r4ds.had.co.nz/factors.html)  
+Faktörlerle sıralamayı ayarlama
+[fct_reorder](https://forcats.tidyverse.org/reference/fct_reorder.html)
+[fct_inorder](https://forcats.tidyverse.org/reference/fct_inorder.html)
+[Bir kutu grafiği nasıl yeniden sıralanır](https://cmdlinetips.com/2019/02/how-to-reorder-a-boxplot-in-r/)
+[ggplot2'de bir değişkeni yeniden sıralayın](https://www.r-graph-gallery.com/267-reorder-a-variable-in-ggplot2.html)
+[Veri Bilimi için R - Faktörler](https://r4ds.had.co.nz/factors.html)
 
-Legends  
-[Adjust legend order](https://stackoverflow.com/questions/38425908/reverse-stacking-order-without-affecting-legend-order-in-ggplot2-bar-charts)  
+Göstergeler
+[Lejand sırasını ayarlayın](https://stackoverflow.com/questions/38425908/reverse-stacking-order-without-affecting-legend-order-in-ggplot2-bar-charts)
 
-Captions
-[Caption alignment](https://stackoverflow.com/questions/64701500/left-align-ggplot-caption)  
+Altyazılar
+[Altyazı hizalaması](https://stackoverflow.com/questions/64701500/left-align-ggplot-caption)
 
-Labels  
-[ggrepel](https://ggrepel.slowkow.com/articles/examples.html)  
+Etiketler
+[ggrepel](https://ggrepel.slowkow.com/articles/examples.html)
 
-Cheatsheets  
-[Beautiful plotting with ggplot2](http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/)  
+Yardımcı sayfaları
+[ggplot2 ile güzel çizim](http://zevross.com/blog/2014/08/04/beauty-plotting-in-r-a-ggplot2-cheatsheet-3/)  
 
 
 
