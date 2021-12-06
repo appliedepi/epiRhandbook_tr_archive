@@ -1,192 +1,183 @@
 
-# Data Table { }  
+# Veri tablosu { }
      
-The handbook focusses on the **dplyr** “verb” functions and the **magrittr** pipe operator `%>%` as a method to clean and group data, but the **data.table** package offers an alternative method that you may encounter in your R career.  
+El kitabı, verileri temizleme ve gruplama yöntemi olarak **dplyr** “verb” fonksiyonlarına ve **magrittr** tünel operatörü `%>%` üzerine odaklanır, ancak **data.table** paketi kullanabileceğiniz bir alternatif mevcuttur.
 
 
+## Veri tablolarına giriş { }
 
-<!-- ======================================================= -->
-## Intro to data tables {  }
+Bir veri tablosu, karmaşık gruplama işlemlerinin gerçekleştirilmesine izin veren bir veri çerçevesi gibi 2 boyutlu bir veri yapısıdır. data.table sözdizimi, satırlar, sütunlar ve gruplar üzerinde işlemler gerçekleştirilebilecek şekilde yapılandırılmıştır.
 
-A data table is a 2-dimensional data structure like a data frame that allows complex grouping operations to be performed. The data.table syntax is structured so that operations can be performed on rows, columns and groups. 
-
-The structure is **DT[i, j, by]**, separated by 3 parts; the **i, j** and **by** arguments. The **i** argument allows for subsetting of required rows, the **j** argument allows you to operate on columns and the **by** argument allows you operate on columns by groups.
+Yapı **DT[i, j, by]** şeklindedir ve 3 parça ile ayrılmıştır; **i, j** ve **by** değişkenleri. **i** değişkeni gerekli satırların alt kümelenmesine, **j** değişkeni sütunlar üzerinde işlem yapmanıza ve **by** değişkeni sütunlar üzerinde gruplara göre işlem yapmanıza olanak tanır.
   
-This page will address the following topics:  
+Bu sayfa aşağıdaki konuları ele alacaktır:
 
-* Importing data and use of `fread()` and `fwrite()`
-* Selecting and filtering rows using the **i** argument
-* Using helper functions `%like%`, `%chin%`, `%between%` 
-* Selecting and computing on columns using the **j** argument
-* Computing by groups using the **by** argument
-* Adding and updating data to data tables using `:=`
+* Verileri içe aktarma ve `fread()` ve `fwrite()` kullanımı
+* **i** değişkenini kullanarak satırları seçme ve filtreleme
+* `%like%`, `%chin%`, `%between%` yardımcı fonksiyonlarını kullanma
+* **j** değişkenini kullanarak sütunları seçme ve hesaplama
+* **by** değişkenini kullanan gruplara göre hesaplama
+* `:=` kullanarak veri tablolarına veri ekleme ve güncelleme
 
 <!-- ======================================================= -->
-## Load packages and import data { }
+## Paketleri yükleyin ve verileri içe aktarın { }
 
-### Load packages {.unnumbered}  
+### Paketleri yükleyin {.unnumbered}
 
-Using the `p_load()` function from **pacman**, we load (and install if necessary) packages required for this analysis.
-     
+**pacman**'den `p_load()` fonksiyonunu kullanarak, bu analiz için gerekli paketleri yükleriz (ve gerekirse kurarız).
      
 ```{r}
 pacman::p_load(
-  rio,        # to import data
-  data.table, # to group and clean data
-  tidyverse,  # allows use of pipe (%>%) function in this chapter
+  rio,        # verileri içe aktarmak için
+  data.table, # verileri gruplamak ve temizlemek için
+  tidyverse,  # bu bölümde tünelleme (%>%) fonksiyonunun kullanılmasına izin verir
   here 
   ) 
 ```
 
 
-### Import data {.unnumbered}
+### Verileri içe aktar {.unnumbered}
 
-This page will explore some of the core functions of **data.table** using the case linelist referenced throughout the handbook.
+Bu sayfa, el kitabında atıfta bulunulan vaka satır listesini kullanarak **data.table**'ın bazı temel fonksiyonlarını keşfedecektir.
 
-We import the dataset of cases from a simulated Ebola epidemic. If you want to download the data to follow step-by-step, see instructions in the [Download book and data] page. The dataset is imported using the `import()` function from the **rio** package. See the page on [Import and export] for various ways to import data. From here we use `data.table()` to convert the data frame to a data table.
+Simüle edilmiş bir Ebola salgınından vakaların veri setini içe aktarıyoruz. Adım adım izlenecek verileri indirmek istiyorsanız, [Kitap ve verileri indir] sayfasındaki talimatlara bakın. Veri kümesi, **rio** paketinden `import()` fonksiyonu kullanılarak içe aktarılır. Verileri içe aktarmanın çeşitli yolları için [İçe ve dışa aktar] hakkındaki sayfaya bakın. Buradan veri çerçevesini bir veri tablosuna dönüştürmek için `data.table()` kullanıyoruz.
 
 ```{r}
 linelist <- rio::import(here("data", "linelist_cleaned.xlsx")) %>% data.table()
 ```
 
-The `fread()` function is used to directly import regular delimited files, such as .csv files, directly to a data table format. This function, and its counterpart, `fwrite()`, used for writing data.tables as regular delimited files are very fast and computationally efficient options for large databases.
+'fread()' fonksiyonu, .csv dosyaları gibi normal sınırlandırılmış dosyaları doğrudan bir veri tablosu biçimine içe aktarmak için kullanılır. Data.tables'ı düzenli sınırlandırılmış dosyalar olarak yazmak için kullanılan bu işlev ve muadili 'fwrite()', büyük veritabanları için çok hızlı ve hesaplama açısından verimli seçeneklerdir.
 
-
-The first 20 rows of `linelist`:  
+"linelist"in ilk 20 satırı:
 
 ```{r message=FALSE, echo=F, eval=FALSE}
 DT::datatable(head(linelist,20), rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Base R commands such as `dim()` that are used for data frames can also be used for data tables
+Veri çerçeveleri için kullanılan 'dim()' gibi R Tabanı komutları, veri tabloları için de kullanılabilir.
 
 ```{r}
-dim(linelist) #gives the number of rows and columns in the data table
+dim(linelist) #veri tablosundaki satır ve sütun sayısını verir
 ```
 
-
-<!-- ======================================================= -->
-## The i argument: selecting and filtering rows{ }
+## i değişkeni: satırları seçme ve filtreleme{ }
      
-Recalling the **DT[i, j, by]** structure, we can filter rows using either row numbers or logical expressions. The i argument is first; therefore, the syntax **DT[i]** or **DT[i,]** can be used. 
+**DT[i, j, by]** yapısını hatırlayarak, satır numaralarını veya mantıksal ifadeleri kullanarak satırları filtreleyebiliriz. i değişkeni ilk; bu nedenle, **DT[i]** veya **DT[i,]** sözdizimi kullanılabilir.
 
-The first example retrieves the first 5 rows of the data table, the second example subsets cases are 18 years or over, and the third example subsets cases 18 years old or over but not diagnosed at the Central Hospital:
+İlk örnek veri tablosunun ilk 5 satırını alır, ikinci örnek alt küme vakaları 18 yaş ve üzeridir ve üçüncü örnek alt kümeler 18 yaş veya üzeri ancak Merkez Hastanede teşhis edilmemiş vakaları içerir:
 
 
 ```{r, eval=F}
-linelist[1:5] #returns the 1st to 5th row
-linelist[age >= 18] #subsets cases are equal to or over 18 years
-linelist[age >= 18 & hospital != "Central Hospital"] #subsets cases equal to or over 18 years old but not diagnosed at the Central Hospital
+linelist[1:5] #1.ila 5. satır arasını getirir
+linelist[age >= 18] #alt küme vakaları 18 yaşa eşit veya daha büyük
+linelist[age >= 18 & hospital != "Central Hospital"] #18 yaşına eşit veya daha büyük ancak Merkez Hastanede teşhis edilmemiş alt kümeler
 
 ```
 
-Using .N in the i argument represents the total number of rows in the data table. This can be used to subset on the row numbers: 
+i bağımsız değişkeninde .N kullanılması, veri tablosundaki toplam satır sayısını temsil eder. Bu, satır numaralarını alt kümelemek için kullanılabilir: 
 
 ```{r, eval=F}
-linelist[.N] #returns the last row
-linelist[15:.N] #returns the 15th to the last row
+linelist[.N] #son satırı getirir
+linelist[15:.N] #15. satırdan son satıra kadar getirir
 ```
 
+###  Filtreleme için yardımcı fonksiyonları kullanma {.unnumbered}
 
-### Using helper functions for filtering {.unnumbered}  
+Veri tablosu, alt küme satırlarını kolaylaştıran yardımcı fonksiyonları kullanır. '%like%'  bir sütundaki kalıbı eşleştirmek için kullanılır, '%chin%' belirli bir karakteri eşleştirmek için kullanılır ve '%between%' önceden belirlenmiş bir aralıktaki sayısal sütunları eşleştirmek için kullanılır.
 
-Data table uses helper functions that make subsetting rows easy. The `%like%` function is used to match a pattern in a column, `%chin%` is used to match a specific character, and the `%between%` helper function is used to match numeric columns within a prespecified range.
-
-In the following examples we:
-*  filter rows where the hospital variable contains “Hospital”
-*  filter rows where the outcome is “Recover” or “Death”
-*  filter rows in the age range 40-60
+Aşağıdaki örneklerde:
+* hastane değişkeninin "Hastane" içerdiği satırları filtreleyin
+* sonucun "İyileşme" veya "Ölüm" olduğu satırları filtreleyin
+* 40-60 yaş aralığındaki satırları filtreleyin
 
 ```{r, eval=F}
-linelist[hospital %like% "Hospital"] #filter rows where the hospital variable contains “Hospital”
-linelist[outcome %chin% c("Recover", "Death")] #filter rows where the outcome is “Recover” or “Death”
-linelist[age %between% c(40, 60)] #filter rows in the age range 40-60
+linelist[hospital %like% "Hospital"] #hastane değişkeninin "Hastane" içerdiği satırları filtreleyin
+linelist[outcome %chin% c("Recover", "Death")] #sonucun "İyileşme" veya "Ölüm" olduğu satırları filtreleyin
+linelist[age %between% c(40, 60)] #40-60 yaş aralığındaki satırları filtreleyin
 
-#%between% must take a vector of length 2, whereas %chin% can take vectors of length >= 1
+#%between% 2 uzunlukta bir vektör almalıdır, oysa %chin% >= 1 uzunlukta vektörler alabilir
 
 ```
 
-## The j argument: selecting and computing on columns{ }
+## j değişkeni: sütunları seçme ve hesaplama{ }
 
-Using the **DT[i, j, by]** structure, we can select columns using numbers or names. The **j** argument is second; therefore, the syntax **DT[, j]** is used. To facilitate computations on the **j** argument, the column is wrapped using either `list()` or `.()`. 
+**DT[i, j, by]** yapısını kullanarak sayıları veya isimleri kullanarak sütunları seçebiliriz. **j** değişkeni ikinci sıradadır; bu nedenle **DT[, j]** sözdizimi kullanılır. **j** değişkenindeki hesaplamaları kolaylaştırmak için, 'list()' ya da '.()' kullanılarak sütun sarılır.
 
 
-### Selecting columns {.unnumbered} 
+### Sütunları seçme {.unnumbered}
 
-The first example retrieves the first, third and fifth columns of the data table, the second example selects all columns except the height, weight and gender columns. The third example uses the `.()` wrap to select the **case_id** and **outcome** columns.
-
+İlk örnek, veri tablosunun birinci, üçüncü ve beşinci sütunlarını alır; ikinci örnek, boy, ağırlık ve cinsiyet sütunları dışındaki tüm sütunları seçer. Üçüncü örnek, **case_id** ve **outcome** sütunlarını seçmek için `.()` sarmasını kullanır.
 
 ```{r, eval=F}
 linelist[ , c(1,3,5)]
 linelist[ , -c("gender", "age", "wt_kg", "ht_cm")]
-linelist[ , list(case_id, outcome)] #linelist[ , .(case_id, outcome)] works just as well
+linelist[ , list(case_id, outcome)] #linelist[ , .(case_id, outcome)] aynı şekilde çalışır
 
 ```
 
-### Computing on columns {.unnumbered} 
+###  Sütunlarda hesaplama {.unnumbered}
 
-By combining the **i** and **j** arguments it is possible to filter rows and compute on the columns. Using **.N** in the **j** argument also represents the total number of rows in the data table and can be useful to return the number of rows after row filtering.
+**i** ve **j** değikenlerini birleştirerek, satırları filtrelemek ve sütunlarda hesaplama yapmak mümkündür. **j** değişkeninde **.N** kullanılması ayrıca veri tablosundaki toplam satır sayısını temsil eder ve satır filtrelemeden sonra satır sayısını döndürmek için yararlı olabilir.
 
-In the following examples we:
-* Count the number of cases that stayed over 7 days in hospital
-* Calculate the mean age of the cases that died at the military hospital
-* Calculate the standard deviation, median, mean age of the cases that recovered at the central hospital
+Aşağıdaki örneklerde:
+* Hastanede 7 günden fazla kalan vaka sayısını sayın
+* Askeri hastanede ölen vakaların yaş ortalamasını hesaplayın
+* Merkez hastanede iyileşen vakaların standart sapma, ortanca, yaş ortalamasını hesaplayın
 
 ```{r}
 linelist[days_onset_hosp > 7 , .N]
-linelist[hospital %like% "Military" & outcome %chin% "Death", .(mean(age, na.rm = T))] #na.rm = T removes N/A values
+linelist[hospital %like% "Military" & outcome %chin% "Death", .(mean(age, na.rm = T))] #na.rm = T siler N/A değerleri
 linelist[hospital == "Central Hospital" & outcome == "Recover", 
                  .(mean_age = mean(age, na.rm = T),
                    median_age = median(age, na.rm = T),
-                   sd_age = sd(age, na.rm = T))] #this syntax does not use the helper functions but works just as well
-
+                   sd_age = sd(age, na.rm = T))] #bu sözdizimi yardımcı fonksiyonları kullanmaz ancak aynı şekilde çalışır
 ```
 
-Remember using the .() wrap in the j argument facilitates computation, returns a data table and allows for column naming.
+j değişkeninde .() sarma kullanmanın hesaplamayı kolaylaştırdığını, bir veri tablosu döndürdüğünü ve sütun adlandırmasına izin verdiğini unutmayın.
 
-## The by argument: computing by groups{ }
+## Değişkene göre: gruplara göre hesaplama{ }
 
-The **by** argument is the third argument in the **DT[i, j, by]** structure. The **by** argument accepts both a character vector and the `list()` or `.()` syntax. Using the `.()` syntax in the **by** argument allows column renaming on the fly.
+**by** değişkeni, **DT[i, j, by]** yapısındaki üçüncü değişkendir. **by** değişkeni hem bir karakter vektörünü hem de 'list()' veya '.()' sözdizimini kabul eder. **by** değişkeninde `.()` sözdizimini kullanmak, anında sütun yeniden adlandırılmasına izin verir.
 
-In the following examples we:	
-* group the number of cases by hospital
-* in cases 18 years old or over, calculate the mean height and weight of cases according to gender and whether they recovered or died
-* in admissions that lasted over 7 days, count the number of cases according to the month they were admitted and the hospital they were admitted to
+Aşağıdaki örneklerde:
+* vaka sayısını hastaneye göre gruplandırın
+* 18 yaş ve üzeri vakalarda cinsiyete göre vakaların ortalama boy ve kilolarını, iyileşip ölmediklerini hesaplayın
+* 7 günü aşan başvurularda, vaka sayısını yattığı aya ve yattığı hastaneye göre sayısını hesaplayın
 
 
 ````{r}
-linelist[, .N, .(hospital)] #the number of cases by hospital
+linelist[, .N, .(hospital)] #hastaneye göre vaka sayıları
 linelist[age > 18, .(mean_wt = mean(wt_kg, na.rm = T),
-                             mean_ht = mean(ht_cm, na.rm = T)), .(gender, outcome)] #NAs represent the categories where the data is missing
+                             mean_ht = mean(ht_cm, na.rm = T)), .(gender, outcome)] #NAs, verilerin eksik olduğu kategorileri temsil eder
 linelist[days_onset_hosp > 7, .N, .(month = month(date_hospitalisation), hospital)]
 
 ```
 
-Data.table also allows the chaining expressions as follows:
+Data.table ayrıca zincirleme ifadelere aşağıdaki gibi izin verir:
 
 ````{r}
 
-linelist[, .N, .(hospital)][order(-N)][1:3] #1st selects all cases by hospital, 2nd orders the cases in descending order, 3rd subsets the 3 hospitals with the largest caseload
+linelist[, .N, .(hospital)][order(-N)][1:3] #1. tüm vakaları hastaneye göre seçer, 2. vakaları azalan sırayla sıralar, 3. en büyük vaka yüküne sahip 3 hastaneyi alt kümeler
 
 
 ```
 
-In these examples we are following the assumption that a row in the data table is equal to a new case, and so we can use the **.N** to represent the number of rows in the data table. Another useful function to represent the number of unique cases is `uniqueN()`, which returns the number of unique values in a given input. This is illustrated here:
+Bu örneklerde, veri tablosundaki bir satırın yeni bir duruma eşit olduğu varsayımını izliyoruz ve bu nedenle veri tablosundaki satır sayısını temsil etmek için **.N**'yi kullanabiliriz. Benzersiz durumların sayısını temsil eden başka bir yararlı fonksiyon, belirli bir girdideki benzersiz değerlerin sayısını döndüren "uniqueN()" dir. Aşağıda gösterilmektedir:
 
 ````{r}
 
-linelist[, .(uniqueN(gender))] #remember .() in the j argument returns a data table
+linelist[, .(uniqueN(gender))] #hatırlayın .() j değişkeninde bir veri tablosu döndürür
 
 ```
 
-The answer is 3, as the unique values in the gender column are m, f and N/A. Compare with the base R function `unique()`, which returns all the unique values in a given input:
+Cinsiyet sütunundaki benzersiz değerler m, f ve N/A olduğundan cevap 3'tür. Belirli bir girdideki tüm benzersiz değerleri döndüren temel R fonksiyonu "unique()" ile karşılaştırın:
 
 ````{r}
 
 linelist[, .(unique(gender))]
 ```
 
-To find the number of unique cases in a given month we would write the following:
+Belirli bir aydaki benzersiz vakaların sayısını bulmak için aşağıdakileri yazarız:
 
 ````{r}
 
@@ -194,34 +185,32 @@ linelist[, .(uniqueN(case_id)), .(month = month(date_hospitalisation))]
 
 ```
 
-## Adding and updating to data tables { }
+## Veri tablolarına ekleme ve güncelleme { }
 
-The `:=` operator is used to add or update data in a data table. Adding columns to your data table can be done in the following ways:
+`:=` operatörü, bir veri tablosuna veri eklemek veya bu tabloya veri güncellemek için kullanılır. Veri tablonuza sütun eklemek aşağıdaki şekillerde yapılabilir:
 
 ````{r}
 
-linelist[, adult := age >= 18] #adds one column
-linelist[, c("child", "wt_lbs") := .(age < 18, wt_kg*2.204)] #to add multiple columns requires c("") and list() or .() syntax
+linelist[, adult := age >= 18] #bir sütun ekler
+linelist[, c("child", "wt_lbs") := .(age < 18, wt_kg*2.204)] #birden çok sütun eklemek için c("") ve list() veya .() sözdizimi gerekir
 linelist[, `:=` (bmi_in_range = (bmi > 16 & bmi < 40),
-                         no_infector_source_data = is.na(infector) | is.na(source))] #this method uses := as a functional operator `:=`
-linelist[, adult := NULL] #deletes the column
+                         no_infector_source_data = is.na(infector) | is.na(source))] #bu yöntem :='yi fonksiyonel operatör olarak `:=` kullanır
+linelist[, adult := NULL] #sütunu siler
 
 ```
 
+Daha karmaşık toplamalar bu giriş bölümünün kapsamı dışındadır, ancak buradaki fikir, verileri gruplama ve temizleme için **dplyr**'e popüler ve uygulanabilir bir alternatif sağlamaktır. **data.table** paketi, düzgün ve okunabilir koda izin veren harika bir pakettir.
 
-Further complex aggregations are beyond the scope of this introductory chapter, but the idea is to provide a popular and viable alternative to **dplyr** for grouping and cleaning data. The **data.table** package is a great package that allows for neat and readable code.
 
+## Kaynaklar {  }
 
-## Resources {  }
-
-Here are some useful resources for more information:
 * https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html
 * https://github.com/Rdatatable/data.table
 * https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf
 * https://www.machinelearningplus.com/data-manipulation/datatable-in-r-complete-guide/
 * https://www.datacamp.com/community/tutorials/data-table-r-tutorial
 
-You can perform any summary function on grouped data; see the Cheat Sheet here for more info:
+Gruplandırılmış veriler üzerinde herhangi bir özet fonksiyonu gerçekleştirebilirsiniz; Daha fazla bilgi için buradaki pratik belgeye bakın:
 https://s3.amazonaws.com/assets.datacamp.com/blog_assets/datatable_Cheat_Sheet_R.pdf
 
 
