@@ -1,97 +1,87 @@
-# Writing functions  
+# Yazma fonksiyonları
 
+## Hazırlık
 
-<!-- ======================================================= -->
-## Preparation {  }
+### Paketleri yüklemek {.unnumbered}
 
-
-### Load packages {-}
-
-This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Bu kod parçası, analizler için gerekli olan paketlerin yüklenmesini gösterir. Bu el kitabında, gerekirse paketi kuran *ve* kullanım için yükleyen **pacman**'dan `p_load()` vurgusu yapıyoruz. R **tabanı**ndan `library()` ile kurulu paketleri de yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R basics] sayfasına bakabilirsiniz.
 
 ```{r, echo=F, warning=F, message=F}
 pacman::p_load(
-  rio,          # File import
-  here,         # File locator
-  skimr,        # get overview of data
-  tidyverse,    # data management + ggplot2 graphics, 
-  gtsummary,    # summary statistics and tests
-  janitor,      # adding totals and percents to tables
-  scales,       # easily convert proportions to percents  
-  flextable,     # converting tables to HTML
-  purrr,          #makes functional programming easier
-  readr,          #to read csv files
-  highcharter     #to create highchart object and draw particular plot
+  rio,          # Dosyayı içe aktar
+  here,         # Dosyayı konumla
+  skimr,        # veriye genel bakış
+  tidyverse,    # veri yönetimi + ggplot2 grafikleri 
+  gtsummary,    # özet istatistikler ve testler
+  janitor,      # toplamları ve yüzdeleri tabloya ekleme
+  scales,       # oranları kolaylıkla yüzdeye çevirme 
+  flextable,    # tabloları HTML'ye çevirme
+  purrr,        # fonksiyonel programlamayı kolaylaştırır
+  readr,        # csv dosyalarını okumak için
+  highcharter   # highchart nesnesi oluşturmak ve belirli bir grafiği çizmek için
 
   )
 ```
 
-### Import data {-}
+### Verileri içe aktar {.unnumbered}
 
-We import the dataset of cases from a simulated Ebola epidemic. If you want to download the data to follow step-by-step, see instructions in the [Download book and data] page. The dataset is imported using the `import()` function from the **rio** package. See the page on [Import and export] for various ways to import data.
+Simüle edilmiş bir Ebola salgınından vakaların veri setini içe aktarıyoruz. Adım adım izlenecek verileri indirmek istiyorsanız, [Kitap ve verileri indir] sayfasındaki talimatlara bakın. Veri kümesi, **rio** paketinden `import()` fonksiyonuyla kullanılarak içe aktarılır. Verileri içe aktarmanın çeşitli yolları için [İçe ve dışa aktar] hakkındaki sayfaya bakabilirsiniz.
 
-We will also use in the last part of this page some data on H7N9 flu from 2013.
+Ayrıca bu sayfanın son bölümünde 2013'ten itibaren H7N9 gribiyle ilgili bazı verileri kullanacağız.
 
 ```{r, echo=F}
-# import the linelists into R
+# satırlistesini R içine aktar
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
 
 flu_china <- rio::import(here::here("data", "case_linelists", "fluH7N9_China_2013.csv"))
 
 ```
 
+## Fonksiyonlar
 
-## Functions  
+Fonksiyonlar, kodların daha kolay anlaşılmasını, bir şekilde daha kısa olmasını ve hataya daha az meyilli olmasını sağladıklarından (fonksiyonun kendisinde herhangi bir hata olmadığı göz önüne alındığında) programlamada faydalıdır.
 
-Functions are helpful in programming since they allow to make codes easier to understand, somehow shorter and less prone to errors (given there were no errors in the function itself).
+Bu el kitabında bu kadar ileri gittiyseniz, R'da her işlem bir fonksiyon çağrısı olduğundan sonsuz fonksiyonlarla karşılaşmışsınız demektir. `+, for, if, [, $, { …`. Örneğin, "x + y", "+"(x, y)" ile aynıdır
 
-If you have come so far to this handbook, it means you have came across endless functions since in R, every operation is a function call
-`+, for, if, [, $, { …`. For example `x + y` is the same as`'+'(x, y)`
+R, fonksiyonlarla en fazla çalışma olanağı sunan ve kullanıcıya bunları kolayca yazabilmesi için yeterli araçları sağlayan dillerden biridir. Fonksiyonları programlama zincirinin en üstünde veya sonunda sabit olarak düşünmemeliyiz, R onları vektörlermiş gibi kullanma ve hatta başka fonksiyonlar, listeler vb. içinde kullanma imkanı sunar.
 
-R is one the languages that offers the most possibility to work with functions and give enough tools to the user to easily write them. We should not think about functions as fixed at the top or at the end of the programming chain, R offers the possibility to use them as if they were vectors and even to use them inside other functions, lists...
+Fonksiyonel programlama üzerine çok sayıda gelişmiş kaynak mevcuttur ve biz burada yalnızca kısa pratik örneklerle fonksiyonel programlamaya başlamanıza yardımcı olacak bir fikir vereceğiz. Daha sonra bu konuda daha fazla okumak için referanslardaki bağlantıları ziyaret etmeniz önerilir.
 
-Lot of very advanced resources on functional programming exist and we will only give here an insight to help you start with functional programming with short practical examples. You are then encouraged to visit the links on references to read more about it.
+## Neden bir fonksiyon kullanırsın?
 
+Bu soruyu yanıtlamadan önce, bu el kitabının [Yineleme, döngüler ve listeler] sayfasındaki ilk R fonksiyonunuzu yazmak için ipuçlarına zaten sahip olduğunuzu belirtmek önemlidir. Aslında, "if/else" ve döngülerin kullanımı, genellikle birden fazla koşula izin vererek kodumuzun uygulamasını genişletmeye veya görevleri tekrarlamak için kodları yinelemeye kolayca yardımcı olduklarından, çoğu fonksiyonumuzun temel bir parçasıdır.
 
+-   Farklı bir değişkene veya verilere uygulamak için aynı kod bloğunu birden çok kez mi tekrarlıyorum?
 
+-   Ondan kurtulmak, genel kodumu önemli ölçüde kısaltır ve daha hızlı çalışmasını sağlar mı?
 
+-   Yazdığım kodun tekrar kullanılması ancak kodun birçok yerinde farklı bir değerle kullanılması mümkün müdür?
 
-## Why would you use a function? 
+Önceki sorulardan birinin cevabı "EVET" ise, muhtemelen bir fonksiyon yazmanız gerekir.
 
-Before answering this question, it is important to note that you have already had tips to get to write your very first R functions in the page on [Iteration, loops, and lists] of this handbook. In fact, use of "if/else" and loops is often a core part of many of our functions since they easily help to either broaden the application of our code allowing multiple conditions or to iterate codes for repeating tasks.
+## R, fonksiyonları nasıl oluşturur?
 
-- I am repeating multiple times the same block of code to apply it to a different variable or data?
+R'daki fonksiyonların üç ana bileşeni vardır:
 
-- Getting rid of it will it substantially shorten my overall code and make it run quicker?
+-   fonksiyonu nasıl çağırabileceğimizi kontrol eden değişkenlerin listesi olan `formals()`
 
-- Is it possible that the code I have written is used again but with a different value at many places of the code?
+-   fonksiyonun içindeki kod olan `body()`, yani nasıl yazdığımıza bağlı olarak parantez içinde veya devamında
 
-If the answer to one of the previous questions is "YES", then you probably need to write a function
+ve,
 
-## How does R  build functions?
+-   fonksiyonun değişkenlerini bulmaya yardımcı olacak ve fonksiyonun nasıl değer bulacağını belirleyen `environment()`.
 
-Functions in R have three main components:
+Fonksiyonunuzu oluşturduktan sonra, ilişkili fonksiyonu çağırarak bu bileşenlerin her birini doğrulayabilirsiniz.
 
-- the `formals()` which is the list of arguments which controls how we can call the function
+## Temel sözdizimi ve yapı
 
-- the `body()` that is the code inside the function i.e. within the brackets or following the parenthesis depending on how we write it
+-   Bir fonksiyonun adını okuduğumuz anda işinin kolayca anlaşılması için düzgün bir şekilde adlandırılması gerekir. Aslında bu, temel R mimarisinin çoğunda zaten böyledir. 'mean()', 'print()', 'summary()' gibi fonksiyonların çok basit adları vardır.
 
-and,
+-   Bir fonksiyon, üzerinde çalışılacak veriler ve diğer seçenekler arasında statik değerler olabilen diğer nesneler gibi bağımsız değişkenlere ihtiyaç duyacaktır.
 
-- the `environment()` which will help locate the function's variables and determines how the function finds value.
- 
-Once you have created your function, you can verify each of these components by calling the function associated.
- 
+-   Ve son olarak bir fonksiyon, temel görevine ve kendisine verilen değişkenlere dayalı olarak bir çıktı verecektir. Genellikle çıktıyı üretmek için yerleşik fonksiyonları `print()`, `return()`... olarak kullanırız. Çıktı, mantıksal bir değer, bir sayı, bir karakter, bir veri çerçevesi... kısacası herhangi bir R nesnesi olabilir.
 
-## Basic syntax and structure
-
-- A function will need to be named properly so that its job is easily understandable as soon as we read its name. Actually this is already the case with majority of the base R architecture. Functions like  `mean()`, `print()`, `summary()` have names that are very straightforward 
-
-- A function will need arguments, such as the data to work on and other objects that can be static values among other options  
-
-- And finally a function will give an output based on its core task and the arguments it has been given. Usually we will use the built-in functions as `print()`, `return()`... to produce the output. The output can be a logical value, a number, a character, a data frame...in short any kind of R object.
-
-Basically this is the composition of a function:
+Temel olarak bu, bir fonksiyonun bileşimidir:
 
 ```{r, eval=FALSE}
 
@@ -105,7 +95,7 @@ function_name <- function(argument_1, argument_2, argument_3){
 
 ```
 
-We can create our first function that will be called `contain_covid19()`. 
+`contain_covid19()` olarak adlandırılacak ilk fonksiyonumuzu oluşturabiliriz.
 
 ```{r}
 
@@ -121,7 +111,7 @@ contain_covid19 <- function(barrier_gest, wear_mask, get_vaccine){
 
 ```
 
-We can then verify the components of our newly created function.
+Daha sonra yeni oluşturulan fonksiyonumuzun bileşenlerini doğrulayabiliriz.
 
 ```{r}
 
@@ -131,8 +121,7 @@ environment(contain_covid19)
 
 ```
 
-
-Now we will test our function. To call our written function, you use it as you use all R functions i.e by writing the function name and adding the required arguments.
+Şimdi fonksiyonumuzu test edeceğiz. Yazılı fonksiyonumuzu çağırmak için, onu tüm R fonksiyonlarını kullandığınız gibi, yani fonksiyon adını yazıp gerekli değişkenleri ekleyerek kullanabilirsiniz.
 
 ```{r}
 
@@ -140,7 +129,7 @@ contain_covid19(barrier_gest = "yes", wear_mask = "yes", get_vaccine = "yes")
 
 ```
 
-We can write again the name of each argument for precautionary reasons. But without specifying them, the code should work since R has in memory the positioning of each argument. So as long as you put the values of the arguments in the correct order, you can skip writing the arguments names when calling the functions.
+Önlem amaçlı olarak her bir değişkenin adını tekrar yazabiliriz. Ancak bunları belirtmeden kod çalışmalıdır çünkü R bellekte her değişkenin konumu vardır. Değişkenlerin değerlerini doğru sıraya koyduğun sürece, fonksiyonları çağırırken değişken isimlerini yazmayı atlayabilirsiniz.
 
 ```{r}
 
@@ -148,63 +137,57 @@ contain_covid19("yes", "yes", "yes")
 
 ```
 
-Then let's look what happens if one of the values is `"no"` or **not** `"yes"`.
+O zaman değerlerden biri `"hayır"` veya `"evet"` **değil** ise ne olduğuna bakalım.
 
 ```{r}
 
 contain_covid19(barrier_gest = "yes", wear_mask = "yes", get_vaccine = "no")
 ```
 
-If we provide an argument that is not recognized, we get an error: 
+Tanınmayan bir değişken sağlarsak bir hata alırız:
 
 ```{r, eval=F}
 contain_covid19(barrier_gest = "sometimes", wear_mask = "yes", get_vaccine = "no")
 ```
 
-`Error in contain_covid19(barrier_gest = "sometimes", wear_mask = "yes",  : 
-  could not find function "contain_covid19"`
+`Error in contain_covid19(barrier_gest = "sometimes", wear_mask = "yes",  :    "contain_covid19"` fonksiyonu bulunamadı
 
+[***NOT:*** Bazı fonksiyonlar(çoğu zaman çok kısa ve anlaşılır) bir ada ihtiyaç duymayabilir ve hızlı görev yapmak için doğrudan bir kod satırında veya başka bir fonksiyonun içinde kullanılabilir. Bunlara **anonim fonksiyonlar** denir.]{style="color: black;"}
 
-<span style="color: black;">**_NOTE:_** Some functions  (most of time very short and straightforward) may not need a name and can be used directly on a line of code or inside another function to do quick task. They are called **anonymous functions** .</span>
-
-For instance below is a first anonymous function that   keeps only character variables the dataset.
+Örneğin, aşağıdaki veri kümesinde yalnızca karakter değişkenlerini tutan ilk anonim fonksiyondur.
 
 ```{r, eval=F}
 linelist %>% 
-  dplyr::slice_head(n=10) %>%  #equivalent to R base "head" function and that return first n observation of the  dataset
+  dplyr::slice_head(n=10) %>%  #R tabanı "head" fonksiyonuna eşdeğerdir ve bu, veri kümesinin ilk n gözlemini döndürür
   select(function(x) is.character(x)) 
 ```
-  
+
 ```{r, echo=F}
 linelist %>% 
-  dplyr::slice_head(n=10) %>%  #equivalent to R base "head" function and that return first n observation of the  dataset
+  dplyr::slice_head(n=10) %>%  #R tabanı "head" fonksiyonuna eşdeğerdir ve bu, veri kümesinin ilk n gözlemini döndürür
   select(function(x) is.character(x)) %>%  
 DT::datatable(rownames = FALSE, filter="top", options = list(pageLength = 10, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-
-Then another function that selects every second observation of our dataset (may be relevant when we have longitudinal data with many records per patient for instance after having ordered by date or visit).
-In this case, the proper function writing outside dplyr would be `function (x) (x%%2 == 0)` to apply to the vector containing all row numbers.
-
+Daha sonra, veri setimizin her ikinci gözlemini seçen başka bir fonksiyon (örneğin, tarihe veya ziyarete göre sıralandıktan sonra hasta başına çok sayıda kayıt içeren boylamsal verilerimiz olduğunda alakalı olabilir). Bu durumda, dplyr dışına yazan uygun fonksiyon, tüm satır numaralarını içeren vektöre uygulanacak `function (x) (x%%2 == 0)` olacaktır.
 
 ```{r, eval=F}
 linelist %>%   
    slice_head(n=20) %>% 
-   tibble::rownames_to_column() %>% # add indices of each obs as rownames to clearly see the final selection
+   tibble::rownames_to_column() %>% # son seçimi net bir şekilde görmek için her bir gözlemin indekslerini satır isimleri olarak ekleyin
    filter(row_number() %%2 == 0)
 ```
 
 ```{r, echo=F}
 linelist %>%   
    slice_head(n=20) %>% 
-   tibble::rownames_to_column() %>%    # add indices of each obs as rownames to clearly see the final selection
+   tibble::rownames_to_column() %>%    # son seçimi net bir şekilde görmek için her bir gözlemin indekslerini satır isimleri olarak ekleyin
    filter(row_number() %%2 == 0) %>% 
 DT::datatable(rownames = FALSE, filter="top", options = list(pageLength = 10, scrollX=T), class = 'white-space: nowrap' )
 
 ```
 
-
-A possible base R code for the same task would be:
+Aynı görev için olası bir temel R kodu şöyle olacaktır:
 
 ```{r, eval = F}
 
@@ -222,29 +205,28 @@ DT::datatable(rownames = FALSE, filter="top", options = list(pageLength = 10, sc
 
 ```
 
+[***UYARI:*** Fonksiyonları kullanmanın kodumuzda bize yardımcı olabileceği doğru olsa da, bazı fonksiyonları yazmak, iyice düşünülmemiş, yeterince yazılmamış ve sonuç olarak hatalar döndürüyorsa, o fonksiyonu düzeltmek zaman alıcı olabilir. Bu nedenle genellikle önce R kodunun yazılması, yapmak istediğimizi yaptığından emin olunması ve ardından yukarıda listelendiği gibi üç ana bileşeni ile bir fonksiyona dönüştürülmesi önerilir.]{style="color: orange;"}
 
-<span style="color: orange;">**_CAUTION:_** Though it is true that using functions can help us with our code, it can nevertheless be  time consuming to write some functions or to fix one if it has not been thought thoroughly, written adequately and is returning errors as a result. For this reason it is often recommended to first write the R code, make sure it does what we intend it to do, and then transform it into a function with its three main components as listed above. </span>
+## Örnekler
 
-## Examples  
+### Birkaç sütun için orantı tablolarını döndürmek {.unnumbered}
 
-### Return proportion tables for several columns {.unnumbered}  
+Evet, zaten birçok pakette bilgileri çok kolay ve güzel bir şekilde özetlememizi sağlayan güzel fonksiyonlarımız var. Ama yine de yazma fonksiyonlarına alışmak için ilk adımlarımızda kendimizinkini yapmaya çalışacağız.
 
-Yes, we already have nice functions in many packages allowing to summarize information in a very easy and nice way. But we will still try to make our own, in our first steps to getting used to writing functions.
-
-In this example we want to show how writing a simple function would avoid you copy-pasting the same code multiple times.
+Bu örnekte, basit bir fonksiyon yazmanın, aynı kodu defalarca kopyalayıp yapıştırmanızı nasıl önleyeceğini göstermek istiyoruz.
 
 ```{r}
 
 proptab_multiple <- function(my_data, var_to_tab){
   
-  #print the name of each variable of interest before doing the tabulation
+  #tablolamayı yapmadan önce ilgilenilen her değişkenin adını yazdırın
   print(var_to_tab)
 
   with(my_data,
-       rbind( #bind the results of the two following function by row
-        #tabulate the variable of interest: gives only numbers
+       rbind( #aşağıdaki iki fonksiyonun sonuçlarını satıra bağla
+        #ilgilenilen değişkeni tablo haline getirin: sadece sayıları verir
           table(my_data[[var_to_tab]], useNA = "no"),
-          #calculate the proportions for each variable of interest and round the value to 2 decimals
+          #ilgilenilen her değişken için oranları hesaplayın ve değeri 2 ondalık basamağa yuvarlayın
          round(prop.table(table(my_data[[var_to_tab]]))*100,2)
          )
        )
@@ -260,10 +242,9 @@ proptab_multiple(linelist, "outcome")
 
 ```
 
-<span style="color: darkgreen;">**_TIP:_** As shown above, it is very important to comment your functions as you would do for the general programming. Bear in mind that a function's aim is to make a code ready to read, shorter and more efficient. Then one should be able to understand what the function does just by reading its name and should have more details reading the comments.</span>
+[***İPUCU:*** Yukarıda gösterildiği gibi, genel programlama için yaptığınız fonksiyonlarınızı yorumlamanız çok önemlidir. Bir fonksiyonun amacının bir kodu okunmaya hazır, daha kısa ve daha verimli hale getirmek olduğunu unutmayın. O zaman sadece adını okuyarak fonksiyonun ne yaptığını anlayabilmeli ve yorumları okuyarak daha fazla ayrıntıya sahip olmalıyız.]{style="color: darkgreen;"}
 
-
-A second option is to use this function in another one via a loop to make the process at once:
+İkinci bir seçenek, işlemi bir kerede yapmak için bu fonksiyonu bir döngü aracılığıyla başka bir fonksiyonda kullanmaktır:
 
 ```{r}
 
@@ -276,7 +257,7 @@ for(var_to_tab in c("gender","age_cat",  "outcome")){
 
 ```
 
-A simpler way could be using the base R "apply" instead of a "for loop" as expressed below:
+Daha basit bir yol, aşağıda ifade edildiği gibi "for loop" yerine R "apply" tabanını kullanmak olabilir:
 
 ```{r, include= FALSE, eval=FALSE}
 
@@ -284,18 +265,15 @@ base::lapply(linelist[,c("gender","age_cat", "outcome")], table)
 
 ```
 
+[***İPUCU:***R genellikle işlevsel bir programlama dili olarak tanımlanır ve neredeyse her zaman bir kod satırı çalıştırdığınızda bazı yerleşik fonksiyonları kullanırsınız. Yazma fonksiyonları konusunda daha rahat olmak için iyi bir alışkanlık, günlük olarak kullandığınız temel fonksiyonların nasıl oluşturulduğunu sık sık içsel olarak incelemektir. Bunu yapmanın kısayolu, fonksiyonun adını seçmek ve ardından `Ctrl+F2` veya `fn+F2` veya `Cmd+F2` (bilgisayarınıza bağlı olarak) üzerine tıklamaktır.]{style="color: darkgreen;"}
 
-<span style="color: darkgreen;">**_TIP:_** R is often defined as a functional programming language and almost anytime you run a line of code you are using some built-in functions. A good habit to be more comfortable with writing functions is to often have an internal look at how the basic functions you are using daily are built. The shortcut to do so is selecting the function name and then clicking on`Ctrl+F2` or `fn+F2` or `Cmd+F2` (depending on your computer) .</span>
+## **purrr** kullanımı: yinelemeli olarak uygulanabilen yazma fonksiyonları
 
-## Using **purrr**: writing functions that can be iteratively applied
+### Bir veri kümesindeki birden çok sütunun sınıfını değiştirin {.unnumbered}
 
-### Modify class of multiple columns in a dataset {.unnumbered}  
+Orijinal 'satır listesi' verilerindeki birçok karakter değişkeninin analiz ve çizim amaçları için "faktör" olarak değiştirilmesi gerektiğini varsayalım. Adımı birkaç kez tekrarlamak yerine, ilgili tüm değişkenlerin dönüşümünü tek bir kod satırında yapmak için sadece `lapply()` kullanabiliriz.
 
-Let's say many character variables in the original `linelist` data need to be changes to "factor" for analysis and plotting purposes. Instead of repeating the step several times, we can just use `lapply()` to do the transformation of all variables concerned on a single line of code.
-
-
-<span style="color: orange;">**_CAUTION:_** `lapply()` returns a list, thus its use may require an additional modification as a last step.</span>
-
+[***UYARI:*** `lapply()` bir liste döndürür, bu nedenle kullanımı son adım olarak ek bir değişiklik gerektirebilir.]{style="color: orange;"}
 
 ```{r, include=FALSE}
 
@@ -307,8 +285,7 @@ linelist_factor1 <- linelist %>%
 
 ```
 
-
-The same step can be done using `map_if()` function from the **purrr** package
+Aynı adım, **purrr** paketindeki `map_if()` fonksiyonu kullanılarak da yapılabilir.
 
 ```{r}
 
@@ -321,18 +298,17 @@ linelist_factor2 %>%
 
 ```
 
+### Değişkeninin farklı seviyeleri için yinelemeli olarak grafikler üretin {.unnumbered}
 
-### Iteratively produce graphs for different levels of a variable {.unnumbered}
-
-We will produce here pie chart to look at the distribution of patient's outcome in China during the H7N9 outbreak for each province. Instead of repeating the code for each of them, we will just apply a function that we will create.
+Her eyalet için H7N9 salgını sırasında Çin'de hastaların sonucunun dağılımına bakmak için burada pasta grafiği üreteceğiz. Her biri için kodu tekrarlamak yerine sadece oluşturacağımız bir fonksiyonu uygulayacağız.
 
 ```{r}
 
-#precising options for the use of highchart
+#highchart kullanımı için kusursuz seçenekler
 options(highcharter.theme =   highcharter::hc_theme_smpl(tooltip = list(valueDecimals = 2)))
 
 
-#create a function called "chart_outcome_province" that takes as argument the dataset and the name of the province for which to plot the distribution of the outcome.
+#"chart_outcome_province" adında, veri kümesini ve sonucun dağılımını çizeceği ilin adını değişken olarak alan bir fonksiyon oluşturun.
 
 chart_outcome_province <- function(data_used, prov){
   
@@ -363,11 +339,9 @@ chart_outcome_province(flu_china,"Jiangsu")
 
 ```
 
+### Bir değişkenin farklı seviyeleri için yinelemeli olarak tablolar üretin {.unnumbered}
 
-
-### Iteratively produce tables for different levels of a variable {.unnumbered}
-
-Here we will create three indicators to summarize in a table and we would like to produce this table for each of the provinces. Our indicators are the delay between onset and hospitalization, the percentage of recovery and the median age of cases.
+Burada bir tablo halinde özetlemek için üç gösterge oluşturacağız ve bu tabloyu her il için üretmek istiyoruz. Göstergelerimiz, başlangıç ile hastaneye yatış arasındaki gecikme, iyileşme yüzdesi ve vakaların medyan yaşıdır.
 
 ```{r}
 
@@ -403,19 +377,19 @@ indic_3 <-  flu_china %>%
   select(province, median_age_cases)  %>% 
   distinct()
 
-#join the three indicator datasets
+#üç gösterge veri kümesine katılın
 
 table_indic_all <- indic_1 %>% 
   dplyr::left_join(indic_2, by = "province") %>% 
         left_join(indic_3, by = "province")
 
 
-#print the indicators in a flextable
+#göstergeleri esnek bir tabloda yazdırın
 
 
 print_indic_prov <-  function(table_used, prov){
   
-  #first transform a bit the dataframe for printing ease
+  #önce yazdırma kolaylığı için veri çerçevesini biraz dönüştürün
   indic_prov <- table_used %>%
     filter(province==prov) %>%
     pivot_longer(names_to = "Indicateurs", cols = 2:4) %>% 
@@ -459,26 +433,23 @@ print_indic_prov(table_indic_all, "Jiangsu")
 
 ```
 
+## İyi işleyen fonksiyonlar için ipuçları ve en iyi Uygulamalar
 
-## Tips and best Practices for well functioning functions
+Fonksiyonel programlama, kodu kolaylaştırmak içindir ve okunmasını kolaylaştırır. Aşağıdaki ipuçları, temiz bir koda ve okunması kolay bir koda sahip olmanıza yardımcı olacaktır.
 
-Functional programming is meant to ease code and facilitates its reading. It should produce the contrary. The tips below will help you having a clean code and easy to read code. 
+### Adlandırma ve sözdizimi {.unnumbered}
 
+-   Ortamınızda zaten mevcut olan diğer fonksiyonlar tarafından kolayca alınmış olabilecek karakterleri kullanmaktan kaçının
 
-### Naming and syntax {.unnumbered}
+-   Fonksiyon adının başka bir okuyucu için kısa ve anlaşılır olması önerilir.
 
-- Avoid using character that could have been easily already taken by other functions already existing in your environment
+-   Fonksiyon adı olarak fiiller, değişken adları için isimler kullanılması tercih edilir.
 
-- It is recommended for the function name to be short and straightforward to understand for another reader
+### Sütun adları ve düzenli değerlendirme {.unnumbered}
 
-- It is preferred to use verbs as the function name and nouns for the argument names.
+Değişken olarak kodunuza sağlanan *sütun adlarına* nasıl başvuracağınızı öğrenmek istiyorsanız, bu [tidyverse programlama kılavuzunu](https://dplyr.tidyverse.org/articles/programming.html) okuyabilirsiniz. Kapsanan konular arasında *tidy evaluation* ve *embrace* `{{ }}` "çift ayraç" kullanımı yer alır.
 
-
-### Column names and tidy evaluation {.unnumbered}  
-
-If you want to know how to reference *column names* that are provided to your code as arguments, read this [tidyverse programming guidance](https://dplyr.tidyverse.org/articles/programming.html). Among the topics covered are *tidy evaluation* and use of the *embrace* `{{ }}` "double braces"
-
-For example, here is a quick skeleton template code from page tutorial mentioned just above:  
+Örneğin, hemen yukarıda bahsedilen sayfa eğitiminden hızlı bir iskelet şablon kodu:
 
 ```{r, eval=F}
 
@@ -492,12 +463,11 @@ mtcars %>%
 
 ```
 
+### Test ve Hata işleme {.unnumbered}
 
-### Testing and Error handling {.unnumbered}
+Bir fonksiyonun görevi ne kadar karmaşıksa, hata olasılığı da o kadar yüksek olur. Bu nedenle, bazen hatanın nereden geldiğini hızlı bir şekilde anlamaya ve düzeltmenin bir yolunu bulmaya yardımcı olmak için fonksiyona bazı doğrulamalar eklemek gerekir.
 
-The more complicated a function's task the higher the possibility of errors. Thus it is sometimes necessary to add some verification within the funtion to help quickly understand where the error is from and find a way t fix it.
-
-- It can be more than recommended to introduce a check on the missingness of one argument using `missing(argument)`. This simple check can return "TRUE" or "FALSE" value.
+-   `eksik(değişken)` kullanarak bir değişkenin eksikliğini kontrol etmek şiddetle tavsiye edilmektedir. Bu basit kontrol, "DOĞRU" veya "YANLIŞ" değerini döndürebilir.
 
 ```{r , error=TRUE}
 
@@ -520,8 +490,7 @@ contain_covid19_missing(get_vaccine = "yes")
 
 ```
 
-
-- Use `stop()` for more detectable errors.
+-   Daha fazla algılanabilir hata için `stop()` kullanın.
 
 ```{r, error=TRUE}
 
@@ -541,18 +510,16 @@ contain_covid19_stop(barrier_gest=1, wear_mask="yes", get_vaccine = "no")
 
 ```
 
-- As we see when we run most of the built-in functions, there are messages and warnings that can pop-up in certain conditions. We can integrate those in our written functions by using the functions `message()` and `warning()`.
+-   Yerleşik fonksiyonların çoğunu çalıştırdığımızda gördüğümüz gibi, belirli koşullarda açılabilen mesajlar ve uyarılar vardır. Bunları yazılı fonksiyonlarımıza `message()` ve `warning()` fonksiyonlarını kullanarak entegre edebiliriz.
 
-- We can handle errors also by using `safely()` which takes one function as an argument and executes it in a safe way. In fact the function will execute without stopping if it encounters an error. `safely()` returns as output a **list** with two objects which are the results and the error it "skipped".
+-   Bir fonksiyonu değişken olarak alan ve onu güvenli bir şekilde yürüten `safely()` kullanarak da hataları halledebiliriz. Aslında, bir hatayla karşılaşırsa fonksiyon durmadan yürütülür. `safely()` çıktı olarak, sonuçlar ve "atladığı" hata olan iki nesne içeren bir **liste** döndürür.
 
-We can verify by first running the `mean()` as  function, then run it with `safely()`.
-
+Önce `mean()` fonksiyonunu fonksiyon olarak çalıştırıp sonra `safely()` ile çalıştırarak doğrulayabiliriz.
 
 ```{r, warning=FALSE}
 
 map(linelist, mean)
 ```
-
 
 ```{r, warning=FALSE}
 safe_mean <- safely(mean)
@@ -561,18 +528,16 @@ linelist %>%
 
 ```
 
-
-As said previously, well commenting our codes is already a good way for having documentation in our work.  
-
+Daha önce de belirtildiği gibi, kodlarımızı iyi yorumlamak, çalışmalarımızda dokümantasyona sahip olmak için zaten iyi bir yoldur.
 
 <!-- ======================================================= -->
-## Resources
 
+## Kaynaklar
 
-[R for Data Science link](https://r4ds.had.co.nz/functions.html)   
+[Veri Bilimi için R](https://r4ds.had.co.nz/functions.html)
 
-[Cheatsheet advance R programming](https://www.rstudio.com/wp-content/uploads/2016/02/advancedR.pdf)
+[İleri R Programlama Pratik Kılavuzu](https://www.rstudio.com/wp-content/uploads/2016/02/advancedR.pdf)
 
-[Cheatsheet purr Package](https://purrr.tidyverse.org/)
+[purr Paket Pratik Kılavuzu](https://purrr.tidyverse.org/)
 
-[Video-ACM talk by Hadley Wickham: The joy of functional programming (how does map_dbl work)](https://youtube.videoken.com/embed/bzUmK0Y07ck)
+[Hadley Wickham'dan Video-ACM konuşması: Fonksiyonel programlamanın keyfi (map_dbl nasıl çalışır?)](https://youtube.videoken.com/embed/bzUmK0Y07ck)

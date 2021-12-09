@@ -1,29 +1,29 @@
 
-# Directory interactions { }  
+# Dizin etkileşimleri { }
 
-In this page we cover common scenarios where you create, interact with, save, and import with directories (folders).  
+Bu sayfada, dizinler (klasörler) oluşturduğunuz, etkileşimde bulunduğunuz, kaydettiğiniz ve içe aktardığınız genel senaryoları ele alıyoruz.
 
 
-## Preparation  
+## Hazırlık
 
-### **fs** package {.unnumbered}  
+### **fs** paketi {.unnumbered}
 
-The **fs** package is a **tidyverse** package that facilitate directory interactions, improving on some of the **base** R functions. In the sections below we will often use functions from **fs**.  
+**fs** paketi, dizin etkileşimlerini kolaylaştıran ve bazı R **tabanı** fonksiyonlarını geliştiren bir **tidyverse** paketidir. Aşağıdaki bölümlerde genellikle **fs**'den gelen fonksiyonları kullanacağız.
 
 ```{r}
 pacman::p_load(
-  fs,             # file/directory interactions
-  rio,            # import/export
-  here,           # relative file pathways
-  tidyverse)      # data management and visualization
+  fs,             # dosya/dizin etkileşimleri
+  rio,            # içe aktar/dışa aktar
+  here,           # göreceli dosya yolakları
+  tidyverse)      # veri yönetimi ve görselleştirme
 ```
 
 
-### Print directory as a dendrogram tree {.unnumbered}  
+### Dizini bir dendrogram ağacı olarak yazdır {.unnumbered}
 
-Use the function `dir_tree()` from **fs**.  
+**fs**'den `dir_tree()` fonksiyonunu kullanın.
 
-Provide the folder filepath to `path = ` and decide whether you want to show only one level (`recurse = FALSE`) or all files in all sub-levels (`recurse = TRUE`). Below we use `here()` as shorthand for the R project and specify its sub-folder "data", which contains all the data used for this R handbook. We set it to display all files within "data" and its sub-folders (e.g. "cache", "epidemic models", "population", "shp", and "weather").  
+Klasör dosya yolunu `path =` olarak sağlayın ve yalnızca bir seviyeyi mi (`recurse = FALSE`) yoksa tüm alt seviyelerdeki tüm dosyaları mı (`recurse = TRUE`) göstermek istediğinize karar verin. Aşağıda, R projesi için kısayol olarak `here()` kullanıyoruz ve bu R el kitabı için kullanılan tüm verileri içeren alt klasör "verilerini" belirledik. "veri" ve alt klasörlerindeki (örneğin "önbellek", "salgın modelleri", "nüfus", "shp" ve "hava durumu") içindeki tüm dosyaları gösterecek şekilde ayarladık.
 
 
 ```{r}
@@ -31,40 +31,40 @@ fs::dir_tree(path = here("data"), recurse = TRUE)
 ```
 
 
-## List files in a directory  
+## Bir dizindeki dosyaları listeleyin
 
-To list just the file names in a directory you can use `dir()` from **base** R. For example, this command lists the file names of the files in the "population" subfolder of the "data" folder in an R project. The relative filepath is provided using `here()` (which you can read about more in the [Import and export] page).  
+Bir dizindeki yalnızca dosya adlarını listelemek için R **tabanı**ndan `dir()` kullanabilirsiniz. Örneğin, bu komut, içindeki "data" klasörünün "population" alt klasöründeki dosyaların adlarını listeler. Göreli dosya yolu, 'here()' kullanılarak sağlanır (bunun hakkında daha fazla bilgiyi [İçe aktarma ve dışa aktarma] sayfasında okuyabilirsiniz).
 
 ```{r}
-# file names
+# dosya adları
 dir(here("data", "gis", "population"))
 ```
 
-To list the full file paths of the directory's files, you can use you can use `dir_ls()` from **fs**. A **base** R alternative is `list.files()`.  
+Dizin dosyalarının tam dosya yollarını listelemek için **fs**'den `dir_ls()` kullanabilirsiniz. Bir diğer R alternatifi "list.files()"dir.
 
 ```{r}
-# file paths
+# dosya yolları
 dir_ls(here("data", "gis", "population"))
 ```
 
-To get all the metadata information about each file in a directory, (e.g. path, modification date, etc.) you can use `dir_info()` from **fs**.  
+Bir dizindeki her dosyayla ilgili tüm meta veri bilgilerini almak için (ör. yol, değişiklik tarihi vb.), **fs**'den `dir_info()` kullanabilirsiniz.
 
-This can be particularly useful if you want to extract the last modification time of the file, for example if you want to import the most recent version of a file. For an example of this, see the [Import and export] page.     
+Bu, örneğin dosyanın en son sürümünü içe aktarmak istediğinizde, dosyanın son değişiklik zamanını çıkarmak istiyorsanız özellikle yararlı olabilir. Bunun bir örneği için [İçe ve dışa aktar] sayfasına bakın.   
 
 ```{r, eval=F}
-# file info
+# dosya bilgisi
 dir_info(here("data", "gis", "population"))
 ```
 
-Here is the data frame returned. Scroll to the right to see all the columns.  
+İşte döndürülen veri çerçevesi. Tüm sütunları görmek için sağa kaydırın.
 
 ```{r, echo=F}
 DT::datatable(dir_info(here("data", "gis", "population")), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-## File information  
+## Dosya bilgisi
 
-To extract metadata information about a specific file, you can use `file_info()` from **fs** (or `file.info()` from **base** R).  
+Belirli bir dosya hakkında meta veri bilgilerini çıkarmak için, **fs**'den `file_info()` (veya R **tabanı**ndan `file.info()`) kullanabilirsiniz.  
 
 ```{r, eval=F}
 file_info(here("data", "case_linelists", "linelist_cleaned.rds"))
@@ -74,7 +74,7 @@ file_info(here("data", "case_linelists", "linelist_cleaned.rds"))
 DT::datatable(file_info(here("data", "case_linelists", "linelist_cleaned.rds")), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Here we use the `$` to index the result and return only the `modification_time` value.  
+Burada sonucu dizine eklemek ve yalnızca "modification_time" değerini döndürmek için `$` kullanıyoruz.
 
 ```{r}
 file_info(here("data", "case_linelists", "linelist_cleaned.rds"))$modification_time
@@ -82,132 +82,127 @@ file_info(here("data", "case_linelists", "linelist_cleaned.rds"))$modification_t
 
 
 
+## Var olup olmadığını kontrol edin
 
-## Check if exists  
+### R nesneleri {.unnumbered}
 
-### R objects {.unnumbered}  
-
-You can use `exists()` from **base** R to check whether an R object exists *within* R (supply the object name in quotes).  
+Bir R nesnesinin * R içinde * olup olmadığını kontrol etmek için  'exists()' kullanabilirsiniz (nesne adını tırnak içinde sağlayın).  
 
 ```{r}
 exists("linelist")
 ```
 
-Note that some **base** R packages use generic object names like "data" behind the scenes, that will appear as TRUE unless `inherit = FALSE` is specified. This is one reason to not name your dataset "data".  
+Bazı R **tabanı** paketlerinin, sahne arkasında "data" gibi genel nesne adları kullandığını ve "inherit= YANLIŞ" belirtilmediği sürece DOĞRU olarak görüneceğini unutmayın. Bu, veri kümenizi "data" olarak adlandırmamanın bir nedenidir.
 
 ```{r}
 exists("data")
 exists("data", inherit = FALSE)
 ```
 
-If you are writing a function, you should use `missing()` from **base** R to check if an argument is present or not, instead of `exists()`.  
+Bir fonksiyon yazıyorsanız, bir değişken olup olmadığını kontrol etmek için 'exists()' yerine 'missing()' kullanmalısınız.
 
+### Dizinler {.unnumbered}
 
-
-### Directories {.unnumbered}  
-
-To check whether a directory exists, provide the file path (and file name) to `is_dir()` from **fs**. Scroll to the right to see that `TRUE` is printed.    
+Bir dizinin var olup olmadığını kontrol etmek için, **fs**'den `is_dir()` dizinine dosya yolunu (ve dosya adını) sağlayın. "TRUE" yazısının yazdırıldığını görmek için sağa kaydırın.
 
 ```{r}
 is_dir(here("data"))
 ```
 
-An alternative is `file.exists()` from **base** R.  
+Alternatif olarak `file.exists()` kullanılabilir.
 
 
-### Files {.unnumbered}  
+### Dosyalar {.unnumbered}
 
-To check if a specific file exists, use `is_file()` from **fs**. Scroll to the right to see that `TRUE` is printed.  
+Belirli bir dosyanın var olup olmadığını kontrol etmek için **fs**'den `is_file()` kullanın. "TRUE" yazısının yazdırıldığını görmek için sağa kaydırın.
 
 ```{r}
 is_file(here("data", "case_linelists", "linelist_cleaned.rds"))
 ```
 
-A **base** R alternative is `file.exists()`.  
+Alternatif olarak `file.exists()` kullanılabilir.
 
 
 
-## Create  
+## Oluşturmak
 
-### Directories {.unnumbered}  
+### Dizinler {.unnumbered}
 
-To create a new directory (folder) you can use `dir_create()` from **fs**. If the directory already exists, it will not be overwritten and no error will be returned. 
+Yeni bir dizin (klasör) oluşturmak için **fs**'den `dir_create()` kullanabilirsiniz. Dizin zaten mevcutsa, üzerine yazılmaz ve hiçbir hata döndürülmez.
 
 ```{r, eval=F}
 dir_create(here("data", "test"))
 ```
 
-An alternative is `dir.create()` from **base** R, which will show an error if the directory already exists. In contrast, `dir_create()` in this scenario will be silent.  
+Bir alternatif, dizin zaten mevcutsa bir hata gösterecek olan `dir.create()`dir. Buna karşılık, bu senaryoda `dir_create()` sessiz olacaktır.
 
-### Files {.unnumbered}  
+### Dosyalar {.unnumbered}
 
-You can create an (empty) file with `file_create()` from **fs**. If the file already exists, it will not be over-written or changed.  
+**fs**'den `file_create()` ile (boş) bir dosya oluşturabilirsiniz. Dosya zaten mevcutsa, üzerine yazılmaz veya değiştirilmez.
 
 ```{r, eval=F}
 file_create(here("data", "test.rds"))
 ```
 
-A **base** R alternative is `file.create()`. But if the file already exists, this option will truncate it. If you use `file_create()` the file will be left unchanged.  
+Alternatifi `file.create()`. Ancak dosya zaten mevcutsa, bu seçenek dosyayı kesecektir. `file_create()` kullanırsanız, dosya değişmeden kalacaktır.
 
 
-### Create if does not exists {.unnumbered}  
+### Yoksa oluştur {.unnumbered}
 
-UNDER CONSTRUCTION  
-
-
-## Delete
-
-### R objects {.unnumbered}  
-
-Use `rm()` from **base** R to remove an R object.  
-
-### Directories {.unnumbered}  
-
-Use `dir_delete()` from **fs**. 
+YAPIM AŞAMASINDA...
 
 
-### Files {.unnumbered}  
+## Silmek
 
-You can delete files with `file_delete()` from **fs**.  
+### R nesneleri {.unnumbered}
+
+Bir R nesnesini kaldırmak için 'rm()' kullanın.
+
+### Dizinler {.unnumbered}
+
+**fs**'den `dir_delete()` kullanın.
+
+
+### Dosyalar {.unnumbered}
+
+Dosyaları **fs** içinden `file_delete()` ile silebilirsiniz.
 
 
 
-## Running other files  
+## Diğer dosyaları çalıştırma
 
-### `source()` {.unnumbered}  
+### `source()` {.unnumbered}
 
-To run one R script from another R script, you can use the `source()` command (from **base** R).
+Bir R betiğini başka bir R betiğinden çalıştırmak için `source()` komutunu kullanabilirsiniz (R **tabanı**ndan).
 
 ```{r, eval=F}
 source(here("scripts", "cleaning_scripts", "clean_testing_data.R"))
 ```
 
-This is equivalent to viewing the above R script and clicking the "Source" button in the upper-right of the script. This will execute the script but will do it silently (no output to the R console) unless specifically intended. See the page on [Interactive console] for examples of using `source()` to interact with a user via the R console in question-and-answer mode.  
+Bu, yukarıdaki R komut dosyasını görüntülemeye ve komut dosyasının sağ üst köşesindeki "Kaynak" düğmesine tıklamaya eşdeğerdir. Bu, betiği çalıştıracak, ancak özellikle istenmedikçe sessizce yapacak (R konsoluna çıktı yok). Soru-cevap modunda R konsolu aracılığıyla bir kullanıcıyla etkileşim kurmak için "source()" kullanma örnekleri için [Etkileşimli konsol] sayfasındaki sayfaya bakabilirsiniz.
 
 ```{r, fig.align = "center", out.height = '300%', echo=F}
 knitr::include_graphics(here::here("images", "source_button.png"))
 ```
 
 
-### `render()` {.unnumbered}  
+### `render()` {.unnumbered}
 
-`render()` is a variation on `source()` most often used for R markdown scripts. You provide the `input = ` which is the R markdown file, and also the `output_format = ` (typically either "html_document", "pdf_document", "word_document", "") 
+"render()", en sık R işaretleme komut dosyaları için kullanılan "source()"un bir varyasyonudur. R işaretleme dosyası olan `input = ` ve ayrıca `output_format =` (tipik olarak "html_document", "pdf_document", "word_document", "") sağlamaktadır.
 
-See the page on [Reports with R Markdown] for more details. Also see the documentation for `render()` [here](https://rmarkdown.rstudio.com/docs/reference/render.html) or by entering `?render`.  
+Daha fazla ayrıntı için [R Markdown ile Raporlar] hakkındaki sayfaya bakabilirsiniz. Ayrıca "render()" belgelerine [buradan](https://rmarkdown.rstudio.com/docs/reference/render.html) veya "?render" girerek bakabilirsiniz.
 
+### Dosyaları dizinde çalıştırın {.unnumbered}
 
-
-### Run files in a directory {.unnumbered}
-
-You can create a *for loop* and use it to `source()` every file in a directory, as identified with `dir()`. 
+Bir *for loop* oluşturabilir ve bunu 'dir()' ile tanımlanan bir dizindeki her dosyayı 'source()' için kullanabilirsiniz.
 
 ```{r, eval=F}
-for(script in dir(here("scripts"), pattern = ".R$")) {   # for each script name in the R Project's "scripts" folder (with .R extension)
-  source(here("scripts", script))                        # source the file with the matching name that exists in the scripts folder
+for(script in dir(here("scripts"), pattern = ".R$")) {   # R Project'in "scripts" klasöründeki her bir komut dosyası adı için (.R uzantılı)
+  source(here("scripts", script))                        # dosyayı, komut dosyaları klasöründe bulunan eşleşen adla kaynaklayın
 }
 ```
 
-If you only want to run certain scripts, you can identify them by name like this:  
+Yalnızca belirli komut dosyalarını çalıştırmak istiyorsanız, bunları şu şekilde adlarıyla tanımlayabilirsiniz:
 
 ```{r, eval=F}
 
@@ -225,27 +220,27 @@ for(script in scripts_to_run) {
 
 
 
-Here is a [comparison](https://cran.r-project.org/web/packages/fs/vignettes/function-comparisons.html) of the **fs** and **base** R functions.  
+**fs** ve R **tabanı** fonksiyonlarının [karşılaştırması](https://cran.r-project.org/web/packages/fs/vignettes/function-comparisons.html)
 
-### Import files in a directory  {.unnumbered}
+### Dosyaları dizine aktarın {.unnumbered} 
 
-See the page on [Import and export] for importing and exporting individual files.  
+Tek tek dosyaları içe ve dışa aktarmak için [İçe ve dışa aktarma] hakkındaki sayfaya bakabilirsiniz.
 
-Also see the [Import and export] page for methods to automatically import the most recent file, based on a date in the file name *or* by looking at the file meta-data.  
+Ayrıca dosya meta verilerine bakarak *veya* dosya adındaki bir tarihe dayalı olarak en son dosyayı otomatik olarak içe aktarma yöntemleri için [İçe ve dışa aktar] sayfasına bakabilirsiniz.
 
-See the page on [Iteration, loops, and lists] for an example with the package **purrr** demonstrating:  
+**purrr** paketinin aşağıdakileri gösterdiği bir örnek için [Yineleme, döngüler ve listeler] hakkındaki sayfaya bakabilirsiniz:
 
-* Splitting a data frame and saving it out as multiple CSV files  
-* Splitting a data frame and saving each part as a separate sheet within one Excel workbook  
-* Importing multiple CSV files and combining them into one dataframe  
-* Importing an Excel workbook with multiple sheets and combining them into one dataframe  
-
-
+* Bir veri çerçevesini bölme ve birden çok CSV dosyası olarak kaydetme
+* Bir veri çerçevesini bölme ve her bir parçayı tek bir Excel çalışma kitabında ayrı bir sayfa olarak kaydetme
+* Birden fazla CSV dosyasını içe aktarma ve bunları tek bir veri çerçevesinde birleştirme
+* Birden çok sayfa içeren bir Excel çalışma kitabını içe aktarma ve bunları tek bir veri çerçevesinde birleştirme
 
 
-## **base** R  
 
-See below the functions `list.files()` and `dir()`, which perform the same operation of listing files within a specified directory. You can specify `ignore.case =` or a specific pattern to look for. 
+
+##  R **tabanı**
+
+Belirtilen bir dizindeki dosyaları listelemekle aynı işlemi gerçekleştiren `list.files()` ve `dir()` fonksiyonlarına aşağıda bakın. "ignore.case =" veya aranacak belirli bir desen belirtebilirsiniz.
 
 ```{r, eval=F}
 list.files(path = here("data"))
@@ -257,11 +252,11 @@ list.files(path = here("data"), pattern = "evd", ignore.case = TRUE)
 
 ```
 
-If a file is currently "open", it will display in your folder with a tilde in front, like "~$hospital_linelists.xlsx".  
+Bir dosya şu anda "açık" ise, klasörünüzde "~$hospital_linelists.xlsx" gibi bir yaklaşık işareti olacak şekilde görüntülenir. 
 
 
 <!-- ======================================================= -->
-## Resources {  }
+## Kaynaklar {  }
 
 https://cran.r-project.org/web/packages/fs/vignettes/function-comparisons.html
 

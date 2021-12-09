@@ -1,267 +1,268 @@
-# GIS basics { }  
+# Coğrafi Bilgi Sistemleri (CBS) Temelleri { }  
 
 ```{r, out.width=c('100%', '100%'), echo=F}
 knitr::include_graphics(here::here("images", "gis_head_image.png"))
 ```
 
 <!-- ======================================================= -->
-## Overview {  }
+## Genel Bakış { }
 
-Spatial aspects of your data can provide a lot of insights into the situation of the outbreak, and to answer questions such as: 
+Verilerinizin uzamsal yönleri, salgının durumuna ilişkin pek çok içgörü sağlayabilir ve aşağıdaki gibi soruları yanıtlayabilir:
 
-* Where are the current disease hotspots?
-* How have the hotspots have changed over time?
-* How is the access to health facilities? Are any improvements needed?
+* Mevcut hastalık noktaları nerede?
+* Kümelenme noktaları zaman içinde nasıl değişti?
+* Sağlık tesislerine ulaşım nasıl? Herhangi bir iyileştirme gerekli mi?
 
-The current focus of this GIS page to address the needs of applied epidemiologists in outbreak response. We will explore basic spatial data visualization methods using **tmap** and **ggplot2** packages. We will also walk through some of the basic spatial data management and querying methods with the **sf** package. Lastly, we will briefly touch upon concepts of *spatial statistics* such as spatial relationships, spatial autocorrelation, and spatial regression using the **spdep** package.  
+Bu CBS sayfasının mevcut odak noktası, salgın yanıtında uygulamalı epidemiyologların ihtiyaçlarını ele almaktır. **tmap** ve **ggplot2** paketlerini kullanarak temel mekansal veri görselleştirme yöntemlerini keşfedeceğiz. Ayrıca **sf** paketi ile bazı temel uzamsal veri yönetimi ve sorgulama yöntemlerini de inceleyeceğiz. Son olarak, **spdep** paketini kullanarak uzamsal ilişkiler, uzamsal otokorelasyon ve uzamsal regresyon gibi *mekansal istatistik* kavramlarına kısaca değineceğiz.
 
 
 
-## Key terms {}  
+## Anahtar terimler {}
 
-Below we introduce some key terminology. For a thorough introduction to GIS and spatial analysis, we suggest that you review one of the longer tutorials or courses listed in the References section.  
+Aşağıda bazı temel terminolojiyi tanıtıyoruz. CBS ve mekansal analize kapsamlı bir giriş için, Referanslar bölümünde listelenen daha uzun öğreticilerden veya kurslardan birini incelemenizi öneririz.
 
-**Geographic Information System (GIS)** - A GIS is a framework or environment for gathering, managing, analyzing, and visualizing spatial data.
+**Coğrafi Bilgi Sistemi (CBS)** - CBS, mekansal verileri toplamak, yönetmek, analiz etmek ve görselleştirmek için bir çerçeve veya ortamdır.
 
-### GIS software {.unnumbered}
+### CBS yazılımı {.unnumbered}
 
-Some popular GIS software allow point-and-click interaction for map development and spatial analysis. These tools comes with advantages such as not needing to learn code and the ease of manually selecting and placing icons and features on a map. Here are two popular ones:  
+Bazı popüler CBS yazılımları, harita geliştirme ve mekansal analiz için işaretle ve tıkla etkileşimine izin verir. Bu araçlar, kod öğrenmeye gerek olmaması ve simgeleri ve özellikleri bir haritaya manuel olarak seçme ve yerleştirme kolaylığı gibi avantajlarla birlikte gelir. İşte iki popüler olan:
 
-**ArcGIS** - A commercial GIS software developed by the company ESRI, which is very popular but quite expensive  
+**ArcGIS** - ESRI şirketi tarafından geliştirilen, çok popüler ancak oldukça pahalı olan ticari bir CBS yazılımı
 
-**QGIS** - A free open-source GIS software that can do almost anything that ArcGIS can do. You can [download QGIS here](https://qgis.org/en/site/forusers/download.html)  
+**QGIS** - ArcGIS'in yapabileceği hemen hemen her şeyi yapabilen ücretsiz bir açık kaynaklı CBS yazılımı. [QGIS'i buradan indirebilirsiniz](https://qgis.org/en/site/forusers/download.html)
 
-Using R as a GIS can seem more intimidating at first because instead of "point-and-click", it has a "command-line interface" (you must code to acquire the desired outcome). However, this is a major advantage if you need to repetitively produce maps or create an analysis that is reproducible.  
+R'ı bir CBS olarak kullanmak, "işaretle ve tıkla" yerine bir "komut satırı arayüzüne" sahip olduğundan (istenen sonucu elde etmek için kodlamanız gerekir) ilk başta daha korkutucu görünebilir. Ancak, tekrar tekrar haritalar üretmeniz veya tekrarlanabilir bir analiz oluşturmanız gerekiyorsa bu büyük bir avantajdır.
 
-### Spatial data {.unnumbered}
+### Mekansal veri {.unnumbered}
 
-The two primary forms of spatial data used in GIS are vector and raster data:
+CBS'de kullanılan iki temel konumsal veri biçimi vektör ve hücresel(raster) veridir:
 
-**Vector Data** - The most common format of spatial data used in GIS, vector data are comprised of geometric features of vertices and paths. Vector spatial data can be further divided into three widely-used types:
+**Vektör Verileri** - CBS'de kullanılan en yaygın konumsal veri biçimi olan vektör verileri, köşelerin ve yolların geometrik özelliklerinden oluşur. Vektör uzamsal verileri ayrıca yaygın olarak kullanılan üç türe ayrılabilir:
 
-  * *Points* - A point consists of a coordinate pair (x,y)  representing a specific location in a coordinate system. Points are the most basic form of spatial data, and may be used to denote a case (i.e. patient home) or a location (i.e. hospital) on a map.
+  * *Noktalar* - Bir nokta, bir koordinat sistemindeki belirli bir konumu temsil eden bir koordinat çiftinden (x,y) oluşur. Noktalar, uzamsal verilerin en temel biçimidir ve bir durumu (yani hasta evi) veya bir konumu (yani hastaneyi) bir harita üzerinde belirtmek için kullanılabilir.
 
-  * *Lines* - A line is composed of two connected points. Lines have a length, and may be used to denote things like roads or rivers.
+  * *Çizgiler* - Çizgi, birbirine bağlı iki noktadan oluşur. Çizgilerin bir uzunluğu vardır ve yollar veya nehirler gibi şeyleri belirtmek için kullanılabilir.
 
-  * *Polygons* - A polygon is composed of at least three line segments connected by points. Polygon features have a length (i.e. the perimeter of the area) as well as an area measurement. Polygons may be used to note an area (i.e. a village) or a structure (i.e. the actual area of a hospital). 
+  * *Çokgenler* - Çokgen, noktalarla birbirine bağlanan en az üç doğru parçasından oluşur. Çokgen özellikleri bir uzunluğa (yani alanın çevresi) ve ayrıca bir alan ölçümüne sahiptir. Çokgenler bir alanı (yani bir köyü) veya bir yapıyı (yani bir hastanenin gerçek alanını) belirtmek için kullanılabilir.
 
-**Raster Data** - An alternative format for spatial data, raster data is a matrix of cells (e.g. pixels) with each cell containing information such as height, temperature, slope, forest cover, etc. These are often aerial photographs, satellite imagery, etc. Rasters can also be used as “base maps” below vector data.
+**Hücresel Veri** - Uzamsal veriler için alternatif bir format olan hücresel veriler, her hücrenin yükseklik, sıcaklık, eğim, orman örtüsü vb. gibi bilgileri içeren bir hücre matrisidir (örneğin pikseller). Bunlar genellikle hava fotoğrafları, uydu görüntüler, vb. Rasterler (yani hücresel haritalar), vektör verilerinin altında “temel haritalar” olarak da kullanılabilir.
 
-### Visualizing spatial data {.unnumbered}
+### Uzamsal verileri görselleştirme {.unnumbered}
 
-To visually represent spatial data on a map, GIS software requires you to provide sufficient information about where different features should be, in relation to one another. If you are using vector data, which will be true for most use cases, this information will typically be stored in a shapefile:
+Bir harita üzerinde uzamsal verileri görsel olarak temsil etmek için, CBS yazılımı, farklı özelliklerin birbiriyle ilişkili olarak nerede olması gerektiği hakkında yeterli bilgi sağlamanızı gerektirir. Çoğu kullanım durumu için geçerli olan vektör verilerini kullanıyorsanız, bu bilgiler genellikle bir şekil dosyasında depolanır:
 
-**Shapefiles** - A shapefile is a common data format for storing "vector" spatial data consisting or lines, points, or polygons. A single shapefile is actually a collection of at least three files - .shp, .shx, and .dbf. All of these sub-component files must be present in a given directory (folder) for the shapefile to be readable. These associated files can be compressed into a ZIP folder to be sent via email or download from a website.  
+**Shapefiles** - Shapefile, çizgilerden, noktalardan veya çokgenlerden oluşan "vektör" uzamsal verileri depolamak için yaygın bir veri biçimidir. Tek bir şekil dosyası aslında en az üç dosyadan oluşan bir koleksiyondur - .shp, .shx ve .dbf. Şekil dosyasının okunabilmesi için tüm bu alt bileşen dosyalarının belirli bir dizinde (klasörde) bulunması gerekir. Bu ilişkili dosyalar, e-posta yoluyla gönderilmek veya bir web sitesinden indirilmek üzere bir ZIP klasörüne sıkıştırılabilir.
 
-The shapefile will contain information about the features themselves, as well as where to locate them on the Earth’s surface. This is important because while the Earth is a globe, maps are typically two-dimensional; choices about how to “flatten” spatial data can have a big impact on the look and interpretation of the resulting map.
+Şekil dosyası, özelliklerin kendileri ve bunların Dünya yüzeyinde nereye yerleştirileceği hakkında bilgi içerecektir. Bu önemlidir, çünkü Dünya bir küre iken, haritalar tipik olarak iki boyutludur; uzamsal verilerin nasıl "düzleştirileceğine" ilişkin seçimler, ortaya çıkan haritanın görünümü ve yorumlanması üzerinde büyük bir etkiye sahip olabilir.
 
-**Coordinate Reference Systems (CRS)** - A CRS is a coordinate-based system used to locate geographical features on the Earth's surface. It has a few key components:  
+**Koordinat Referans Sistemleri (CRS)** - CRS, Dünya yüzeyindeki coğrafi özellikleri konumlandırmak için kullanılan koordinat tabanlı bir sistemdir. Birkaç temel bileşeni vardır:
 
-  * *Coordinate System* - There are many many different coordinate systems, so make sure you know which system your coordinates are from. Degrees of latitude/longitude are common, but you could also see [UTM](https://www.maptools.com/tutorials/utm/quick_guide) coordinates.  
+  * *Koordinat Sistemi* - Birçok farklı koordinat sistemi vardır, bu nedenle koordinatlarınızın hangi sistemden olduğunu bildiğinizden emin olun. Enlem/boylam dereceleri yaygındır, ancak [UTM](https://www.maptools.com/tutorials/utm/quick_guide) koordinatlarını da görebilirsiniz.
   
-  * *Units* - Know what the units are for your coordinate system (e.g. decimal degrees, meters)  
+ * *Birimler* - Koordinat sisteminiz için birimlerin ne olduğunu öğrenin (ör. ondalık dereceler, metreler)
 
-  * *Datum* - A particular modeled version of the Earth. These have been revised over the years, so ensure that your map layers are using the same datum.  
+  * *Datum* - Dünya'nın belirli bir modellenmiş versiyonu. Bunlar yıllar içinde revize edilmiştir, bu nedenle harita katmanlarınızın aynı veriyi kullandığından emin olun. Özellikle herhangi bir konum verisi elde edilirken yatay ve düşey konumunu tanımlamak için başlangıç alınan bir referans yüzeyi gereklidir. Yer'in şeklini ve boyutunu tanımlayan bu yüzeye Datum adı verilmektedir.
 
-  * *Projection* - A reference to the mathematical equation that was used to project the truly round earth onto a flat surface (map).  
+  * *Projeksiyon* - Gerçekten yuvarlak olan dünyayı düz bir yüzeye (harita) yansıtmak için kullanılan matematiksel denklem.
 
-Remember that you can summarise spatial data without using the mapping tools shown below. Sometimes a simple table by geography (e.g. district, country, etc.) is all that is needed!  
-
-## Getting started with GIS  
+Aşağıda gösterilen haritalama araçlarını kullanmadan uzamsal verileri özetleyebileceğinizi unutmayın. Bazen coğrafyaya göre (ör. ilçe, ülke vb.) basit bir tablo yeterlidir!
 
 
-There are a couple of key items you will need to have and to think about to make a map. These include:
 
-  * A **dataset** -- this can be in a spatial data format (such as shapefiles, as noted above) or it may not be in a spatial format (for instance just as a csv).
+## CBS'yi kullanmaya başlama
+
+Bir harita yapmak için sahip olmanız ve düşünmeniz gereken birkaç önemli öğe var. Bunlar şunları içerir:
+
+  * Bir **veri kümesi** -- bu, uzamsal bir veri biçiminde olabilir (yukarıda belirtildiği gibi şekil dosyaları gibi) veya uzamsal bir biçimde olmayabilir (örneğin sadece bir csv olarak).
   
-  * If your dataset is not in a spatial format you will also need a **reference dataset**. Reference data consists of the spatial representation of the data and the related **attributes**, which would include material containing the location and address information of specific features.
+  * Veri kümeniz uzamsal biçimde değilse ayrıca bir **referans veri kümesine** ihtiyacınız olacaktır. Referans verileri, verilerin uzamsal temsilinden ve belirli özelliklerin konum ve adres bilgilerini içeren materyali içeren ilgili **niteliklerden** oluşur.
   
-    + If you are working with pre-defined geographic boundaries (for example, administrative regions), reference shapefiles are often freely available to download from a government agency or data sharing organization. When in doubt, a good place to start is to Google “[regions] shapefile”
+    + Önceden tanımlanmış coğrafi sınırlarla (örneğin, idari bölgeler) çalışıyorsanız, referans şekil dosyaları genellikle bir devlet kurumundan veya veri paylaşım kuruluşundan ücretsiz olarak indirilebilir. Şüpheye düştüğünüzde,  Google "[bölgeler] şekil dosyası" başlamak için iyi bir yerdir.
     
-    + If you have address information, but no latitude and longitude, you may need to use a **geocoding engine** to get the spatial reference data for your records. 
+    + Adres bilginiz varsa ancak enlem ve boylam yoksa, kayıtlarınız için uzamsal referans verilerini almak için bir **coğrafi kodlama motoru** kullanmanız gerekebilir.
     
-  * An idea about **how you want to present** the information in your datasets to your target audience. There are many different types of maps, and it is important to think about which type of map best fits your needs.
+  * Veri kümelerinizdeki bilgileri hedef kitlenize **nasıl sunmak istediğiniz** hakkında fikriniz olmalı. Birçok farklı harita türü vardır ve ihtiyaçlarınıza en uygun harita türünü düşünmek önemlidir.
 
-### Types of maps for visualizing your data {.unnumbered}
+### Verilerinizi görselleştirmek için harita türleri {.unnumbered}
 
-**Choropleth map** - a type of thematic map where colors, shading, or patterns are used to represent geographic regions in relation to their value of an attribute. For instance a larger value could be indicated by a darker colour than a smaller value. This type of map is particularly useful when visualizing a variable and how it changes across defined regions or geopolitical areas.
+**Choropleth haritası** - coğrafi bölgeleri bir öznitelik değerine göre temsil etmek için renklerin, gölgelerin veya desenlerin kullanıldığı bir tür tematik haritadır. Örneğin, daha büyük bir değer, daha küçük bir değerden daha koyu bir renkle gösterilebilir. Bu harita türü, bir değişkeni ve onun tanımlanmış bölgeler veya jeopolitik alanlar arasında nasıl değiştiğini görselleştirirken özellikle kullanışlıdır.
 
 ```{r, out.width = '50%', fig.align = "center", fig.show='hold', echo=F}
 knitr::include_graphics(here::here("images", "gis_choropleth.png"))
 ```
 
-**Case density heatmap** - a type of thematic map where colours are used to represent intensity of a value, however, it does not use defined regions or geopolitical boundaries to group data. This type of map is typically used for showing ‘hot spots’ or areas with a high density or concentration of points. 
+**Vaka yoğunluğu ısı haritası** - renklerin bir değerin yoğunluğunu temsil etmek için kullanıldığı, ancak verileri gruplamak için tanımlanmış bölgeleri veya jeopolitik sınırları kullanmadığı bir tür tematik haritadır. Bu harita türü tipik olarak "sıcak noktaları" veya yüksek yoğunluklu veya nokta yoğunluğuna sahip alanları göstermek için kullanılır.
 
 ```{r, fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "gis_heatmap.png"))
 ```
 
-**Dot density map** - a thematic map type that uses dots to represent attribute values in your data. This type of map is best used to visualize the scatter of your data and visually scan for clusters.
+**Nokta yoğunluğu haritası** - verilerinizdeki öznitelik değerlerini temsil etmek için noktaları kullanan tematik bir harita türüdür. Bu tür harita en iyi, verilerinizin dağılımını görselleştirmek ve kümeleri görsel olarak taramak için kullanılır.
 
 ```{r, fig.align = "center", echo=F}
-# dot density img here
+# nokta yoğunluğu fotoğrafı buraya
 ```
 
-**Proportional symbols map (graduated symbols map)** - a thematic map similar to a choropleth map, but instead of using colour to indicate the value of an attribute it uses a symbol (usually a circle) in relation to the value. For instance a larger value could be indicated by a larger symbol than a smaller value. This type of map is best used when you want to visualize the size or quantity of your data across geographic regions. 
+**Oransal semboller haritası (dereceli semboller haritası)** - bir choropleth haritasına benzer bir tematik harita, ancak bir özelliğin değerini belirtmek için renk kullanmak yerine, değere göre bir sembol (genellikle bir daire) kullanır. Örneğin, daha büyük bir değer, daha küçük bir değerden daha büyük bir sembolle gösterilebilir. Bu harita türü en iyi, coğrafi bölgelerdeki verilerinizin boyutunu veya miktarını görselleştirmek istediğinizde kullanılır.
 
 ```{r, fig.align = "center", echo=F}
-# proportional symbols img here
+# orantısal semboller fotoğrafı buraya
 ```
 
-You can also combine several different types of visualizations to show complex geographic patterns. For example, the cases (dots) in the map below are colored according to their closest health facility (see legend). The large red circles show *health facility catchment areas* of a certain radius, and the bright red case-dots those that were outside any catchment range:
+Karmaşık coğrafi kalıpları göstermek için birkaç farklı görselleştirme türünü de birleştirebilirsiniz. Örneğin aşağıdaki haritadaki vakalar (noktalar) en yakın sağlık kuruluşuna göre renklendirilmiştir (bkz. lejand). Büyük kırmızı daireler, belirli bir yarıçaptaki *sağlık tesisi hizmet alanlarını* ve herhangi bir hizmet alanı dışında kalan parlak kırmızı vaka noktalarını gösterir:
 
 ```{r, fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "gis_hf_catchment.png"))
 ```
 
-Note: The primary focus of this GIS page is based on the context of field outbreak response. Therefore the contents of the page will cover the basic spatial data manipulations, visualizations, and analyses.
+Not: Bu CBS sayfasının birincil odak noktası, saha salgın yanıtı bağlamına dayanmaktadır. Bu nedenle sayfanın içeriği, temel uzamsal veri manipülasyonlarını, görselleştirmeleri ve analizleri kapsayacaktır.
 
 
 <!-- ======================================================= -->
-## Preparation {  }
+## Hazırlık {  }
 
-### Load packages {.unnumbered}  
+### Paketleri yükleyin {.unnumbered}
 
-This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Bu kod parçası, analizler için gereken paketlerin yüklenmesini gösterir. Bu el kitabında, gerekirse paketi kuran *ve* kullanım için yükleyen **pacman**'dan `p_load()` vurgusunu yapıyoruz. R tabanından `library()` ile kurulu paketleri de yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R basics] sayfasına bakabilirsiniz.
 
 ```{r}
 pacman::p_load(
-  rio,           # to import data
-  here,          # to locate files
-  tidyverse,     # to clean, handle, and plot the data (includes ggplot2 package)
-  sf,            # to manage spatial data using a Simple Feature format
-  tmap,          # to produce simple maps, works for both interactive and static maps
-  janitor,       # to clean column names
-  OpenStreetMap, # to add OSM basemap in ggplot map
-  spdep          # spatial statistics
+  rio,           # verileri içe aktarmak için
+  here,          # dosyaları bulmak için
+  tidyverse,     # verileri temizlemek, işlemek ve çizmek için (ggplot2 paketini içerir)
+  sf,            # Basit Özellik formatı kullanarak uzamsal verileri yönetmek için
+  tmap,          # basit haritalar üretmek için hem etkileşimli hem de statik haritalar için çalışır
+  janitor,       # sütun adlarını temizlemek için
+  OpenStreetMap, # ggplot haritasına OSM altlık haritası eklemek için
+  spdep          # mekansal istatistik
   ) 
                   
 ```
 
-You can see an overview of all the R packages that deal with spatial data at the [CRAN "Spatial Task View"](https://cran.r-project.org/web/views/Spatial.html).  
+[CRAN "Uzamsal Görev Görünümü"nde](https://cran.r-project.org/web/views/Spatial.html) uzamsal verilerle ilgilenen tüm R paketlerinin bir özetini görebilirsiniz.
 
 
-### Sample case data {.unnumbered}
+### Örnek vaka verileri {.unnumbered}
 
-For demonstration purposes, we will work with a random sample of 1000 cases from the simulated Ebola epidemic `linelist` dataframe (computationally, working with fewer cases is easier to display in this handbook). If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file).  
+Gösteri amacıyla, simüle edilmiş Ebola salgını "satır listesi" veri çerçevesinden rastgele 1000 vakalık bir örneklemle çalışacağız (hesaplamalı olarak, daha az vakayla çalışmak bu el kitabında daha kolaydır). Takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" dosyasını indirmek için tıklayın.</a> (.rds dosyası olarak).
 
-Since we are taking a random sample of the cases, your results may look slightly different from what is demonstrated here when you run the codes on your own.
+Vakaların rastgele bir örneğini aldığımız için, kodları kendi başınıza çalıştırdığınızda sonuçlarınız burada gösterilenden biraz farklı görünebilir.
 
-Import data with the `import()` function from the **rio** package (it handles many file types like .xlsx, .csv, .rds - see the [Import and export] page for details).  
+**rio** paketinden `import()` fonksiyonuyla verileri içe aktarın (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe aktarma ve dışa aktarma] sayfasına bakın).
 
 ```{r, echo=F}
-# import clean case linelist
+# temizlenmiş vaka satır listesini içe aktarmak
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))  
 ```
 
 ```{r, eval=F}
-# import clean case linelist
+# temizlenmiş vaka satır listesini içe aktarmak
 linelist <- import("linelist_cleaned.rds")  
 ```
 
-Next we select a random sample of 1000 rows using `sample()` from **base** R.   
+Daha sonra R **tabanı**ndan `sample()` kullanarak 1000 satırlık rastgele bir örnek seçiyoruz.
 
 ```{r}
-# generate 1000 random row numbers, from the number of rows in linelist
+# satır listesindeki satır sayısından 1000 rastgele satır numarası üretmek
 sample_rows <- sample(nrow(linelist), 1000)
 
-# subset linelist to keep only the sample rows, and all columns
+# yalnızca örnek satırları ve tüm sütunları tutmak için alt küme satır listesi üretmek
 linelist <- linelist[sample_rows,]
 ```
 
-Now we want to convert this `linelist` which is class dataframe, to an object of class "sf" (spatial features). Given that the linelist has two columns "lon" and "lat" representing the longitude and latitude of each case's residence, this will be easy.  
+Şimdi sınıf veri çerçevesi olan bu 'linelist'i "sf" (uzaysal özellikler) sınıfının bir nesnesine dönüştürmek istiyoruz. Satır listesinin, her vakanın ikametgahının enlem ve boylamını temsil eden iki sütun "boy" ve "en" olduğu göz önüne alındığında, bu kolay olacaktır.
 
-We use the package **sf** (spatial features) and its function `st_as_sf()` to create the new object we call `linelist_sf`. This new object looks essentially the same as the linelist, but the columns `lon` and `lat` have been designated as coordinate columns, and a coordinate reference system (CRS) has been assigned for when the points are displayed. 4326 identifies our coordinates as based on the [World Geodetic System 1984 (WGS84)](https://gisgeography.com/wgs84-world-geodetic-system/) - which is standard for GPS coordinates.  
+**sf** (uzaysal özellikler) paketini ve onun 'st_as_sf()' fonksiyonunu 'linelist_sf' dediğimiz yeni nesneyi yaratmak için kullanırız. Bu yeni nesne, esasen satır listesiyle aynı görünüyor, ancak "boy" ve "enlem" sütunları koordinat sütunları olarak belirlenmiş ve noktalar görüntülendiğinde bir koordinat referans sistemi (CRS) atanmıştır. 4326, koordinatlarımızı, GPS koordinatları için standart olan [World Geodetic System 1984 (WGS84)](https://gisgeography.com/wgs84-world-geodetic-system/) temelinde tanımlar.
 
 ```{r}
-# Create sf object
+# sf nesnesi oluşturmk
 linelist_sf <- linelist %>%
      sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
 ```
 
-This is how the original `linelist` dataframe looks like. In this demonstration, we will only use the column `date_onset` and `geometry` (which was constructed from the longitude and latitude fields above and is the last column in the data frame).  
+Orijinal "satır listesi" veri çerçevesi bu şekilde görünür. Bu gösterimde, yalnızca "date_onset" ve "geometry" (yukarıdaki boylam ve enlem alanlarından oluşturulan ve veri çerçevesindeki son sütun olan) sütununu kullanacağız.
 
 ```{r}
 DT::datatable(head(linelist_sf, 10), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-### Admin boundary shapefiles {.unnumbered}  
+### Yönetici sınır şekil dosyaları {.unnumbered}
 
-**Sierra Leone: Admin boundary shapefiles**  
+**Sierra Leone: Yönetici sınır şekil dosyaları**
 
-In advance, we have downloaded all administrative boundaries for Sierra Leone from the Humanitarian Data Exchange (HDX) [website here](https://data.humdata.org/dataset/sierra-leone-all-ad-min-level-boundaries). Alternatively, you can download these and all other example data for this handbook via our R package, as explained in the [Download handbook and data] page.  
+Sierra Leone için tüm idari sınırları önceden İnsani Veri Değişimi'nden (HDX) [web sitesi burada](https://data.humdata.org/dataset/sierra-leone-all-ad-min-level-boundaries) indirdik. ). Alternatif olarak, bu el kitabı için bunları ve diğer tüm örnek verileri [El kitabını ve verileri indir] sayfasında açıklandığı gibi R paketimiz aracılığıyla indirebilirsiniz.
 
-Now we are going to do the following to save the Admin Level 3 shapefile in R:  
+Şimdi Admin Level 3 şekil dosyasını R'a kaydetmek için aşağıdakileri yapacağız:
 
-1) Import the shapefile  
-2) Clean the column names  
-3) Filter rows to keep only areas of interest  
+1) Şekil dosyasını içe aktarın
+2) Sütun adlarını temizleyin
+3) Yalnızca ilgi alanlarını korumak için satırları filtreleyin
 
-To import a shapefile we use the `read_sf()` function from **sf**. It is provided the filepath via `here()`. - in our case the file is within our R project in the "data", "gis", and "shp" subfolders, with filename "sle_adm3.shp" (see pages on [Import and export] and [R projects] for more information). You will need to provide your own file path.  
+Bir şekil dosyasını içe aktarmak için **sf**'den `read_sf()` fonksiyonunu kullanırız. Dosya yolu `here()` ile sağlanır. - bizim durumumuzda dosya, "data", "gis" ve "shp" alt klasörlerinde "sle_adm3.shp" dosya adıyla R projemizin içindedir (daha fazla bilgi için [İçe aktarma ve dışa aktarma] ve [R projeleri] sayfalarına bakabilirsiniz). Kendi dosya yolunuzu sağlamanız gerekecek.
 
 ```{r, echo=F}
 sle_adm3_raw <- sf::read_sf(here("data", "gis", "shp", "sle_adm3.shp"))
 ```
 
 
-Next we use `clean_names()` from the **janitor** package to standardize the column names of the shapefile. We also use `filter()` to keep only the rows with admin2name of "Western Area Urban" or "Western Area Rural".    
+Daha sonra, şekil dosyasının sütun adlarını standartlaştırmak için **janitor** paketinden `clean_names()` kullanıyoruz. Ayrıca sadece "Western Area Urban" veya "Western Area Rural" admin2name ile satırları tutmak için `filter()` kullanırız.
 
 ```{r}
-# ADM3 level clean
+# ADM3 seviyesi temizlik 
 sle_adm3 <- sle_adm3_raw %>%
-  clean_names() %>% # standardize column names
-  filter(admin2name %in% c("Western Area Urban", "Western Area Rural")) # filter to keep certain areas
+  clean_names() %>% # sütun isimlerini standardize etmek
+  filter(admin2name %in% c("Western Area Urban", "Western Area Rural")) # belirli alanları tutmak için filtrelemek
 ```
 
-Below you can see the how the shapefile looks after import and cleaning. *Scroll to the right* to see how there are columns with admin level 0 (country), admin level 1, admin level 2, and finally admin level 3. Each level has a character name and a unique identifier "pcode". The pcode expands with each increasing admin level e.g. SL (Sierra Leone) -> SL04 (Western) -> SL0410 (Western Area Rural) -> SL040101 (Koya Rural).  
+Aşağıda, içe aktarma ve temizleme işleminden sonra şekil dosyasının nasıl göründüğünü görebilirsiniz. *sağa doğru kaydırın* yönetici düzeyi 0 (ülke), yönetici düzeyi 1, yönetici düzeyi 2 ve son olarak yönetici düzeyi 3 olan sütunların nasıl olduğunu görmek için her düzeyin bir karakter adı ve benzersiz bir "pcode" tanımlayıcısı vardır. Pcode, artan her yönetici düzeyiyle birlikte genişler; SL (Sierra Leone) -> SL04 (Batı) -> SL0410 (Batı Bölgesi Kırsal) -> SL040101 (Koya Kırsal).
 
 ```{r message=FALSE, echo=F}
-# display the shapefile as a table
+#şekil dosyasını tablo olarak göstermek
 DT::datatable(head(sle_adm3, 50), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
 
 
-### Population data {.unnumbered}  
+### Nüfus verileri {.unnumbered}
 
-**Sierra Leone: Population by ADM3**  
+**Sierra Leone: ADM3'e göre nüfus**
 
-These data can again be downloaded from HDX (link [here](https://data.humdata.org/dataset/sierra-leone-population)) or via our **epirhandbook** R package as explained [in this page][Download handbook and data]. We use `import()` to load the .csv file. We also pass the imported file to `clean_names()` to standardize the column name syntax.   
+Bu veriler tekrar HDX'ten (bağlantı [buradan](https://data.humdata.org/dataset/sierra-leone-population)) veya [bu sayfada] açıklandığı gibi **epirhandbook** R paketimizden indirilebilir. [El kitabını ve verileri indirin]. .csv dosyasını yüklemek için `import()` kullanıyoruz. Ayrıca, sütun adı sözdizimini standartlaştırmak için içe aktarılan dosyayı `clean_names()` öğesine iletiyoruz.
 
 ```{r}
-# Population by ADM3
+# ADM3'e göre nüfus
 sle_adm3_pop <- import(here("data", "gis", "population", "sle_admpop_adm3_2020.csv")) %>%
   clean_names()
 ```
 
-Here is what the population file looks like. Scroll to the right to see how each jurisdiction has columns with `male` population, `female` populaton, `total` population, and the population break-down in columns by age group.  
+Popülasyon dosyası böyle görünüyor. Her yetki alanında "erkek" nüfus, "kadın" nüfus, "toplam" nüfus ve yaş grubuna göre nüfus dökümü sütunlarının nasıl olduğunu görmek için sağa kaydırın.
 
 ```{r message=FALSE, echo=F}
-# display the population as a table
+# nüfusu tablo olarak göstermek
 DT::datatable(head(sle_adm3_pop, 50), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
 
-### Health Facilities {.unnumbered}
+### Sağlık Tesisleri {.unnumbered}
 
-**Sierra Leone: Health facility data from OpenStreetMap**  
+**Sierra Leone: OpenStreetMap'ten alınan sağlık tesisi verileri**
 
-Again we have downloaded the locations of health facilities from HDX [here](https://data.humdata.org/dataset/hotosm_sierra_leone_health_facilities) or via instructions in the [Download handbook and data] page.   
+Yine sağlık tesislerinin konumlarını HDX [buradan](https://data.humdata.org/dataset/hotosm_sierra_leone_health_facilities) veya [el kitabını ve verileri indir] sayfasındaki talimatlar aracılığıyla indirdik.
 
-We import the facility points shapefile with `read_sf()`, again clean the column names, and then filter to keep only the points tagged as either "hospital", "clinic", or "doctors".  
+Tesis noktaları şekil dosyasını `read_sf()` ile içe aktarıyoruz, sütun adlarını tekrar temizliyoruz ve ardından yalnızca "hastane", "klinik" veya "doktorlar" olarak etiketlenmiş noktaları tutmak için filtreliyoruz.
 
 
 ```{r}
-# OSM health facility shapefile
+# OSM sağlık tesisi şekil dosyası
 sle_hf <- sf::read_sf(here("data", "gis", "shp", "sle_hf.shp")) %>% 
   clean_names() %>%
   filter(amenity %in% c("hospital", "clinic", "doctors"))
 ```
 
-Here is the resulting dataframe - *scroll right* to see the facility name and `geometry` coordinates.  
+İşte ortaya çıkan veri çerçevesi - tesis adını ve "geometri" koordinatlarını görmek için *sağa kaydırın*.
 
 ```{r message=FALSE, echo=F}
-# display the population as a table
+# nüfusu tablo olarak göstermek
 DT::datatable(head(sle_hf, 50), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
@@ -270,43 +271,44 @@ DT::datatable(head(sle_hf, 50), rownames = FALSE, options = list(pageLength = 5,
 
 
 <!-- ======================================================= -->
-## Plotting coordinates {  }
+## Koordinatları grafikleştirme{ }
 
-The easiest way to plot X-Y coordinates (longitude/latitude, points), in this case of cases, is to draw them as points directly from the `linelist_sf` object which we created in the preparation section.
+Bu durumda X-Y koordinatlarını (boylam/enlem, noktalar) çizmenin en kolay yolu, bunları doğrudan hazırlık bölümünde oluşturduğumuz `linelist_sf` nesnesinden nokta olarak çizmektir.
 
-The package **tmap** offers simple mapping capabilities for both static ("plot" mode) and interactive ("view" mode) with just a few lines of code. The **tmap** syntax is similar to that of **ggplot2**, such that commands are added to each other with `+`. Read more detail in this [vignette](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html). 
+**tmap** paketi, hem statik ("çizim" modu) hem de etkileşimli ("görünüm" modu) için yalnızca birkaç satır kodla basit eşleme yetenekleri sunar. **tmap** sözdizimi **ggplot2**'ninkine benzerdir, öyle ki komutlar `+' ile birbirine eklenir. Bu [gösterimde](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html) daha fazla ayrıntı okuyabilirsiniz.
 
 
-1) Set the **tmap** mode. In this case we will use "plot" mode, which produces static outputs.  
+1) **tmap** modunu ayarlayın. Bu durumda statik çıktılar üreten "plot" modunu kullanacağız.
 
 ```{r, warning = F, message=F}
-tmap_mode("plot") # choose either "view" or "plot"
+tmap_mode("plot") # "görünüm" veya "grafik"i seçin
 ```
 
-Below, the points are plotted alone.`tm_shape()` is provided with the `linelist_sf` objects. We then add points via `tm_dots()`, specifying the size and color. Because `linelist_sf` is an sf object, we have already designated the two columns that contain the lat/long coordinates and the coordinate reference system (CRS): 
+Aşağıda, noktalar tek başına çizilir.`tm_shape()``,`linelist_sf` nesneleri ile sağlanır. Daha sonra boyut ve rengi belirterek `tm_dots()` aracılığıyla noktalar ekliyoruz. "linelist_sf" bir sf nesnesi olduğundan, enlem/boylam koordinatlarını ve koordinat referans sistemini (CRS) içeren iki sütunu zaten belirledik: 
 
 
 ```{r, warning = F, message=F}
-# Just the cases (points)
+# noktalar sadece vakalar
 tm_shape(linelist_sf) + tm_dots(size=0.08, col='blue')
 ```
 
-Alone, the points do not tell us much. So we should also map the administrative boundaries:  
+Yalnız, puanlar bize fazla bir şey söylemez. Dolayısıyla idari sınırları da haritalandırmalıyız:
 
-Again we use `tm_shape()` (see [documentation](https://www.rdocumentation.org/packages/tmap/versions/3.3/topics/tm_shape)) but instead of providing the case points shapefile, we provide the administrative boundary shapefile (polygons).  
+Yine `tm_shape()` kullanıyoruz
+(bkz. [dokümantasyon] https://www.rdocumentation.org/packages/tmap/versions/3.3/topics/tm_shape)) ancak vaka noktaları şekil dosyası sağlamak yerine, idari sınır şekil dosyası (çokgenler) sağlıyoruz.
 
-With the `bbox = ` argument (bbox stands for "bounding box") we can specify the coordinate boundaries. First we show the map display without `bbox`, and then with it.  
+`bbox = ` değişkeniyle (bbox "sınırlayıcı kutu" anlamına gelir) koordinat sınırlarını belirleyebiliriz. Önce harita gösterimini `bbox` olmadan ve sonra onunla birlikte gösteriyoruz.  
 
 ```{r, out.width = c('50%', '50%'), fig.show='hold', warning=F, message=F}
-# Just the administrative boundaries (polygons)
-tm_shape(sle_adm3) +               # admin boundaries shapefile
-  tm_polygons(col = "#F7F7F7")+    # show polygons in light grey
-  tm_borders(col = "#000000",      # show borders with color and line weight
+# Çokgenler sadece idari sınırlar
+tm_shape(sle_adm3) +               # yönetici sınırları şekil dosyası
+  tm_polygons(col = "#F7F7F7")+    # çokgenleri açık gri olarak göster
+  tm_borders(col = "#000000",      # renk ve çizgi ağırlığı ile sınırları göster
              lwd = 2) +
-  tm_text("admin3name")            # column text to display for each polygon
+  tm_text("admin3name")            # her çokgen için görüntülenecek sütun metni
 
 
-# Same as above, but with zoom from bounding box
+# Yukarıdakiyle aynı, ancak sınırlayıcı kutudan yakınlaştırma ile
 tm_shape(sle_adm3,
          bbox = c(-13.3, 8.43,    # corner
                   -13.2, 8.5)) +  # corner
@@ -317,98 +319,98 @@ tm_shape(sle_adm3,
 ```
 
 
-And now both points and polygons together:  
+Ve şimdi hem noktalar hem de çokgenler birlikte:
 
 ```{r, warning=F, message=FALSE}
-# All together
-tm_shape(sle_adm3, bbox = c(-13.3, 8.43, -13.2, 8.5)) +     #
+# Hepsi birlikte
+tm_shape(sle_adm3, bbox = c(-13.3, 8.43, -13.2, 8.5)) +     
   tm_polygons(col = "#F7F7F7") +
   tm_borders(col = "#000000", lwd = 2) +
   tm_text("admin3name")+
 tm_shape(linelist_sf) +
   tm_dots(size=0.08, col='blue', alpha = 0.5) +
-  tm_layout(title = "Distribution of Ebola cases")   # give title to map
+  tm_layout(title = "Distribution of Ebola cases")   # haritaya isim vermek
 
 ```
 
 
-To read a good comparison of mapping options in R, see this [blog post](https://rstudio-pubs-static.s3.amazonaws.com/324400_69a673183ba449e9af4011b1eeb456b9.html).  
+R'daki eşleme seçeneklerinin iyi bir karşılaştırmasını okumak için bu [blog gönderisine](https://rstudio-pubs-static.s3.amazonaws.com/324400_69a673183ba449e9af4011b1eeb456b9.html) bakabilirsiniz.
 
 
 
 
-<!-- ======================================================= -->
-## Spatial joins {}
+<!-- ============================================ ========= -->
+## Mekansal birleşimler {}
 
-You may be familiar with *joining* data from one dataset to another one. Several methods are discussed in the [Joining data] page of this handbook. A spatial join serves a similar purpose but leverages spatial relationships. Instead of relying on common values in columns to correctly match observations, you can utilize their spatial relationships, such as one feature being *within* another, or *the nearest neighbor* to another, or within a *buffer* of a certain radius from another, etc.  
-
-
-The **sf** package offers various methods for spatial joins. See more documentation about the st_join method and spatial join types in this [reference](https://r-spatial.github.io/sf/reference/geos_binary_pred.html).  
+Verileri bir veri kümesinden diğerine *birleştirmeye* aşina olabilirsiniz. Bu el kitabının [Birleştirme verileri] sayfasında çeşitli yöntemler tartışılmaktadır. Bir uzamsal birleşim benzer bir amaca hizmet eder, ancak uzamsal ilişkilerden yararlanır. Gözlemleri doğru bir şekilde eşleştirmek için sütunlardaki ortak değerlere güvenmek yerine, bir özelliğin bir diğerinin *içinde* olması veya bir diğerine *en yakın komşu* olması veya belirli bir yarıçapın *tampon* içinde olması gibi uzamsal ilişkilerini kullanabilirsiniz. 
 
 
-### Points in polygon {.unnumbered}
-**Spatial assign administrative units to cases**
+**sf** paketi, uzamsal birleşimler için çeşitli yöntemler sunar. Bu [başvuruda](https://r-spatial.github.io/sf/reference/geos_binary_pred.html) st_join yöntemi ve uzamsal birleştirme türleri hakkında daha fazla belgeye bakabilirsiniz.
 
-Here is an interesting conundrum: the case linelist does not contain any information about the administrative units of the cases. Although it is ideal to collect such information during the initial data collection phase, we can also assign administrative units to individual cases based on their spatial relationships (i.e. point intersects with a polygon).  
 
-Below, we will spatially intersect our case locations (points) with the ADM3 boundaries (polygons):  
+### Çokgendeki noktalar {.unnumbered}
+**Mekansal olarak vakalara idari birimler atama**
 
-1) Begin with the linelist (points)  
-2) Spatial join to the boundaries, setting the type of join at "st_intersects"  
-3) Use `select()` to keep only certain of the new administrative boundary columns  
+İşte ilginç bir muamma: vakaların satır listesi, vakaların idari birimleri hakkında herhangi bir bilgi içermiyor. İlk veri toplama aşamasında bu tür bilgileri toplamak ideal olsa da, uzamsal ilişkilerine dayalı olarak bireysel vakalara idari birimler de atayabiliriz (yani nokta bir çokgenle kesişir).
+
+Aşağıda, durum konumlarımızı (noktaları) ADM3 sınırları (poligonlar) ile uzamsal olarak keseceğiz:
+
+1) Satır listesi(puan) ile başlayın
+2) Sınırlara uzamsal birleştirme, birleştirme türünü "st_intersects" olarak ayarlayın
+3) Yeni yönetim sınırı sütunlarından yalnızca belirli bir kısmını tutmak için `select()` kullanın
 
 ```{r, warning=F, message=F}
 linelist_adm <- linelist_sf %>%
   
-  # join the administrative boundary file to the linelist, based on spatial intersection
+  # idari sınır dosyasını uzamsal kesişime dayalı olarak satır listesine ekleyin
   sf::st_join(sle_adm3, join = st_intersects)
 ```
 
-All the columns from `sle_adms` have been added to the linelist! Each case now has columns detailing the administrative levels that it falls within. In this example, we only want to keep two of the new columns (admin level 3), so we `select()` the old column names and just the two additional of interest:  
+'sle_adms'deki tüm sütunlar satır listesine eklendi! Artık her vaka, içinde bulunduğu idari seviyeleri detaylandıran sütunlara sahiptir. Bu örnekte, yeni sütunlardan yalnızca ikisini (yönetici düzeyi 3) tutmak istiyoruz, bu nedenle eski sütun adlarını ve yalnızca iki ek ilgiyi "select()" yapıyoruz: 
 
 ```{r, warning=F, message=F}
 linelist_adm <- linelist_sf %>%
   
-  # join the administrative boundary file to the linelist, based on spatial intersection
+  # idari sınır dosyasını uzamsal kesişime dayalı olarak satır listesine ekleyin
   sf::st_join(sle_adm3, join = st_intersects) %>% 
   
-  # Keep the old column names and two new admin ones of interest
+  # Eski sütun adlarını ve ilgilendiğiniz iki yeni yönetici adlarını saklayın
   select(names(linelist_sf), admin3name, admin3pcod)
 ```
 
-Below, just for display purposes you can see the first ten cases and that their admin level 3 (ADM3) jurisdictions that have been attached, based on where the point spatially intersected with the polygon shapes.    
+Aşağıda, yalnızca görüntüleme amacıyla, noktanın çokgen şekilleriyle uzamsal olarak kesiştiği yere bağlı olarak ilk on vakayı ve bunların admin seviyesi 3 (ADM3) yargı yetkilerini görebilirsiniz. 
 
 ```{r, warning=F, message=F}
-# Now you will see the ADM3 names attached to each case
+# Şimdi her bir vakaya eklenmiş ADM3 adlarını göreceksiniz.
 linelist_adm %>% select(case_id, admin3name, admin3pcod)
 ```
 
-Now we can describe our cases by administrative unit - something we were not able to do before the spatial join!  
+Şimdi durumlarımızı idari birime göre tanımlayabiliriz - uzaysal birleşmeden önce yapamadığımız bir şey!
 
 ```{r, warning=F, message=F}
-# Make new dataframe containing counts of cases by administrative unit
-case_adm3 <- linelist_adm %>%          # begin with linelist with new admin cols
-  as_tibble() %>%                      # convert to tibble for better display
-  group_by(admin3pcod, admin3name) %>% # group by admin unit, both by name and pcode 
-  summarise(cases = n()) %>%           # summarize and count rows
-  arrange(desc(cases))                     # arrange in descending order
+# İdari birime göre vaka sayılarını içeren yeni veri çerçevesi yapın
+case_adm3 <- linelist_adm %>%          # yeni yönetici sütunlarına sahip satır listesiyle başlayın
+  as_tibble() %>%                      # daha iyi görüntü için tibble'a dönüştürün
+  group_by(admin3pcod, admin3name) %>% # admin birimine göre gruplandır, hem ada hem de pkoda göre
+  summarise(cases = n()) %>%           # satırları özetle ve say
+  arrange(desc(cases))                     # azalan sırada düzenle
 
 case_adm3
 ```
 
-We can also create a bar plot of case counts by administrative unit.  
+Ayrıca idari birime göre vaka sayımlarının bir çubuk grafiğini de oluşturabiliriz.
 
-In this example, we begin the `ggplot()` with the `linelist_adm`, so that we can apply factor functions like `fct_infreq()` which orders the bars by frequency (see page on [Factors] for tips).  
+Bu örnekte, ggplot()'a 'linelist_adm' ile başlıyoruz, böylece çubukları frekansa göre sıralayan 'fct_infreq()' gibi faktör fonksiyonlarını uygulayabiliriz (ipuçları için [Faktörler] sayfasına bakınız).
 
 ```{r, warning=F, message=F}
 ggplot(
-    data = linelist_adm,                       # begin with linelist containing admin unit info
+    data = linelist_adm,                       # yönetici birimi bilgilerini içeren satır listesiyle başlayın
     mapping = aes(
-      x = fct_rev(fct_infreq(admin3name))))+ # x-axis is admin units, ordered by frequency (reversed)
-  geom_bar()+                                # create bars, height is number of rows
-  coord_flip()+                              # flip X and Y axes for easier reading of adm units
-  theme_classic()+                           # simplify background
-  labs(                                      # titles and labels
+      x = fct_rev(fct_infreq(admin3name))))+ # x ekseni, frekansa göre sıralanmış (tersine çevrilmiş) yönetici birimleridir
+   geom_bar()+                      # çubuk oluştur, yükseklik satır sayısıdır
+   coord_flip()+ # adm birimlerinin daha kolay okunması için X ve Y eksenlerini çevirin
+   theme_classic()+ # arka planı basitleştirir
+   labs( # başlık ve etiket
     x = "Admin level 3",
     y = "Number of cases",
     title = "Number of cases, by adminstative unit",
@@ -418,143 +420,143 @@ ggplot(
 
 
 <!-- ======================================================= -->
-### Nearest neighbor {.unnumbered}
+### En yakın komşu {.unnumbered}
 
-**Finding the nearest health facility / catchment area**  
+**En yakın sağlık kuruluşunu / toplanma alanını bulma**
 
-It might be useful to know where the health facilities are located in relation to the disease hot spots.
+Hastalık sıcak noktaları ile ilgili olarak sağlık tesislerinin nerede olduğunu bilmek faydalı olabilir.
 
-We can use the *st_nearest_feature* join method from the `st_join()` function (**sf** package) to visualize the closest health facility to individual cases.  
+Bireysel vakalara en yakın sağlık tesisini görselleştirmek için `st_join()` fonksiyonundan (**sf** paketi) *st_nearest_feature* birleştirme yöntemini kullanabiliriz.
 
-1) We begin with the shapefile linelist `linelist_sf`  
-2) We spatially join with `sle_hf`, which is the locations of health facilities and clinics (points)  
+1) Satır listesinin şekil dosyası `linelist_sf` ile başlıyoruz
+2) Sağlık tesislerinin ve kliniklerin konumları olan `sle_hf` ile mekansal olarak birleştiriyoruz (puan)
 
 ```{r, warning=F, message=F}
-# Closest health facility to each case
-linelist_sf_hf <- linelist_sf %>%                  # begin with linelist shapefile  
-  st_join(sle_hf, join = st_nearest_feature) %>%   # data from nearest clinic joined to case data 
-  select(case_id, osm_id, name, amenity) %>%       # keep columns of interest, including id, name, type, and geometry of healthcare facility
-  rename("nearest_clinic" = "name")                # re-name for clarity
+# Her vakaya en yakın sağlık kuruluşu
+linelist_sf_hf <- linelist_sf %>%                  # satır listesini şekil dosyası ile başla
+  st_join(sle_hf, join = st_nearest_feature) %>%   # vaka verilerine en yakın klinikten alınan veriler
+  select(case_id, osm_id, name, amenity) %>%       # sağlık tesisinin adı, türü ve geometrisi dahil olmak üzere ilgili sütunları tutmak
+  rename("nearest_clinic" = "name")                # netlik için yeniden adlandırın
 ```
 
-We can see below (first 50 rows) that the each case now has data on the nearest clinic/hospital  
+Aşağıda (ilk 50 satır) her vakanın artık en yakın klinik/hastaneye ait verileri olduğunu görebiliriz.
 
 ```{r message=FALSE, echo=F}
 DT::datatable(head(linelist_sf_hf, 50), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
 
-We can see that "Den Clinic" is the closest health facility for about ~30% of the cases.
+Vakaların yaklaşık %30'u için en yakın sağlık kuruluşunun "Den Clinic" olduğunu görebiliyoruz.
 
 ```{r}
-# Count cases by health facility
-hf_catchment <- linelist_sf_hf %>%   # begin with linelist including nearest clinic data
-  as.data.frame() %>%                # convert from shapefile to dataframe
-  count(nearest_clinic,              # count rows by "name" (of clinic)
-        name = "case_n") %>%         # assign new counts column as "case_n"
-  arrange(desc(case_n))              # arrange in descending order
+# Sağlık kuruluşuna göre vaka sayıları
+hf_catchment <- linelist_sf_hf %>%   # en yakın klinik verilerini içeren satır listesiyle başlayın
+  as.data.frame() %>%                # şekil dosyasından veri çerçevesine dönüştür
+  count(nearest_clinic,              # satırları "ad" ile sayın (kliniğin)
+        name = "case_n") %>%         # yeni sayım sütununu "case_n" olarak ata
+  arrange(desc(case_n))              # azalan sırada düzenlemek
 
-hf_catchment                         # print to console
+hf_catchment                         # konsola yazdırmak
 ```
 
-To visualize the results, we can use **tmap** - this time interactive mode for easier viewing  
+Sonuçları görselleştirmek için **tmap** kullanabiliriz - bu sefer daha kolay görüntüleme için etkileşimli mod
 
 ```{r, warning=F, message=F}
-tmap_mode("view")   # set tmap mode to interactive  
+tmap_mode("view")   # tmap modunu etkileşimli olarak ayarla
 
-# plot the cases and clinic points 
-tm_shape(linelist_sf_hf) +            # plot cases
-  tm_dots(size=0.08,                  # cases colored by nearest clinic
+# vakaları ve klinik noktaları çizin 
+tm_shape(linelist_sf_hf) +            # vaka grafikleri
+  tm_dots(size=0.08,                  # en yakın klinik tarafından renklendirilen vakalar
           col='nearest_clinic') +    
-tm_shape(sle_hf) +                    # plot clinic facilities in large black dots
+tm_shape(sle_hf) +                    # klinik tesisleri büyük siyah noktalarla çizin
   tm_dots(size=0.3, col='black', alpha = 0.4) +      
-  tm_text("name") +                   # overlay with name of facility
-tm_view(set.view = c(-13.2284, 8.4699, 13), # adjust zoom (center coords, zoom)
+  tm_text("name") +                   # tesis adı ile üzerine bindirme
+tm_view(set.view = c(-13.2284, 8.4699, 13), # yakınlaştırmayı ayarla (merkez kodları, yakınlaştırma)
         set.zoom.limits = c(13,14))+
 tm_layout(title = "Cases, colored by nearest clinic")
 ```
 
 
-### Buffers {.unnumbered} 
+### Tamponlar {.unnumbered}
 
-We can also explore how many cases are located within 2.5km (~30 mins) walking distance from the closest health facility.
+Ayrıca en yakın sağlık kuruluşuna 2,5 km (~30 dakika) yürüme mesafesinde kaç vaka bulunduğunu da keşfedebiliriz.
 
-*Note: For more accurate distance calculations, it is better to re-project your sf object to the respective local map projection system such as UTM (Earth projected onto a planar surface). In this example, for simplicity we will stick to the World Geodetic System (WGS84) Geograhpic coordinate system (Earth represented in a spherical / round surface, therefore the units are in decimal degrees). We will use a general conversion of: 1 decimal degree = ~111km.*  
+*Not: Daha doğru mesafe hesaplamaları için, sf nesnenizi UTM (düzlemsel bir yüzeye yansıtılan Dünya) gibi ilgili yerel harita projeksiyon sistemine yeniden yansıtmak daha iyidir. Bu örnekte, basit olması için Dünya Jeodezi Sistemi (WGS84) Coğrafi koordinat sistemine bağlı kalacağız (Dünya küresel / yuvarlak bir yüzeyde temsil edilir, bu nedenle birimler ondalık derece cinsindendir). Genel bir dönüşüm kullanacağız: 1 ondalık derece = ~111km.*
 
-See more information about map projections and coordinate systems at this [esri article](https://www.esri.com/arcgis-blog/products/arcgis-pro/mapping/gcs_vs_pcs/). This [blog](http://www.geo.hunter.cuny.edu/~jochen/gtech201/lectures/lec6concepts/map%20coordinate%20systems/how%20to%20choose%20a%20projection.htm) talks about different types of map projection and how one can choose a suitable projection depending on the area of interest and the context of your map / analysis.
+Bu [esri makalesinde](https://www.esri.com/arcgis-blog/products/arcgis-pro/mapping/gcs_vs_pcs/) harita projeksiyonları ve koordinat sistemleri hakkında daha fazla bilgi bulabilirsiniz. Bu [blog](http://www.geo.hunter.cuny.edu/~jochen/gtech201/lectures/lec6concepts/map%20coordinate%20systems/how%20to%20choose%20a%20projection.htm) harita projeksiyonu ve ilgi alanına ve haritanızın / analizinizin içeriğine bağlı olarak uygun bir projeksiyonun nasıl seçilebileceği gibi farklı türlerden bahsetmektedir.
 
 
-**First**, create a circular buffer with a radius of ~2.5km around each health facility. This is done with the function `st_buffer()` from **tmap**. Because the unit of the map is in lat/long decimal degrees, that is how "0.02" is interpreted. If your map coordinate system is in meters, the number must be provided in meters.  
+**İlkin**, her sağlık tesisinin çevresinde ~2,5 km yarıçaplı dairesel bir tampon oluşturun. Bu, **tmap**'teki `st_buffer()` fonksiyonuyla yapılır. Haritanın birimi enlem/boylam ondalık derece cinsinden olduğundan, "0,02" bu şekilde yorumlanır. Harita koordinat sisteminiz metre cinsinden ise sayının metre cinsinden verilmesi gerekir.
 
 ```{r, warning=F, message=F}
 sle_hf_2k <- sle_hf %>%
-  st_buffer(dist=0.02)       # decimal degrees translating to approximately 2.5km 
+  st_buffer(dist=0.02)       # ondalık derece, yaklaşık 2,5 km'ye eşittir 
 ```
 
-Below we plot the buffer zones themselves, with the :  
+Aşağıda, tampon bölgeleri şu şekilde çiziyoruz:
 
 ```{r, warning=F, message=F}
 tmap_mode("plot")
 # Create circular buffers
 tm_shape(sle_hf_2k) +
   tm_borders(col = "black", lwd = 2)+
-tm_shape(sle_hf) +                    # plot clinic facilities in large red dots
+tm_shape(sle_hf) +                    # klinik tesislerini büyük kırmızı noktalarla çizin
   tm_dots(size=0.3, col='black')      
 ```
 
 
-**Second*, we intersect these buffers with the cases (points) using `st_join()` and the join type of *st_intersects*. That is, the data from the buffers are joined to the points that they intersect with. 
+**İkinci olarak*, bu arabellekleri 'st_join()' ve *st_intersects* birleştirme türünü kullanarak durumlar (noktalar) ile kesiştiririz. Yani tamponlardan gelen veriler kesiştikleri noktalara birleştirilir.
 
 ```{r, warning=F, message=F}
-# Intersect the cases with the buffers
+# Vakaları arabelleklerle kesiştirin
 linelist_sf_hf_2k <- linelist_sf_hf %>%
   st_join(sle_hf_2k, join = st_intersects, left = TRUE) %>%
   filter(osm_id.x==osm_id.y | is.na(osm_id.y)) %>%
   select(case_id, osm_id.x, nearest_clinic, amenity.x, osm_id.y)
 ```
 
-Now we can count the results: ` nrow(linelist_sf_hf_2k[is.na(linelist_sf_hf_2k$osm_id.y),])` out of 1000 cases did not intersect with any buffer (that value is missing), and so live more than 30 mins walk from the nearest health facility.
+Şimdi sonuçları sayabiliriz: ` nrow(linelist_sf_hf_2k[is.na(linelist_sf_hf_2k$osm_id.y),])` 1000 vakadan herhangi biri arabellekle kesişmedi (bu değer eksik) ve bu yüzden en yakın sağlık kuruluşundan 30 dakikadan fazla yürüyün.
 
 ```{r}
-# Cases which did not get intersected with any of the health facility buffers
+# Sağlık tesisi tamponlarından herhangi biriyle kesişmeyen vakalar
 linelist_sf_hf_2k %>% 
   filter(is.na(osm_id.y)) %>%
   nrow()
 ```
 
-We can visualize the results such that cases that did not intersect with any buffer appear in red.  
+Sonuçları, herhangi bir arabellekle kesişmeyen vakaların kırmızı görüneceği şekilde görselleştirebiliriz.
 
 ```{r, out.width = '100%', warning=F, message=F}
 tmap_mode("view")
 
-# First display the cases in points
+# İlk önce vakaları puan olarak görüntüleyin
 tm_shape(linelist_sf_hf) +
   tm_dots(size=0.08, col='nearest_clinic') +
 
-# plot clinic facilities in large black dots
+# klinik tesisleri büyük siyah noktalarla çizin
 tm_shape(sle_hf) +                    
   tm_dots(size=0.3, col='black')+   
 
-# Then overlay the health facility buffers in polylines
+# Ardından sağlık tesisi arabelleklerini çoklu çizgilerle kaplayın
 tm_shape(sle_hf_2k) +
   tm_borders(col = "black", lwd = 2) +
 
-# Highlight cases that are not part of any health facility buffers
-# in red dots  
+# Herhangi bir sağlık tesisi tamponunun parçası olmayan vakaları vurgulayın
+# kırmızı noktalarda
 tm_shape(linelist_sf_hf_2k %>%  filter(is.na(osm_id.y))) +
   tm_dots(size=0.1, col='red') +
 tm_view(set.view = c(-13.2284,8.4699, 13), set.zoom.limits = c(13,14))+
 
-# add title  
+# Başlık ekleyin
 tm_layout(title = "Cases by clinic catchment area")
 
 ```
 
 
-### Other spatial joins {.unnumbered}  
 
-Alternative values for argument `join` include (from the [documentation](https://r-spatial.github.io/sf/reference/st_join.html))
+### Diğer uzamsal birleşimler {.unnumbered}
 
+"Birleştirme" bağımsız değişkeni için alternatif değerler şunları içerir ([belgelerden](https://r-spatial.github.io/sf/reference/st_join.html))
 * st_contains_properly  
 * st_contains  
 * st_covered_by  
@@ -573,226 +575,221 @@ Alternative values for argument `join` include (from the [documentation](https:/
 
 
 
-## Choropleth maps {}  
+## Choropleth haritaları {}
 
 
-Choropleth maps can be useful to visualize your data by pre-defined area, usually administrative unit or health area. In outbreak response this can help to target resource allocation for specific areas with high incidence rates, for example.
+Choropleth haritaları, verilerinizi önceden tanımlanmış alan, genellikle idari birim veya sağlık alanı ile görselleştirmek için faydalı olabilir. Salgın müdahalesinde bu, örneğin yüksek insidans oranlarına sahip belirli alanlar için kaynak tahsisinin hedeflenmesine yardımcı olabilir.
 
-Now that we have the administrative unit names assigned to all cases (see section on spatial joins, above), we can start mapping the case counts by area (choropleth maps).
+Artık tüm vakalara atanan idari birim adlarına sahip olduğumuza göre (yukarıdaki uzamsal birleştirmeler bölümüne bakın), vaka sayılarını alana göre eşleştirmeye başlayabiliriz (choropleth haritaları).
 
-Since we also have population data by ADM3, we can add this information to the *case_adm3* table created previously.
+ADM3'e göre popülasyon verisi de elimizde olduğundan, bu bilgiyi daha önce oluşturulan *case_adm3* tablosuna ekleyebiliriz.
 
-We begin with the dataframe created in the previous step `case_adm3`, which is a summary table of each administrative unit and its number of cases.  
+Her bir idari birimin ve vaka sayısının bir özet tablosu olan önceki 'case_adm3' adımında oluşturulan veri çerçevesi ile başlıyoruz.
 
-1) The population data `sle_adm3_pop` are joined using a `left_join()` from **dplyr** on the basis of common values across column `admin3pcod` in the `case_adm3` dataframe, and column `adm_pcode` in the `sle_adm3_pop` dataframe. See page on [Joining data]).  
-2) `select()` is applied to the new dataframe, to keep only the useful columns - `total` is total population  
-3) Cases per 10,000 populaton is calculated as a new column with `mutate()`  
-
+1) "sle_adm3_pop" popülasyon verileri, "case_adm3" veri çerçevesindeki "admin3pcod" sütunundaki ve "sle_adm3_pop içindeki "adm_pcode" sütunundaki ortak değerler temelinde **dplyr**'den bir "left_join()" kullanılarak birleştirilir `. [Birleştirme verileri] ile ilgili sayfaya bakın).
+2) Yalnızca yararlı sütunları tutmak için yeni veri çerçevesine "select()" uygulanır - "toplam" toplam nüfustur
+3) 10.000 nüfus başına vaka sayısı, `mutate()` ile yeni bir sütun olarak hesaplanır.
 
 ```{r}
-# Add population data and calculate cases per 10K population
+# Nüfus verilerini ekleyin ve 10.000 nüfus başına vakaları hesaplayın
 case_adm3 <- case_adm3 %>% 
-     left_join(sle_adm3_pop,                             # add columns from pop dataset
-               by = c("admin3pcod" = "adm3_pcode")) %>%  # join based on common values across these two columns
-     select(names(case_adm3), total) %>%                 # keep only important columns, including total population
-     mutate(case_10kpop = round(cases/total * 10000, 3)) # make new column with case rate per 10000, rounded to 3 decimals
+     left_join(sle_adm3_pop,                             # pop veri kümesinden sütunlar ekle
+               by = c("admin3pcod" = "adm3_pcode")) %>%  # bu iki sütundaki ortak değerlere dayalı olarak birleştir
+     select(names(case_adm3), total) %>%                 # toplam nüfus da dahil olmak üzere yalnızca önemli sütunları tut
+     mutate(case_10kpop = round(cases/total * 10000, 3)) # 3 ondalık basamağa yuvarlanmış 10.000 başına büyük/küçük harf oranıyla yeni sütun oluştur
 
-case_adm3                                                # print to console for viewing
+case_adm3                                                # izlemek için konsola yazdır
 ```
 
-Join this table with the ADM3 polygons shapefile for mapping
+Eşleme için bu tabloya ADM3 çokgen şekil dosyasıyla katılın
 
 ```{r, warning=F, message=F}
-case_adm3_sf <- case_adm3 %>%                 # begin with cases & rate by admin unit
-  left_join(sle_adm3, by="admin3pcod") %>%    # join to shapefile data by common column
-  select(objectid, admin3pcod,                # keep only certain columns of interest
-         admin3name = admin3name.x,           # clean name of one column
+case_adm3_sf <- case_adm3 %>%                 #vakalarla başlayın ve yönetici birimine göre puan verin
+  left_join(sle_adm3, by="admin3pcod") %>%    # ortak sütunla şekil dosyası verilerine katıl
+  select(objectid, admin3pcod,                # yalnızca belirli ilgi sütunlarını tut
+         admin3name = admin3name.x,           # bir sütunun adını temizle
          admin2name, admin1name,
          cases, total, case_10kpop,
-         geometry) %>%                        # keep geometry so polygons can be plotted
-  st_as_sf()                                  # convert to shapefile
+         geometry) %>%                        # geometriyi koru, böylece çokgenler çizilebilir
+  st_as_sf()                                  # şekil dosyasına çevir
 
 ```
 
 
-Mapping the results
+Sonuçların haritalanması
 
 ```{r, message=F, warning=F}
-# tmap mode
-tmap_mode("plot")               # view static map
+# tmap modu
+tmap_mode("plot")               # statik haritayı görüntüle
 
-# plot polygons
+# poligonları çiz
 tm_shape(case_adm3_sf) + 
-        tm_polygons("cases") +  # color by number of cases column
-        tm_text("admin3name")   # name display
+        tm_polygons("cases") +  # vaka sayısına göre renk sütunu
+        tm_text("admin3name")   # ismi göster
 ```
 
-We can also map the incidence rates  
-
+İnsidans oranlarını da haritalayabiliriz
 
 ```{r, warning=F, message=F}
-# Cases per 10K population
-tmap_mode("plot")             # static viewing mode
+# 10.000 nüfus başına vakalar
+tmap_mode("plot")             # statik görüntüleme modu
 
-# plot
-tm_shape(case_adm3_sf) +                # plot polygons
-  tm_polygons("case_10kpop",            # color by column containing case rate
-              breaks=c(0, 10, 50, 100), # define break points for colors
-              palette = "Purples"       # use a purple color palette
+# çizim
+tm_shape(case_adm3_sf) +                # polygonlqrı çiz
+  tm_polygons("case_10kpop",            # vaka oranını içeren sütuna göre renklendir
+              breaks=c(0, 10, 50, 100), # renkler için kırılma noktaları tanımlayın
+              palette = "Purples"       # mor renk paleti kullanın
               ) +
-  tm_text("admin3name")                 # display text
+  tm_text("admin3name")                 # metni göster
 
 ```
 
-## Mapping with ggplot2
-If you are already familiar with using **ggplot2**, you can use that package instead to create static maps of your data. The `geom_sf()` function will draw different objects based on which features (points, lines, or polygons) are in your data. For example, you can use `geom_sf()` in a `ggplot()` using `sf` data with polygon geometry to create a choropleth map.
+## ggplot2 ile haritalandırma
+**ggplot2** kullanımına zaten aşina iseniz, verilerinizin statik haritalarını oluşturmak için bu paketi kullanabilirsiniz. 'geom_sf()' fonksiyonu, verilerinizdeki hangi özelliklerin (noktalar, çizgiler veya çokgenler) olduğuna bağlı olarak farklı nesneler çizecektir. Örneğin, bir choropleth haritası oluşturmak için çokgen geometrili "sf" verilerini kullanarak bir "ggplot()" içinde "geom_sf()" kullanabilirsiniz.
 
-To illustrate how this works, we can start with the ADM3 polygons shapefile that we used earlier. Recall that these are Admin Level 3 regions in Sierra Leone:
+Bunun nasıl çalıştığını göstermek için daha önce kullandığımız ADM3 çokgen şekil dosyasıyla başlayabiliriz. Bunların Sierra Leone'deki Yönetici Düzey 3 bölgeleri olduğunu hatırlayın:
 
 ```{r}
 sle_adm3
 ```
-We can use the `left_join()` function from **dplyr** to add the data we would like to map to the shapefile object. In this case, we are going to use the `case_adm3` data frame that we created earlier to summarize case counts by administrative region; however, we can use this same approach to map any data stored in a data frame.
+
+Eşlemek istediğimiz verileri şekil dosyası nesnesine eklemek için **dplyr**'deki `left_join()` fonksiyonunu kullanabiliriz. Bu durumda, daha önce oluşturduğumuz 'case_adm3' veri çerçevesini, idari bölgelere göre vaka sayılarını özetlemek için kullanacağız; ancak, bir veri çerçevesinde depolanan herhangi bir veriyi eşlemek için aynı yaklaşımı kullanabiliriz.
+
 ```{r}
 sle_adm3_dat <- sle_adm3 %>% 
-  inner_join(case_adm3, by = "admin3pcod") # inner join = retain only if in both data objects
+  inner_join(case_adm3, by = "admin3pcod") # iç birleştirme = yalnızca her iki veri nesnesinde de tutuluyorsa
 
-select(sle_adm3_dat, admin3name.x, cases) # print selected variables to console
+select(sle_adm3_dat, admin3name.x, cases) # seçili değişkenleri konsola yazdır
 ```
 
-To make a column chart of case counts by region, using **ggplot2**, we could then call `geom_col()` as follows:
+Bölgeye göre vaka sayımlarının sütun grafiğini yapmak için, **ggplot2** kullanarak, `geom_col()`u şu şekilde çağırabiliriz:
 
 ```{r, fig.align = "center"}
 ggplot(data=sle_adm3_dat) +
-  geom_col(aes(x=fct_reorder(admin3name.x, cases, .desc=T),   # reorder x axis by descending 'cases'
-               y=cases)) +                                  # y axis is number of cases by region
+  geom_col(aes(x=fct_reorder(admin3name.x, cases, .desc=T),   # 'vakaları' azaltarak x eksenini yeniden sıralayın
+               y=cases)) +                                  # y ekseni bölgeye göre vaka sayısıdır
   theme_bw() +
-  labs(                                                     # set figure text
+  labs(                                                     # şekil metnini ayarla
     title="Number of cases, by administrative unit",
     x="Admin level 3",
     y="Number of cases"
   ) + 
-  guides(x=guide_axis(angle=45))                            # angle x-axis labels 45 degrees to fit better
+  guides(x=guide_axis(angle=45))                            # açı x ekseni etiketleri daha iyi sığdırmak için 45 derecedir
 
 ```
 
-If we want to use **ggplot2** to instead make a choropleth map of case counts, we can use similar syntax to call the `geom_sf()` function:
+Bunun yerine vaka sayımlarının bir choropleth haritası yapmak için **ggplot2** kullanmak istiyorsak, `geom_sf()` fonksiyonunu çağırmak için benzer sözdizimini kullanabiliriz:
 
 ```{r, fig.align = "center"}
 ggplot(data=sle_adm3_dat) + 
-  geom_sf(aes(fill=cases))    # set fill to vary by case count variable
+  geom_sf(aes(fill=cases))    # dolguyu vaka sayısı değişkenine göre değiştirecek şekilde ayarla
 
 ```
 
-We can then customize the appearance of our map using grammar that is consistent across **ggplot2**, for example:
+Ardından, **ggplot2** genelinde tutarlı olan dilbilgisini kullanarak haritamızın görünümünü özelleştirebiliriz, örneğin:
+
 ```{r, fig.align = "center"}
 ggplot(data=sle_adm3_dat) +                           
   geom_sf(aes(fill=cases)) +						
-  scale_fill_continuous(high="#54278f", low="#f2f0f7") +    # change color gradient
+  scale_fill_continuous(high="#54278f", low="#f2f0f7") +    # renk derecesini değiştir
   theme_bw() +
-  labs(title = "Number of cases, by administrative unit",   # set figure text
+  labs(title = "Number of cases, by administrative unit",   # şekil metnini ayarla
        subtitle = "Admin level 3"
   )
 ```
 
-For R users who are comfortable working with **ggplot2**, `geom_sf()` offers a simple and direct implementation that is suitable for basic map visualizations. To learn more, read the [geom_sf() vignette](https://ggplot2.tidyverse.org/reference/ggsf.html) or the [ggplot2 book](https://ggplot2-book.org/maps.html). 
-
-
+**ggplot2** ile rahat çalışan R kullanıcıları için, `geom_sf()`, temel harita görselleştirmeleri için uygun olan basit ve doğrudan bir uygulama sunar. Daha fazla bilgi edinmek için [geom_sf() gösterimi](https://ggplot2.tidyverse.org/reference/ggsf.html) veya [ggplot2 kitabını](https://ggplot2-book.org/maps.html) okuyabilirsiniz.
 
 
 
 <!-- ======================================================= -->
-## Basemaps { }
+## Altlık Haritalar{ }
 
-### OpenStreetMap {.unnumbered} 
+### OpenStreetMap {.unnumbered}
 
-Below we describe how to achieve a basemap for a **ggplot2** map using OpenStreetMap features. Alternative methods include using **ggmap** which requires free registration with Google ([details](https://www.earthdatascience.org/courses/earth-analytics/lidar-raster-data-r/ggmap-basemap/)).  
+Aşağıda, OpenStreetMap özelliklerini kullanarak **ggplot2** haritası için bir altlık haritanın nasıl elde edileceğini açıklıyoruz. Alternatif yöntemler arasında, Google'a ücretsiz kayıt gerektiren **ggmap** kullanımı yer almaktadır ([detaylar](https://www.earthdatascience.org/courses/earth-analytics/lidar-raster-data-r/ggmap-basemap/)) .
 
-[**OpenStreetMap**](https://en.wikipedia.org/wiki/OpenStreetMap) is a collaborative project to create a free editable map of the world. The underlying geolocation data (e.g. locations of cities, roads, natural features, airports, schools, hospitals, roads etc) are considered the primary output of the project.
+[**OpenStreetMap**](https://en.wikipedia.org/wiki/OpenStreetMap), ücretsiz düzenlenebilir bir dünya haritası oluşturmaya yönelik ortak bir projedir. Temel coğrafi konum verileri (örneğin şehirlerin konumları, yollar, doğal özellikler, havaalanları, okullar, hastaneler, yollar vb.), projenin birincil çıktısı olarak kabul edilir.
 
-First we load the **OpenStreetMap** package, from which we will get our basemap.  
+Öncelikle altlık haritamızı alacağımız **OpenStreetMap** paketini yüklüyoruz.
 
-Then, we create the object `map`, which we define using the function `openmap()` from **OpenStreetMap** package ([documentation](https://www.rdocumentation.org/packages/OpenStreetMap/versions/0.3.4/topics/openmap)). We provide the following:  
+Ardından, **OpenStreetMap** paketinden ([dosyalar](https://www.rdocumentation.org/packages/OpenStreetMap/versions/0.3.4/konular/openmap) 'openmap()' fonksiyonunu kullanarak tanımladığımız 'harita' nesnesini oluşturuyoruz). Aşağıdakileri sağlıyoruz:
 
-* `upperLeft` and `lowerRight` Two coordinate pairs specifying the limits of the basemap tile  
-  * In this case we've put in the max and min from the linelist rows, so the map will respond dynamically to the data  
-* `zoom = ` (if null it is determined automatically)  
-* `type =` which type of basemap - we have listed several possibilities here and the code is currently using the first one (`[1]`) "osm"  
-* `mergeTiles = ` we chose TRUE so the basetiles are all merged into one
-
+* 'upperLeft' ve 'lowRight' altlık harita döşemesinin sınırlarını belirten iki koordinat çifti
+  * Bu durumda, satır listesinin satırlarından max ve min'i koyuyoruz, böylece harita verilere dinamik olarak yanıt verecek
+* `zoom =` (null ise otomatik olarak belirlenir)
+* `type =` hangi tür altlık harita - burada birkaç olasılık listeledik ve kod şu anda ilkini (`[1]`) "osm" kullanıyor
+* `mergeTiles =` DOĞRU seçtik, böylece temel döşemeler tek bir yerde birleştirildi.
 
 ```{r, message=FALSE, warning=FALSE}
-# load package
+# paketi yükle
 pacman::p_load(OpenStreetMap)
 
-# Fit basemap by range of lat/long coordinates. Choose tile type
+# Enlem/boylam koordinat aralığına göre altlık haritayı sığdır. Döşeme türünü seç.
 map <- openmap(
-  upperLeft = c(max(linelist$lat, na.rm=T), max(linelist$lon, na.rm=T)),   # limits of basemap tile
+  upperLeft = c(max(linelist$lat, na.rm=T), max(linelist$lon, na.rm=T)),   # altlık harita döşemelerinin sınırı
   lowerRight = c(min(linelist$lat, na.rm=T), min(linelist$lon, na.rm=T)),
   zoom = NULL,
   type = c("osm", "stamen-toner", "stamen-terrain", "stamen-watercolor", "esri","esri-topo")[1])
 ```
 
-If we plot this basemap right now, using `autoplot.OpenStreetMap()` from **OpenStreetMap** package, you see that the units on the axes are not latitude/longitude coordinates. It is using a different coordinate system. To correctly display the case residences (which are stored in lat/long), this must be changed.  
+Bu altlık haritasını **OpenStreetMap** paketinden `autoplot.OpenStreetMap()` kullanarak şimdi çizersek, eksenlerdeki birimlerin enlem/boylam koordinatları olmadığını görürsünüz. Farklı bir koordinat sistemi kullanıyor. Vaka konutlarını (enlem/boylamda depolanan) doğru bir şekilde görüntülemek için bunun değiştirilmesi gerekir.
 
 ```{r, warning=F, message=F}
 autoplot.OpenStreetMap(map)
 ```
-Thus, we want to convert the map to latitude/longitude with the `openproj()` function from **OpenStreetMap** package. We provide the basemap `map` and also provide the Coordinate Reference System (CRS) we want. We do this by providing the "proj.4" character string for the WGS 1984 projection, but you can provide the CRS in other ways as well. (see [this page](https://www.earthdatascience.org/courses/earth-analytics/spatial-data-r/understand-epsg-wkt-and-other-crs-definition-file-types/) to better understand what a proj.4 string is)  
+
+Bu nedenle **OpenStreetMap** paketindeki `openproj()` fonksiyonu ile haritayı enlem/boylam şekline dönüştürmek istiyoruz. Altlık harita olarak 'map'i ve ayrıca istediğimiz Koordinat Referans Sistemini (CRS) sağlıyoruz. Bunu, WGS 1984 projeksiyonu için "proj.4" karakter dizisini sağlayarak yapıyoruz, ancak CRS'yi başka şekillerde de sağlayabilirsiniz. (bir proj.4 dizesinin ne olduğunu anlamak için bkz. [bu sayfa](https://www.earthdatascience.org/courses/earth-analytics/spatial-data-r/understand-epsg-wkt-and-other-crs-definition-file-types/)
 
 ```{r, warning=F, message=F}
-# Projection WGS84
+# WGS84 projeksiyonu
 map_latlon <- openproj(map, projection = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 ```
 
-Now when we create the plot we see that along the axes are latitude and longitude coordinate. The coordinate system has been converted. Now our cases will plot correctly if overlaid!  
+Şimdi grafiği oluşturduğumuzda eksenler boyunca enlem ve boylam koordinatları olduğunu görüyoruz. Koordinat sistemi dönüştürüldü. Artık vakalarımız üst üste bindirilirse doğru şekilde çizilecek!
 
 ```{r, warning=F, message=F}
-# Plot map. Must use "autoplot" in order to work with ggplot
+# Grafik haritası. ggplot ile çalışmak için "autoplot" kullanılmalıdır
 autoplot.OpenStreetMap(map_latlon)
 ```
 
-See the tutorials [here](http://data-analytics.net/cep/Schedule_files/geospatial.html) and [here](https://www.rdocumentation.org/packages/OpenStreetMap/versions/0.3.4/topics/autoplot.OpenStreetMap) for more info.  
+Daha fazla bilgi için Eğitimlere [buradan](http://data-analytics.net/cep/Schedule_files/geospatial.html) ve [buradan](https://www.rdocumentation.org/packages/OpenStreetMap/versions/0.3.4/) bakın Konular/autoplot.OpenStreetMap) ulaşabilirsiniz.
 
 
+## Konturlu yoğunluk ısı haritaları {}
 
+Aşağıda, bir satır listesiyle (vaka başına bir satır) başlayarak, bir altlık harita üzerinde vakaların konturlu bir yoğunluk ısı haritasının nasıl elde edileceğini açıklıyoruz.
 
+1) Yukarıda açıklandığı gibi OpenStreetMap'ten altlık harita döşemesi oluşturun
+2) Enlem ve boylam sütunlarını kullanarak durumları 'linelist'ten çizin
+3) Noktaları **ggplot2**'den `stat_density_2d()` ile bir yoğunluk ısı haritasına dönüştürün,
 
-## Contoured density heatmaps {}
+Enlem/boylam koordinatlarına sahip bir altlık haritamız olduğunda, yerleşim yerlerinin enlem/boylam koordinatlarını kullanarak durumlarımızı en üste çizebiliriz.
 
-Below we describe how to achieve a contoured density heatmap of cases, over a basemap, beginning with a linelist (one row per case).  
-
-1) Create basemap tile from OpenStreetMap, as described above  
-2) Plot the cases from `linelist` using the latitude and longitude columns  
-3) Convert the points to a density heatmap with `stat_density_2d()` from **ggplot2**, 
-
-
-When we have a basemap with lat/long coordinates, we can plot our cases on top using the lat/long coordinates of their residence. 
-
-Building on the function `autoplot.OpenStreetMap()` to create the basemap, **ggplot2** functions will easily add on top, as shown with `geom_point()` below:  
+Altlık haritayı oluşturmak için "autoplot.OpenStreetMap()" fonksiyonunu temel alan **ggplot2** fonksiyonları, aşağıda "geom_point()" ile gösterildiği gibi, kolayca en üste eklenecektir:
 
 ```{r, warning=F, message=F}
-# Plot map. Must be autoplotted to work with ggplot
-autoplot.OpenStreetMap(map_latlon)+                 # begin with the basemap
-  geom_point(                                       # add xy points from linelist lon and lat columns 
+# Grafik haritası. ggplot ile çalışmak için "autoplot" kullanılmalıdır
+autoplot.OpenStreetMap(map_latlon)+                 # altlık haritası ile başla
+  geom_point(                                       # satır listesinin enlem ve boylam sütunlarından xy noktaları ekleyin 
     data = linelist,                                
     aes(x = lon, y = lat),
     size = 1, 
     alpha = 0.5,
-    show.legend = FALSE) +                          # drop legend entirely
-  labs(x = "Longitude",                             # titles & labels
+    show.legend = FALSE) +                          # göstergeleri tamamen bırak
+  labs(x = "Longitude",                             # başlıklar ve etiketler
        y = "Latitude",
        title = "Cumulative cases")
 
 ```
-The map above might be difficult to interpret, especially with the points overlapping. So you can instead plot a 2d density map using the **ggplot2** function `stat_density_2d()`. You are still using the linelist lat/lon coordinates, but a 2D kernel density estimation is performed and the results are displayed with contour lines - like a topographical map. Read the full [documentation here](https://ggplot2.tidyverse.org/reference/geom_density_2d.html).  
 
+Yukarıdaki haritanın yorumlanması zor olabilir, özellikle de noktalar çakışıyorsa. Bunun yerine **ggplot2** `stat_density_2d()` fonksiyonunu kullanarak 2 boyutlu bir yoğunluk haritası çizebilirsiniz. Hala satır listesi enlem/boylam koordinatlarını kullanıyorsunuz, ancak 2B çekirdek yoğunluğu tahmini yapılıyor ve sonuçlar kontur çizgileriyle - bir topografik harita gibi - gösteriliyor. [Belgelerin tamamını buradan okuyabilirsiniz](https://ggplot2.tidyverse.org/reference/geom_density_2d.html)
 
 ```{r, warning=F, message=F}
-# begin with the basemap
+# altlık haritası ile başla
 autoplot.OpenStreetMap(map_latlon)+
   
-  # add the density plot
+  # yoğunluk grafiğine ekle
   ggplot2::stat_density_2d(
         data = linelist,
         aes(
@@ -805,10 +802,10 @@ autoplot.OpenStreetMap(map_latlon)+
         contour_var = "count",
         show.legend = F) +                          
   
-  # specify color scale
+  # renk dağılımını belirle
   scale_fill_gradient(low = "black", high = "red")+
   
-  # labels 
+  # etiketler 
   labs(x = "Longitude",
        y = "Latitude",
        title = "Distribution of cumulative cases")
@@ -817,35 +814,32 @@ autoplot.OpenStreetMap(map_latlon)+
 
 
 
-
-
 <!-- ======================================================= -->
-### Time series heatmap {.unnumbered}
+### Zaman serisi ısı haritası {.unnumbered}
 
-The density heatmap above shows *cumulative cases*. We can examine the outbreak over time and space by faceting the heatmap based on the *month of symptom onset*, as derived from the linelist.  
+Yukarıdaki yoğunluk ısı haritası *kümülatif durumları* gösterir. Satır listesinden türetilen *semptom başlangıç ayına* dayalı olarak ısı haritasını şekillendirerek salgını zaman ve mekan içinde inceleyebiliriz.
 
-We begin in the `linelist`, creating a new column with the Year and Month of onset. The `format()` function from **base** R changes how a date is displayed. In this case we want "YYYY-MM".  
+Başlangıç Yılı ve Ayı ile yeni bir sütun oluşturarak "satır listesi" ile başlıyoruz. R **tabanı**ndaki 'format()' fonksiyonu, bir tarihin görüntülenme şeklini değiştirir. Bu durumda "YYYY-AA" istiyoruz.
 
 ```{r, warning=F, message=F}
-# Extract month of onset
+# başlangıç ayını dışa aktar
 linelist <- linelist %>% 
   mutate(date_onset_ym = format(date_onset, "%Y-%m"))
 
-# Examine the values 
+# Değerleri inceleyin
 table(linelist$date_onset_ym, useNA = "always")
 ```
 
-Now, we simply introduce facetting via **ggplot2** to the density heatmap. `facet_wrap()` is applied, using the new column as rows. We set the number of facet columns to 3 for clarity.  
-
+Şimdi, yoğunluk ısı haritasına **ggplot2** aracılığıyla yüzey oluşturmayı tanıtıyoruz. Yeni sütun satır olarak kullanılarak `facet_wrap()` uygulanır. Anlaşılır olması için yüzey sütunlarının sayısını 3 olarak ayarladık.
 
 ```{r, warning=F, message=F}
-# packages
+# paketler
 pacman::p_load(OpenStreetMap, tidyverse)
 
-# begin with the basemap
+# altlık haritası ile başlayın
 autoplot.OpenStreetMap(map_latlon)+
   
-  # add the density plot
+  # yoğunluk grafiği ekleyin
   ggplot2::stat_density_2d(
         data = linelist,
         aes(
@@ -858,84 +852,83 @@ autoplot.OpenStreetMap(map_latlon)+
         contour_var = "count",
         show.legend = F) +                          
   
-  # specify color scale
+  # renk dağılımını belirle
   scale_fill_gradient(low = "black", high = "red")+
   
-  # labels 
+  # etiketler 
   labs(x = "Longitude",
        y = "Latitude",
        title = "Distribution of cumulative cases over time")+
   
-  # facet the plot by month-year of onset
+  # grafiği başlangıç ayı-yılına göre şekillendirin
   facet_wrap(~ date_onset_ym, ncol = 4)               
 
 ```
 
+<!-- MEKANSAL İSTATİSTİK BÖLÜMÜ GELİŞTİRİLİYORmuş :)-->
+## Mekansal istatistikler
+Şimdiye kadarki tartışmalarımızın çoğu, mekansal verilerin görselleştirilmesine odaklandı. Bazı durumlarda, verilerinizdeki özniteliklerin uzamsal ilişkilerini ölçmek için *mekansal istatistikler* kullanmak da ilginizi çekebilir. Bu bölüm uzamsal istatistikteki bazı temel kavramlara çok kısa bir genel bakış sunacak ve daha kapsamlı uzamsal analizler yapmak istiyorsanız keşfetmenize yardımcı olacak bazı kaynaklar önerecektir.
 
+### Mekansal ilişkiler {.unnumbered}
 
-<!-- SPATIAL STATISTICS SECTION IS UNDER DEVELOPMENT --> 
-## Spatial statistics
-Most of our discussion so far has focused on visualization of spatial data. In some cases, you may also be interested in using *spatial statistics* to quantify the spatial relationships of attributes in your data. This section will provide a very brief overview of some key concepts in spatial statistics, and suggest some resources that will be helpful to explore if you wish to do more comprehensive spatial analyses. 
+Herhangi bir uzamsal istatistiği hesaplamadan önce, verilerimizdeki özellikler arasındaki ilişkileri belirlememiz gerekir. Mekansal ilişkileri kavramsallaştırmanın birçok yolu vardır, ancak kullanımı basit ve yaygın olarak uygulanabilir bir model *bitişiklik* modelidir. Bu modelde, bir sınırı veya “komşuluğu” paylaşan alanlar arasında coğrafi bir ilişki beklemekteyiz.
 
-### Spatial relationships {.unnumbered}  
+**spdep** paketi ile kullandığımız `sle_adm3` datasında yönetim bölgesi poligonları arasındaki komşuluk ilişkilerini ölçebiliyoruz. *vezir* bitişikliğini belirleyeceğiz, bu, bölgelerin sınırları boyunca en az bir noktayı paylaştıkları takdirde komşu olacağı anlamına gelmektedir. Alternatif olarak, bölgelerin bir kenarı paylaşmasını gerektiren *kale* bitişikliği olacaktır - bizim durumumuzda, düzensiz çokgenlerle, ayrım önemsizdir, ancak bazı durumlarda vezir ve kale arasındaki seçim etkili olabilir.
 
-Before we can calculate any spatial statistics, we need to specify the relationships between features in our data. There are many ways to conceptualize spatial relationships, but a simple and commonly-applicable model to use is that of *adjacency* - specifically, that we expect a geographic relationship between areas that share a border or “neighbour” one another. 
-
-We can quantify adjacency relationships between administrative region polygons in the `sle_adm3` data we have been using with the **spdep** package. We will specify *queen* contiguity, which means that regions will be neighbors if they share at least one point along their borders. The alternative would be *rook* contiguity, which requires that regions share an edge - in our case, with irregular polygons, the distinction is trivial, but in some cases the choice between queen and rook can be influential.  
- 
 ```{r}
-sle_nb <- spdep::poly2nb(sle_adm3_dat, queen=T) # create neighbors 
-sle_adjmat <- spdep::nb2mat(sle_nb)    # create matrix summarizing neighbor relationships
-sle_listw <- spdep::nb2listw(sle_nb)   # create listw (list of weights) object -- we will need this later
+sle_nb <- spdep::poly2nb(sle_adm3_dat, queen=T) # komşuluklar yaratın 
+sle_adjmat <- spdep::nb2mat(sle_nb)    # komşu ilişkilerini özetleyen matris oluşturun
+sle_listw <- spdep::nb2listw(sle_nb)   # listw (ağırlık listesi) nesnesi oluştur -- buna daha sonra ihtiyacımız olacak
 
 sle_nb
 round(sle_adjmat, digits = 2)
 ```
 
-The matrix printed above shows the relationships between the 9 regions in our `sle_adm3` data. A score of 0 indicates two regions are not neighbors, while any value other than 0 indicates a neighbor relationship. The values in the matrix are scaled so that each region has a total row weight of 1.
+Yukarıda yazdırılan matris, 'sle_adm3' verilerimizdeki 9 bölge arasındaki ilişkileri göstermektedir. 0 puan, iki bölgenin komşu olmadığını gösterirken, 0 dışında herhangi bir değer, bir komşu ilişkisini gösterir. Matristeki değerler, her bölgenin toplam satır ağırlığı 1 olacak şekilde ölçeklendirilir.
 
-A better way to visualize these neighbor relationships is by plotting them:
+Bu komşu ilişkileri görselleştirmenin daha iyi bir yolu, onları çizmektir:
 ```{r, fig.align='center', results='hide'}
-plot(sle_adm3_dat$geometry) +                                           # plot region boundaries
-  spdep::plot.nb(sle_nb,as(sle_adm3_dat, 'Spatial'), col='grey', add=T) # add neighbor relationships
+plot(sle_adm3_dat$geometry) +                                           # alan sınırlarını grafikleştir
+  spdep::plot.nb(sle_nb,as(sle_adm3_dat, 'Spatial'), col='grey', add=T) # komşuluk ilişkileri ekle
 ```
 
-We have used an adjacency approach to identify neighboring polygons; the neighbors we identified are also sometimes called **contiguity-based neighbors**. But this is just one way of choosing which regions are expected to have a geographic relationship. The most common alternative approaches for identifying geographic relationships generate **distance-based neighbors**; briefly, these are:
+Komşu çokgenleri tanımlamak için bir bitişiklik yaklaşımı kullandık; tanımladığımız komşulara bazen **bitişiklik tabanlı komşular** da denir. Ancak bu, coğrafi bir ilişkiye sahip olması beklenen bölgeleri seçmenin sadece bir yoludur. Coğrafi ilişkileri belirlemeye yönelik en yaygın alternatif yaklaşımı **mesafeye dayalı komşular** oluşturur; kısaca bunlar:
   
-  * **K-nearest neighbors** - Based on the distance between centroids (the geographically-weighted center of each polygon region), select the *n* closest regions as neighbors. A maximum-distance proximity threshold may also be specified. In **spdep**, you can use `knearneigh()` (see [documentation](https://r-spatial.github.io/spdep/reference/knearneigh.html)).
+  * **K-en yakın komşular** - Merkezler (her çokgen bölgesinin coğrafi ağırlıklı merkezi) arasındaki mesafeye bağlı olarak, komşu olarak *n* en yakın bölgeleri seçin. Bir maksimum mesafe yakınlık eşiği de belirtilebilir. **spdep**'te "knearneigh()" kullanabilirsiniz (bkz. [belgeler](https://r-spatial.github.io/spdep/reference/knearneigh.html)).
   
-  * **Distance threshold neighbors** - Select all neighbors within a distance threshold. In **spdep**, these neighbor relationships can be identified using `dnearneigh()` (see [documentation](https://www.rdocumentation.org/packages/spdep/versions/1.1-7/topics/dnearneigh)).
+  * **Mesafe eşiği komşuları** - Bir mesafe eşiği içindeki tüm komşuları seçin. **spdep**'te, bu komşu ilişkiler "dnearneigh()" kullanılarak tanımlanabilir (bkz. [belgeler](https://www.rdocumentation.org/packages/spdep/versions/1.1-7/topics/dnearneigh)) .
 
-### Spatial autocorrelation {.unnumbered}  
+### Mekansal otokorelasyon {.unnumbered}
 
-Tobler's oft-cited first law of geography states that "everything is related to everything else, but near things are more related than distant things." In epidemiology, this often means that risk of a particular health outcome in a given region is more similar to its neighboring regions than to those far away. This concept has been formalized as **spatial autocorrelation** - the statistical property that geographic features with similar values are clustered together in space. Statistical measures of spatial autocorrelation can be used to *quantify the extent of spatial clustering* in your data, *locate where clustering occurs*, and *identify shared patterns of spatial autocorrelation* between distinct variables in your data. This section gives an overview of some common measures of spatial autocorrelation and how to calculate them in R.
+Tobler'in sık sık alıntılanan birinci coğrafya yasası, "her şey diğer her şeyle ilişkilidir, ancak yakın şeyler uzaktaki şeylerden daha fazla ilişkilidir" der. Epidemiyolojide bu genellikle, belirli bir bölgedeki belirli bir sağlık sonucu riskinin, uzaktaki bölgelere kıyasla komşu bölgelere daha benzer olduğu anlamına gelir. Bu kavram, **uzaysal otokorelasyon** olarak resmileştirilmiştir. Benzer değerlere sahip coğrafi özelliklerin uzayda bir araya toplandığı istatistiksel özellik olarak tanımlanır. Uzamsal otokorelasyonun istatistiksel ölçüleri, verilerinizdeki *mekansal kümelemenin kapsamını* ölçmek, *kümelemenin nerede gerçekleştiğini* belirlemek ve verilerinizdeki farklı değişkenler arasındaki *paylaşılan uzamsal otokorelasyon modellerini belirlemek* için kullanılabilir. Bu bölüm, bazı yaygın uzamsal otokorelasyon ölçülerine ve bunların R'da nasıl hesaplanacağına genel bir bakış sunar.
 
-**Moran's I** - This is a global summary statistic of the correlation between the value of a variable in one region, and the values of the same variable in neighboring regions. The Moran's I statistic typically ranges from -1 to 1. A value of 0 indicates no pattern of spatial correlation, while values closer to 1 or -1 indicate stronger spatial autocorrelation (similar values close together) or spatial dispersion (dissimilar values close together), respectively.
+**Moran'ın İ İstatistiği** - Bu, bir bölgedeki bir değişkenin değeri ile komşu bölgelerdeki aynı değişkenin değerleri arasındaki korelasyonun genel bir özet istatistiğidir. Moran'ın I istatistiği tipik olarak -1 ile 1 arasındadır. 0 değeri uzamsal korelasyon modeli olmadığını gösterirken 1 veya -1'e yakın değerler sırasıyla daha güçlü uzamsal otokorelasyonu (benzer değerler birbirine yakındır) veya uzamsal dağılımı (benzersiz değerler birbirine yakındır) gösterir.
 
-For an example, we will calculate a Moran's I statistic to quantify the spatial autocorrelation in Ebola cases we mapped earlier (remember, this is a subset of cases from the simulated epidemic `linelist` dataframe). The **spdep** package has a function, `moran.test`, that can do this calculation for us:
+Örnek olarak, daha önce haritalandırdığımız Ebola vakalarındaki uzamsal otokorelasyonu ölçmek için Moran'ın İ istatistiğini hesaplayacağız (unutmayın, bu simüle edilmiş salgın "satır listesi" veri çerçevesinden vakaların bir alt kümesidir). **spdep** paketinde bu hesaplamayı bizim için yapabilen "moran.test" fonskiyonu vardır:
 
 ```{r}
-moran_i <-spdep::moran.test(sle_adm3_dat$cases,    # numeric vector with variable of interest
-                            listw=sle_listw)       # listw object summarizing neighbor relationships
+moran_i <-spdep::moran.test(sle_adm3_dat$cases,    # ilgilenilen değişken içim sayısal vektör
+                            listw=sle_listw)       # komşu ilişkilerini özetleyen listw nesnesi
 
-moran_i                                            # print results of Moran's I test
+moran_i                                            # yazdırma sonuçları
 ```
-The output from the `moran.test()` function shows us a Moran I statistic of ` round(moran_i$estimate[1],2)`. This indicates the presence of spatial autocorrelation in our data - specifically, that regions with similar numbers of Ebola cases are likely to be close together. The p-value provided by `moran.test()` is generated by comparison to the expectation under null hypothesis of no spatial autocorrelation, and can be used if you need to report the results of a formal hypothesis test.
 
-**Local Moran's I** - We can decompose the (global) Moran's I statistic calculated above to identify *localized* spatial autocorrelation; that is, to identify specific clusters in our data. This statistic, which is sometimes called a **Local Indicator of Spatial Association (LISA)** statistic, summarizes the extent of spatial autocorrelation around each individual region. It can be useful for finding "hot" and "cold" spots on the map.
+'moran.test()' fonksiyonunun çıktısı bize 'round(moran_i$estimate[1],2)' Moran I istatistiğini gösterir. Bu, verilerimizde uzamsal otokorelasyonun varlığını gösterir - özellikle, benzer sayıda Ebola vakası olan bölgelerin birbirine yakın olması muhtemeldir. "moran.test()" tarafından sağlanan p değeri, uzaysal otokorelasyonun olmadığı sıfır hipotezi altındaki beklentiyle karşılaştırılarak oluşturulur ve resmi bir hipotez testinin sonuçlarını bildirmeniz gerekiyorsa kullanılabilir.
 
-To show an example, we can calculate and map Local Moran's I for the Ebola case counts used above, with the `local_moran()` function from **spdep**:
+**Yerel Moran I** - *yerelleştirilmiş* uzamsal otokorelasyonu tanımlamak için yukarıda hesaplanan (küresel) Moran I istatistiğini ayrıştırabiliriz; bu durum verilerimizdeki belirli kümeleri tanımlamamızı sağlar. Bazen **Yerel Mekansal İlişki Göstergesi (LISA)** istatistiği olarak adlandırılan bu istatistik, her bir bölge etrafındaki mekansal otokorelasyonun kapsamını özetler. Haritada "sıcak" ve "soğuk" noktaları bulmak için faydalı olabilir.
+
+Bir örnek göstermek için, yukarıda kullanılan Ebola vaka sayıları için Yerel Moran'ın I istatistiğini **spdep**'ten `local_moran()` fonksiyonuyla hesaplayabilir ve eşleyebiliriz:
 ```{r, fig.align='center'}
-# calculate local Moran's I
+# yereli hesapla
 local_moran <- spdep::localmoran(                  
-  sle_adm3_dat$cases,                              # variable of interest
-  listw=sle_listw                                  # listw object with neighbor weights
+  sle_adm3_dat$cases,                              # ilgi değişkeni
+  listw=sle_listw                                  # komşu ağırlıkları ile listw nesnesi
 )
 
-# join results to sf data
+# sf verilerine sonuçları birleştirme
 sle_adm3_dat<- cbind(sle_adm3_dat, local_moran)    
 
-# plot map
+# harita grafiği
 ggplot(data=sle_adm3_dat) +
   geom_sf(aes(fill=Ii)) +
   theme_bw() +
@@ -946,21 +939,21 @@ ggplot(data=sle_adm3_dat) +
 
 ```
 
-**Getis-Ord Gi\*** - This is another statistic that is commonly used for hotspot analysis; in large part, the popularity of this statistic relates to its use in the Hot Spot Analysis tool in ArcGIS. It is based on the assumption that typically, the difference in a variable's value between neighboring regions should follow a normal distribution. It uses a z-score approach to identify regions that have significantly higher (hot spot) or significantly lower (cold spot) values of a specified variable, compared to their neighbors. 
+**Getis-Ord Gi\** - Bu, etkin nokta analizi için yaygın olarak kullanılan başka bir istatistiktir. Bu istatistiğin popülaritesi büyük ölçüde ArcGIS'teki Sıcak Nokta Analizi aracındaki kullanımıyla ilgilidir. Tipik olarak, komşu bölgeler arasındaki bir değişkenin değerindeki farkın normal bir dağılım izlemesi gerektiği varsayımına dayanır. Komşularına kıyasla, belirli bir değişkenin önemli ölçüde daha yüksek (sıcak nokta) veya önemli ölçüde daha düşük (soğuk nokta) değerlerine sahip bölgeleri belirlemek için bir z-skoru yaklaşımı kullanır.
 
-We can calculate and map the Gi* statistic using the `localG()` function from **spdep**:  
+**spdep**'teki `localG()` fonksiyonunu kullanarak *Gi* istatistiğini hesaplayabilir ve eşleyebiliriz:
 
 ```{r}
-# Perform local G analysis
+# Yerel G analizi gerçekleştir
 getis_ord <- spdep::localG(
   sle_adm3_dat$cases,
   sle_listw
 )
 
-# join results to sf data
+# sf verisine sonuçları ekleme
 sle_adm3_dat$getis_ord <- getis_ord
 
-# plot map
+# harita grafiği
 ggplot(data=sle_adm3_dat) +
   geom_sf(aes(fill=getis_ord)) +
   theme_bw() +
@@ -971,85 +964,84 @@ ggplot(data=sle_adm3_dat) +
 
 ```
 
+Gördüğünüz gibi *Getis-Ord Gi* haritası daha önce hazırladığımız Yerel Moran'ın İ haritasından biraz farklı görünüyor. Bu, iki istatistiği hesaplamak için kullanılan yöntemin biraz farklı olduğunu yansıtır; hangisini kullanmanız gerektiği, özel kullanım durumunuza ve ilgilendiğiniz araştırma sorusuna bağlıdır.
 
-As you can see, the map of Getis-Ord Gi* looks slightly different from the map of Local Moran's I produced earlier. This reflects that the method used to calculate these two statistics are slightly different; which one you should use depends on your specific use case and the research question of interest.
+**Lee's L testi** - İki değişkenli uzamsal korelasyon için istatistiksel bir testtir. Belirli bir *x* değişkeni için uzamsal kalıbın, uzamsal olarak *x* ile ilişkili olduğu varsayılan başka bir değişken olan *y*'nin uzamsal kalıbına benzer olup olmadığını test etmenizi sağlar.
 
-**Lee's L test** - This is a statistical test for bivariate spatial correlation. It allows you to test whether the spatial pattern for a given variable *x* is similar to the spatial pattern of another variable, *y*, that is hypothesized to be related spatially to *x*. 
-
-To give an example, let's test whether the spatial pattern of Ebola cases from the simulated epidemic is correlated with the spatial pattern of population. To start, we need to have a `population` variable in our `sle_adm3` data. We can use the `total` variable from the `sle_adm3_pop` dataframe that we loaded earlier.
+Bir örnek vermek gerekirse, simüle edilmiş salgındaki Ebola vakalarının mekansal düzeninin, nüfusun mekansal düzeniyle ilişkili olup olmadığını test edelim. Başlamak için, 'sle_adm3' verilerimizde bir 'population' değişkenine ihtiyacımız var. Daha önce yüklediğimiz 'sle_adm3_pop' veri çerçevesinden 'total' değişkenini kullanabiliriz.
 
 ```{r}
 sle_adm3_dat <- sle_adm3_dat %>% 
-  rename(population = total)                          # rename 'total' to 'population'
+  rename(population = total)                          # toplamı nüfus olarak yeniden adlandır
 ```
 
-We can quickly visualize the spatial patterns of the two variables side by side, to see whether they look similar:
+Benzer görünüp görünmediklerini görmek için iki değişkenin uzamsal modellerini yan yana hızlı bir şekilde görselleştirebiliriz:
 ```{r, fig.align='center', warning=F, message=F}
 tmap_mode("plot")
 
 cases_map <- tm_shape(sle_adm3_dat) + tm_polygons("cases") + tm_layout(main.title="Cases")
 pop_map <- tm_shape(sle_adm3_dat) + tm_polygons("population") + tm_layout(main.title="Population")
 
-tmap_arrange(cases_map, pop_map, ncol=2)   # arrange into 2x1 facets
+tmap_arrange(cases_map, pop_map, ncol=2)   # 2x1 yönlerine göre düzenleyin
 ```
 
-Visually, the patterns seem dissimilar. We can use the `lee.test()` function in **spdep** to test statistically whether the pattern of spatial autocorrelation in the two variables is related. The L statistic will be close to 0 if there is no correlation between the patterns, close to 1 if there is a strong positive correlation (i.e. the patterns are similar), and close to -1 if there is a strong negative correlation (i.e. the patterns are inverse). 
+Görsel olarak, desenler farklı görünüyor. İki değişkendeki uzamsal otokorelasyon modelinin ilişkili olup olmadığını istatistiksel olarak test etmek için **spdep** içindeki `lee.test()` fonksiyonunu kullanabiliriz. Modeller arasında korelasyon yoksa L istatistiği 0'a yakın, güçlü bir pozitif korelasyon varsa 1'e yakın (yani modeller benzer) ve güçlü bir negatif korelasyon varsa -1'e yakındır (örn. desenler terstir).
 
 ```{r, warning=F, message=F}
 lee_test <- spdep::lee.test(
-  x=sle_adm3_dat$cases,          # variable 1 to compare
-  y=sle_adm3_dat$population,     # variable 2 to compare
-  listw=sle_listw                # listw object with neighbor weights
+  x=sle_adm3_dat$cases,          # karşılaştırılacak değişken 1
+  y=sle_adm3_dat$population,     # karşılaştırılacak değişken 2
+  listw=sle_listw                # komşu ağırlıkları ile listw nesnesi
 )
 
 lee_test
 ```
 
-The output above shows that the Lee's L statistic for our two variables was ` round(lee_test$estimate[1],2)`, which indicates weak negative correlation. This confirms our visual assessment that the pattern of cases and population are not related to one another, and provides evidence that the spatial pattern of cases is not strictly a result of population density in high-risk areas.
+Yukarıdaki çıktı, iki değişkenimiz için Lee'nin L istatistiğinin, zayıf negatif korelasyonu gösteren `round(lee_test$estimate[1],2)' olduğunu göstermektedir. Vaka ve nüfus düzeninin birbiriyle ilişkili olmadığına dair görsel değerlendirmemizi doğrular ve vakaların mekânsal düzeninin kesinlikle yüksek riskli bölgelerdeki nüfus yoğunluğunun bir sonucu olmadığına dair kanıt sağlar.
 
-The Lee L statistic can be useful for making these kinds of inferences about the relationship between spatially distributed variables; however, to describe the nature of the relationship between two variables in more detail, or adjust for confounding, *spatial regression* techniques will be needed. These are described briefly in the following section.
+Lee L istatistiği, uzamsal olarak dağılmış değişkenler arasındaki ilişki hakkında bu tür çıkarımlar yapmak için faydalı olabilir; ancak, iki değişken arasındaki ilişkinin doğasını daha ayrıntılı olarak tanımlamak veya kafa karıştırıcı duruma göre ayarlamak için *uzaysal regresyon* tekniklerine ihtiyaç duyulacaktır. Bunlar aşağıdaki bölümde kısaca açıklanmıştır.
 
-### Spatial regression {.unnumbered}  
+### Mekansal regresyon {.unnumbered}
 
-You may wish to make statistical inferences about the relationships between variables in your spatial data. In these cases, it is useful to consider *spatial regression* techniques - that is, approaches to regression that explicitly consider the spatial organization of units in your data. Some reasons that you may need to consider spatial regression models, rather than standard regression models such as GLMs, include:
+Uzamsal verilerinizdeki değişkenler arasındaki ilişkiler hakkında istatistiksel çıkarımlar yapmak isteyebilirsiniz. Bu durumlarda, *uzaysal regresyon* tekniklerini, yani verilerinizdeki birimlerin uzamsal organizasyonunu açıkça dikkate alan regresyon yaklaşımlarını anlamak yararlıdır. Genel Lineer Modeller (GLM) gibi standart regresyon modelleri yerine uzamsal regresyon modellerini dikkate almanız gerekebilecek bazı nedenler şunlardır:
 
-  * Standard regression models assume that residuals are independent from one another. In the presence of strong *spatial autocorrelation*, the residuals of a standard regression model are likely to be spatially autocorrelated as well, thus violating this assumption. This can lead to problems with interpreting the model results, in which case a spatial model would be preferred.
+  * Standart regresyon modelleri, artıkların birbirinden bağımsız olduğunu varsayar. Güçlü bir *uzaysal otokorelasyon* varlığında, standart bir regresyon modelinin artıklarının da uzaysal olarak otokorelasyona sahip olması muhtemeldir, dolayısıyla bu varsayımı ihlal eder. Bu, model sonuçlarının yorumlanmasında sorunlara yol açabilir, bu durumda uzamsal bir model tercih edilir.
   
-  * Regression models also typically assume that the effect of a variable *x* is constant over all observations. In the case of *spatial heterogeneity*, the effects we wish to estimate may vary over space, and we may be interested in quantifying those differences. In this case, spatial regression models offer more flexibility for estimating and interpreting effects.
+  * Regresyon modelleri ayrıca tipik olarak *x* değişkeninin etkisinin tüm gözlemlerde sabit olduğunu varsayar. *Mekansal heterojenlik* durumunda, tahmin etmek istediğimiz etkiler uzaya göre değişebilir ve bu farklılıkları ölçmekle ilgilenebiliriz. Bu durumda, uzamsal regresyon modelleri, etkileri tahmin etmek ve yorumlamak için daha fazla esneklik sunar.
   
-The details of spatial regression approaches are beyond the scope of this handbook. This section will instead provide an overview of the most common spatial regression models and their uses, and refer you to references that may of use if you wish to explore this area further.
+Mekansal regresyon yaklaşımlarının ayrıntıları bu el kitabının kapsamı dışındadır. Bu bölüm bunun yerine en yaygın uzamsal regresyon modellerine ve kullanımlarına genel bir bakış sunacak ve bu alanı daha fazla araştırmak isterseniz kullanılabilecek referanslara yönlendirecektir.
 
-**Spatial error models** - These models assume that the error terms across spatial units are correlated, in which case the data would violate the assumptions of a standard OLS model. Spatial error models are also sometimes referred to as **simultaneous autoregressive (SAR) models**. They can be fit using the `errorsarlm()` function in the **spatialreg** package (spatial regression functions which used to be a part of **spdep**). 
+**Uzamsal hata modelleri** - Bu modeller, uzamsal birimler arasındaki hata terimlerinin ilişkili olduğunu varsayar; bu durumda veriler, standart bir "Ordinary Least Squares (OLS)" modelinin varsayımlarını ihlal eder. Uzamsal hata modellerine bazen **eşzamanlı otoregresif (SAR) modeller** de denir. **spatialreg** paketindeki 'errorsarlm()' fonksiyonu kullanılarak sığdırılabilirler (eskiden **spdep**'in bir parçası olan uzamsal regresyon fonksiyonları).
 
-**Spatial lag models** - These models assume that the dependent variable for a region *i* is influenced not only by value of independent variables in *i*, but also by the values of those variables in regions neighboring *i*. Like spatial error models, spatial lag models are also sometimes described as **simultaneous autoregressive (SAR) models**.  They can be fit using the `lagsarlm()` function in the **spatialreg** package.
+**Uzamsal gecikme modelleri** - Bu modeller, *i* bölgesi için bağımlı değişkenin yalnızca *i* içindeki bağımsız değişkenlerin değerinden değil, aynı zamanda *i*'ye komşu bölgelerdeki bu değişkenlerin değerlerinden de etkilendiğini varsayar. Uzamsal hata modelleri gibi, uzaysal gecikme modelleri de bazen **eşzamanlı otoregresif (SAR) modeller** olarak tanımlanır. **spatialreg** paketindeki `lagsarlm()` fonskiyonu kullanılarak sığdırılabilirler.
 
-The **spdep** package contains several useful diagnostic tests for deciding between standard OLS, spatial lag, and spatial error models. These tests, called *Lagrange Multiplier diagnostics*, can be used to identify the type of spatial dependence in your data and choose which model is most appropriate. The function `lm.LMtests()` can be used to calculate all of the Lagrange Multiplier tests. Anselin (1988) also provides a useful flow chart tool to decide which spatial regression model to use based on the results of the Lagrange Multiplier tests:
+**spdep** paketi, standart OLS, uzamsal gecikme ve uzamsal hata modelleri arasında karar vermek için birkaç faydalı tanı testi içerir. *Lagrange Çarpanı teşhisleri* olarak adlandırılan bu testler, verilerinizdeki uzamsal bağımlılığın türünü belirlemek ve hangi modelin en uygun olduğunu seçmek için kullanılabilir. `lm.LMtests()` fonksiyonu, tüm Lagrange Çarpan testlerini hesaplamak için kullanılabilir. Anselin (1988) ayrıca Lagrange Çarpan testlerinin sonuçlarına dayanarak hangi uzaysal regresyon modelinin kullanılacağına karar vermek için kullanışlı bir akış şeması aracı sağlar:
 
 ```{r, fig.align='center', echo=F}
 knitr::include_graphics(here::here("images", "gis_lmflowchart.jpg"))
 ```
 
-**Bayesian hierarchical models** - Bayesian approaches are commonly used for some applications in spatial analysis, most commonly for [disease mapping](https://pubmed.ncbi.nlm.nih.gov/15690999/). They are preferred in cases where case data are sparsely distributed (for example, in the case of a rare outcome) or statistically "noisy", as they can be used to generate "smoothed" estimates of disease risk by accounting for the underlying latent spatial process. This may improve the quality of estimates. They also allow investigator pre-specification (via choice of prior) of complex spatial correlation patterns that may exist in the data, which can account for spatially-dependent and -independent variation in both independent and dependent variables. In R, Bayesian hierarchical models can be fit using the **CARbayes** package (see [vignette](https://cran.r-project.org/web/packages/CARBayes/vignettes/CARBayes.pdf)) or R-INLA (see [website](https://www.r-inla.org/home) and [textbook](https://becarioprecario.bitbucket.io/inla-gitbook/)). R can also be used to call external software that does Bayesian estimation, such as JAGS or WinBUGS.
+**Bayesin hiyerarşik modelleri** - Bayes yaklaşımları, uzaysal analizdeki bazı uygulamalar için yaygın olarak kullanılır, en yaygın olarak [hastalık haritalama](https://pubmed.ncbi.nlm.nih.gov/15690999/). Vaka verilerinin seyrek olarak dağıtıldığı (örneğin, nadir bir sonuç durumunda) veya istatistiksel olarak "gürültülü" olduğu durumlarda tercih edilirler, çünkü altta yatan gizli mekansal verileri hesaba katarak hastalık riskinin "düzeltilmiş" tahminlerini oluşturmak için kullanılabilirler. Bu, tahminlerin kalitesini artırabilir. Bunlar ayrıca, hem bağımsız hem de bağımlı değişkenlerde uzamsal olarak bağımlı ve bağımsız varyasyonu açıklayabilen, verilerde bulunabilen karmaşık uzamsal korelasyon modellerinin araştırmacı tarafından önceden belirlenmesine (önceki seçim yoluyla) izin verir. R'da, Bayesin hiyerarşik modelleri **CARbayes** paketi kullanılarak sığdırılabilir (bkz. [gösterim](https://cran.r-project.org/web/packages/CARBayes/vignettes/CARBayes.pdf)) veya R -INLA (bkz. [web sitesi](https://www.r-inla.org/home) ve [ders kitabı](https://becarioprecario.bitbucket.io/inla-gitbook/)). R ayrıca JAGS veya WinBUGS gibi Bayes tahmini yapan harici yazılımları çağırmak için de kullanılabilir.
 
-<!-- ======================================================= -->
-## Resources {  }
+<!--Konu çok teknikti çevirirken çoğu yeri anlamadım. Sonraki çevirilerde alanın uzmanı birisi bir göz atsa faydası olur. ============================================= ========= -->
+## Kaynaklar {  }
 
-* R Simple Features and sf package [vignette](https://cran.r-project.org/web/packages/sf/vignettes/sf1.html)
-
-
-* R tmap package [vignette](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html)
+* R'ın Basit Özellikleri ve sf paketi [gösterim](https://cran.r-project.org/web/packages/sf/vignettes/sf1.html)
 
 
-* ggmap: [Spatial Visualization with ggplot2](https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf)
+* R tmap paketi [gösterim](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html)
 
 
-* [Intro to making maps with R, overview of different packages](https://bookdown.org/nicohahn/making_maps_with_r5/docs/introduction.html)  
-
-* Spatial Data in R [(EarthLab course)](https://www.earthdatascience.org/courses/earth-analytics/spatial-data-r/)
-
-* Applied Spatial Data Analysis in R [textbook](https://link.springer.com/book/10.1007/978-1-4614-7618-4)
-
-* **SpatialEpiApp** - a [Shiny app that is downloadable as an R package](https://github.com/Paula-Moraga/SpatialEpiApp), allowing you to provide your own data and conduct mapping, cluster analysis, and spatial statistics.  
+* ggmap: [ggplot2 ile Mekansal Görselleştirme](https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf)
 
 
-* An Introduction to Spatial Econometrics in R [workshop](http://www.econ.uiuc.edu/~lab/workshop/Spatial_in_R.html)
+* [R ile harita oluşturmaya giriş, farklı paketlere genel bakış](https://bookdown.org/nicohahn/making_maps_with_r5/docs/introduction.html)
+
+* R'da Mekansal Veriler [(EarthLab kursu)](https://www.earthdatascience.org/courses/earth-analytics/spatial-data-r/)
+
+* R'da Uygulamalı Uzamsal Veri Analizi [ders kitabı](https://link.springer.com/book/10.1007/978-1-4614-7618-4)
+
+* **SpatialEpiApp** - [R paketi olarak indirilebilen bir Shiny uygulaması](https://github.com/Paula-Moraga/SpatialEpiApp), kendi verilerinizi sağlamanıza ve haritalama, küme analizi ve mekansal istatistikleri sağlar.
+
+
+* R'da Mekansal Ekonometriye Giriş [atölye](http://www.econ.uiuc.edu/~lab/workshop/Spatial_in_R.html)

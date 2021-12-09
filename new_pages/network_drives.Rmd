@@ -1,176 +1,159 @@
 
-# R on network drives { }  
+# Ağ sürücülerinde R { }
 
- 
+## Genel Bakış { }
 
+R'ı ağda veya "şirket" ortak sürücülerinde kullanmak ek zorluklar ortaya çıkarabilir. Bu sayfa, bu sorunlar üzerinde çalışırken edindiğimiz deneyimlerden sorunları gidermeye yönelik yaklaşımları, yaygın hataları ve önerileri içerir. Bölüm ayrıca R Markdown'ı da içeren özellikle hassas durumlar için ipuçları içerir.
 
-<!-- ======================================================= -->
-## Overview {  }
+**Ağ Sürücülerinde R Kullanımı: Kapsamlı ilkeler**
 
-Using R on network or "company" shared drives can present additional challenges. This page contains approaches, common errors, and suggestions on troubleshooting gained from our experience working through these issues. These include tips for the particularly delicate situations involving R Markdown.  
-
-
-**Using R on Network Drives: Overarching principles**  
-
-1) You must get administrator access for your computer. Setup RStudio specifically to run as administrator.  
-2) Save packages to a library on a lettered drive (e.g. "C:") when possible. Use a package library whose path begins with "\\\" as little as possible.  
-3) the **rmarkdown** package must **not** be in a "\\\" package library, as then it can't connect to TinyTex or Pandoc.  
+1) Bilgisayarınız için yönetici erişimi almalısınız. RStudio'yu özellikle yönetici olarak çalışacak şekilde kurun.
+2) Mümkün olduğunda paketleri harfli bir sürücüdeki (örneğin "C:") bir kitaplığa kaydedin. Mümkün olduğunca az yolu "\\\" ile başlayan bir paket kitaplığı kullanın.
+3) **rmarkdown** paketi bir "\\\" paket kitaplığında **olmamalıdır**, çünkü bu durumda TinyTex veya Pandoc'a bağlanamaz.
 
 
+## Yönetici olarak RStudio
+
+RStudio'yu açmak için RStudio simgesine tıkladığınızda, bunu sağ tıklatarak yapın. Makinenize bağlı olarak, "Yönetici Olarak Çalıştır" seçeneğini görebilirsiniz. Aksi takdirde, Özellikler'i seçmek için bir seçenek görebilirsiniz (daha sonra "Uyumluluk" seçeneğinin olduğu bir pencere görünmelidir ve "Yönetici Olarak Çalıştır" onay kutusunu seçebilirsiniz).
 
 
-## RStudio as administrator  
+## Faydalı komutlar
 
-When you click the RStudio icon to open RStudio, do so with a right-click. Depending on your machine, you may see an option to "Run as Administrator". Otherwise, you may see an option to select Properties (then there should appear a window with the option "Compatibility", and you can select a checkbox "Run as Administrator").  
+Aşağıda, ağ sürücülerinde R kullanarak sorunları gidermeye yarayan bazı yararlı komutlar verilmiştir.
 
-
-
-
-## Useful commands 
-
-Below are some useful commands when trying to troubleshoot issues using R on network drives.  
-
-You can return the path(s) to package libraries that R is using. They will be listed in the order that R is using to install/load/search for packages. Thus, if you want R to use a different default library, you can switch the order of these paths (see below).  
+Yolları R'ın kullandığı paket kitaplıklarına döndürebilirsiniz. Bunlar, R'ın paketleri kurmak/yüklemek/aramak için kullandığı sırayla listelenecektir. Bu nedenle, R'ın farklı bir varsayılan kitaplık kullanmasını istiyorsanız, bu yolların sırasını değiştirebilirsiniz (aşağıya bakın).
 
 ```{r, eval=F}
-# Find libraries
-.libPaths()                   # Your library paths, listed in order that R installs/searches. 
-                              # Note: all libraries will be listed, but to install to some (e.g. C:) you 
-                              # may need to be running RStudio as an administrator (it won't appear in the 
-                              # install packages library drop-down menu) 
+# kitaplığı bul
+.libPaths()                   # R'ın yüklediği/aradığı sırayla listelenmiş kitaplık yollarınız.
+                              # Not: tüm kitaplıklar listelenecektir, ancak bazılarına (örneğin C :) yüklemek için
+                              # RStudio'yu yönetici olarak çalıştırmanız gerekebilir 
+                              # (paket kitaplığı açılır menüsü yükleyin)
 ```
 
-You may want to switch the order of the package libraries used by R. For example if R is picking up a library location that begins with "\\\" and one that begins with a letter e.g. "D:". You can adjust the order of `.libPaths()` with the following code.  
+R tarafından kullanılan paket kitaplıklarının sırasını değiştirmek isteyebilirsiniz. Örneğin, R "\\\" ile başlayan ve büyük bir harfle başlayan bir kitaplık konumu alıyorsa, örn. "D:". `.libPaths()` sırasını aşağıdaki kod ile ayarlayabilirsiniz.  
 
 ````{r, eval=F}
-# Switch order of libraries
-# this can effect the priority of R finding a package. E.g. you may want your C: library to be listed first
-myPaths <- .libPaths() # get the paths
-myPaths <- c(myPaths[2], myPaths[1]) # switch them
-.libPaths(myPaths) # reassign them
+# Kitaplıkların sırasını değiştir
+# bu, R'ın bir paket bulma önceliğini etkileyebilir. Örneğin. C: kitaplığınızın önce listelenmesini isteyebilirsiniz
+myPaths <- .libPaths() # yolakları al
+myPaths <- c(myPaths[2], myPaths[1]) # değiştir
+.libPaths(myPaths) # yeniden ata
 ```
 
-If you are having difficulties with R Markdown connecting to Pandoc, begin with this code to find out where RStudio thinks your Pandoc installation is.  
+Pandoc'a bağlanan R Markdown ile ilgili sorunlar yaşıyorsanız, RStudio'nun Pandoc kurulumunuzun nerede olduğunu düşündüğünü öğrenmek için bu kodla başlayın. 
 
 ```{r, eval=F}
-# Find Pandoc
-Sys.getenv("RSTUDIO_PANDOC")  # Find where RStudio thinks your Pandoc installation is
+# Pandoc'u bul
+Sys.getenv("RSTUDIO_PANDOC")  # RStudio'nun Pandoc kurulumunuzun nerede olduğunu düşündüğünü bulun
 ```
 
-If you want to see which library a package is loading from, try the below code:  
+Bir paketin hangi kütüphaneden yüklendiğini görmek istiyorsanız aşağıdaki kodu deneyin:
 
 ```{r, eval=F}
-# Find a package
-# gives first location of package (note order of your libraries)
+# bir paket bulun
+# paketin ilk konumunu verir (kütüphanelerinizin sırasını not edin)
 find.package("rmarkdown", lib.loc = NULL, quiet = FALSE, verbose = getOption("verbose")) 
 ```
 
-
-
 <!-- ======================================================= -->
-## Troubleshooting common errors {  }
+## Sık karşılaşılan hataları giderme { }
 
 
-**"Failed to compile...tex in rmarkdown"**  
+**"rmarkdown'da...tex derlenemedi"**
 
-* Check the installation of TinyTex, or install TinyTex to C: location. See the [R basics] page on how to install TinyTex.  
+* TinyTex kurulumunu kontrol edin veya TinyTex'i C: konumuna kurun. TinyTex'in nasıl kurulacağını öğrenmek için [R temelleri] sayfasına bakabilirsiniz.
 
 ```{r, eval=F}
-# check/install tinytex, to C: location
+# tinytex'i kontrol edin/yükleyin, C: konumuna
 tinytex::install_tinytex()
-tinytex:::is_tinytex() # should return TRUE (note three colons)
+tinytex:::is_tinytex() #  DOĞRU döndürmelidir (üç kolonu da not alın)
 ```
+**İnternet rutinleri yüklenemiyor**
 
+Örneğin, `Error in tools::startDynamicHelp() : internet rutinleri yüklenemiyor`
 
-**Internet routines cannot be loaded**  
+* Araçlar/Global Seçenekler aracılığıyla RStudio'dan 32 bit sürümü seçmeyi deneyin.
+   * not: Menüde 32 bit sürüm görünmüyorsa, RStudio v1.2'yi kullanmadığınızdan emin olun.
+* Alternatif olarak, R'ı kaldırıp farklı bir bit sürümüyle yeniden yüklemeyi deneyin (64 yerine 32)
 
-For example, `Error in tools::startDynamicHelp() : internet routines cannot be loaded`  
+**C: kitaplık paketleri manuel olarak yüklemeye çalıştığımda bir seçenek olarak görünmüyor**
 
-* Try selecting 32-bit version from RStudio via Tools/Global Options.  
-  * note: if 32-bit version does not appear in menu, make sure you are not using RStudio v1.2.  
-* Alternatively, try uninstalling R and re-installing with different bit version (32 instead of 64)
+* RStudio'yu yönetici olarak çalıştırın, bu seçenek görünecektir.
+* RStudio'yu her zaman yönetici olarak çalışacak şekilde ayarlamak için Rstudio simgesine sağ tıklayın
 
-
-**C: library does not appear as an option when I try to install packages manually**
-
-* Run RStudio as an administrator, then this option will appear.  
-* To set-up RStudio to always run as administrator (advantageous when using an Rproject where you don't click RStudio icon to open)... right-click the Rstudio icon 
-
-The image below shows how you can manually select the library to install a package to. This window appears when you open the Packages RStudio pane and click "Install".  
+Aşağıdaki resim, bir paketin kurulacağı kitaplığı manuel olarak nasıl seçebileceğinizi gösterir. Bu pencere, Paketler RStudio bölmesini açtığınızda ve "Yükle" yi tıkladığınızda görünür.
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "network_install.png"))
 ```
 
-**Pandoc 1 error**  
+**Pandoc 1 hatası**
 
-If you are getting "pandoc error 1" when knitting R Markdowns scripts on network drives:  
+Ağ sürücülerinde R Markdowns komut dosyalarını örerken "pandoc hatası 1" alıyorsanız:
 
-* Of multiple library locations, have the one with a lettered drive listed first (see codes above)  
-* The above solution worked when knitting on local drive but while on a networked internet connection  
-* See more tips here: https://ciser.cornell.edu/rmarkdown-knit-to-html-word-pdf/  
+* Birden fazla kitaplık konumundan önce harfli sürücüye sahip olanı listeleyin (yukarıdaki kodlara bakın)
+* Yukarıdaki çözüm, yerel sürücüde örerken ancak ağ bağlantılı bir internet bağlantısındayken işe yaradı.
+* Burada daha fazla ipucu bulabilirsiniz: https://ciser.cornell.edu/rmarkdown-knit-to-html-word-pdf/
 
-**Pandoc Error 83**  
+**Pandoc Hatası 83**
 
-The error will look something like this: `can't find file...rmarkdown...lua...`. This means that it was unable to find this file.  
+Hata şuna benzer: `can't find file...rmarkdown...lua...`. Bu, bu dosyayı bulamadığı anlamına gelir.
 
-See https://stackoverflow.com/questions/58830927/rmarkdown-unable-to-locate-lua-filter-when-knitting-to-word  
+https://stackoverflow.com/questions/58830927/rmarkdown-unable-to-locate-lua-filter-while-knitting-to-word 'e bakın
 
-Possibilities:  
+Olasılıklar:
 
-1) Rmarkdown package is not installed  
-2) Rmarkdown package is not findable  
-3) An admin rights issue.  
+1) Rmarkdown paketi kurulu değil
+2) Rmarkdown paketi bulunamadı
+3) Bir yönetici hakları sorunu.
 
-It is possible that R is not able to find the **rmarkdown** package file, so check which library the **rmarkdown** package lives (see code above). If the package is installed to a library that in inaccessible (e.g. starts with "\\\") consider manually moving it to C: or other named drive library. Be aware that the **rmarkdown** package has to be able to connect to TinyTex installation, so can not live in a library on a network drive.
-
-
-**Pandoc Error 61**  
-
-For example: `Error: pandoc document conversion failed with error 61`  or `Could not fetch...`  
-
-* Try running RStudio as administrator (right click icon, select run as admin, see above instructions)  
-* Also see if the specific package that was unable to be reached can be moved to C: library.
-
-**LaTex error (see below)**
-
-An error like: `! Package pdftex.def Error: File 'cict_qm2_2020-06-29_files/figure-latex/unnamed-chunk-5-1.png' not found: using draft setting.` or `Error: LaTeX failed to compile file_name.tex.`  
-
-* See https://yihui.org/tinytex/r/#debugging for debugging tips.  
-* See file_name.log for more info.
+R'ın **rmarkdown** paket dosyasını bulamaması mümkündür, bu nedenle **rmarkdown** paketinin hangi kütüphanede olduğunu kontrol edin (yukarıdaki koda bakın). Paket, erişilemeyen (örneğin, "\\\" ile başlayan) bir kitaplığa kuruluysa, onu manuel olarak C:'ye veya başka bir adlandırılmış sürücü kitaplığına taşımayı düşünün. **rmarkdown** paketinin TinyTex kurulumuna bağlanabilmesi gerektiğini, bu nedenle bir ağ sürücüsündeki bir kitaplıkta yaşayamayacağını unutmayın.
 
 
-**Pandoc Error 127**  
+**Pandoc Hatası 61**
 
-This could be a RAM (space) issue. Re-start your R session and try again. 
+Örneğin: `Error: pandoc document conversion failed with error 61`  or `Could not fetch...`
 
+* RStudio'yu yönetici olarak çalıştırmayı deneyin (simgeye sağ tıklayın, yönetici olarak çalıştır'ı seçin, yukarıdaki talimatlara bakın)
+* Ayrıca ulaşılamayan belirli paketin C: kitaplığına taşınıp taşınamayacağına da bakın.
 
-**Mapping network drives**
+**LaTex hatası (aşağıya bakın)**
 
-Mapping a network drive can be risky. Consult with your IT department before attempting this.  
+Şuna benzer bir hata: `! Package pdftex.def Error: File 'cict_qm2_2020-06-29_files/figure-latex/unnamed-chunk-5-1.png' not found: using draft setting.` or `Error: LaTeX failed to compile file_name.tex.`  
 
-A tip borrowed from this [forum discussion](https://stackoverflow.com/questions/48161177/r-markdown-openbinaryfile-does-not-exist-no-such-file-or-directory/55616529?noredirect=1#comment97966859_55616529): 
-
-How does one open a file "through a mapped network drive"?  
-
-* First, you'll need to know the network location you're trying to access.  
-* Next, in the Windows file manager, you will need to right click on "This PC" on the right hand pane, and select "Map a network drive".  
-* Go through the dialogue to define the network location from earlier as a lettered drive.  
-* Now you have two ways to get to the file you're opening. Using the drive-letter path should work.  
+* Hata ayıklama ipuçları için https://yihui.org/tinytex/r/#debugging adresine bakın.
+* Daha fazla bilgi için file_name.log'a bakın.
 
 
-**Error in install.packages()**  
+**Pandoc Hatası 127**
 
-If you get an error that includes mention of a "lock" directory, for example: `Error in install.packages : ERROR: failed to lock directory...`
-
-Look in your package library and you will see a folder whose name begins with "00LOCK". Try the following tips:  
-
-* Manually delete the "00LOCK" folder directory from your package library. Try installing the package again.  
-* You can also try the command `pacman::p_unlock()` (you can also put this command in the Rprofile so it runs every time project opens.). Then try installing the package again. It may take several tries.  
-* Try running RStudio in Administrator mode, and try installing the packages one-by-one.  
-* If all else fails, install the package to another library or folder (e.g. Temp) and then manually copy the package's folder over to the desired library.  
+Bu bir RAM (boşluk) sorunu olabilir. R oturumunuzu yeniden başlatın ve tekrar deneyin. 
 
 
+**Ağ sürücülerini eşleme**
+
+Bir ağ sürücüsünü eşlemek riskli olabilir. Bunu denemeden önce bilgi işlem departmanınıza danışın.
+
+Bu [forum tartışmasından] ödünç alınmış bir yorumdur: (https://stackoverflow.com/questions/48161177/r-markdown-openbinaryfile-does-not-exist-no-such-file-or-directory/55616529?noredirect=1#comment97966859_55616529): 
+
+"Eşlenmiş bir ağ sürücüsü aracılığıyla" bir dosya nasıl açılır?
+
+* Öncelikle, erişmeye çalıştığınız ağ konumunu bilmeniz gerekir.
+* Ardından, Windows dosya yöneticisinde, sağdaki bölmede "Bu PC"ye sağ tıklamanız ve "Bir ağ sürücüsünü eşle"yi seçmeniz gerekecektir.
+* Ağ konumunu daha önce harfli bir sürücü olarak tanımlamak için diyalogu gözden geçirin.
+* Artık açtığınız dosyaya ulaşmanın iki yolu var. Sürücü harfi yolunu kullanmak işe yaramalıdır.
+
+
+**install.packages() dosyasında hata**
+
+Bir "kilit" dizininden bahseden bir hata alırsanız, örneğin:  `Error in install.packages : ERROR: failed to lock directory...`
+Paket kitaplığınıza baktığınızda adı "00LOCK" ile başlayan bir klasör göreceksiniz. Aşağıdakileri deneyin:
+
+* "00LOCK" klasör dizinini paket kitaplığınızdan manuel olarak silin. Paketi yeniden yüklemeyi deneyin.
+* Ayrıca `pacman::p_unlock()` komutunu da deneyebilirsiniz (bu komutu proje her açıldığında çalışması için Rprofile'e de koyabilirsiniz.). Ardından paketi yeniden yüklemeyi deneyin. Birkaç deneme gerektirebilir.
+* RStudio'yu Yönetici modunda çalıştırmayı deneyin ve paketleri tek tek yüklemeyi deneyin.
+* Diğerleri başarısız olursa, paketi başka bir kitaplığa veya klasöre (örn. Temp) kurun ve ardından paketin klasörünü istenen kitaplığa manuel olarak kopyalayın.
 
 
 
