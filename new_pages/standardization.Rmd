@@ -1,56 +1,56 @@
 
-# Standardised rates { }  
+# Standardize edilmiş hızlar { }  
 
-This page will show you two ways to standardize an outcome, such as hospitalizations or mortality, by characteristics such as age and sex. 
+Bu sayfa, hastaneye yatış veya ölüm oranları gibi bir çıktıyı yaş ve cinsiyet gibi özelliklere göre standardize etmenin iki yolunu gösterecektir. 
 
-* Using **dsr** package 
-* Using **PHEindicatormethods** package  
+* **dsr** paketini kullanma
+* **PHEindicatormethods** paketini kullanma 
 
-We begin by extensively demonstrating the processes of data preparation/cleaning/joining, as this is common when combining population data from multiple countries, standard population data, deaths, etc.  
+Birden fazla ülkeden nüfus verileri, standart nüfus verileri, ölümler vb. birleştirilmesi için yaygın kullanımı olduğu için, veri hazırlama/temizleme/birleştirme süreçlerini kapsamlı bir şekilde göstererek başlıyoruz.
 
-## Overview  
+## Genel bakış  
 
-There are two main ways to standardize: direct and indirect standardization.
-Let's say we would like to the standardize mortality rate by age and sex for country A and country B, and compare the standardized rates between these countries.
+Standardizasyonun iki ana yöntemi vardır: Direkt ve indirekt standardizasyon.
+A ve B ülkeleri için ölüm hızlarını yaşa ve cinsiyete göre standardize etmek ve bu ülkeler arasındaki standardize edilmiş oranları karşılaştırmak istediğimizi varsayalım.
 
-* For direct standardization, you will have to know the number of the at-risk population and the number of deaths for each stratum of age and sex, for country A and country B. One stratum in our example could be females between ages 15-44.  
-* For indirect standardization, you only need to know the total number of deaths and the age- and sex structure of each country. This option is therefore feasible if age- and sex-specific mortality rates or population numbers are not available. Indirect standardization is furthermore preferable in case of small numbers per stratum, as estimates in direct standardization would be influenced by substantial sampling variation. 
-
-<!-- ======================================================= -->
-## Preparation {  }
-
-To show how standardization is done, we will use fictitious population counts and death counts from  country A and country B, by age (in 5 year categories) and sex (female, male). To make the datasets ready for use, we will perform the following preparation steps:  
-
-1. Load packages  
-2. Load datasets  
-3. Join the population and death data from the two countries
-4. Pivot longer so there is one row per age-sex stratum
-5. Clean the reference population (world standard population) and join it to the country data  
-
-In your scenario, your data may come in a different format. Perhaps your data are by province, city, or other catchment area. You may have one row for each death and information on age and sex for each (or a significant proportion) of these deaths. In this case, see the pages on [Grouping data], [Pivoting data], and [Descriptive tables] to create a dataset with event and population counts per age-sex stratum.  
-
-We also need a reference population, the standard population. For the purposes of this exercise we will use the `world_standard_population_by_sex`. The World standard population is based on the populations of 46 countries and was developed in 1960. There are many "standard" populations - as one example, the website of [NHS Scotland](https://www.opendata.nhs.scot/dataset/standard-populations) is quite informative on the European Standard Population, World Standard Population and Scotland Standard Population. 
+* Direk standardizasyon için, A ülkesi ve B ülkesi için her yaş ve cinsiyet tabakası için risk altındaki popülasyon büyüklüğüve ölümlerin sayısını bilmeniz gerekecektir. Örneğimizdeki bir katman 15-44 yaş arası kadınlar olabilir. 
+* İndirekt standardizasyon için, her ülkenin toplam ölüm sayısı, yaş ve cinsiyet yapısını bilmeniz gerekir. Dolayısıyla bu seçenek, yaşa ve cinsiyete özgü ölüm hızları veya nüfus sayıları mevcut değilse uygulanabilir. Direkt standardizasyondaki tahminler örneklem varyasyonundan etkileneceğinden; tabaka başına küçük sayıların olması durumunda indirekt standardizasyon tercih edilir.  
 
 <!-- ======================================================= -->
-### Load packages {.unnumbered}
+## Hazırlık {  }
 
-This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Standardizasyonun nasıl yapıldığını göstermek için, A ve B ülkelerinin yaşa (5 yıllık tabakalar halinde) ve cinsiyete (kadın, erkek) göre kurgusal nüfus büyüklükleri ve ölüm sayımlarını kullanacağız. Veri setlerini kullanıma hazır hale getirmek için aşağıdaki hazırlık adımlarını gerçekleştireceğiz:  
+
+1. Paketlerin yüklenmesi  
+2. Veri tabanlarının yüklenmesi 
+3. İki ülkenin nüfus ve ölüm verilerini birleştirilmesi
+4. Yaş-cinsiyet katmanı başına bir satır olacak şekilde daha uzun şekilde pivotlama
+5. Referans popülasyonunu (dünya standart nüfusu) temizleme ve ülke verilerine ekleme 
+
+Senaryonuzda, verileriniz farklı bir biçimde gelebilir. Belki verileriniz il, şehir veya başka bir hizmet alanına göre düzenlenmiştir. Her ölüm için bir satır ve bu ölümlerin her biri (veya önemli bir kısmı) için yaş ve cinsiyet bilgileri olabilir. Bu durumda, yaş-cinsiyet katmanlarına göre olay ve nüfus sayıları içeren bir veri tabanı oluşturmak için [Verileri gruplandırma], [Verileri pivotlama] ve [Tanımlayıcı tablolar] sayfalarına bakın.
+
+Ayrıca bir referans popülasyona, standart popülasyona ihtiyacımız vardır. Bu alıştırma için `world_standard_population_by_sex`'i kullanacağız. Dünya standart nüfusu, 46 ülkenin nüfusuna dayanmaktadır ve 1960 yılında geliştirilmiştir. Birçok “standart” popülasyon vardır - bir örnek olarak, [NHS İskoçya'nın web sitesi](https://www.opendata.nhs.scot/dataset/standard-populations) Avrupa Standart Nüfusu, Dünya Standart Nüfusu ve İskoçya Standardı hakkında detaylı  bilgi içermektedir. (European Standard Population, World Standard Population and Scotland Standard Population).
+
+<!-- ======================================================= -->
+### Paketlerin yüklenmesi {.unnumbered}
+
+Bu kod kümesi, analizler için gereken paketlerin yüklenmesini gösterir. Bu el kitabında, gerekirse paketi kuran ve kullanım için yükleyen **pacman**'ın `p_load()` fonksiyonunu vurguluyoruz. Ayrıca, R tabanından `library()` ile kurulu paketleri yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R’ın temelleri] sayfasına bakın.
 
 ```{r}
 pacman::p_load(
-     rio,                 # import/export data
-     here,                # locate files
-     tidyverse,           # data management and visualization
-     stringr,             # cleaning characters and strings
-     frailtypack,         # needed for dsr, for frailty models
-     dsr,                 # standardise rates
-     PHEindicatormethods) # alternative for rate standardisation
+     rio,                 # verileri içe/dışa aktar
+     here,                # dosyaları bul
+     tidyverse,           # veri yönetimi ve görselleştirme
+     stringr,             # karakterleri ve dizeleri (string) temizleme
+     frailtypack,         # frailty modelleri için dsr için gerekli
+     dsr,                 # hızları standardize et
+     PHEindicatormethods) # hızların  standardizasyonu için alternatif
 ```
 
 
-<span style="color: orange;">**_CAUTION:_** If you have a newer version of R, the **dsr** package cannot be directly downloaded from CRAN. However, it is still available from the CRAN archive. You can install and use this one. </span>
+<span style="color: orange;">**DİKKAT:_** Daha yeni bir R sürümüne sahipseniz, **dsr** paketi doğrudan CRAN'den indirilemez. Ancak, yine de bu paket CRAN arşivinden temin edilebilir. Bu şekilde paketi yükleyebilir ve kullanabilirsiniz. </span>
 
-For non-Mac users:  
+Mac kullanıcısı olmayanlar için:  
 
 ```{r, eval=F} 
 packageurl <- "https://cran.r-project.org/src/contrib/Archive/dsr/dsr_0.2.2.tar.gz"
@@ -58,12 +58,12 @@ install.packages(packageurl, repos=NULL, type="source")
 ```
 
 ```{r, eval=FALSE}
-# Other solution that may work
+# Diğer çözüm
 require(devtools)
 devtools::install_version("dsr", version="0.2.2", repos="http:/cran.us.r.project.org")
 ```
 
-For Mac users:  
+Mac kullanıcıları için:  
 
 ```{r, eval=FALSE}
 require(devtools)
@@ -73,33 +73,33 @@ devtools::install_version("dsr", version="0.2.2", repos="https://mac.R-project.o
 
 
 
-### Load population data {.unnumbered}  
+### Popülasyon verisinin yüklenmesi {.unnumbered}  
 
-See the [Download handbook and data] page for instructions on how to download all the example data in the handbook. You can import the Standardisation page data directly into R from our Github repository by running the following `import()` commands:  
+El kitabındaki tüm örnek verilerin nasıl indirileceğine ilişkin talimatlar için [Verilerin ve el kitabının indirilmesi] sayfasına bakın. Aşağıdaki `import()` komutlarını çalıştırarak Standardizasyon sayfası verilerini Github depomuzdan doğrudan R'a aktarabilirsiniz:  
 
 ```{r, eval=F}
-# import demographics for country A directly from Github
+# A ülkesi için demografik veriyi doğrudan Github'dan içe aktarın
 A_demo <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/country_demographics.csv")
 
-# import deaths for country A directly from Github
+# A ülkesi için ölümleri doğrudan Github'dan içe aktarın
 A_deaths <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/deaths_countryA.csv")
 
-# import demographics for country B directly from Github
+# B ülkesi için demografik veriyi doğrudan Github'dan içe aktarın
 B_demo <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/country_demographics_2.csv")
 
-# import deaths for country B directly from Github
+# B ülkesi için ölümleri doğrudan Github'dan içe aktarın
 B_deaths <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/deaths_countryB.csv")
 
-# import demographics for country B directly from Github
+# B ülkesi için demografik veriyi doğrudan Github'dan içe aktarın
 standard_pop_data <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/world_standard_population_by_sex.csv")
 
 ```
 
 
-First we load the demographic data (counts of males and females by 5-year age category) for the two countries that we will be comparing, "Country A" and "Country B".  
+İlk önce karşılaştıracağımız iki ülke olan “Ülke A” ve “Ülke B” için demografik verileri (5 yıllık yaş kategorisine göre kadın ve erkek sayıları) yüklüyoruz.  
 
 ```{r, echo=F}
-# Country A
+# A ülkesi
 A_demo <- rio::import(here::here("data", "standardization", "country_demographics.csv")) %>% 
      mutate(Country = "A") %>% 
      select(Country, everything()) %>% # re-arrange
@@ -107,7 +107,7 @@ A_demo <- rio::import(here::here("data", "standardization", "country_demographic
 ```
 
 ```{r, eval=F}
-# Country A
+# A ülkesi
 A_demo <- import("country_demographics.csv")
 ```
 
@@ -117,14 +117,14 @@ DT::datatable(A_demo, rownames = FALSE, options = list(pageLength = 5, scrollX=T
 
 
 ```{r, echo=F}
-# Country B
+# B ülkesi
 B_demo <- rio::import(here::here("data", "standardization", "country_demographics_2.csv")) %>% 
      mutate(Country = "B") %>% 
      select(Country, everything()) # re-arrange
 ```
 
 ```{r, eval=F}
-# Country B
+# B ülkesi
 B_demo <- import("country_demographics_2.csv")
 ```
 
@@ -136,15 +136,15 @@ DT::datatable(B_demo, rownames = FALSE, options = list(pageLength = 5, scrollX=T
 
 
 
-### Load death counts {.unnumbered}  
+### Ölüm sayılarının yüklenmesi {.unnumbered}  
 
-Conveniently, we also have the counts of deaths during the time period of interest, by age and sex. Each country's counts are in a separate file, shown below.   
+Elimizde uygun bir şekilde, ilgilenilen zaman dilimindeki yaş ve cinsiyete göre ölüm sayıları da bulunmaktadır. Her ülkenin ölüm sayıları aşağıda gösterilen ayrı bir dosyadadır.   
 
 ```{r, echo=F}
-A_males <- c(224, 257, 251, 245, 334, 245, 154, 189, 334, 342, 565, 432, 543, 432, 245, 543, 234, 354) # for males of country A
-B_males <- c(34, 37, 51, 145, 434, 120, 100, 143, 307, 354, 463, 639, 706, 232, 275, 543, 234, 274) # for males of country B
-A_females <- c(194, 254, 232, 214, 316, 224, 163, 167, 354, 354, 463, 574, 493, 295, 175, 380, 177, 392) # for females of country A
-B_females <- c(54, 24, 32, 154, 276, 254, 123, 164, 254, 354, 453, 654, 435, 354, 165, 432, 287, 395) # for females of country B
+A_males <- c(224, 257, 251, 245, 334, 245, 154, 189, 334, 342, 565, 432, 543, 432, 245, 543, 234, 354) # A Ülkesindeki erkekler
+B_males <- c(34, 37, 51, 145, 434, 120, 100, 143, 307, 354, 463, 639, 706, 232, 275, 543, 234, 274) # B Ülkesindeki erkekler
+A_females <- c(194, 254, 232, 214, 316, 224, 163, 167, 354, 354, 463, 574, 493, 295, 175, 380, 177, 392) # A Ülkesindeki kadınlar
+B_females <- c(54, 24, 32, 154, 276, 254, 123, 164, 254, 354, 453, 654, 435, 354, 165, 432, 287, 395) # B Ülkesindeki kadınlar
 
 age_cat5 <- c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29",  "30-34", "35-39", "40-44",
                                                                                 "45-49", "50-54", "55-59",
@@ -154,12 +154,12 @@ A_deaths <- data.frame(Country = "A", AgeCat = age_cat5, Male = A_males, Female 
 B_deaths <- data.frame(Country = "B", AgeCat = age_cat5, Male = B_males, Female = B_females)
 ```
 
-Deaths in Country A
+A Ülkesindeki Ölümler
 ```{r message=FALSE, echo=F}
 DT::datatable(A_deaths, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Deaths in Country B
+B Ülkesindeki Ölümler
 
 ```{r message=FALSE, echo=F}
 DT::datatable(B_deaths, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
@@ -173,62 +173,61 @@ rio::export(B_deaths, here::here("data", "standardization", "deaths_countryB.csv
 
 
 
-### Clean populations and deaths {.unnumbered}  
+### Nüfus ve ölüm verilerinin temizliği {.unnumbered}  
 
 
-We need to join and transform these data in the following ways:  
+Bu verileri aşağıdaki şekillerde birleştirmemiz ve dönüştürmemiz gerekiyor:
 
-* Combine country populations into one dataset and pivot "long" so that each age-sex stratum is one row  
-* Combine country death counts into one dataset and pivot "long" so each age-sex stratum is one row  
-* Join the deaths to the populations  
+* Ülke popülasyonlarını tek bir veri tabanında birleştirin ve her bir yaş-cinsiyet katmanının bir satır olması için "uzun" şekilde pivotlayın
+* Ülke ölüm sayılarını tek bir veri tabanında birleştirin ve her bir yaş-cinsiyet katmanının bir satır olması için "uzun" şekilde pivotlayın
+* Ölümleri nüfusla birleştirin
 
-First, we combine the country populations datasets, pivot longer, and do minor cleaning. See the page on [Pivoting data] for more detail.  
+İlk olarak, ülke popülasyonları veri tabanlarını birleştirip, daha sonra uzun biçimde pivotlar ve temizlik yaparız. Daha fazla ayrıntı için [Verilerin pivotlanması] sayfasına bakın. 
 
 ```{r}
-pop_countries <- A_demo %>%  # begin with country A dataset
-     bind_rows(B_demo) %>%        # bind rows, because cols are identically named
-     pivot_longer(                       # pivot longer
-          cols = c(m, f),                   # columns to combine into one
-          names_to = "Sex",                 # name for new column containing the category ("m" or "f") 
-          values_to = "Population") %>%     # name for new column containing the numeric values pivoted
-     mutate(Sex = recode(Sex,            # re-code values for clarity
+pop_countries <- A_demo %>%  # A ülkesi veritabanı ile başla
+     bind_rows(B_demo) %>%        # Satırları B veri tabanıyla bağla, çünkü sütunlar aynı şekilde adlandırılır
+     pivot_longer(                       # uzun şekilde pivotlama
+          cols = c(m, f),                   # birleştirilecek sütunlar
+          names_to = "Sex",                 # kategoriyi ("m" veya "f") içeren yeni sütunun adı 
+          values_to = "Population") %>%     # özetlenen sayısal değerleri içeren yeni sütunun adı
+     mutate(Sex = recode(Sex,            # anlaşılması için değerleri yeniden kodla
           "m" = "Male",
           "f" = "Female"))
 ```
 
-The combined population data now look like this (click through to see countries A and B):  
+Birleşik nüfus verileri şimdi şöyle görünür (A ve B ülkelerini görmek için tıklayın):
 
 ```{r message=FALSE, echo=F}
 DT::datatable(pop_countries, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-And now we perform similar operations on the two deaths datasets.
+Şimdi de iki ölüm veri setinde benzer işlemler yapıyoruz.
 
 ```{r}
-deaths_countries <- A_deaths %>%    # begin with country A deaths dataset
-     bind_rows(B_deaths) %>%        # bind rows with B dataset, because cols are identically named
-     pivot_longer(                  # pivot longer
-          cols = c(Male, Female),        # column to transform into one
-          names_to = "Sex",              # name for new column containing the category ("m" or "f") 
-          values_to = "Deaths") %>%      # name for new column containing the numeric values pivoted
-     rename(age_cat5 = AgeCat)      # rename for clarity
+deaths_countries <- A_deaths %>%    # A ülkesi ölüm veritabanı ile başlayın
+     bind_rows(B_deaths) %>%        # Satırları B veri tabanıyla bağla, çünkü sütunlar aynı şekilde adlandırılır
+     pivot_longer(                  # uzun şekilde pivotlama
+          cols = c(Male, Female),        # birleştirilecek sütunlar
+          names_to = "Sex",              # kategoriyi ("m" veya "f") içeren yeni sütunun adı
+          values_to = "Deaths") %>%      # özetlenen sayısal değerleri içeren yeni sütunun adı
+     rename(age_cat5 = AgeCat)      # anlaşılması için değerleri yeniden kodla
 ```
 
-The deaths data now look like this, and contain data from both countries: 
+Ölüm verileri şimdi böyle görünüyor ve her iki ülkeden de veriler içermekte: 
 
 ```{r message=FALSE, echo=F}
 DT::datatable(deaths_countries, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-
-We now join the deaths and population data based on common columns `Country`, `age_cat5`, and `Sex`. This adds the column `Deaths`.  
+Şimdi `Country`, `age_cat5` ve `Sex` ortak sütunlarına dayalı ölüm ve nüfus verilerini birleştiriyoruz. Bu işlem, `Deaths` sütununu ekler.
 
 ```{r}
 country_data <- pop_countries %>% 
      left_join(deaths_countries, by = c("Country", "age_cat5", "Sex"))
 ```
 
-We can now classify `Sex`, `age_cat5`, and `Country` as factors and set the level order using `fct_relevel()` function from the **forcats** package, as described in the page on [Factors]. Note, classifying the factor levels doesn't visibly change the data, but the `arrange()` command does sort it by Country, age category, and sex.  
+Artık `Sex`, `age_cat5` ve `Country`'yi faktör olarak sınıflandırabilir ve [Faktörler] sayfasında açıklandığı gibi **forcats** paketinden `fct_relevel()` fonksiyonunu kullanarak seviye sırasını ayarlayabiliriz. Unutulmamalıdır ki, faktör seviyelerinin sınıflandırılması verileri gözle görülür şekilde değiştirmez, ancak `arrange()` komutu verileri ülkeye, yaş kategorisine ve cinsiyete göre sıralar.
 
 ```{r, warning=F, message=F}
 country_data <- country_data %>% 
@@ -253,23 +252,22 @@ country_data <- country_data %>%
 DT::datatable(country_data, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-<span style="color: orange;">**_CAUTION:_** If you have few deaths per stratum, consider using 10-, or 15-year categories, instead of 5-year categories for age.</span>
+<span style="color: orange;">**_DİKKAT:_** Her tabakada az sayıda ölüm varsa, yaşa göre 5 yıllık kategoriler yerine 10 veya 15 yıllık kategorileri kullanmayı düşünün.</span>
 
 
 
+### Referans popülasyonun yüklenmesi {.unnumbered}  
 
-### Load reference population {.unnumbered}  
-
-Lastly, for the direct standardisation, we import the reference population (world "standard population" by sex)
+Son olarak, direkt  standardizasyon için referans popülasyonu (cinsiyete göre dünya “standart nüfusu”) içe aktarıyoruz.
 
 ```{r, echo=F}
-# Reference population
+# Referans popülasyon
 standard_pop_data <- rio::import(here::here("data", "standardization", "world_standard_population_by_sex.csv")) %>% 
      rename(age_cat5 = AgeGroup)
 ```
 
 ```{r, eval=F}
-# Reference population
+# Referans popülasyon
 standard_pop_data <- import("world_standard_population_by_sex.csv")
 ```
 
@@ -280,36 +278,36 @@ DT::datatable(standard_pop_data, rownames = FALSE, options = list(pageLength = 5
 
 
 <!-- ======================================================= -->
-### Clean reference population {.unnumbered}
+### Referans popülasyon verisinin temizliği {.unnumbered}
 
-The age category values in the `country_data` and `standard_pop_data` data frames will need to be aligned.  
+`country_data` ve `standard_pop_data` veri çerçevelerindeki yaş kategorisi değerlerinin hizalanması gerekir.  
 
-Currently, the values of the column `age_cat5` from the `standard_pop_data` data frame contain the word "years" and "plus", while those of the `country_data` data frame do not. We will have to make the age category values match. We use `str_replace_all()` from the **stringr** package, as described in the page on [Characters and strings], to replace these patterns with no space `""`.  
+Şu anda, `standart_pop_data` veri çerçevesinden `age_cat5` sütununun değerleri "yıllar" ve "artı" kelimelerini içerirken `country_data` veri çerçevesindeki sütun bu kelimeleri içermemektedir. Yaş kategorisi değerlerini eşleştirmemiz gerekecek. Bu kalıpları boşluksuz olarak `""` biçiminde değiştirmek için [Karakterler ve dizeler] sayfasında açıklandığı gibi **stringr** paketinden `str_replace_all()` komutunu kullanıyoruz.
 
-Furthermore, the package **dsr** expects that in the standard population, the column containing counts will be called `"pop"`. So we rename that column accordingly.  
+Ayrıca, **dsr** paketi standart popülasyonda sayıları içeren sütunun `"pop"` olarak adlandırılmasını bekler. Bu yüzden bu sütunu bu şekilde yeniden adlandırıyoruz.
 
 ```{r}
-# Remove specific string from column values
+# Sütun değerlerinden belirli dizeyi kaldır
 standard_pop_clean <- standard_pop_data %>%
      mutate(
-          age_cat5 = str_replace_all(age_cat5, "years", ""),   # remove "year"
-          age_cat5 = str_replace_all(age_cat5, "plus", ""),    # remove "plus"
-          age_cat5 = str_replace_all(age_cat5, " ", "")) %>%   # remove " " space
+          age_cat5 = str_replace_all(age_cat5, "years", ""),   # "year"'ı kaldır
+          age_cat5 = str_replace_all(age_cat5, "plus", ""),    # "plus"'ı kaldır
+          age_cat5 = str_replace_all(age_cat5, " ", "")) %>%   # " " boşluğu kaldır
      
-     rename(pop = WorldStandardPopulation)   # change col name to "pop", as this is expected by dsr package
+     rename(pop = WorldStandardPopulation)   # dsr paketi tarafından tanınması için sütun adını "pop" olarak değiştir
 ```
 
-<span style="color: orange;">**_CAUTION:_** If you try to use `str_replace_all()` to remove a plus *symbol*, it won't work because it is a special symbol. "Escape" the specialnes by putting two back slashes in front, as in `str_replace_call(column, "\\+", "")`. </span>
+<span style="color: orange;">**_DİKKAT:_** Bir artı *sembolünü* kaldırmak için `str_replace_all()` kullanmayı denerseniz, özel bir sembol olduğu için çalışmayacaktır. `str_replace_call(column, "\\+", "")` örneğinde olduğu gibi önüne iki ters eğik çizgi koyarak özel özelliklerden kaçınabilirsiniz.</span>
 
-### Create dataset with standard population {#standard_all .unnumbered}  
+### Standart popülasyon ile veri tabanının oluşturulması {#standard_all .unnumbered}  
 
-Finally, the package **PHEindicatormethods**, detailed [below](#standard_phe), expects the standard populations joined to the country event and population counts. So, we will create a dataset `all_data` for that purpose.  
+Son olarak, [aşağıda](#standard_phe) ayrıntıları verilen **PHEindicatormethods** paketi, ülke için gerçekleşen olay (ölüm), nüfus sayıları ve standart popülasyon verilerini istemektedir. Bu amaçla bir `all_data` veri tabanı oluşturacağız.
 
 ```{r}
 all_data <- left_join(country_data, standard_pop_clean, by=c("age_cat5", "Sex"))
 ```
 
-This complete dataset looks like this:  
+Tam veri tabanı bu şekilde görülmektedir:  
 
 ```{r message=FALSE, echo=F}
 DT::datatable(all_data, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
@@ -318,176 +316,170 @@ DT::datatable(all_data, rownames = FALSE, options = list(pageLength = 5, scrollX
 
 
 <!-- ======================================================= -->
-## **dsr** package {  }
- 
-Below we demonstrate calculating and comparing directly standardized rates using the **dsr** package. The **dsr** package allows you to calculate and compare directly standardized rates (no indirectly standardized rates!).
-  
-In the data Preparation section, we made separate datasets for country counts and standard population:  
+## **dsr** paketi {  }
 
-1) the `country_data` object, which is a population table with the number of population and number of deaths per stratum per country  
-2) the `standard_pop_clean` object, containing the number of population per stratum for our reference population, the World Standard Population  
+Aşağıda, **dsr** paketini kullanarak direkt standardize edilmiş hızları hesaplamayı ve karşılaştırmayı gösteriyoruz. **dsr** paketi, direkt standardize edilmiş hızları hesaplamanıza ve karşılaştırmanıza olanak tanır (indirekt standardize edilmiş oranlar yok!).
 
-We will use these separate datasets for the **dsr** approach.  
+Veri Hazırlama bölümünde ülkeler ve standart nüfus için ayrı ayrı veri tabanları oluşturduk:
+
+1) Ülke için tabaka başına nüfus ve ölüm sayısını içeren bir nüfus tablosu olan `country_data` nesnesi
+2) Referans popülasyonumuz olan World Standard Population için tabaka başına popülasyonu gösteren içeren `standard_pop_clean` nesnesi 
+
+Bu ayrı veri tabanlarını **dsr** yaklaşımı için kullanacağız.  
 
 
 <!-- ======================================================= -->
-### Standardized rates {.unnumbered}
+### Standardize edilmiş hızlar {.unnumbered}
 
-Below, we calculate rates per country directly standardized for age and sex. We use the `dsr()` function. 
+Aşağıda, yaş ve cinsiyet için direkt standardize edilmiş oranları ülkeler için hesaplıyoruz. Bu işlem için `dsr()` fonksiyonunu kullanıyoruz.
 
-Of note - `dsr()` expects one data frame for the country populations and event counts (deaths), *and a **separate** data frame with the reference population*. It also expects that in this reference population dataset the unit-time column name is "pop" (we assured this in the data Preparation section).  
+Not: `dsr()`, ülke popülasyonları ve olay sayıları (ölümler) için bir veri tabanı *ve* referans popülasyonu için **ayrı bir** veri tabanı bekler. Ayrıca bu referans popülasyon veri tabanında birim-zaman sütun adının “pop” olmasını bekler (bunu veri Hazırlama bölümünde sağladık)
 
-There are many arguments, as annotated in the code below. Notably, `event = ` is set to the column `Deaths`, and the `fu = ` ("follow-up") is set to the `Population` column. We set the subgroups of comparison as the column `Country` and we standardize based on `age_cat5` and `Sex`. These last two columns are not assigned a particular named argument. See `?dsr` for details. 
+Aşağıdaki kodda görüldüğü gibi bu fonksiyon için birçok argüman vardır. Dikkat çekici bir şekilde, `event =` ölümler sütununa ve `fu =` ("follow up"- “takip”), `Population` sütununa ayarlanmıştır. Karşılaştırma alt gruplarını `Country` sütunu olarak belirledik ve `age_cat5` ve `Sex`'e göre standardize ettik. Bu son iki sütuna belirli bir argüman atanmaz. Ayrıntılar için `?dsr` komutuna bakınız.
 
 ```{r, warning=F, message=F}
-# Calculate rates per country directly standardized for age and sex
+# Yaş ve cinsiyet için direkt standardize edilmiş hızları ülke başına hesapla
 mortality_rate <- dsr::dsr(
-     data = country_data,  # specify object containing number of deaths per stratum
-     event = Deaths,       # column containing number of deaths per stratum 
-     fu = Population,      # column containing number of population per stratum
-     subgroup = Country,   # units we would like to compare
-     age_cat5,             # other columns - rates will be standardized by these
+     data = country_data,  # tabaka başına ölüm sayısını içeren nesneyi belirt
+     event = Deaths,       # tabaka başına ölüm sayısını içeren sütun
+     fu = Population,      # tabaka başına nüfus sayısını içeren sütun
+     subgroup = Country,   # karşılaştırmak istediğimiz birimler
+     age_cat5,             # standardize etmek istediğimiz özellikler
      Sex,
-     refdata = standard_pop_clean, # reference population data frame, with column called pop
-     method = "gamma",      # method to calculate 95% CI
-     sig = 0.95,            # significance level
-     mp = 100000,           # we want rates per 100.000 population
-     decimals = 2)          # number of decimals)
+     refdata = standard_pop_clean, # pop olarak adlandırılan sütundaki sayılarla referans popülasyonu
+     method = "gamma",      # 95% güven aralığını hesaplayan yöntem
+     sig = 0.95,            # anlamlılık düzeyi
+     mp = 100000,           # 100.000 kişilik nüfus başına hız istiyoruz
+     decimals = 2)          # ondalık basamak sayısı
 
 
-# Print output as nice-looking HTML table
-knitr::kable(mortality_rate) # show mortality rate before and after direct standardization
+# Çıktıyı iyi görünen bir HTML tablosu olarak yazdır
+knitr::kable(mortality_rate) # direkt standardizasyondan önce ve sonra ölüm oranını göster
 ```
 
-Above, we see that while country A had a lower crude mortality rate than country B, it has a higher standardized rate after direct age and sex standardization.
-
-
+Yukarıda, A ülkesinin B ülkesinden daha düşük bir kaba ölüm hızına sahip olduğunu, ancak yaş ve cinsiyet için direkt standardizasyon sonrası, A ülkesinin daha yüksek bir standardize edilmiş hıza sahip olduğunu görüyoruz.
 
 
 <!-- ======================================================= -->
-### Standardized rate ratios {.unnumbered}
+### Standardize hız oranları {.unnumbered}
 
 ```{r,warning=F, message=F}
 # Calculate RR
 mortality_rr <- dsr::dsrr(
-     data = country_data, # specify object containing number of deaths per stratum
-     event = Deaths,      # column containing number of deaths per stratum 
-     fu = Population,     # column containing number of population per stratum
-     subgroup = Country,  # units we would like to compare
+     data = country_data, # tabaka başına ölüm sayısını içeren nesneyi belirt
+     event = Deaths,      # tabaka başına ölüm sayısını içeren sütun
+     fu = Population,     # tabaka başına nüfus sayısını içeren sütun
+     subgroup = Country,  # karşılaştırmak istediğimiz birimler
      age_cat5,
-     Sex,                 # characteristics to which we would like to standardize 
-     refdata = standard_pop_clean, # reference population, with numbers in column called pop
-     refgroup = "B",      # reference for comparison
-     estimate = "ratio",  # type of estimate
-     sig = 0.95,          # significance level
-     mp = 100000,         # we want rates per 100.000 population
-     decimals = 2)        # number of decimals
+     Sex,                 # standardize istediğimiz özellikler
+     refdata = standard_pop_clean, # pop olarak adlandırılan sütundaki sayılarla referans popülasyonu
+     refgroup = "B",      # karşılaştırma için referans
+     estimate = "ratio",  # tahmin tipi
+     sig = 0.95,          # anlamlılık seviyesi
+     mp = 100000,         # 100.000 kişilik nüfus başına hız istiyoruz
+     decimals = 2)        # ondalık basamak sayısı
 
-# Print table
+# Tabloyu yazdır
 knitr::kable(mortality_rr) 
 ```
 
-The standardized mortality rate is 1.22 times higher in country A compared to country B (95% CI 1.17-1.27).
+Standardize ölüm oranı, A ülkesinde B ülkesine kıyasla 1,22 kat daha yüksektir (%95 GA 1,17-1,27).
 
 <!-- ======================================================= -->
-### Standardized rate difference {.unnumbered}
+### Standardize hız farkı {.unnumbered}
 
 ```{r, warning=F, message=F}
 # Calculate RD
 mortality_rd <- dsr::dsrr(
-     data = country_data,       # specify object containing number of deaths per stratum
-     event = Deaths,            # column containing number of deaths per stratum 
-     fu = Population,           # column containing number of population per stratum
-     subgroup = Country,        # units we would like to compare
-     age_cat5,                  # characteristics to which we would like to standardize
+     data = country_data,       # tabaka başına ölüm sayısını içeren nesneyi belirt
+     event = Deaths,            # tabaka başına ölüm sayısını içeren sütun 
+     fu = Population,           # tabaka başına nüfus sayısını içeren sütun
+     subgroup = Country,        # karşılaştırmak istediğimiz birimler
+     age_cat5,                  # standardize istediğimiz özellikler
      Sex,                        
-     refdata = standard_pop_clean, # reference population, with numbers in column called pop
-     refgroup = "B",            # reference for comparison
-     estimate = "difference",   # type of estimate
-     sig = 0.95,                # significance level
-     mp = 100000,               # we want rates per 100.000 population
-     decimals = 2)              # number of decimals
+     refdata = standard_pop_clean, # pop olarak adlandırılan sütundaki sayılarla referans popülasyonu
+     refgroup = "B",            # karşılaştırma için referans
+     estimate = "difference",   # tahmin tipi
+     sig = 0.95,                # anlamlılık seviyesi
+     mp = 100000,               # 100.000 kişilik nüfus başına hız istiyoruz
+     decimals = 2)              # ondalık basamak sayısı
 
-# Print table
+# Tabloyu yazdır
 knitr::kable(mortality_rd) 
 ```
 
-Country A has 4.24 additional deaths per 100.000 population (95% CI 3.24-5.24) compared to country A.
-
-
-
+A Ülkesi, B ülkesine kıyasla 100.000 nüfus başına 4.24 ek ölüme (%95 GA 3.24-5.24) sahiptir.
 
 
 
 
 <!-- ======================================================= -->
-## **PHEindicatormethods** package {#standard_phe  }
+## **PHEindicatormethods** paketi {#standard_phe  }
 
-Another way of calculating standardized rates is with the **PHEindicatormethods** package. This package allows you to calculate directly as well as indirectly standardized rates. We will show both.  
+Standardize hızları hesaplamanın başka bir yolu da **PHEindicatormethods** paketidir. Bu paket, direkt ve indirekt olarak standardize edilmiş hızları hesaplamanıza olanak tanır. İkisini de göstereceğiz.
 
-This section will use the `all_data` data frame created at the end of the Preparation section. This data frame includes the country populations, death events, and the world standard reference population. You can view it [here](#standard_all).  
-
+Bu bölüm, Hazırlık bölümünün sonunda oluşturulan `all_data` veri tabanını kullanacaktır. Bu veri tabanı, ülke popülasyonlarını, ölüm olaylarını ve dünya için standart referans popülasyonu içerir. [Burada](#standard_all) görüntüleyebilirsiniz.
 
 
 <!-- ======================================================= -->
-### Directly standardized rates {.unnumbered}
+### Direkt standardize edilmiş hızlar {.unnumbered}
 
-Below, we first group the data by Country and then pass it to the function `phe_dsr()` to get directly standardized rates per country.
+Aşağıda, önce verileri ülkeye göre gruplandırıyoruz ve ardından ülke başına direkt standardize edilmiş hızları elde etmek için `phe_dsr()` fonksiyonuna aktarıyoruz.
 
-Of note - the reference (standard) population can be provided as a **column within the country-specific data frame** or as a **separate vector**. If provided within the country-specific data frame, you have to set `stdpoptype = "field"`. If provided as a vector, set `stdpoptype = "vector"`. In the latter case, you have to make sure the ordering of rows by strata is similar in both the country-specific data frame and the reference population, as records will be matched by position. In our example below, we provided the reference population as a column within the country-specific data frame.
+Not: Referans (standart) popülasyon, **ülkeye özgü veri tabanında bir sütun** olarak veya **ayrı bir vektör** olarak verilebilir. Ülkeye özel veri tabanı oluşturulduysa, `stdpoptype= "field"` olarak ayarlanmalıdır. Vektör olarak sağlanmışsa, `stdpoptype = "vector"` olarak ayarlanmalıdır. İkinci durumda, kayıtlar pozisyona göre eşleştirileceğinden, satırların tabaklara göre sıralamasının hem ülkeye özgü veri tabanında hem de referans popülasyonda benzer olduğundan emin olmalısınız. Aşağıdaki örneğimizde, ülkeye özgü veri tabanında bir sütun olarak referans popülasyon verilmiştir.
 
-See the help with `?phr_dsr` or the links in the References section for more information.  
+Daha fazla bilgi için `?phr_dsr` ile ilgili yardıma veya Referanslar bölümündeki bağlantılara bakabilirsiniz
 
 ```{r}
-# Calculate rates per country directly standardized for age and sex
+# yaş ve cinsiyet için direkt standardize edilmiş hızları ülke başına hesapla
 mortality_ds_rate_phe <- all_data %>%
      group_by(Country) %>%
      PHEindicatormethods::phe_dsr(
-          x = Deaths,                 # column with observed number of events
-          n = Population,             # column with non-standard pops for each stratum
-          stdpop = pop,               # standard populations for each stratum
-          stdpoptype = "field")       # either "vector" for a standalone vector or "field" meaning std populations are in the data  
+          x = Deaths,                 # gözlemlenen olay sayısını içeren sütun
+          n = Population,             # her tabaka için standart olmayan nüfusu içeren sütunlar
+          stdpop = pop,               # her tabaka için standart popülasyonlar
+          stdpoptype = "field")       # bağımsız bir vektör için "vector-vektör" veya verilerde standart popülasyonların olduğu durumlarda "field-alan"
 
-# Print table
+# Tabloyu yazdır
 knitr::kable(mortality_ds_rate_phe)
 ```
 
 <!-- ======================================================= -->
-### Indirectly standardized rates {#standard_indirect .unnumbered}
+### İndirekt standardize edilmiş hızlar {#standard_indirect .unnumbered}
 
-For indirect standardization, you need a reference population with the number of deaths and number of population per stratum. In this example, we will be calculating rates for country A *using country B as the reference population*, as the `standard_pop_clean` reference population does not include number of deaths per stratum. 
+İnidirekt standardizasyon için, tabaka başına ölüm sayısı, nüfus ve bir referans popülasyona ihtiyacınız vardır. Bu örnekte, `standart_pop_clean` referans popülasyonu tabaka başına ölüm sayısını içermediğinden, *B ülkesini referans popülasyon* olarak kullanarak A ülkesi için hızları hesaplayacağız.
 
-Below, we first create the reference population from country B. Then, we pass mortality and population data for country A, combine it with the reference population, and pass it to the function `phe_isr()`, to get indirectly standardized rates. Of course, you can do it also vice versa.
+Aşağıda, önce B ülkesinden referans popülasyonu oluşturuyoruz. Ardından, A ülkesi için ölüm ve nüfus verilerini çıkarıyoruz, bu verileri referans popülasyonla birleştiriyoruz ve indirekt standardize edilmiş hızları elde etmek için `phe_isr()` fonksiyonuna aktarıyoruz. Tabii ki, bunun tersini de yapabilirsiniz.
 
-Of note - in our example below, the reference population is provided as a separate data frame. In this case, we make sure that `x = `, `n = `, `x_ref = ` and `n_ref = ` vectors are all ordered by the same standardization category (stratum) values as that in our country-specific data frame, as records will be matched by position.
+Not: Aşağıdaki örneğimizde, referans popülasyonu ayrı bir veri tabanı olarak verilmiştir. Bu durumda, kayıtlar pozisyona göre eşleştirileceğinden, `x =`, `n =`, `x_ref =` ve `n_ref =` vektörlerinin tümünün, ülkemize özgü veri tabanıyla aynı standardizasyon kategorisi (tabaka) değerlerine göre sıralandığından emin oluruz.
 
-See the help with `?phr_isr` or the links in the References section for more information.  
+Daha fazla bilgi için `?phr_isr` komutu ile ilgili yardıma veya Referanslar bölümündeki bağlantılara bakın.  
 
 ```{r}
-# Create reference population
+# Referans popülasyonu oluştur
 refpopCountryB <- country_data %>% 
   filter(Country == "B") 
 
-# Calculate rates for country A indirectly standardized by age and sex
+# A ülkesi için yaş ve cinsiyete göre indirekt standardize edilmiş hızları hesapla
 mortality_is_rate_phe_A <- country_data %>%
      filter(Country == "A") %>%
      PHEindicatormethods::phe_isr(
-          x = Deaths,                 # column with observed number of events
-          n = Population,             # column with non-standard pops for each stratum
-          x_ref = refpopCountryB$Deaths,  # reference number of deaths for each stratum
-          n_ref = refpopCountryB$Population)  # reference population for each stratum
+          x = Deaths,                 # gözlemlenen olay sayısını içeren sütun
+          n = Population,             # her tabaka için standardize edilmemiş popülasyonu içeren sütunlar
+          x_ref = refpopCountryB$Deaths,  # her tabaka için referans ölüm sayısı
+          n_ref = refpopCountryB$Population)  # her tabaka için referans popülasyon
 
-# Print table
+# Tabloyu yazdır
 knitr::kable(mortality_is_rate_phe_A)
 ```
 
 <!-- ======================================================= -->
-## Resources {  }
+## Kaynaklar {  }
 
-If you would like to see another reproducible example using **dsr** please see [this vignette]( https://mran.microsoft.com/snapshot/2020-02-12/web/packages/dsr/vignettes/dsr.html)  
+**dsr** paketini kullanarak başka bir tekrarlanabilir örnek görmek isterseniz, lütfen [bu skece]( https://mran.microsoft.com/snapshot/2020-02-12/web/packages/dsr/vignettes/dsr.html) bakın.
 
-For another example using **PHEindicatormethods**, please go to [this website](https://mran.microsoft.com/snapshot/2018-10-22/web/packages/PHEindicatormethods/vignettes/IntroductiontoPHEindicatormethods.html)  
+**PHEindicatormethods** paketini kullanan başka bir örnek için lütfen [bu web sitesine](https://mran.microsoft.com/snapshot/2018-10-22/web/packages/PHEindicatormethods/vignettes/IntroductiontoPHEindicatormethods.html) gidin.
 
-See the **PHEindicatormethods** [reference pdf file](https://cran.r-project.org/web/packages/PHEindicatormethods/PHEindicatormethods.pdf)  
+**PHEindicatormethods** referans [pdf dosyasına](https://cran.r-project.org/web/packages/PHEindicatormethods/PHEindicatormethods.pdf) bakın. 
 
 

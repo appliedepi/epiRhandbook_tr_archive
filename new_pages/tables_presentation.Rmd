@@ -1,5 +1,5 @@
 
-# Tables for presentation { }  
+# Sunum için tablolar { }  
 
 
 ```{r echo=FALSE, fig.show='hold', message=FALSE, warning=FALSE, out.width=c('50%', '50%')}
@@ -9,64 +9,64 @@ linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.r
 border_style = officer::fp_border(color="black", width=1)
 
 pacman::p_load(
-  rio,            # import/export
-  here,           # file pathways
-  flextable,      # make HTML tables 
-  officer,        # helper functions for tables
-  tidyverse)      # data management, summary, and visualization
+  rio,            # içe/dışa aktar
+  here,           # dosya yolağı
+  flextable,      # HTML tablosu oluştur 
+  officer,        # tablolar için yardımcı fonksiyonlar
+  tidyverse)      # veri yönetimi, özetlemesi ve görselleştirilmesi
 
 table <- linelist %>% 
-  # filter
+  # filtrele
   ########
-  #filter(!is.na(outcome) & hospital != "Missing") %>%  # Remove cases with missing outcome or hospital
+  #filter(!is.na(outcome) & hospital != "Missing") %>%  # Eksik sonuç veya hastane olan vakaları kaldır
   
-  # Get summary values per hospital-outcome group
+  # Hastane sonuç grubu başına özet değerleri al
   ###############################################
-  group_by(hospital, outcome) %>%                      # Group data
-  summarise(                                           # Create new summary columns of indicators of interest
-    N = n(),                                            # Number of rows per hospital-outcome group     
-    ct_value = median(ct_blood, na.rm=T)) %>%           # median CT value per group
+  group_by(hospital, outcome) %>%                      # Grup verisi
+  summarise(                                           # İlgilenilen göstergelerin yeni özet sütunları oluştur
+    N = n(),                                            # Hastane-sonuç grubu başına satır sayısı   
+    ct_value = median(ct_blood, na.rm=T)) %>%           # Grup başına medyan CT değeri
   
-  # add totals
+  # Toplamları ekle
   ############
-  bind_rows(                                           # Bind the previous table with this mini-table of totals
+  bind_rows(                                           # Önceki tabloyu mini toplamlar tablosuyla birleştir
     linelist %>% 
       filter(!is.na(outcome) & hospital != "Missing") %>%
-      group_by(outcome) %>%                            # Grouped only by outcome, not by hospital    
+      group_by(outcome) %>%                            # Hastaneye göre değil, yalnızca sonuca göre gruplandır   
       summarise(
-        N = n(),                                       # Number of rows for whole dataset     
-        ct_value = median(ct_blood, na.rm=T))) %>%     # Median CT for whole dataset
+        N = n(),                                       # Tüm veri kümesi için satır sayısı     
+        ct_value = median(ct_blood, na.rm=T))) %>%     # Tüm veri seti için medyan CT değeri
   
-  # Pivot wider and format
+  # Geniş pivotlama ve format
   ########################
   mutate(hospital = replace_na(hospital, "Total")) %>% 
-  pivot_wider(                                         # Pivot from long to wide
-    values_from = c(ct_value, N),                       # new values are from ct and count columns
-    names_from = outcome) %>%                           # new column names are from outcomes
-  mutate(                                              # Add new columns
-    N_Known = N_Death + N_Recover,                               # number with known outcome
-    Pct_Death = scales::percent(N_Death / N_Known, 0.1),         # percent cases who died (to 1 decimal)
-    Pct_Recover = scales::percent(N_Recover / N_Known, 0.1)) %>% # percent who recovered (to 1 decimal)
-  select(                                              # Re-order columns
-    hospital, N_Known,                                   # Intro columns
-    N_Recover, Pct_Recover, ct_value_Recover,            # Recovered columns
-    N_Death, Pct_Death, ct_value_Death)  %>%             # Death columns
-  arrange(N_Known) %>%                                 # Arrange rows from lowest to highest (Total row at bottom)
+  pivot_wider(                                         # uzundan genişe pivotla
+    values_from = c(ct_value, N),                       # yeni değerler ct ve count sütunlarından alınır
+    names_from = outcome) %>%                           # yeni sütun adları sonuçlardan alınır
+  mutate(                                              # yeni sütun ekle
+    N_Known = N_Death + N_Recover,                               # sonucu bilinen satır sayısı
+    Pct_Death = scales::percent(N_Death / N_Known, 0.1),         # ölen vakaların yüzdesi (1 ondalık basamağa kadar)
+    Pct_Recover = scales::percent(N_Recover / N_Known, 0.1)) %>% # iyileşen vakaların yüzdesi (1 ondalık basamağa kadar)
+  select(                                              # Sütunları yeniden sırala
+    hospital, N_Known,                                   # Giriş sütunları
+    N_Recover, Pct_Recover, ct_value_Recover,            # İyileşen vaka sütunları
+    N_Death, Pct_Death, ct_value_Death)  %>%             # Ölen vaka sütunları
+  arrange(N_Known) %>%                                 # Satırları en düşükten en yükseğe doğru düzenle (Toplam satırı en altta)
 
-  # formatting
+  # formatlama
   ############
   flextable() %>% 
   add_header_row(
-    top = TRUE,                # New header goes on top of existing header row
-    values = c("Hospital",     # Header values for each column below
+    top = TRUE,                # Yeni başlık, mevcut başlık satırının üstüne eklenir
+    values = c("Hospital",     # Aşağıdaki her sütun için başlık değerleri
                "Total cases with known outcome", 
-               "Recovered",    # This will be the top-level header for this and two next columns
+               "Recovered",    # Bu, bunun ve sonraki iki sütunun en üst düzey başlığı olacak
                "",
                "",
-               "Died",         # This will be the top-level header for this and two next columns
-               "",             # Leave blank, as it will be merged with "Died"
+               "Died",         # Bu, bunun ve sonraki iki sütunun en üst düzey başlığı olacak
+               "",             # "Öldü" ile birleştirileceği için boş bırak
                "")) %>% 
-    set_header_labels(         # Rename the columns in original header row
+    set_header_labels(         # Orijinal başlık satırındaki sütunları yeniden adlandır
       hospital = "", 
       N_Known = "",                  
       N_Recover = "Total",
@@ -75,7 +75,7 @@ table <- linelist %>%
       N_Death = "Total",
       Pct_Death = "% of cases",
       ct_value_Death = "Median CT values")  %>% 
-  merge_at(i = 1, j = 3:5, part = "header") %>% # Horizontally merge columns 3 to 5 in new header row
+  merge_at(i = 1, j = 3:5, part = "header") %>% # Yeni başlık satırında 3 ile 5 arasındaki sütunları yatay olarak birleştir
   merge_at(i = 1, j = 6:8, part = "header") %>%  
   border_remove() %>%  
   theme_booktabs() %>% 
@@ -98,97 +98,95 @@ table
 ```
 
 
-This page demonstrates how to convert summary data frames into presentation-ready tables with the **flextable** package. These tables can be inserted into powerpoint slides, HTML pages, PDF or Word documents, etc.  
+Bu sayfa, **flextable** paketi ile özet veri çerçevelerinin sunuma hazır tablolara nasıl dönüştürüleceğini göstermektedir. Bu tablolar powerpoint slaytlarına, HTML sayfalarına, PDF veya Word belgelerine vb. eklenebilir.
 
-Understand that *before* using **flextable**, you must create the summary table as a data frame. Use methods from the [Descriptive tables] and [Pivoting data] pages such as tabulations, cross-tabulations, pivoting, and calculating descriptive statistics. The resulting data frame can then be passed to **flextable** for display formatting.  
+**flextable**'ı kullanmadan *önce*, özet tablosunu veri çerçevesi olarak oluşturmanız gerekmektedir. Tablolar, çapraz tablolar, özetler ve açıklayıcı istatistiklerin hesaplanması gibi [Tanımlayıcı tablolar] ve [Özetleme verileri] sayfalarındaki yöntemleri kullanabilirsiniz. Veri çerçevesine uygulanan **flextable** daha sonraki sunumlara uygulanabilir.
 
-
-There are many other R packages that can be used to craft tables for presentation - we chose to highlight **flextable** in this page. An example using the **knitr** package and its `kable()` function can be found in the [Contact Tracing] page. Likewise, the **DT** package is highlighted in the page [Dashboards with Shiny]. Others such as **GT** and **huxtable** are mentione in the [Suggested packages] page.  
-
+Tablo oluşturmak için kullanılabilecek birçok R paketi vardır - bu sayfada **flextable**'ı vurgulamak istedik. **knitr** paketini ve onun `kable()` fonksiyonunu kullanan bir örnek [Temaslı takibi] sayfasında bulunabilir. Benzer şekilde, **DT** paketi [Shiny Gösterge Tabloları] sayfasında vurgulanmıştır. **GT** ve **huxtable** gibi diğerleri [Önerilen paketler] sayfasında bahsedilmiştir.
 
 
 <!-- ======================================================= -->
-## Preparation {  }
+## Hazırlık {  }
 
-### Load packages {.unnumbered} 
+### Paketleri yükleme {.unnumbered} 
 
-Install and load **flextable**. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load packages with `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+**flextable**'ı kurun ve yükleyin. Bu el kitabında, paketi kuran *ve* kullanım için yükleyen **pacman**'dan `p_load()` kullanacağız. R tabanından `library()` içeren paketleri de yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R temelleri] sayfasına bakabilirsiniz.
 
 ```{r}
 pacman::p_load(
-  rio,            # import/export
-  here,           # file pathways
-  flextable,      # make HTML tables 
-  officer,        # helper functions for tables
-  tidyverse)      # data management, summary, and visualization
+  rio,            # içe/dışa aktar
+  here,           # dosya yolağı
+  flextable,      # HTML tablosu oluştur 
+  officer,        # tablolar için yardımcı fonksiyonlar
+  tidyverse)      # veri yönetimi, özetlemesi ve görselleştirilmesi
 
 ```
 
-### Import data {.unnumbered}  
+### Verileri içe aktarma {.unnumbered}  
 
-To begin, we import the cleaned linelist of cases from a simulated Ebola epidemic. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file). Import data with the `import()` function from the **rio** package (it handles many file types like .xlsx, .csv, .rds - see the [Import and export] page for details). 
+Başlamak için, simüle edilmiş bir Ebola salgınından temizlenmiş vaka listesini içe aktarıyoruz. Takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz satır listesi" dosyasını indirmek için tıklayın.</a> (.rds dosyası olarak). **rio** paketinden `import()` fonksiyonuyla verileri içe aktarın (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe aktarma ve dışa aktarma] sayfasına bakın). 
 
 
 ```{r, echo=F}
-# import the linelist into R
+# satır listesini R'a aktar
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
 ```
 
 ```{r, eval=F}
-# import the linelist
+# satır listesini içe aktar
 linelist <- import("linelist_cleaned.rds")
 ```
 
-The first 50 rows of the linelist are displayed below.
+Çizgi listesinin ilk 50 satırı aşağıda görüntülenmektedir:
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# satır listesini tablo olarak göster
 DT::datatable(head(linelist, 50), rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-### Prepare table {.unnumbered}  
+### Tabloyu hazırlama {.unnumbered}  
 
-*Before* beginning to use **flextable** you will need to *create* your table as a data frame. See the page on [Descriptive tables] and [Pivoting data] to learn how to create a data frame using packages such as **janitor** and **dplyr**. You must arrange the content in rows and columns as you want it displayed. Then, the data frame will be passed to **flextable** to display it with colors, headers, fonts, etc. 
+**flextable** kullanmaya *başlamadan önce* tablonuzu veri çerçevesine *dönüştürmeniz* gerekecektir. **janitor** ve **dplyr** gibi paketleri kullanarak bir veri çerçevesinin nasıl oluşturulacağını öğrenmek için [Tanımlayıcı tablolar] ve [Veri pivotlama] sayfalarına bakabilirsiniz. İçeriği, görüntülenmesini istediğiniz gibi satırlar ve sütunlar halinde düzenlemelisiniz. Ardından, veri çerçevesinin rengi, başlığı, yazı tipleri vb. ile görüntülemek için **flextable**'e geçirilecektir.
   
-Below is an example from the [Descriptive tables] page of converting the case `linelist` into a data frame that summarises patient outcomes and CT values by hospital, with a Totals row at the bottom. The output is saved as `table`.  
+Aşağıda, [Tanımlayıcı tablolar] sayfasından, vaka `satır listesi` örnek olarak kullanılmıştır. Hazırlanan tabloda toplamlar satırı ile hastaneye göre hasta sonuçları ve CT değerlerini özetlenmiştir. 
 
 ```{r message=FALSE, warning=FALSE}
 table <- linelist %>% 
   
-  # Get summary values per hospital-outcome group
+  # Hastane sonuç grubu başına özet değerleri al
   ###############################################
-  group_by(hospital, outcome) %>%                      # Group data
-  summarise(                                           # Create new summary columns of indicators of interest
-    N = n(),                                            # Number of rows per hospital-outcome group     
-    ct_value = median(ct_blood, na.rm=T)) %>%           # median CT value per group
+  group_by(hospital, outcome) %>%                      # Grup verisi
+  summarise(                                           # İlgilenilen göstergelerin yeni özet sütunları oluştur
+    N = n(),                                            # Hastane-sonuç grubu başına satır sayısı   
+    ct_value = median(ct_blood, na.rm=T)) %>%           # Grup başına medyan CT değeri
   
-  # add totals
+  # Toplamları ekle
   ############
-  bind_rows(                                           # Bind the previous table with this mini-table of totals
+  bind_rows(                                           # Önceki tabloyu mini toplamlar tablosuyla birleştir
     linelist %>% 
       filter(!is.na(outcome) & hospital != "Missing") %>%
-      group_by(outcome) %>%                            # Grouped only by outcome, not by hospital    
+      group_by(outcome) %>%                            # Hastaneye göre değil, yalnızca sonuca göre gruplandır  
       summarise(
-        N = n(),                                       # Number of rows for whole dataset     
-        ct_value = median(ct_blood, na.rm=T))) %>%     # Median CT for whole dataset
+        N = n(),                                       # Tüm veri kümesi için satır sayısı    
+        ct_value = median(ct_blood, na.rm=T))) %>%     # Tüm veri seti için medyan CT değeri
   
-  # Pivot wider and format
+  # Geniş pivotlama ve format
   ########################
   mutate(hospital = replace_na(hospital, "Total")) %>% 
-  pivot_wider(                                         # Pivot from long to wide
-    values_from = c(ct_value, N),                       # new values are from ct and count columns
-    names_from = outcome) %>%                           # new column names are from outcomes
-  mutate(                                              # Add new columns
-    N_Known = N_Death + N_Recover,                               # number with known outcome
-    Pct_Death = scales::percent(N_Death / N_Known, 0.1),         # percent cases who died (to 1 decimal)
-    Pct_Recover = scales::percent(N_Recover / N_Known, 0.1)) %>% # percent who recovered (to 1 decimal)
-  select(                                              # Re-order columns
-    hospital, N_Known,                                   # Intro columns
-    N_Recover, Pct_Recover, ct_value_Recover,            # Recovered columns
-    N_Death, Pct_Death, ct_value_Death)  %>%             # Death columns
-  arrange(N_Known)                                    # Arrange rows from lowest to highest (Total row at bottom)
+  pivot_wider(                                         # uzundan genişe pivotla
+    values_from = c(ct_value, N),                       # yeni değerler ct ve count sütunlarından alınır
+    names_from = outcome) %>%                           # yeni sütun adları sonuçlardan alınır
+  mutate(                                              # yeni sütun ekle
+    N_Known = N_Death + N_Recover,                               # sonucu bilinen sayı
+    Pct_Death = scales::percent(N_Death / N_Known, 0.1),         # ölen vakaların yüzdesi (1 ondalık basamağa kadar)
+    Pct_Recover = scales::percent(N_Recover / N_Known, 0.1)) %>% # iyileşen vakaların yüzdesi (1 ondalık basamağa kadar)
+  select(                                              # Sütunları yeniden sırala
+    hospital, N_Known,                                   # Giriş sütunları
+    N_Recover, Pct_Recover, ct_value_Recover,            # İyileşen vaka sütunları
+    N_Death, Pct_Death, ct_value_Death)  %>%             # Ölen vaka sütunları
+  arrange(N_Known)                                     # Satırları en düşükten en yükseğe doğru düzenle (Toplam satırı en altta)
 
-table  # print
+table  # yazdır
 
 ```
 
@@ -196,11 +194,11 @@ table  # print
 
 
 <!-- ======================================================= -->
-## Basic flextable {  }
+## Temel flextable {  }
 
-### Create a flextable {.unnumbered}  
+### Flextable oluşturma {.unnumbered}  
 
-To create and manage **flextable** objects, we first pass the data frame through the `flextable()` function. We save the result as `my_table`.  
+**flextable** nesnelerini oluşturmak ve yönetmek için, önce veri çerçevesini `flextable()` fonksiyonundan geçirilir. Sonuç `my_table` olarak kaydedilir.
 
 ```{r}
 
@@ -209,25 +207,25 @@ my_table
 
 ```
 
-After doing this, we can progressively pipe the `my_table` object through more **flextable** formatting functions.  
+Bu yapıldıktan sonra, daha fazla **flextable** biçimlendirme fonksiyonları aracılığıyla `my_table` nesnesi aşamalı olarak yönlendirilebilir. 
 
-In this page for sake of clarity we will save the table at intermediate steps as `my_table`, adding **flextable** functions bit-by-bit. If you want to see *all* the code from beginning to end written in one chunk, visit the [All code together](#tbl_pres_all) section below.  
+Bu sayfada, anlaşılır olması için ara adımlarda tablo `my_table` olarak kaydedilecek ve **flextable** fonksiyonları bit-bit eklenecektir. Kodun başından sonuna kadar *tümünü* tek bir yığın halinde yazılmış olarak görmek isterseniz, aşağıdaki [Bütün kodlar](#tbl_pres_all) bölümünü ziyaret edebilirsiniz. 
 
-The general syntax of each line of **flextable** code is as follows:
+**flextable** koduna ait her bir satırının genel sözdizimi aşağıdaki gibidir:
 
-* `function(table, i = X, j = X, part = "X")`, where:
-  * The 'function' can be one of many different functions, such as `width()` to determine column widths, `bg()` to set background colours, `align()` to set whether text is centre/right/left aligned, and so on. 
-  * `table = ` is the name of the data frame, although does not need to be stated if the data frame is piped into the function.
-  * `part = ` refers to which part of the table the function is being applied to. E.g. "header", "body" or "all". 
-  * `i = ` specifies the *row* to apply the function to, where 'X' is the row number. If multiple rows, e.g. the first to third rows, one can specify: `i = c(1:3)`. Note if 'body' is selected, the first row starts from underneath the header section.
-  * `j = ` specifies the *column* to apply the function to, where 'x' is the column number or name. If multiple columns, e.g. the fifth and sixth, one can specify: `j = c(5,6)`. 
+* `function(table, i = X, j = X, part = "X")`, burada:
+  * `function`, sütun genişliklerini belirlemek için `width()`, arka plan renklerini ayarlamak için `bg()`, metnin merkeze/sağa/sola hizalı olup olmadığını ayarlamak için `align()` gibi birçok farklı fonksiyondan biri olabilir.
+  * `table = ` veri çerçevesinin adıdır, ancak veri çerçevesi fonksiyona aktarılıyorsa belirtilmesine gerek yoktur.
+  * `part = ` fonksiyonun tablonun hangi bölümüne uygulandığını belirtir. Örneğin. "başlık", "gövde" veya "tümü".
+  * `i = ` fonksiyonun uygulanacağı *satırı* belirtir, burada `X` satır numarasıdır. Birden fazla satır varsa, ör. birinci ila üçüncü satırlar arasında şu şekilde yazılabilir: `i = c(1:3)`. 'Gövde' seçiliyse, ilk satırın başlık bölümünün altından başladığını unutmayın.
+  * `j = ` fonksiyonun uygulanacağı *sütununu* belirtir, burada `X` sütun numarası veya adıdır. Birden çok sütun varsa, ör. beşinci ve altıncı, şu şekilde yazılabilir: `j = c(5,6)`. 
   
-You can find the complete list of **flextable** formatting function [here](https://davidgohel.github.io/flextable/reference/index.html) or review the documentation by entering `?flextable`.  
+**flextable** biçimlendirme fonksiyonlarına ait tam listeyi [burada](https://davidgohel.github.io/flextable/reference/index.html) bulabilir veya `?flextable` komutunu girerek belgeleri inceleyebilirsiniz.
 
 
-### Column width {.unnumbered}
+### Sütun genişliği {.unnumbered}
 
-We can use the `autofit()` function, which nicely stretches out the table so that each cell only has one row of text. The function `qflextable()` is a convenient shorthand for `flextable()` and `autofit()`.  
+Her hücrede yalnızca bir metin satırı olacak şekilde tabloyu güzelce genişleten `autofit()` fonksiyonunu kullanabiliriz. `qflextable()` fonksiyonu, `flextable()` ve `autofit()` için uygun bir kısayoldur.
 
 ```{r}
 
@@ -235,9 +233,9 @@ my_table %>% autofit()
 
 ```
 
-However, this might not always be appropriate, especially if there are very long values within cells, meaning the table might not fit on the page. 
+Ancak, özellikle hücreler içinde çok uzun değerler varsa, bu fonksiyon her zaman uygun olmayabilir, tablo sayfaya sığmayabilir. 
 
-Instead, we can specify widths with the `width()` function. It can take some playing around to know what width value to put. In the example below, we specify different widths for column 1, column 2, and columns 4 to 8. 
+Bunun yerine genişlikleri `width()` fonksiyonu ile belirtebilir. Hangi genişlik değerini koyacağınızı bilmek biraz zaman alabilir. Aşağıdaki örnekte, sütun 1, 2, 4 ve 8 için farklı genişlikler belirlenmiştir.
 
 ```{r}
 
@@ -250,31 +248,31 @@ my_table
   
 ```
 
-### Column headers {.unnumbered}
+### Sütun başlıkları {.unnumbered}
 
-We want more clearer headers for easier interpretation of the table contents.
+Tablo içeriklerinin daha kolay yorumlanması için daha net başlıklar istenir.
 
-For this table, we will want to add a second header layer so that columns covering the same subgroups can be grouped together. We do this with the `add_header_row()` function with `top = TRUE`. We provide the new name of each column to `values = `, leaving empty values `""` for columns we know we will merge together later.  
+Bu tablo için, aynı alt grupları kapsayan sütunların birlikte gruplanabilmesi için ikinci bir başlık katmanı eklemek istiyoruz. Bu `top = TRUE` argümanı ve `add_header_row()` fonksiyonu ile yapılmaktadır. Daha sonra birleştirilecek sütunlar için `""` boş değer bırakılarak, her sütunun yeni adı `values =` argümanıyla verilmektedir.  
 
-We also rename the header names in the now-second header in a separate `set_header_labels()` command.  
+İkinci başlıktaki başlık adları ayrı bir `set_header_labels()` komutuyla yeniden adlandırılır.
 
-Finally, to "combine" certain column headers in the top header we use `merge_at()` to merge the column headers in the top header row.  
+Son olarak, üst başlıktaki belirli sütun başlıklarını "birleştirmek" için, `merge_at()` fonksiyonu kullanılır.
 
 ```{r}
 my_table <- my_table %>% 
   
   add_header_row(
-    top = TRUE,                # New header goes on top of existing header row
-    values = c("Hospital",     # Header values for each column below
+    top = TRUE,                # Yeni başlık, mevcut başlık satırının üstüne eklenir
+    values = c("Hospital",     # Aşağıdaki her sütun için başlık değerleri
                "Total cases with known outcome", 
-               "Recovered",    # This will be the top-level header for this and two next columns
+               "Recovered",    # Bu, bunun ve sonraki iki sütunun en üst düzey başlığı olacak
                "",
                "",
-               "Died",         # This will be the top-level header for this and two next columns
-               "",             # Leave blank, as it will be merged with "Died"
+               "Died",         # Bu, bunun ve sonraki iki sütunun en üst düzey başlığı olacak
+               "",             # "Öldü" ile birleştirileceği için boş bırak
                "")) %>% 
     
-  set_header_labels(         # Rename the columns in original header row
+  set_header_labels(         # Orijinal başlık satırındaki sütunları yeniden adlandır
       hospital = "", 
       N_Known = "",                  
       N_Recover = "Total",
@@ -284,46 +282,46 @@ my_table <- my_table %>%
       Pct_Death = "% of cases",
       ct_value_Death = "Median CT values")  %>% 
   
-  merge_at(i = 1, j = 3:5, part = "header") %>% # Horizontally merge columns 3 to 5 in new header row
-  merge_at(i = 1, j = 6:8, part = "header")     # Horizontally merge columns 6 to 8 in new header row
+  merge_at(i = 1, j = 3:5, part = "header") %>% # Yeni başlık satırında 3 ile 5 arasındaki sütunları yatay olarak birleştir
+  merge_at(i = 1, j = 6:8, part = "header")     # HYeni başlık satırında 6 ile 8 arasındaki sütunları yatay olarak birleştir
 
 my_table  # print
 
 ```
 
-### Borders and background {.unnumbered}  
+### Kenarlıklar ve arka plan {.unnumbered}  
 
-You can adjust the borders, internal lines, etc. with various **flextable** functions. It is often easier to start by removing all existing borders with `border_remove()`.  
+Çeşitli **flextable** fonksiyonlarıyla kenarlıkları, iç çizgileri vb. ayarlayabilirsiniz. `border_remove()` ile mevcut tüm sınırları kaldırarak başlamak genellikle daha kolaydır.  
 
-Then, you can apply default border themes by passing the table to `theme_box()`, `theme_booktabs()`, or `theme_alafoli()`.  
+Ardından, tabloyu `theme_box()`, `theme_booktabs()` veya `theme_alafoli()` öğelerine geçirerek varsayılan kenarlık temalarını uygulayabilirsiniz.
 
-You can add vertical and horizontal lines with a variety of functions. `hline()` and `vline()` add lines to a specified row or column, respectively. Within each, you must specify the `part = ` as either "all", "body", or "header". For vertical lines, specify the column to `j = `, and for horizontal lines the row to `i = `. Other functions like `vline_right()`, `vline_left()`, `hline_top()`, and `hline_bottom()` add lines to the outsides only.  
+Çeşitli fonksiyonlara dikey ve yatay çizgiler ekleyebilirsiniz. `hline()` ve `vline()` sırasıyla belirli bir satıra veya sütuna satır ekler. Her birinin içinde "part  =" öğesini "tümü", "gövde" veya "başlık" olarak belirtmelisiniz. Dikey çizgiler için sütunu `j = ` ve yatay çizgiler için satırı `i = ` olarak belirtmelisiniz. `vline_right()`, `vline_left()`, `hline_top()` ve `hline_bottom()` gibi diğer işlevler yalnızca dış taraflara satır ekler.
 
-In all of these functions, the actual line style itself must be specified to `border = ` and must be the output of a separate command using the `fp_border()` function from the **officer** package. This function helps you define the width and color of the line. You can define this above the table commands, as shown below.  
+Tüm bu fonksiyonlarda, çizgi stili `border = ` olarak belirtilmelidir ayrıca **officer** paketinden `fp_border()` fonksiyonunu kullanan ayrı bir komutun çıktısı şeklinde olmalıdır. Bu fonksiyon, çizginin genişliğini ve rengini tanımlamanıza yardımcı olur. Bunu aşağıda gösterildiği gibi tablo komutlarının üzerinde tanımlayabilirsiniz.  
 
 ```{r}
-# define style for border line
+# sınır çizgisi için stil tanımla
 border_style = officer::fp_border(color="black", width=1)
 
-# add border lines to table
+# tabloya sınır çizgileri ekle
 my_table <- my_table %>% 
 
-  # Remove all existing borders
+  # Mevcut tüm sınırları kaldır
   border_remove() %>%  
   
-  # add horizontal lines via a pre-determined theme setting
+  # önceden belirlenmiş bir tema ayarıyla yatay çizgiler ekle
   theme_booktabs() %>% 
   
-  # add vertical lines to separate Recovered and Died sections
-  vline(part = "all", j = 2, border = border_style) %>%   # at column 2 
-  vline(part = "all", j = 5, border = border_style)       # at column 5
+  # İyileşen ve Ölen bölümleri ayırmak için dikey çizgiler ekleyin
+  vline(part = "all", j = 2, border = border_style) %>%   # sütun 2'de 
+  vline(part = "all", j = 5, border = border_style)       # sütun 5'de
 
 my_table
 ```
 
-### Font and alignment {.unnumbered}
+### Yazı tipi ve hizalama {.unnumbered}
 
-We centre-align all columns aside from the left-most column with the hospital names, using the `align()` function from **flextable**.
+**flextable**'daki `align()` fonksiyonunu kullanarak en soldaki sütun dışındaki tüm sütunlar hastane adlarıyla ortalayarak hizalanabilir.
 
 ```{r}
 my_table <- my_table %>% 
@@ -331,30 +329,29 @@ my_table <- my_table %>%
 my_table
 ```
 
-Additionally, we can increase the header font size and change then to bold. We can also change the total row to bold.  
+Ek olarak, başlık yazı tipi boyutunu artırabilir ve ardından kalın olarak değiştirebilir. Toplam satırı da kalın olarak değiştirebilir.
 
 ```{r}
 
 my_table <-  my_table %>%  
-  fontsize(i = 1, size = 12, part = "header") %>%   # adjust font size of header
-  bold(i = 1, bold = TRUE, part = "header") %>%     # adjust bold face of header
-  bold(i = 7, bold = TRUE, part = "body")           # adjust bold face of total row (row 7 of body)
+  fontsize(i = 1, size = 12, part = "header") %>%   # başlığın font büyüklüğünü değiştir
+  bold(i = 1, bold = TRUE, part = "header") %>%     # başlığın kalınlığını ayarla
+  bold(i = 7, bold = TRUE, part = "body")           # toplam satırın kalınlığını ayarla (gövdenin 7. satırı)
 
 my_table
 
 ```
 
-
-We can ensure that the proportion columns display only one decimal place using the function `colformat_num()`. Note this could also have been done at data management stage with the `round()` function. 
+`colformat_num()` fonksiyonunu kullanarak orantı sütunlarının yalnızca bir ondalık basamak göstermesi sağlanabilir. Bunun, `round()` fonksiyonuyla veri yönetimi aşamasında da yapılabileceğini unutmayın.
 
 ```{r}
 my_table <- colformat_num(my_table, j = c(4,7), digits = 1)
 my_table
 ```
 
-### Merge cells {.unnumbered}  
+### Hücreleri birleştirme {.unnumbered}  
 
-Just as we merge cells horizontally in the header row, we can also merge cells vertically using `merge_at()` and specifying the rows (`i`) and column (`j`). Here we merge the "Hospital" and "Total cases with known outcome" values vertically to give them more space.   
+Başlık satırındaki hücreler yatay olarak birleştirilebileciği gibi, `merge_at()` kullanılarak ve satırları (`i`) ve sütunu (`j`) belirtilerek hücreler dikey olarak da birleştirebilir. Burada daha fazla yer açmak için "Hastane" ve "Sonucu bilinen toplam vaka" değerleri dikey olarak birleştirilmektedir. 
 
 ```{r}
 my_table <- my_table %>% 
@@ -364,9 +361,9 @@ my_table <- my_table %>%
 my_table
 ```
 
-### Background color {.unnumbered}
+### Arka plan rengi {.unnumbered}
 
-To distinguish the content of the table from the headers, we may want to add additional formatting. e.g. changing the background color. In this example we change the table body to gray.
+Tablonun içeriğini başlıklardan ayırt etmek için ek biçimlendirme eklemek istenebilir. Örneğin, arka plan rengini değiştirme. Bu örnekte tablo gövdesini gri olarak değiştirmekteyiz.
 
 ```{r}
 my_table <- my_table %>% 
@@ -377,9 +374,9 @@ my_table
 
 
 <!-- ======================================================= -->
-## Conditional formatting {  }
+## Koşullu biçimlendirme {  }
 
-We can highlight all values in a column that meet a certain rule, e.g. where more than 55% of cases died. Simply put the criteria to the `i = ` or `j = ` argument, preceded by a tilde `~`. Reference the column in the data frame, not the display heading values.  
+Belirli bir kuralı karşılayan bir sütundaki tüm değerler vurgulanabilir. Örneğin, vakaların %55'inden fazlasının öldüğü yer. Ölçütleri `i =` veya `j =` argümanına, önünde bir tilde `~` gelecek şekilde koyulması yeterlidir. Değerler görüntülenen başlığa değil, veri çerçevesindeki sütununa refere edilmelidir. 
 
 ```{r}
 
@@ -388,10 +385,7 @@ my_table %>%
 
 ```
 
-
-
-Or, we can highlight the entire row meeting a certain criterion, such as a hospital of interest. To do this we just remove the column (`j`) specification so the criteria apply to all columns.
-
+Veya, ilgilenilen bir hastane gibi belirli bir kriteri karşılayan tüm satır vurgulanabilir. Ölçütlerin tüm sütunlara uygulanabilmesi için sütun (`j`) argümanının kaldırılması yeterlidir.
 
 ```{r}
 
@@ -400,71 +394,71 @@ my_table %>%
 
 ```
 
-## All code together {#tbl_pres_all}  
+## Bütün kodlar {#tbl_pres_all}  
 
 
-Below we show all the code from the above sections together.  
+Aşağıda, yukarıdaki bölümlerdeki bahsi geçen bütün kodlar paylaşılmaktadır.  
 
 ```{r}  
 
 border_style = officer::fp_border(color="black", width=1)
 
 pacman::p_load(
-  rio,            # import/export
-  here,           # file pathways
-  flextable,      # make HTML tables 
-  officer,        # helper functions for tables
-  tidyverse)      # data management, summary, and visualization
+  rio,            # içe/dışa aktar
+  here,           # dosya yolağı
+  flextable,      # HTML tablosu oluştur 
+  officer,        # tablolar için yardımcı fonksiyonlar
+  tidyverse)      # veri yönetimi, özetlemesi ve görselleştirilmesi
 
 table <- linelist %>% 
 
-  # Get summary values per hospital-outcome group
+  # Hastane sonuç grubu başına özet değerleri al
   ###############################################
-  group_by(hospital, outcome) %>%                      # Group data
-  summarise(                                           # Create new summary columns of indicators of interest
-    N = n(),                                            # Number of rows per hospital-outcome group     
-    ct_value = median(ct_blood, na.rm=T)) %>%           # median CT value per group
+  group_by(hospital, outcome) %>%                      # Grup verisi
+  summarise(                                           # İlgilenilen göstergelerin yeni özet sütunları oluştur
+    N = n(),                                            # Hastane-sonuç grubu başına satır sayısı   
+    ct_value = median(ct_blood, na.rm=T)) %>%           # Grup başına medyan CT değeri
   
-  # add totals
+  # Toplamları ekle
   ############
-  bind_rows(                                           # Bind the previous table with this mini-table of totals
+  bind_rows(                                           # Önceki tabloyu mini toplamlar tablosuyla birleştir
     linelist %>% 
       filter(!is.na(outcome) & hospital != "Missing") %>%
-      group_by(outcome) %>%                            # Grouped only by outcome, not by hospital    
+      group_by(outcome) %>%                            # Hastaneye göre değil, yalnızca sonuca göre gruplandır  
       summarise(
-        N = n(),                                       # Number of rows for whole dataset     
-        ct_value = median(ct_blood, na.rm=T))) %>%     # Median CT for whole dataset
+        N = n(),                                       # Tüm veri kümesi için satır sayısı    
+        ct_value = median(ct_blood, na.rm=T))) %>%     # Tüm veri seti için medyan CT değeri
   
-  # Pivot wider and format
+  # Geniş pivotlama ve format
   ########################
   mutate(hospital = replace_na(hospital, "Total")) %>% 
-  pivot_wider(                                         # Pivot from long to wide
-    values_from = c(ct_value, N),                       # new values are from ct and count columns
-    names_from = outcome) %>%                           # new column names are from outcomes
-  mutate(                                              # Add new columns
-    N_Known = N_Death + N_Recover,                               # number with known outcome
-    Pct_Death = scales::percent(N_Death / N_Known, 0.1),         # percent cases who died (to 1 decimal)
-    Pct_Recover = scales::percent(N_Recover / N_Known, 0.1)) %>% # percent who recovered (to 1 decimal)
-  select(                                              # Re-order columns
-    hospital, N_Known,                                   # Intro columns
-    N_Recover, Pct_Recover, ct_value_Recover,            # Recovered columns
-    N_Death, Pct_Death, ct_value_Death)  %>%             # Death columns
-  arrange(N_Known) %>%                                 # Arrange rows from lowest to highest (Total row at bottom)
+  pivot_wider(                                         # uzundan genişe pivotla
+    values_from = c(ct_value, N),                       # yeni değerler ct ve count sütunlarından alınır
+    names_from = outcome) %>%                           # yeni sütun adları sonuçlardan alınır
+  mutate(                                              # yeni sütun ekle
+    N_Known = N_Death + N_Recover,                               # sonucu bilinen satırların sayısı
+    Pct_Death = scales::percent(N_Death / N_Known, 0.1),         # ölen vakaların yüzdesi (1 ondalık basamağa kadar)
+    Pct_Recover = scales::percent(N_Recover / N_Known, 0.1)) %>% # iyileşen vakaların yüzdesi (1 ondalık basamağa kadar)
+  select(                                              # Sütunları yeniden sırala
+    hospital, N_Known,                                   # Giriş sütunları
+    N_Recover, Pct_Recover, ct_value_Recover,            # İyileşen vaka sütunları
+    N_Death, Pct_Death, ct_value_Death)  %>%             # Ölen vaka sütunları
+  arrange(N_Known) %>%                                 # Satırları en düşükten en yükseğe doğru düzenle (Toplam satırı en altta)
 
-  # formatting
+  # formatlama
   ############
-  flextable() %>%              # table is piped in from above
+  flextable() %>%              # tablo yukarıdan aktarılır
   add_header_row(
-    top = TRUE,                # New header goes on top of existing header row
-    values = c("Hospital",     # Header values for each column below
+    top = TRUE,                # Yeni başlık, mevcut başlık satırının üstüne eklenir
+    values = c("Hospital",     # Aşağıdaki her sütun için başlık değerleri
                "Total cases with known outcome", 
-               "Recovered",    # This will be the top-level header for this and two next columns
+               "Recovered",    # Bu, bunun ve sonraki iki sütunun en üst düzey başlığı olacak
                "",
                "",
-               "Died",         # This will be the top-level header for this and two next columns
-               "",             # Leave blank, as it will be merged with "Died"
+               "Died",         # Bu, bunun ve sonraki iki sütunun en üst düzey başlığı olacak
+               "",             # "Öldü" ile birleştirileceği için boş bırak
                "")) %>% 
-    set_header_labels(         # Rename the columns in original header row
+    set_header_labels(         # Orijinal başlık satırındaki sütunları yeniden adlandır
       hospital = "", 
       N_Known = "",                  
       N_Recover = "Total",
@@ -473,7 +467,7 @@ table <- linelist %>%
       N_Death = "Total",
       Pct_Death = "% of cases",
       ct_value_Death = "Median CT values")  %>% 
-  merge_at(i = 1, j = 3:5, part = "header") %>% # Horizontally merge columns 3 to 5 in new header row
+  merge_at(i = 1, j = 3:5, part = "header") %>% # Yeni başlık satırında 3 ile 5 arasındaki sütunları yatay olarak birleştir
   merge_at(i = 1, j = 6:8, part = "header") %>%  
   border_remove() %>%  
   theme_booktabs() %>% 
@@ -496,48 +490,47 @@ table
 
 
 <!-- ======================================================= -->
-## Saving your table {  }
+## Tablonun kaydedilmesi {  }
 
-There are different ways the table can be integrated into your output. 
+Tablonun nihai çıktınıza entegre edilmesinin farklı yolları vardır.
 
-### Save single table {.unnumbered}
+### Tek bir tablonun kaydedilmesi {.unnumbered}
 
-You can export the tables to Word, PowerPoint or HTML or as an image (PNG) files. To do this, use one of the following functions:
+Tabloları Word, PowerPoint, HTML veya görüntü (PNG) dosyaları olarak dışa aktarabilirsiniz. Bunu yapmak için aşağıdaki fonksiyonlardan uygun olanı kullanın:
 
 * `save_as_docx()`  
 * `save_as_pptx()`  
 * `save_as_image()`  
 * `save_as_html()`  
 
-For instance below we save our table as a word document. Note the syntax of the first argument - you can just provide the name of your flextable object e.g. `my_table`, or you can give is a "name" as shown below (the name is "my table"). If name, this will appear as the title of the table in Word. We also demonstrate code to save as PNG image.  
+Örnek olarak aşağıda tablo word belgesi olarak kaydedilmektedir. İlk argümanın sözdizimine dikkat edilirse - sadece **flextable*  nesnesinin adı verilebilir, ör. `my_table` veya aşağıda gösterildiği gibi bir "ad" da verilebilir ("my table"). Ad, Word'deki tablonun başlığı olarak görünecektir. Aşağıda ayrıca PNG olarak kaydetme kodu da paylaşılmıştır.
 
 ```{r message=FALSE, warning=FALSE, eval=F}
-# Edit the 'my table' as needed for the title of table.  
+# Tablo başlığını 'my table' olarak düzenle  
 save_as_docx("my table" = my_table, path = "file.docx")
 
 save_as_image(my_table, path = "file.png")
 ```
 
-Note the packages `webshot` or `webshot2` are required to save a flextable as an image. Images may come out with transparent backgrounds.
+Bir **flextable** tablosunu resim olarak kaydetmek için `webshot` veya `webshot2` paketlerinin gerekli olduğunu unutmayın. Görüntüler şeffaf arka planla çıkartılabilir.
 
-If you want to view a 'live' version of the **flextable** output in the intended document format, use `print()` and specify one of the below to `preview = `. The document will "pop-up" open on your computer in the specified software program, but will not be saved. This can be useful to check if the table fits in one page/slide or so you can quickly copy it into another document, you can use the print method with the argument preview set to “pptx” or “docx”.  
+**flextable** çıktının 'canlı' bir sürümü belge biçiminde görüntülemek istenirse, `print()` fonksiyonu kullanılabilir. `preview = ` argümanı için aşağıdakilerden birini belirtmek gerekmektedir. Belge, bilgisayarınızda tanımlanan yazılım programında "açılır" ancak kaydedilmez. Bu durum, tablonun bir sayfaya / slayda sığıp sığmadığını kontrol etmek için yararlı olabilir böylece onu başka bir belgeye hızlı bir şekilde kopyalayabilirsiniz. Bağımsız değişken önizlemesini “pptx” veya “docx” olarak ayarlayabilirsiniz. 
 
 ```{r, eval=F}
-print(my_table, preview = "docx") # Word document example
-print(my_table, preview = "pptx") # Powerpoint example
+print(my_table, preview = "docx") # Word örneği
+print(my_table, preview = "pptx") # Powerpoint örneği 
 ```
 
-### Print table in R markdown {.unnumbered}  
+### Tabloyu R markdown'da yazdırma {.unnumbered}  
 
-This table can be integrated into your an automated document, an R markdown output, if the table object is called within the R markdown chunk. This means the table can be updated as part of a report where the data might change, so the numbers can be refreshed.
+Tablo nesnesi otomatik olarak bir belgenize veya R markdown çıktısına entegre edilebilir. Bu, değişen verilerle tablonun güncellenebileceği ve böylece sayıların yenilenebileceği anlamına gelmektedir.
 
-See detail in the [Reports with R Markdown] page of this handbook. 
+Bu el kitabının [R Markdown ile Raporlar] sayfasındaki ayrıntılara bakın.
 
 <!-- ======================================================= -->
-## Resources {  }
+## Kaynaklar {  }
 
-The full **flextable** book is here: https://ardata-fr.github.io/flextable-book/
-The Github site is [here](https://davidgohel.github.io/flextable/)  
-A manual of all the **flextable** functions can be found [here](https://davidgohel.github.io/flextable/reference/index.html)
-
-A gallery of beautiful example **flextable** tables with code can be accessed [here](https://ardata-fr.github.io/flextable-gallery/gallery/)  
+[Tam **flextable** kitabı](https://ardata-fr.github.io/flextable-book/)
+[İlgili Github sayfası](https://davidgohel.github.io/flextable/)  
+[Tüm **flextable** fonksiyonlarının bir kılavuzu burada bulunabilir](https://davidgohel.github.io/flextable/reference/index.html)
+[Örnek **flextable** tablolardan oluşan bir galeriye buradan erişilebilir](https://ardata-fr.github.io/flextable-gallery/gallery/)  

@@ -1,39 +1,39 @@
 
-# De-duplication {}  
+# Tekilleştirme {}  
 
 ```{r, out.width=c("50%"), echo=F}
 knitr::include_graphics(here::here("images", "deduplication.png"))
 ```
 
-This page covers the following de-duplication techniques:  
+Bu sayfa aşağıdaki veri tekilleştirme tekniklerini kapsamaktadır:
 
-1. Identifying and removing duplicate rows  
-2. "Slicing" rows to keep only certain rows (e.g. min or max) from each group of rows  
-3. "Rolling-up", or combining values from multiple rows into one row  
+1. Yinelenen satırları belirleme ve kaldırma
+2. Her satır grubundan yalnızca belirli satırları (ör. min veya maks) tutmak için satırları "dilimleme" 
+3. "Toplama" veya birden çok satırdaki değerleri tek satırda birleştirme  
 
 
 <!-- ======================================================= -->
-## Preparation { }
+## Hazırlık { }
 
 
-### Load packages {.unnumbered}
+### Paketleri yükleme {.unnumbered}
 
-This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Bu kod parçası, analizler için gereken paketlerin yüklenmesini göstermektedir. Bu el kitabında, paketi kuran *ve* eğer gerekirse kullanım için yükleyen pacman'ın `p_load()` işlevlerini vurgulamaktayız. Ayrıca, **base** R'den `library()` fonksiyonu ile kurulu paketleri yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R'ın Temelleri] sayfasına bakabilirsiniz.
 
 ```{r}
 pacman::p_load(
-  tidyverse,   # deduplication, grouping, and slicing functions
-  janitor,     # function for reviewing duplicates
-  stringr)      # for string searches, can be used in "rolling-up" values
+  tidyverse,   # tekilleştirme, gruplama ve dilimleme işlevleri
+  janitor,     # kopyaları gözden geçirme işlevi
+  stringr)      # dizi aramaları için "toplama" değerleri de kullanılabilir
 ```
 
-### Import data {.unnumbered}
+### Verileri içeri aktarma {.unnumbered}
 
-For demonstration, we will use an example dataset that is created with the R code below.  
+Aşağıda, R kodu ile oluşturulmuş örnek bir veri seti kullanacağız.
 
-The data are records of COVID-19 phone encounters, including encounters with contacts and with cases. The columns include `recordID` (computer-generated), `personID`, `name`, `date` of encounter, `time` of encounter, the `purpose` of the encounter (either to interview as a case or as a contact), and `symptoms_ever` (whether the person in that encounter reported *ever* having symptoms).  
+Veriler, temaslı kişiler ve vakalar dahil olmak üzere COVID-19 telefon görüşmelerinin kayıtlarıdır. Sütunlar, kayıt kimliği - `recordID` (bilgisayar tarafından oluşturulan), kişi kimliği - `personID`, ad - `name`, karşılaşma tarihi - `date`, karşılaşma zamanı - `time`, karşılaşmanın amacını - `purpose` (vaka veya temaslı olarak görüşme için) ve semptomları `symptoms_ever` (kayıt zamanında kişinin *hiç* semptom bildirip bildirmediğini) içerir.
 
-Here is the code to create the `obs` dataset:  
+`obs` veri kümesini oluşturmak için gereken kod:
 
 ```{r}
 obs <- data.frame(
@@ -55,46 +55,46 @@ obs <- data.frame(
 ```
 
 
-#### Here is the data frame {#dedup_data .unnumbered}  
+#### Veri Çerçevesi {#dedup_data .unnumbered}  
 
-Use the filter boxes along the top to review the encounters for each person.  
+Her bir kişi için karşılaşmaları gözden geçirmek için üst kısımdaki filtre kutularını kullanabilirsiniz. 
 
 ```{r message=FALSE, echo=F}
 DT::datatable(obs, rownames = FALSE, filter = "top", options = list(pageLength = nrow(obs), scrollX=T), class = 'white-space: nowrap' )
 ```
 
 
-A few things to note as you review the data:  
+Verileri gözden geçirirken dikkat etmeniz gereken birkaç nokta:
 
-* The first two records are 100% complete duplicates including duplicate `recordID` (must be a computer glitch!)  
-* The second two rows are duplicates, in all columns *except for `recordID`*  
-* Several people had multiple phone encounters, at various dates and times, and as contacts and/or cases  
-* At each encounter, the person was asked if they had **ever** had symptoms, and some of this information is missing.  
+* İlk iki kayıt, yineleyen kayıt kimliği - `recordID` de dahil olmak üzere %100 birbirinin tam kopyalarıdır (bir bilgisayar arızası olmalı!)
+* İkinci iki satır, kayıt kimliği - `recordID dışındaki` tüm sütunlarda birbirinin kopyalarıdır.
+* Birkaç kişi, çeşitli tarih ve saatlerde ve temaslılar ve/veya vakalar olarak birden fazla telefon görüşmesi yaptı.
+* Her vizitte, kişiye **daha öncesinde** semptomları olup olmadığı soruldu ve bu bilgilerin bir kısmı eksik. 
 
 
-And here is a quick summary of the people and the purposes of their encounters, using `tabyl()` from **janitor**:  
+Ve işte **janitor** paketinden `tabyl()` fonksiyonu kullanılarak insanların ve karşılaşmalarının amaçlarının kısa bir özeti:
 
 ```{r}
 obs %>% 
   tabyl(name, purpose)
 ```
 <!-- ======================================================= -->
-## Deduplication { }
+## Tekilleştirme { }
 
 
-This section describes how to review and remove duplicate rows in a data frame. It also show how to handle duplicate elements in a vector.  
+Bu bölüm, bir veri çerçevesindeki yinelenen satırların nasıl gözden geçirileceğini ve kaldırılacağını açıklamakta ve bir vektörde yinelenen öğelerin nasıl ele alınacağını göstermektedir.  
 
 
 <!-- ======================================================= -->
-### Examine duplicate rows {.unnumbered}  
+### Yinelenen satırları inceleme {.unnumbered}  
 
 
-To quickly review rows that have duplicates, you can use `get_dupes()` from the **janitor** package. *By default*, all columns are considered when duplicates are evaluated - rows returned by the function are 100% duplicates considering the values in *all* columns.  
+Yinelenen satırları hızlı bir şekilde gözden geçirmek için **janitor** paketinden `get_dupes()` öğesini kullanabilirsiniz. *Varsayılan olarak*, yinelemeler değerlendirilirken tüm sütunlar dikkate alınır - fonksiyon tarafından döndürülen satırlar, **bütün** sütunlardaki değerler dikkate alındığında %100 yinelemedir.
 
-In the `obs` data frame, the first two rows are *100% duplicates* - they have the same value in every column (including the `recordID` column, which is *supposed* to be unique - it must be some computer glitch). The returned data frame automatically includes a new column `dupe_count` on the right side, showing the number of rows with that combination of duplicate values. 
+`obs` veri çerçevesinde, ilk iki satır *%100 kopyadır* - her sütunda aynı değere sahiptirler (*benzersiz olması gereken* kayıt kimliği - `recordID` sütunu dahil - bir bilgisayar arızası olmalı). Döndürülen veri çerçevesi, sağ tarafta otomatik olarak yeni bir `dupe_count` sütunu içerir ve bu yinelenen değerler kombinasyonuna sahip satır sayısını gösterir.
 
 ```{r, eval=F}
-# 100% duplicates across all columns
+# Tüm sütunlarda %100 kopyalar
 obs %>% 
   janitor::get_dupes()
 ```
@@ -105,12 +105,12 @@ obs %>%
   DT::datatable(rownames = FALSE, options = list(pageLength = nrow(obs), scrollX=T), class = 'white-space: nowrap' )
 ```
 
-See the [original data](#dedup_data)  
+Orijinal veriyi incelemek için [linke](#dedup_data) tıklayınız.
 
-However, if we choose to ignore `recordID`, the 3rd and 4th rows rows are also duplicates of each other. That is, they have the same values in all columns *except* for `recordID`. You can specify specific columns to be ignored in the function using a `-` minus symbol.  
+Ancak kayıt kimliğini- `recordID` yok saymayı seçersek 3. ve 4. satırlar da birbirinin kopyasıdır. Yani, `recordID` *dışındaki* tüm sütunlarda aynı değerlere sahiptirler. Bir `-` eksi sembolü kullanarak fonksiyonda yok sayılacak belirli sütunları belirtebilirsiniz.  
 
 ```{r, eval=F}
-# Duplicates when column recordID is not considered
+# Sütun kayıt kimliği/recordID dikkate alınmadığında yinelenir
 obs %>% 
   janitor::get_dupes(-recordID)         # if multiple columns, wrap them in c()
 ```
@@ -121,12 +121,12 @@ obs %>%
   DT::datatable(rownames = FALSE, options = list(pageLength = nrow(obs), scrollX=T), class = 'white-space: nowrap' )
 ```
 
-You can also positively specify the columns to consider. Below, only rows that have the same values in the `name` and `purpose` columns are returned. Notice how "amrish" now has `dupe_count` equal to 3 to reflect his three "contact" encounters.  
+Ayrıca dikkate alınacak sütunları pozitif olarak belirleyebilirsiniz. Aşağıda, yalnızca ad- `name` ve amaç - `name` sütunlarında aynı değerlere sahip satırlar döndürülür. "amrish"in, üç "temas" karşılaşmasını yansıtmak için nasıl  `dupe_count`'un 3'e eşit olduğuna dikkat edin. 
 
-*Scroll left for more rows**  
+**Daha fazla satır görmek için sola kaydırın.**  
 
 ```{r, eval=F}
-# duplicates based on name and purpose columns ONLY
+# YALNIZCA ad ve amaç sütunlarına dayalı olarak kopyalar
 obs %>% 
   janitor::get_dupes(name, purpose)
 ```
@@ -137,277 +137,277 @@ obs %>%
   DT::datatable(rownames = FALSE, options = list(pageLength = 7, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-See the [original data](#dedup_data).  
+Orijinal veriyi incelemek için [linke](#dedup_data) tıklayınız.
 
-See `?get_dupes` for more details, or see this [online reference](https://cran.r-project.org/web/packages/janitor/vignettes/janitor.html#explore-records-with-duplicated-values-for-specific-combinations-of-variables-with-get_dupes)  
-
+Daha fazla ayrıntı için `?get_dupes` fonksiyonunu kullanabilir veya bu [çevrimiçi referansa](https://cran.r-project.org/web/packages/janitor/vignettes/janitor.html#explore-records-with-duplicated-values-for-specific-combinations-of-variables-with-get_dupes) bakabilirsiniz.
 
 
 
 
 
 <!-- ======================================================= -->
-### Keep only unique rows  {.unnumbered}
+### Yalnızca benzersiz satırları tutma  {.unnumbered}
 
 
-To keep only unique rows of a data frame, use `distinct()` from **dplyr** (as demonstrated in the [Cleaning data and core functions] page). Rows that are duplicates are removed such that only the first of such rows is kept. By default, "first" means the highest `rownumber` (order of rows top-to-bottom). Only unique rows remain.  
+Bir veri çerçevesinin yalnızca benzersiz satırlarını tutmak için **dplyr** paketinden `distinct()` fonksiyonunu kullanabilirsiniz ([Veri ve temel işlevleri temizleme] sayfasında gösterildiği gibi). Yinelenen satırlar, bu tür satırlardan yalnızca ilki tutulacak şekilde kaldırılır. Varsayılan olarak, "ilk" en yüksek satır sayısı - `rownumber` anlamına gelir (yukarıdan aşağıya sırasında). Yalnızca benzersiz satırlar kalır.
 
-In the example below, we run `distinct()` such that the column `recordID` is excluded from consideration - thus **two duplicate rows are removed**. The first row (for "adam") was 100% duplicated and has been removed. Also row 3 (for "amrish") was a duplicate in every column *except* `recordID` (which is not being considered) and so is also removed. The `obs` dataset n is now ` nrow(obs)-2`, not ` nrow(obs)` rows).  
+Aşağıdaki örnekte, kayıt kimliği - `recordID` sütununun dikkate alınmaması için `distinct()` fonksiyonunu çalıştırıyoruz - bu nedenle *iki yinelenen satır* kaldırılmaktadır. İlk satır ("adam" için) %100 kopyalandı ve kaldırıldı. Ayrıca 3. satır ("amrish" için) `recordID` (değerlendirilmemiştir) *dışındaki* her sütunda bir kopyaydı ve bu nedenle de kaldırıldı. `obs` veri kümesinin n'i `nrow(obs)-2`dir, `nrow(obs)` satırı değil.
 
-*Scroll to the left to see the entire data frame*  
+*Tüm veri çerçevesini görmek için sola kaydırın.*  
 
 
 ```{r, eval=F}
-# added to a chain of pipes (e.g. data cleaning)
+# veri zincirine eklendi (ör. veri temizleme)
 obs %>% 
-  distinct(across(-recordID), # reduces data frame to only unique rows (keeps first one of any duplicates)
+  distinct(across(-recordID), # veri çerçevesini yalnızca benzersiz satırlara indirger (herhangi bir kopyadan ilkini tutar)
            .keep_all = TRUE) 
 
-# if outside pipes, include the data as first argument 
+# eğer veri zincirinin dışındaysa, verileri ilk argüman olarak dahil et 
 # distinct(obs)
 ```
 
 ```{r message=FALSE, echo=F}
 obs %>% 
-  distinct(across(-recordID), # reduces data frame to only unique rows (keeps first one of any duplicates)
+  distinct(across(-recordID), # veri çerçevesini yalnızca benzersiz satırlara indirger (herhangi bir kopyadan ilkini tutar)
            .keep_all = TRUE) %>% 
   DT::datatable(rownames = FALSE, options = list(pageLength = 6, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-<span style="color: orange;">**_CAUTION:_** If using `distinct()` on grouped data, the function will apply to each group.</span>
+<span style="color: orange;">**_UYARI:_** Gruplandırılmış verilerde `distinct()` kullanılıyorsa, fonksiyon her gruba uygulanacaktır.</span>
 
 
-**Deduplicate based on specific columns**  
+**Belirli sütunlara dayalı olarak tekilleştirme**  
 
-You can also specify columns to be the basis for de-duplication. In this way, the de-duplication only applies to rows that are duplicates within the specified columns. Unless you set `.keep_all = TRUE`, all columns not mentioned will be dropped.  
+Ayrıca tekilleştirme için temel olacak sütunları da belirtebilirsiniz. Bu şekilde, tekilleştirme yalnızca belirtilen sütunlar içinde yinelenen satırlar için geçerlidir. `.keep_all = TRUE`, olarak ayarlamadığınız sürece, belirtilmeyen tüm sütunlar kaldırılacaktır.
 
-In the example below, the de-duplication only applies to rows that have identical values for `name` and `purpose` columns. Thus, "brian" has only 2 rows instead of 3 - his *first* "contact" encounter and his only "case" encounter. To adjust so that brian's *latest* encounter of each purpose is kept, see the tab on Slicing within groups.  
+Aşağıdaki örnekte, tekilleştirme yalnızca ad - `name` ve amaç - `purpose` sütunları için aynı değerlere sahip satırlar için geçerlidir. Böylece, "brian"ın 3 yerine sadece 2 satırı vardır - *ilk* "temas" karşılaşması ve tek "vaka" karşılaşması. Brian'ın her bir amaç için *en son* karşılaşmasını koruyacak şekilde ayarlamak için, Gruplar içinde Dilimleme sekmesine bakın.
 
-*Scroll to the left to see the entire data frame*  
+*Tüm veri çerçevesini görmek için sola kaydırın.*
 
 ```{r, eval=F}
-# added to a chain of pipes (e.g. data cleaning)
+# veri zincirine eklendi (ör. veri temizleme)
 obs %>% 
-  distinct(name, purpose, .keep_all = TRUE) %>%  # keep rows unique by name and purpose, retain all columns
-  arrange(name)                                  # arrange for easier viewing
+  distinct(name, purpose, .keep_all = TRUE) %>%  # satırları ada ve amaca göre benzersiz tut ve tüm sütunları koru
+  arrange(name)                                  # daha kolay görüntüleme için düzenle
 ```
 
 ```{r message=FALSE, echo=F}
 obs %>% 
-  distinct(name, purpose, .keep_all = TRUE) %>%  # keep rows unique by name and purpose, retain all columns
+  distinct(name, purpose, .keep_all = TRUE) %>%  # satırları ada ve amaca göre benzersiz tut ve tüm sütunları koru
   arrange(name) %>% 
   DT::datatable(rownames = FALSE, options = list(pageLength = 6, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-See the [original data](#dedup_data).  
+Orijinal veriyi incelemek için [linke](#dedup_data) tıklayınız. 
 
 <!-- ======================================================= -->
-### Deduplicate elements in a vector {.unnumbered}  
+### Bir vektörde yinelenen öğeler {.unnumbered}  
 
 
-The function `duplicated()` from **base** R will evaluate a vector (column) and return a logical vector of the same length (TRUE/FALSE). The first time a value appears, it will return FALSE (not a duplicate), and subsequent times that value appears it will return TRUE. Note how `NA` is treated the same as any other value.    
+**base** R'dan `duplicated()` fonksiyonu, bir vektörü (sütun) değerlendirecek ve aynı uzunlukta (DOĞRU/YANLIŞ) bir mantıksal vektöre döndürecektir. Bir değer ilk göründüğünde, YANLIŞ’a (yinelenen değil) döndürür ve bu değerin sonraki görüntülerinde DOĞRU’ya döndürür. `NA`'nın diğer herhangi bir değerle nasıl aynı şekilde ele alındığına dikkat edin. 
 
 ```{r}
 x <- c(1, 1, 2, NA, NA, 4, 5, 4, 4, 1, 2)
 duplicated(x)
 ```
 
-To return only the duplicated elements, you can use brackets to subset the original vector: 
+Yalnızca yinelenen öğeleri döndürmek için, orijinal vektörün alt kümesini oluşturmak için köşeli parantezleri kullanabilirsiniz:
 
 ```{r}
 x[duplicated(x)]
 ```
 
-To return only the unique elements, use `unique()` from **base** R. To remove `NA`s from the output, nest `na.omit()` within `unique()`.  
+Yalnızca benzersiz öğeleri döndürmek için, **base** R'dan `unique()` kullanın. `NA`'ları sonuçtan çıkarmak için na.omit() öğesini `unique()` içine yerleştirin.
 
 ```{r}
-unique(x)           # alternatively, use x[!duplicated(x)]
-unique(na.omit(x))  # remove NAs 
+unique(x)           # alternatif olarak, x[!duplicated(x)]kullanın
+unique(na.omit(x))  # NA’ları kaldırın
 ```
 
 
 <!-- ======================================================= -->
-### Using **base** R {.unnumbered}
+### **base** R'ı kullanma {.unnumbered}
 
-**To return duplicate rows**  
+**Yinelenen satırları döndürmek için**  
 
-In **base** R, you can also see which rows are 100% duplicates in a data frame `df` with the command `duplicated(df)` (returns a logical vector of the rows).  
+**base** R'da, `duplicated(df)` komutuyla `df` veri çerçevesinde hangi satırların %100 kopya olduğunu da görebilirsiniz (satırların mantıksal vektörünü döndürür).
 
-Thus, you can also use the base subset `[ ]` on the data frame to see the *duplicated* rows with `df[duplicated(df),]` (don't forget the comma, meaning that you want to see all columns!). 
+Bu nedenle, `df[duplicated(df),]` ile *yineleyen* satırları görmek için veri çerçevesindeki `[ ]` temel alt kümesini de kullanabilirsiniz (virgülü unutmayın, bu tüm sütunları görmek istediğiniz anlamına gelir!).
 
-**To return unique rows**  
+**Benzersiz satırları döndürmek için**  
 
-See the notes above. To see the *unique* rows you add the logical negator `!` in front of the `duplicated()` function:  
+Yukarıdaki notlara bakın. *Benzersiz* satırları görmek için `duplicated()` işlevinin önünde mantıksal olumsuzlayıcıyı/logical negator `!v eklersiniz: 
 `df[!duplicated(df),]`  
 
 
-**To return rows that are duplicates of only certain columns**  
+**Yalnızca belirli sütunların kopyası olan satırları döndürmek için**  
 
-Subset the `df` that is *within the `duplicated()` parentheses*, so this function will operate on only certain columns of the `df`.  
+*`duplicated()` parantez içindeki* `df`’yi alt kümeye alın, böylece bu işlev df'nin yalnızca belirli sütunlarında çalışacaktır.
 
-To specify the columns, provide column numbers or names after a comma (remember, all this is *within* the `duplicated()` function).  
+Sütunları belirtmek için, virgülden sonra sütun numaralarını veya adlarını girin (tüm bunların `duplicated()` fonksiyonu *içinde* olduğunu unutmayın).
 
-Be sure to keep the comma `,` *outside* after the `duplicated()` function as well! 
+`duplicated()` fonksiyonundan sonra da virgülü `dışarıda` tuttuğunuzdan emin olun!
 
-For example, to evaluate only columns 2 through 5 for duplicates:  `df[!duplicated(df[, 2:5]),]`  
-To evaluate only columns `name` and `purpose` for duplicates: `df[!duplicated(df[, c("name", "purpose)]),]`  
+Örneğin, kopyalar için yalnızca 2 ila 5 arasındaki sütunları değerlendirmek için:  `df[!duplicated(df[, 2:5]),]`  
+Kopyalar için yalnızca `name` ve `purpose` sütununu değerlendirmek için: `df[!duplicated(df[, c("name", "purpose)]),]`  
 
 
 
 
 
 <!-- ======================================================= -->
-## Slicing { }
+## Dilimleme { }
 
 
-To "slice" a data frame to apply a filter on the rows by row number/position. This becomes particularly useful if you have multiple rows per functional group (e.g. per "person") and you only want to keep one or some of them. 
+Satır numarasına/konumuna göre satırlara filtre uygulamak için bir veri çerçevesini "dilimlemek". Bu, özellikle işlevsel grup başına (örneğin, "kişi" başına) birden çok satırınız varsa ve bunlardan yalnızca birini veya birkaçını tutmak istiyorsanız yararlı olur.
 
-The basic `slice()` function accepts numbers and returns rows in those positions. If the numbers provided are positive, only they are returned. If negative, those rows are *not* returned. Numbers must be either all positive or all negative.     
+Temel `slice()` işlevi sayıları kabul eder ve bu konumlardaki satırları döndürür. Sağlanan sayılar pozitifse, yalnızca döndürülür. Negatifse, bu satırlar *döndürülmez*. Sayıların tümü pozitif veya tümü negatif olmalıdır.     
 
 ```{r}
-obs %>% slice(4)  # return the 4th row
+obs %>% slice(4)  # 4. satırı döndür
 ```
 
 ```{r}
-obs %>% slice(c(2,4))  # return rows 2 and 4
-#obs %>% slice(c(2:4))  # return rows 2 through 4
+obs %>% slice(c(2,4))  # 2. ve 4. satırları döndür
+#obs %>% slice(c(2:4))  # 2'den 4'e kadar olan satırları döndür
 ```
 
 
-See the [original data](#dedup_data). 
+Orijinal veriyi incelemek için [linke](#dedup_data) tıklayınız.
 
-There are several variations:  These should be provided with a column and a number of rows to return (to `n = `).  
+Birkaç varyasyon mevcuttur: Bunlara bir sütun ve döndürülecek birkaç satır verilmelidir ( n ='ye).  
 
-* `slice_min()` and `slice_max()`  keep only the row(s) with the minimium or maximum value(s) of the specified column. This also works to return the "min" and "max" of ordered factors.    
-* `slice_head()` and `slice_tail()` - keep only the *first* or *last* row(s).  
-* `slice_sample()`  - keep only a random sample of the rows.  
+* `slice_min()` ve `slice_max()` yalnızca belirtilen sütunun minimum veya maksimum değer(ler)ine sahip satır(lar)ı tutar. Bu aynı zamanda sıralı faktörlerin "min" ve "maks" değerlerini döndürmek için de işe yarar.
+* `slice_head()` ve `slice_tail()` -  sadece *ilk* veya *son* satır(lar)ı tutar.
+* `slice_sample()` - satırların yalnızca rastgele bir örneğini tutar.  
 
 
 ```{r}
-obs %>% slice_max(encounter, n = 1)  # return rows with the largest encounter number
+obs %>% slice_max(encounter, n = 1)  # en büyük karşılaşma numarasına sahip satırları döndür
 ```
 
-Use arguments `n = ` or `prop = ` to specify the number or proportion of rows to keep. If not using the function in a pipe chain, provide the data argument first (e.g. `slice(data, n = 2)`). See `?slice` for more information. 
+Saklanacak satırların sayısını veya oranını belirtmek için  `n = ` veya `prop = ` argümanlarını kullanın. İşlev bir boru zincirinde kullanılmıyorsa, önce veri bağımsız değişkenini sağlayın (ör. `slice(data, n = 2)`). Daha fazla bilgi için `?slice` bölümüne bakın.
 
-Other arguments:  
+Diğer argümanlar: 
 
-`.order_by = ` used in `slice_min()` and `slice_max()` this is a column to order by before slicing.  
-`with_ties = ` TRUE by default, meaning ties are kept.  
-`.preserve = ` FALSE by default. If TRUE then the grouping structure is re-calculated after slicing.  
-`weight_by = ` Optional, numeric column to weight by (bigger number more likely to get sampled).  Also `replace = ` for whether sampling is done with/without replacement.  
+`.order_by = ` `slice_min()` ve `slice_max()` içinde kullanılır ve bu, dilimlemeden önce sıralanması gereken bir sütundur.
+`with_ties = ` Varsayılan olarak DOĞRU, yani bağlar korunur.
+`.preserve = ` Varsayılan olarak YANLIŞ. DOĞRU ise, dilimlemeden sonra gruplama yapısı yeniden hesaplanır.  
+`weight_by = ` Ağırlıklandırmaya göre isteğe bağlı, sayısal sütun (daha büyük sayının örneklenmesi daha olasıdır).
+Ayrıca `replace = ` Örneklemenin değiştirilerek/değiştirilmeden yapılıp yapılmadığı için. 
 
-<span style="color: darkgreen;">**_TIP:_** When using `slice_max()` and `slice_min()`, be sure to specify/write the `n = `  (e.g. `n = 2`, not just `2`). Otherwise you may get an error `Error: `...` is not empty.` </span>
+<span style="color: darkgreen;">**_İPUCU:_** `slice_max()` ve `slice_min()` kullanırken, n ='yi belirttiğinizden/yazdığınızdan emin olun (ör. `n = 2`, sadece `2` değil). Aksi takdirde bir hata alabilirsiniz. `Error:` … `is not empty.`</span>
 
-<span style="color: black;">**_NOTE:_** You may encounter the function [`top_n()`](https://dplyr.tidyverse.org/reference/top_n.html), which has been superseded by the `slice` functions.</span>
+<span style="color: black;">**_NOT:_** slice işlevlerinin yerini alan [`top_n()`](https://dplyr.tidyverse.org/reference/top_n.html) fonksiyonuyla karşılaşabilirsiniz.</span>
 
  
 
 
 <!-- ======================================================= -->
-### Slice with groups  {.unnumbered}
+### Gruplarla dilimleme  {.unnumbered}
 
-The `slice_*()` functions can be very useful if applied to a grouped data frame because the slice operation is performed on each group separately. Use the **function** `group_by()` in conjunction with `slice()` to group the data to take a slice from each group.  
+`slice_*()` fonksiyonları, gruplanmış bir veri çerçevesine uygulandığında çok yararlı olabilir, çünkü dilim işlemi her grup üzerinde ayrı ayrı gerçekleştirilir. Her gruptan bir dilim almak üzere verileri gruplamak için `group_by()` **fonksiyonunu** `slice()` ile birlikte kullanın.
 
-This is helpful for de-duplication if you have multiple rows per person but only want to keep one of them. You first use `group_by()` with key columns that are the same per person, and then use a slice function on a column that will differ among the grouped rows.  
+Bu, kişi başına birden fazla satırınız varsa ancak bunlardan yalnızca birini tutmak istiyorsanız, tekilleştirme için yararlıdır. Önce `group_by()` fonksiyonunu kişi başına aynı olan anahtar sütunlarla kullanırsınız ve ardından gruplanmış satırlar arasında farklılık gösterecek bir sütun üzerinde bir `slice` fonksiyonunu kullanırsınız.
 
-In the example below, to keep only the *latest* encounter *per person*, we group the rows by `name` and then use `slice_max()` with `n = 1` on the `date` column. Be aware! To apply a function like `slice_max()` on dates, the date column must be class Date.   
+Aşağıdaki örnekte, *kişi başına* yalnızca *en son* karşılaşmayı tutmak için satırları ada - `name`  göre grupladık ve ardından tarih - `date` sütununda `n = 1` ile `slice_max()`'ı kullandık. Haberin olsun! Tarihlere `slice_max()` gibi bir işlevi uygulamak için tarih sütunu Date sınıfı olmalıdır.
 
-By default, "ties" (e.g. same date in this scenario) are kept, and we would still get multiple rows for some people (e.g. adam). To avoid this we set `with_ties = FALSE`. We get back only one row per person.  
+Varsayılan olarak, "bağlar" (ör. bu senaryoda aynı tarih) korunur ve yine de bazı insanlar için (ör. adam) birden çok satır alırız. Bunu önlemek için `with_ties = FALSE` olarak ayarladık. 
 
-<span style="color: orange;">**_CAUTION:_** If using `arrange()`, specify `.by_group = TRUE` to have the data arranged within each group.</span>
+<span style="color: orange;">**_UYARI:_** Eğer `arrange()` fonksiyonu kullanılıyorsa, verilerin her bir grup içinde düzenlenmesi için `.by_group = TRUE` olarak belirtin.</span>
 
-<span style="color: red;">**_DANGER:_** If `with_ties = FALSE`, the first row of a tie is kept. This may be deceptive. See how for Mariah, she has two encounters on her latest date (6 Jan) and the first (earliest) one was kept. Likely, we want to keep her later encounter on that day. See how to "break" these ties in the next example. </span>  
+<span style="color: red;">**_TEHLİKE:_** Eğer `with_ties = FALSE` ise, bir bağın ilk satırı tutulur. Bu aldatıcı olabilir. Mariah'nın son randevusunda (6 Ocak) iki karşılaşması var ve ilki (en erken) tutuluyor. Muhtemelen, o gün daha sonraki karşılaşmasını sürdürmek istiyoruz. Bir sonraki örnekte bu bağların nasıl "kırılacağını" görebilirsiniz.</span>  
 
 
 
 
 ```{r, eval=F}
 obs %>% 
-  group_by(name) %>%       # group the rows by 'name'
-  slice_max(date,          # keep row per group with maximum date value 
-            n = 1,         # keep only the single highest row 
-            with_ties = F) # if there's a tie (of date), take the first row
+  group_by(name) %>%       # satırları 'ad'a göre gruplandır
+  slice_max(date,          # maksimum tarih değerine sahip grup başına satır tut 
+            n = 1,         # sadece tek en yüksek satırı tut
+            with_ties = F) # (tarihin) bir bağı varsa, ilk sırayı alın
 ```
 
 ```{r message=FALSE, echo=F}
 obs %>% 
-  group_by(name) %>%       # group the rows by 'name'
-  slice_max(date,          # keep row per group with maximum date value 
-            n = 1,         # keep only the single highest row 
-            with_ties = F) %>%  # if there's a tie (of date), take the first row
+  group_by(name) %>%       # satırları 'ad'a göre gruplandır
+  slice_max(date,          # maksimum tarih değerine sahip grup başına satır tut
+            n = 1,         # sadece tek en yüksek satırı tut
+            with_ties = F) %>%  # (tarihin) bir bağı varsa, ilk sırayı alın
   DT::datatable(rownames = FALSE, options = list(pageLength = 8, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Above, for example we can see that only Amrish's row on 5 Jan was kept, and only Brian's row on 7 Jan was kept. See the [original data](#dedup_data).  
+Yukarıda, örneğin sadece Amrish'in 5 Ocak'taki satırının tutulduğunu ve sadece Brian'ın 7 Ocak'taki satırının tutulduğunu görebiliriz. Orijinal veriyi incelemek için [linke](#dedup_data) tıklayınız. 
 
 
-**Breaking "ties"**  
+**"Bağları" kırmak**  
 
-Multiple slice statements can be run to "break ties". In this case, if a person has multiple encounters on their latest *date*, the encounter with the latest *time* is kept (`lubridate::hm()` is used to convert the character times to a sortable time class).  
-Note how now, the one row kept for "Mariah" on 6 Jan is encounter 3 from 08:32, not encounter 2 at 07:25.  
+"Bağları kırmak" için birden çok dilim ifadesi çalıştırılabilir. Bu durumda, bir kişinin en son *tarihinde* birden fazla karşılaşması varsa, en son *zamanlı* olan karşılaşma tutulur (karakter zamanlarını sıralanabilir bir zaman sınıfına dönüştürmek için `lubridate::hm()` kullanılır).
+Şimdi, 6 Ocak'ta “Mariah” için tutulan bir satırın, 07:25'teki 2. karşılaşma değil, 08:32'deki 3. karşılaşma olduğuna dikkat edin.
 
 ```{r, eval=F}
-# Example of multiple slice statements to "break ties"
+# "Bağları kırmak" için çoklu dilim ifadesi örneği
 obs %>%
   group_by(name) %>%
   
-  # FIRST - slice by latest date
+  # İLK - en son tarihe göre dilimleyin
   slice_max(date, n = 1, with_ties = TRUE) %>% 
   
-  # SECOND - if there is a tie, select row with latest time; ties prohibited
+  # İKİNCİ - bir bağ varsa, en son zamana sahip satırı seçin; bağlar yasak
   slice_max(lubridate::hm(time), n = 1, with_ties = FALSE)
 ```
 
 ```{r message=FALSE, echo=F}
-# Example of multiple slice statements to "break ties"
+# "Bağları kırmak" için çoklu dilim ifadesi örneği
 obs %>%
   group_by(name) %>%
   
-  # FIRST - slice by latest date
+  # İLK - en son tarihe göre dilimleyin
   slice_max(date, n = 1, with_ties = TRUE) %>% 
   
-  # SECOND - if there is a tie, select row with latest time; ties prohibited
+  # İKİNCİ - bir bağ varsa, en son zamana sahip satırı seçin; bağlar yasak
   slice_max(lubridate::hm(time), n = 1, with_ties = FALSE) %>% 
   
   DT::datatable(rownames = FALSE, options = list(pageLength = 8, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-*In the example above, it would also have been possible to slice by `encounter` number, but we showed the slice on `date` and `time` for example purposes.*  
+*ScriptIn yukarıdaki örnekte karşılaşma - `encounter` sayısına göre dilimleme yapmak da mümkün olabilirdi ama biz örnek amaçlı olarak tarih - `date` ve saat - `time` üzerinde dilimi gösterdik.*
 
-<span style="color: darkgreen;">**_TIP:_** To use `slice_max()` or `slice_min()` on a "character" column, mutate it to an *ordered* factor class!</span>
+<span style="color: darkgreen;">**_İPUCU:_** Bir "karakter" sütununda `slice_max()` veya  `slice_min()` kullanmak için, onu sıralı bir faktör sınıfına dönüştürün!</span>
 
-See the [original data](#dedup_data).  
+Orijinal veriyi incelemek için [linke](#dedup_data) tıklayınız.
 
 
 <!-- ======================================================= -->
-### Keep all but mark them  {.unnumbered}
+### Hepsini sakla ama işaretle  {.unnumbered}
 
-If you want to keep all records but mark only some for analysis, consider a two-step approach utilizing a unique recordID/encounter number:  
+Tüm kayıtları tutmak, ancak yalnızca bazılarını analiz için işaretlemek istiyorsanız, benzersiz bir recordID/encounter number:  
 
-1) Reduce/slice the orginal data frame to only the rows for analysis. Save/retain this reduced data frame.  
-2) In the original data frame, mark rows as appropriate with `case_when()`, based on whether their record unique identifier (recordID in this example) is present in the reduced data frame.  
+1) Orijinal veri çerçevesini analiz için yalnızca satırlara küçültün/dilimleyin. Bu azaltılmış veri çerçevesini kaydedin/saklayın.
+2) Orijinal veri çerçevesinde, satırları, kayıtlı benzersiz tanımlayıcısının (bu örnekte recordID) indirgenmiş veri çerçevesinde bulunup bulunmadığına bağlı olarak `case_when()` ile uygun şekilde işaretleyin.
 
 
 ```{r}
-# 1. Define data frame of rows to keep for analysis
+# 1. Analiz için saklanacak satırların veri çerçevesini tanımlayın
 obs_keep <- obs %>%
   group_by(name) %>%
-  slice_max(encounter, n = 1, with_ties = FALSE) # keep only latest encounter per person
+  slice_max(encounter, n = 1, with_ties = FALSE) # her kişi başına yalnızca en son karşılaşmayı tutun
 
 
-# 2. Mark original data frame
+# 2. Orijinal veri çerçevesini işaretleyin
 obs_marked <- obs %>%
 
-  # make new dup_record column
+  # yeni dup_record sütunu oluşturun
   mutate(dup_record = case_when(
     
-    # if record is in obs_keep data frame
+    # kayıt obs_keep veri çerçevesindeyse
     recordID %in% obs_keep$recordID ~ "For analysis", 
     
-    # all else marked as "Ignore" for analysis purposes
+    # analiz amacıyla "Yoksay" olarak işaretlenen diğer her şey
     TRUE                            ~ "Ignore"))
 
-# print
+# yazdır
 obs_marked
 ```
 
@@ -416,24 +416,24 @@ obs_marked
 DT::datatable(obs_marked, rownames = FALSE, options = list(pageLength = 8, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-See the [original data](#dedup_data).  
+Orijinal veriyi incelemek için [linke](#dedup_data) tıklayınız.
 
 <!-- ======================================================= -->
-### Calculate row completeness {.unnumbered} 
+### Satır tamlığını hesapla {.unnumbered} 
 
-Create a column that contains a metric for the row's completeness (non-missingness). This could be helpful when deciding which rows to prioritize over others when de-duplicating/slicing.  
+Satırın tamlığı (eksik olmaması) için bir metrik içeren bir sütun oluşturun. Bu, tekilleştirme/dilimleme sırasında hangi satırların diğerlerine göre önceliklendirileceğine karar verirken yardımcı olabilir.   
 
-In this example, "key" columns over which you want to measure completeness are saved in a vector of column names.  
+Bu örnekte, tamlığını ölçmek istediğiniz "anahtar" sütunlar, bir sütun adları vektörüne kaydedilir. 
 
-Then the new column `key_completeness` is created with `mutate()`. The new value in each row is defined as a calculated fraction: the number of non-missing values in that row among the key columns, divided by the number of key columns.  
+Daha sonra `mutate()` ile yeni `key_completeness` sütunu oluşturulur. Her satırdaki yeni değer, hesaplanmış bir kesir olarak tanımlanır: o satırda anahtar sütunlar arasında eksik olmayan değerlerin sayısı, anahtar sütunların sayısına bölünür.
 
-This involves the function `rowSums()` from **base** R. Also used is `.`, which within piping refers to the data frame at that point in the pipe (in this case, it is being subset with brackets `[]`).  
+Bu işlem, base R'daki `rowSums()` fonksiyonunu içermektedir. Ayrıca, tünellemede, veri çerçevesindeki bir noktaya atıfta bulunan `.` kullanılır (bu durumda, köşeli parantez `[]` ile alt kümelenmektedir).
 
-*Scroll to the right to see more rows**  
+*Daha fazla satır görmek için sağa kaydırın**  
 
 ```{r, eval=F}
-# create a "key variable completeness" column
-# this is a *proportion* of the columns designated as "key_cols" that have non-missing values
+# bir "değişken tamlığı" sütunu oluşturun
+# bu, eksik olmayan değerlere sahip "key_cols" olarak belirlenmiş sütunların *oranıdır*
 
 key_cols = c("personID", "name", "symptoms_ever")
 
@@ -449,171 +449,171 @@ obs %>%
   DT::datatable(rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-See the [original data](#dedup_data).  
+Orijinal veriyi incelemek için [linke](#dedup_data) tıklayınız. 
 
 
 
 
 <!-- ======================================================= -->
-## Roll-up values {#str_rollup}
+## Toplama değerleri {#str_rollup}
 
 
-This section describes:  
+Bu bölüm şunları açıklar:  
 
-1) How to "roll-up" values from multiple rows into just one row, with some variations  
-2) Once you have "rolled-up" values, how to overwrite/prioritize the values in each cell  
+1) Bazı varyasyonlarla birden çok satırdaki değerleri tek bir satıra "toplama"
+2) "Toplanmış" değerlere sahip olduğunuzda, her hücredeki değerlerin üzerine nasıl yazılır/öncelik verilir 
 
-This tab uses the example dataset from the Preparation tab.  
+Bu sekme, Hazırlık sekmesindeki örnek veri kümesini kullanır.  
 
 
 
 <!-- ======================================================= -->
-### Roll-up values into one row {.unnumbered}  
+### Değerleri bir satıra topla {.unnumbered}  
 
-The code example below uses `group_by()` and `summarise()` to group rows by person, and then paste together all unique values within the grouped rows. Thus, you get one summary row per person. A few notes:  
+Aşağıdaki kod örneği, satırları kişiye göre gruplandırmak için `group_by()` ve `summarise()` öğelerini kullanır ve ardından gruplanmış satırlardaki tüm benzersiz değerleri birbirine yapıştırır. Böylece kişi başına bir özet satırı elde edersiniz.  
 
-* A suffix is appended to all new columns ("_roll" in this example)  
-* If you want to show only unique values per cell, then wrap the `na.omit()` with `unique()`  
-* `na.omit()` removes `NA` values, but if this is not desired it can be removed `paste0(.x)`...  
+* Tüm yeni sütunlara bir son ek eklenir (bu örnekte "_roll"). 
+* Hücre başına yalnızca benzersiz değerleri göstermek istiyorsanız, `na.omit()` öğesini `unique()` ile sarın. 
+* `na.omit()` `NA` değerlerini kaldırır, ancak bu istenmiyorsa `paste0(.x)`… kaldırılabilir.
 
 
 
 ```{r, eval=F}
-# "Roll-up" values into one row per group (per "personID") 
+# "Toplama" değerlerini grup başına bir satırda toplar ("personID" başına) 
 cases_rolled <- obs %>% 
   
-  # create groups by name
+  # Ada göre grup oluşturur
   group_by(personID) %>% 
   
-  # order the rows within each group (e.g. by date)
+  # Her gruptaki satırları sıralar (ör. tarihe göre)
   arrange(date, .by_group = TRUE) %>% 
   
-  # For each column, paste together all values within the grouped rows, separated by ";"
+  # Her sütun için, gruplandırılmış satırlardaki tüm değerleri ";" ile ayırarak birbirine yapıştır
   summarise(
-    across(everything(),                           # apply to all columns
-           ~paste0(na.omit(.x), collapse = "; "))) # function is defined which combines non-NA values
+    across(everything(),                           # Tüm sütunlara uygula
+           ~paste0(na.omit(.x), collapse = "; "))) # NA olmayan benzersiz değerleri birleştiren işlev tanımlanır
 ```
 
-The result is one row per group (`ID`), with entries arranged by date and pasted together. *Scroll to the left to see more rows*    
+Fonksiyonun çıktısı, girişlerin tarihe göre düzenlendiği ve birbirine yapıştırıldığı, grup başına bir satırdır ("ID"). *Daha fazla satır görmek için sola kaydırın.*    
 
 ```{r message=FALSE, echo=F}
-# "Roll-up" values into one row per group (per "personID") 
+# "Toplama" değerlerini grup başına bir satırda toplar ("personID" başına) 
 obs %>% 
   
-  # create groups by name
+  # Ada göre grup oluşturur
   group_by(personID) %>% 
   
-  # order the rows within each group (e.g. by date)
+  # Her gruptaki satırları sıralar (ör. tarihe göre)
   arrange(date, .by_group = TRUE) %>% 
   
-  # For each column, paste together all values within the grouped rows, separated by ";"
+  # Her sütun için, gruplandırılmış satırlardaki tüm değerleri ";" ile ayırarak birbirine yapıştır
   summarise(
-    across(everything(),                                # apply to all columns
-           ~paste0(na.omit(.x), collapse = "; "))) %>%  # function is defined which combines non-NA values
+    across(everything(),                                # Tüm sütunlara uygular
+           ~paste0(na.omit(.x), collapse = "; "))) %>%  # NA olmayan benzersiz değerleri birleştiren işlev tanımlanır
 
   DT::datatable(rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap')
 ```
 
-See the [original data](#dedup_data).  
+Orijinal veriyi incelemek için [linke](#dedup_data) tıklayınız. 
 
 
-**This variation shows unique values only:**  
+**Bu varyasyon yalnızca benzersiz değerleri gösterir:**  
 
 ```{r}
-# Variation - show unique values only 
+# Varyasyon - yalnızca benzersiz değerleri göster
 cases_rolled <- obs %>% 
   group_by(personID) %>% 
   arrange(date, .by_group = TRUE) %>% 
   summarise(
-    across(everything(),                                   # apply to all columns
-           ~paste0(unique(na.omit(.x)), collapse = "; "))) # function is defined which combines unique non-NA values
+    across(everything(),                                   # Tüm sütunlara uygular
+           ~paste0(unique(na.omit(.x)), collapse = "; "))) # NA olmayan benzersiz değerleri birleştiren işlev tanımlanır
 ```
 
 ```{r message=FALSE, echo=F}
-# Variation - show unique values only 
+# Varyasyon - yalnızca benzersiz değerleri göster
 obs %>% 
   group_by(personID) %>% 
   arrange(date, .by_group = TRUE) %>% 
   summarise(
-    across(everything(),                                   # apply to all columns
-           ~paste0(unique(na.omit(.x)), collapse = "; "))) %>%  # function is defined which combines unique non-NA values
+    across(everything(),                                   # Tüm sütunlara uygular
+           ~paste0(unique(na.omit(.x)), collapse = "; "))) %>%  # NA olmayan benzersiz değerleri birleştiren işlev tanımlanır
 
   DT::datatable(rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
 
-**This variation appends a suffix to each column.**  
-In this case "_roll" to signify that it has been rolled:  
+**Bu varyasyon, her sütuna bir son ek ekler.**  
+Bu durumda, yuvarlandığını belirtmek için "_roll":  
 
 ```{r, eval=F}
-# Variation - suffix added to column names 
+# Varyasyon - sütun adlarına eklenen sonek 
 cases_rolled <- obs %>% 
   group_by(personID) %>% 
   arrange(date, .by_group = TRUE) %>% 
   summarise(
     across(everything(),                
-           list(roll = ~paste0(na.omit(.x), collapse = "; ")))) # _roll is appended to column names
+           list(roll = ~paste0(na.omit(.x), collapse = "; ")))) # _roll sütun adlarına eklenir
 ```
 
 ```{r message=FALSE, echo=F}
-# display the linelist data as a table
-# Variation - suffix added to column names 
+# Satır listesi verilerini tablo olarak göster
+# Varyasyon - sütun adlarına eklenen sonek
 obs %>% 
   group_by(personID) %>% 
   arrange(date, .by_group = TRUE) %>% 
   summarise(
     across(everything(),                
-           list(roll = ~paste0(na.omit(.x), collapse = "; ")))) %>%  # _roll is appended to column names
+           list(roll = ~paste0(na.omit(.x), collapse = "; ")))) %>%  # _roll sütun adlarına eklenir
   DT::datatable(rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
 
 <!-- ======================================================= -->
-### Overwrite values/hierarchy {.unnumbered} 
+### Değerlerin/hiyerarşinin üzerine yaz {.unnumbered} 
 
 
-If you then want to evaluate all of the rolled values, and keep only a specific value (e.g. "best" or "maximum" value), you can use `mutate()` across the desired columns, to implement `case_when()`, which uses `str_detect()` from the **stringr** package to sequentially look for string patterns and overwrite the cell content.  
+Daha sonra tüm yuvarlanan değerleri değerlendirmek ve yalnızca belirli bir değeri (örneğin, "en iyi" veya "maksimum" değer) tutmak istiyorsanız, dize kalıplarını sırayla aramak ve hücre içeriğinin üzerine yazmak için **stringr** paketinden `str_detect()` kullanan `case_when()` öğesini uygulamak için istenen sütunlarda `mutate()` öğesini kullanabilirsiniz.
 
 ```{r}
-# CLEAN CASES
+# TEMİZ VAKALAR
 #############
 cases_clean <- cases_rolled %>% 
     
-    # clean Yes-No-Unknown vars: replace text with "highest" value present in the string
-    mutate(across(c(contains("symptoms_ever")),                     # operates on specified columns (Y/N/U)
-             list(mod = ~case_when(                                 # adds suffix "_mod" to new cols; implements case_when()
+    # Temiz Evet-Hayır-Bilinmeyen değişkenler: metni dizede bulunan "en yüksek" değerle değiştir
+    mutate(across(c(contains("symptoms_ever")),                     # belirtilen sütunlarda çalışır (E/H/B)
+             list(mod = ~case_when(                                 # yeni sütunlara "_mod" son ekini ekler; case_when() öğesini uygular
                
-               str_detect(.x, "Yes")       ~ "Yes",                 # if "Yes" is detected, then cell value converts to yes
-               str_detect(.x, "No")        ~ "No",                  # then, if "No" is detected, then cell value converts to no
-               str_detect(.x, "Unknown")   ~ "Unknown",             # then, if "Unknown" is detected, then cell value converts to Unknown
-               TRUE                        ~ as.character(.x)))),   # then, if anything else if it kept as is
-      .keep = "unused")                                             # old columns removed, leaving only _mod columns
+               str_detect(.x, "Yes")       ~ "Yes",                 # "Evet" algılanırsa, hücre değeri evet'e dönüşür
+               str_detect(.x, "No")        ~ "No",                  # daha sonra, "Hayır" algılanırsa, hücre değeri hayır'a dönüşür
+               str_detect(.x, "Unknown")   ~ "Unknown",             # daha sonra, "Bilinmeyen" algılanırsa, hücre değeri bilinmeyen'e dönüşür
+               TRUE                        ~ as.character(.x)))),   # sonra, başka bir şey varsa olduğu gibi tutulursa
+      .keep = "unused")                                             # eski sütunlar kaldırıldı, yalnızca _mod sütunları kaldı
 ```
 
 
-Now you can see in the column `symptoms_ever` that if the person EVER said "Yes" to symptoms, then only "Yes" is displayed.  
+Şimdi, `symptoms_ever`  sütununda görebilirsiniz, eğer kişi HEP semptomlara “Evet” dediyse, o zaman sadece “Evet” görüntülenir.
 
 ```{r message=FALSE, echo=F}
-# display the linelist data as a table
+# Satır listesi verilerini tablo olarak göster
 DT::datatable(cases_clean, rownames = FALSE, options = list(pageLength = 10, scrollX=T), class = 'white-space: nowrap')
 ```
 
 
-See the [original data](#dedup_data).  
+Orijinal veriyi incelemek için [linke](#dedup_data) tıklayınız.
 
 
 ## Probabilistic de-duplication  
 
-Sometimes, you may want to identify "likely" duplicates based on similarity (e.g. string "distance") across several columns such as name, age, sex, date of birth, etc. You can apply a probabilistic matching algorithm to identify likely duplicates.  
+Bazen, ad, yaş, cinsiyet, doğum tarihi vb. gibi çeşitli sütunlarda benzerliğe (ör. dize "mesafe") dayalı olarak "olası" yinelemeleri belirlemek isteyebilirsiniz. Olası yinelemeleri belirlemek için olasılıklı bir eşleştirme algoritması uygulayabilirsiniz. 
 
-See the page on [Joining data] for an explanation on this method. The section on Probabilistic Matching contains an example of applying these algorithms to compare a data frame to *itself*, thus performing probabilistic de-duplication.  
+Bu yöntemle ilgili bir açıklama için [Verileri birleştirme] sayfasına bakın. Olasılıksal Eşleştirme bölümü, bir veri çerçevesini *kendisiyle* karşılaştırmak için bu algoritmaları uygulamanın bir örneğini içerir, böylece olasılıksal tekilleştirme gerçekleştirir.
 
 
 
 <!-- ======================================================= -->
-## Resources { }
+## Kaynaklar { }
 
-Much of the information in this page is adapted from these resources and vignettes online:  
+Bu sayfadaki bilgilerin çoğu şu kaynaklardan ve çevrimiçi vinyetlerden uyarlanmıştır:
 
 [datanovia](https://www.datanovia.com/en/lessons/identify-and-remove-duplicate-data-in-r/)
 
