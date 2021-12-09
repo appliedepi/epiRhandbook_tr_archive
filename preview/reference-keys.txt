@@ -1,3 +1,5 @@
-el-kitabı-ve-verileri-indirme
-çevrimdışı-el-kitabı-indirme
-örnek-bazlı-verileri-indirme
+önyazı-ve-teknik-notlar
+yaklaşım-ve-stil
+editöryal-kararlar
+büyük-güncellemeler
+oturum-bilgisi-r-rstudio-packages
