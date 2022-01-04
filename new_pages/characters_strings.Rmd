@@ -1,144 +1,138 @@
 
-# Characters and strings { }  
+# Karakterler ve dizeler { }  
 
 ```{r, out.width=c('100%'), echo=F, message=F}
 knitr::include_graphics(here::here("images", "Characters_Strings_1500x500.png"))
 ```
 
 
+Bu sayfa, karakter değerlerini ("dizeler") değerlendirmek ve işlemek için **stringr** paketinin kullanımını göstermektedir.
 
-This page demonstrates use of the **stringr** package to evaluate and handle character values ("strings").  
-
-1. Combine, order, split, arrange - `str_c()`, `str_glue()`, `str_order()`, `str_split()`  
-2. Clean and standardise  
-    * Adjust length - `str_pad()`, `str_trunc()`, `str_wrap()`  
-    * Change case - `str_to_upper()`, `str_to_title()`, `str_to_lower()`, `str_to_sentence()`  
-3. Evaluate and extract by position - `str_length()`, `str_sub()`, `word()`  
-4. Patterns  
-    * Detect and locate - `str_detect()`, `str_subset()`, `str_match()`, `str_extract()`  
-    * Modify and replace - `str_sub()`, `str_replace_all()`  
-7. Regular expressions ("regex")
+1. Birleştir, düzenle, ayır, düzenle - `str_c()`, `str_glue()`, `str_order()`, `str_split()`  
+2. Temizle ve standardize et
+    * Uzunluğunu ayarla - `str_pad()`, `str_trunc()`, `str_wrap()`  
+    * Büyük küçük harfi değiştir - `str_to_upper()`, `str_to_title()`, `str_to_lower()`, `str_to_sentence()`  
+3. Sırasına göre çıkar ve değerlendir - `str_length()`, `str_sub()`, `word()`  
+4. Paternlre  
+    * Tespit et ve bul - `str_detect()`, `str_subset()`, `str_match()`, `str_extract()`  
+    * Modifiye et ve değiştir - `str_sub()`, `str_replace_all()`  
+7. Düzenli ifadeler ("regex")
 
 
-For ease of display most examples are shown acting on a short defined character vector, however they can easily be adapted to a column within a data frame.  
+Gösterimi kolaylaştırmak için çoğu örnekte kısa tanımlı bir karakter vektörü esas alınmıştır, bu örnekler bir veri çerçevesi içindeki sütuna kolayca uyarlanabilir. 
 
-This [stringr vignette](
-https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html) provided much of the inspiration for this page.  
-
+Bu [stringr skeci](
+https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html) bu sayfa için ilham vermiştir. 
 
 
 <!-- ======================================================= -->
-## Preparation { }
+## Hazırlık { }
 
-### Load packages {.unnumbered}  
+### Paketleri yükleme {.unnumbered}  
 
-Install or load the **stringr** and other **tidyverse** packages.  
+**stringr** ve diğer **tidyverse** paketlerini kurun veya yükleyin.
 
 ```{r}
-# install/load packages
+# paketleri indir/yükle
 pacman::p_load(
-  stringr,    # many functions for handling strings
-  tidyverse,  # for optional data manipulation
-  tools)      # alternative for converting to title case
+  stringr,    # dizeleri işlemek için birçok fonksiyon
+  tidyverse,  # ek veri işleme fonksiyonları
+  tools)      # başlıkları dönüştürmek için alternatif
 
 ```
 
 
-### Import data  {.unnumbered}  
+### Verileri yükleme {.unnumbered}  
 
 
-In this page we will occassionally reference the cleaned `linelist` of cases from a simulated Ebola epidemic. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file). Import data with the `import()` function from the **rio** package (it handles many file types like .xlsx, .csv, .rds - see the [Import and export] page for details).  
+Bu sayfada, simüle edilmiş bir Ebola salgını vakalarının temizlenmiş "satır listesine" ara sıra atıfta bulunulacaktır. Daha fazla bilgi için, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz satır listesi" dosyasını indirmek için tıklayın.</a> (.rds dosyası olarak). **rio** paketinden `import()` işleviyle veriler içe aktarırılır (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe ve dışa aktarma] sayfasına bakın).
 
 ```{r, echo=F}
-# import the linelist into R
+# satır listesini R'a yükle
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
 ```
 
 ```{r, eval=F}
-# import case linelist 
+# Satır listesini indir
 linelist <- import("linelist_cleaned.rds")
 ```
 
 The first 50 rows of the linelist are displayed below.
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# satır listesini tablo olarak göster
 DT::datatable(head(linelist, 50), rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
 
+<!-- ======================================================= -->
+## Birleştir, böl ve düzenle { }
+
+
+Bu bölüm aşağıdaki başlıkları içermektedir:  
+
+* `str_c()`, `str_glue()`, ve `unite()` komutlarıyla dizeleri birleştirmek  
+* `str_order()` komutuyla dizeleri sıralamak
+* `str_split()` ve `separate()` komutuyla dizeleri ayırmak  
 
 
 <!-- ======================================================= -->
-## Unite, split, and arrange { }
+### Dizeleri Birleştirme {.unnumbered}
 
-
-This section covers:  
-
-* Using `str_c()`, `str_glue()`, and `unite()` to combine strings  
-* Using `str_order()` to arrange strings  
-* Using `str_split()` and `separate()` to split strings  
-
-
-
-<!-- ======================================================= -->
-### Combine strings {.unnumbered}
-
-To combine or concatenate multiple strings into one string, we suggest using `str_c` from **stringr**. If you have distinct character values to combine, simply provide them as unique arguments, separated by commas.     
+Birden çok dizeyi tek bir dizede birleştirmek için, **stringr**'dan `str_c` fonksiyonu kullanılır. Birleştirilecek farklı karakterler mevcutsa, bunları virgülle ayırarak benzersiz argümanlar olarak eklemeniz yeterlidir.    
 
 ```{r}
 str_c("String1", "String2", "String3")
 ```
 
-The argument `sep = ` inserts a character value between each of the arguments you provided (e.g. inserting a comma, space, or newline `"\n"`)  
+`sep =` argümanı, eklediğiniz bağımsız değişkenlerin her birinin arasına bir karakter değeri ekler (ör. virgül, boşluk veya yeni satır `"\n"` ekleme)
 
 ```{r}
 str_c("String1", "String2", "String3", sep = ", ")
 ```
 
-The argument `collapse = ` is relevant if you are inputting multiple *vectors* as arguments to `str_c()`. It is used to separate the elements of what would be an *output* vector, such that the output vector only has one long character element.   
+`collapse =` argümanı, `str_c()` argümanıyla birden çok *vektör* kullanılıldığı durumlarda işe yarar. Çıktının öğelerini ayırmak için kullanılır.
 
-The example below shows the combination of two vectors into one (first names and last names). Another similar example might be jurisdictions and their case counts. In this example:  
+Aşağıdaki örnek, iki vektörün tek bir vektörde (adlar ve soyadlar) birleşimini göstermektedir. Bir başka benzer örnek, yargı yetkileri ve dava sayıları olabilir. Bu örnekte: 
 
-* The `sep = ` value appears between each first and last name  
-* The `collapse = ` value appears between each person  
+* `sep = ` değeri ad ve soyad arasını belirler  
+* `collapse = ` değeri her bir kişiyi bir diğerinden ayırır  
 
 
 ```{r}
 first_names <- c("abdul", "fahruk", "janice") 
 last_names  <- c("hussein", "akinleye", "okeke")
 
-# sep displays between the respective input strings, while collapse displays between the elements produced
+# ilgili giriş dizeleri arasını sep belirler, her bir öğenin arasını ise collapse belirler
 str_c(first_names, last_names, sep = " ", collapse = ";  ")
 ```
 
-Note: Depending on your desired display context, when printing such a combined string with newlines, you may need to wrap the whole phrase in `cat()` for the newlines to print properly:  
+Not: İstenilen görüntüleme şekline göre, birleşik dize yazdırırken, yeni satırların düzgün yazdırılması için tüm ifadeyi `cat()` fonksiyonu içine sarmanız gerekebilir:  
 
 ```{r}
-# For newlines to print correctly, the phrase may need to be wrapped in cat()
+# Yeni satırların doğru yazdırılması için ifadenin cat() içine sarılması gerekir
 cat(str_c(first_names, last_names, sep = " ", collapse = ";\n"))
 ```
 
 
-
 <!-- ======================================================= -->
-### Dynamic strings {.unnumbered}
+### Dinamik dizeler {.unnumbered}
 
-Use `str_glue()` to insert dynamic R code into a string. This is a very useful function for creating dynamic plot captions, as demonstrated below.  
+Bir dizeye dinamik R kodu eklemek için `str_glue()` fonksiyonunu kullanın. Bu, aşağıda gösterildiği gibi dinamik grafik başlıkları oluşturmak için çok kullanışlı bir fonksiyondur 
 
-* All content goes between double quotation marks `str_glue("")`  
-* Any dynamic code or references to pre-defined values are placed within curly brackets `{}` within the double quotation marks. There can be many curly brackets in the same `str_glue()` command.  
-* To display character quotes '', use *single* quotes within the surrounding double quotes (e.g. when providing date format - see example below)  
-* Tip: You can use `\n` to force a new line  
-* Tip: You use `format()` to adjust date display, and use `Sys.Date()` to display the current date  
+* Tüm içerik çift tırnak işaretleri arasında girilir `str_glue("")`  
+* Herhangi bir dinamik kod veya önceden tanımlanmış değerlere yapılan referanslar, çift tırnak işareti içerisinde `{}` küme parantezleri içine yerleştirilir. Aynı `str_glue()` komutunda birçok küme parantezleri olabilir.  
+* `"` tırnak işaretini görüntülemek için, çevreleyen çift tırnak içinde *tek* tırnak kullanılabilir (ör. tarih formatı sağlarken - aşağıdaki örneğe bakın)  
+* İpucu: Satır atlamak için `\n`i kullanabilirsiniz
+* İpucu: Tarih gösterimini ayarlamak için `format()` ve geçerli tarihi görüntülemek için `Sys.Date()` fonksiyonlarını kullanabilirsiniz 
 
-A simple example, of a dynamic plot caption:  
+Dinamik bir grafik başlığının basit bir örneği:
 
 ```{r}
 str_glue("Data include {nrow(linelist)} cases and are current to {format(Sys.Date(), '%d %b %Y')}.")
 ```
 
-An alternative format is to use placeholders within the brackets and define the code in separate arguments at the end of the `str_glue()` function, as below. This can improve code readability if the text is long.
+Alternatif bir format, parantez içinde yer tutucuları kullanmak ve kodu, aşağıdaki gibi `str_glue()` fonksiyonunun sonunda ayrı argümanlarda tanımlamaktır. Bu, metin uzunsa kodun okunabilirliğini artırabilir.
 
 ```{r}
 str_glue("Linelist as of {current_date}.\nLast case hospitalized on {last_hospital}.\n{n_missing_onset} cases are missing date of onset and not shown",
@@ -150,12 +144,12 @@ str_glue("Linelist as of {current_date}.\nLast case hospitalized on {last_hospit
 ```
 
 
-**Pulling from a data frame**  
+**Bir veri çerçevesinden dizi alımı**  
 
-Sometimes, it is useful to pull data from a data frame and have it pasted together in sequence. Below is an example data frame. We will use it to to make a summary statement about the jurisdictions and the new and total case counts.  
+Bazen, bir veri çerçevesinden veri çekmek ve peşpeşe eklemek istenebilir. Aşağıda örnek bir veri çerçevesi bulunmaktadır. Bu veri çerçevesi, yetki alanları; yeni ve toplam dava sayıları hakkında özet bir açıklama yapmak için kullanılabilir. 
 
 ```{r}
-# make case data frame
+# vaka veri çerçevesini hazırla
 case_table <- data.frame(
   zone        = c("Zone 1", "Zone 2", "Zone 3", "Zone 4", "Zone 5"),
   new_cases   = c(3, 0, 7, 0, 15),
@@ -167,7 +161,7 @@ case_table <- data.frame(
 DT::datatable(case_table, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Use `str_glue_data()`, which is specially made for taking data from data frame rows:  
+Veri çerçevesi satırlarından veri almak için özel olarak yapılmış `str_glue_data()` kullanılır:
 
 ```{r}
 case_table %>% 
@@ -175,49 +169,46 @@ case_table %>%
 ```
 
 
-**Combine strings across rows**  
+**Dizeleri satırlarda birleştirme**  
 
-If you are trying to "roll-up" values in a data frame column, e.g. combine values from multiple rows into just one row by pasting them together with a separator, see the section of the [De-duplication] page on ["rolling-up" values](#str_rollup).  
+Bir veri çerçevesi sütunundaki değerleri "birleştirmeye" çalışıyorsanız; örneğin, birden çok satırdaki değerleri bir ayırıcıyla birbirine yapıştırarak tek bir satırda birleştirme, [Tekilleştirme] sayfasının ["toplama" değerleri](#str_rollup) bölümüne bakabilirsiniz.
 
-**Data frame to one line**  
+**Veri çerçevesini bir satıra çevirme**  
 
-You can make the statement appear in one line using `str_c()` (specifying the data frame and column names), and providing `sep = ` and `collapse = ` arguments.  
+`str_c()` fonksiyonu (veri çerçevesini ve sütun adlarını da belirterek), `sep =` ve `collapse =` argümanlarını kullanarak verilerin tek satırda görünmesini sağlayabilirsiniz.
 
 ```{r}
 str_c(case_table$zone, case_table$new_cases, sep = " = ", collapse = ";  ")
 ```
 
-You could add the pre-fix text "New Cases:" to the beginning of the statement by wrapping with a separate `str_c()` (if "New Cases:" was within the original `str_c()` it would appear multiple times).  
+Verileri ayrı bir `str_c()` komutu ile sarmalayarak ifadenin başına "New Cases:" ön metnini ekleyebilirsiniz ("New Cases:" orijinal `str_c()` içindeyse, birden çok kez görünecektir).
 
 ```{r}
 str_c("New Cases: ", str_c(case_table$zone, case_table$new_cases, sep = " = ", collapse = ";  "))
 ```
 
 
+### Sütunları birleştirme  {#str_unite .unnumbered}
 
+Bir veri çerçevesinde, birden çok sütundaki karakter değerlerini bir araya getirmek, **tidyr**'den `unite()` fonksiyonu ile gerçekleştirilebilir. Bu, `separate()`in tam tersidir.
 
+Yeni birleşik sütunun adı girilir. Ardından, birleştirmek istenen sütunların adları girilir.
 
-### Unite columns  {#str_unite .unnumbered}
+* Varsayılan olarak, birleşik sütunda kullanılan ayırıcı `_` alt çizgidir, ancak bu, `sep =` argümanı ile değiştirilebilir.
+* `remove = ` veri çerçevesinden giriş sütunlarını kaldırır (varsayılan olarak TRUE) 
+* `na.rm = ` birleştirirken eksik değerleri kaldırır (varsayılan olarak FALSE) 
 
-Within a data frame, bringing together character values from multiple columns can be achieved with `unite()` from **tidyr**. This is the opposite of `separate()`.  
-
-Provide the name of the new united column. Then provide the names of the columns you wish to unite.  
-
-* By default, the separator used in the united column is underscore `_`, but this can be changed with the `sep = ` argument.  
-* `remove = ` removes the input columns from the data frame (TRUE by default)  
-* `na.rm = ` removes missing values while uniting (FALSE by default)  
-
-Below, we define a mini-data frame to demonstrate with:  
+Aşağıda, göstermek için bir mini veri çerçevesi tanımlanmaktadır:
 
 ```{r, message = F, warning=F}
 df <- data.frame(
   case_ID = c(1:6),
-  symptoms  = c("jaundice, fever, chills",     # patient 1
-                "chills, aches, pains",        # patient 2 
-                "fever",                       # patient 3
-                "vomiting, diarrhoea",         # patient 4
-                "bleeding from gums, fever",   # patient 5
-                "rapid pulse, headache"),      # patient 6
+  symptoms  = c("jaundice, fever, chills",     # hasta 1
+                "chills, aches, pains",        # hasta 2 
+                "fever",                       # hasta 3
+                "vomiting, diarrhoea",         # hasta 4
+                "bleeding from gums, fever",   # hasta 5
+                "rapid pulse, headache"),      # hasta 6
   outcome = c("Recover", "Death", "Death", "Recover", "Recover", "Recover"))
 ```
 
@@ -226,160 +217,138 @@ df <- data.frame(
 df_split <- separate(df, symptoms, into = c("sym_1", "sym_2", "sym_3"), extra = "merge")
 ```
 
-Here is the example data frame:  
+Örnek bir veri çerçevesi:
 
 ```{r, echo=F}
 DT::datatable(df_split, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Below, we unite the three symptom columns:  
+Aşağıda, üç semptom sütununu birleştirilmiştir: 
 
 ```{r}
 df_split %>% 
   unite(
-    col = "all_symptoms",         # name of the new united column
-    c("sym_1", "sym_2", "sym_3"), # columns to unite
-    sep = ", ",                   # separator to use in united column
-    remove = TRUE,                # if TRUE, removes input cols from the data frame
-    na.rm = TRUE                  # if TRUE, missing values are removed before uniting
+    col = "all_symptoms",         # yeni birleşik sütunun adı
+    c("sym_1", "sym_2", "sym_3"), # birleştirilecek için sütunlar
+    sep = ", ",                   # birleşik sütunda kullanılacak ayırıcı
+    remove = TRUE,                # TRUE ise, veri çerçevesinden girdi sütunlarını kaldırır
+    na.rm = TRUE                  # DOĞRU ise, birleştirmeden önce eksik değerler kaldırılır
   )
 ```
 
-
-
-
-
-
-
 <!-- ======================================================= -->
-### Split {.unnumbered}  
+### Ayırma {.unnumbered}  
 
-To split a string based on a pattern, use `str_split()`. It evaluates the string(s) and returns a `list` of character vectors consisting of the newly-split values.
+Bir dizgiyi belli bir paterne göre bölmek için `str_split()` kullanılabilir. Bu komut dize(ler)i uygun paternde böler ve yeni değerlerden oluşan karakter vektörleri `list` olarak döndürür.
 
-The simple example below evaluates one string and splits it into three. By default it returns an object of class `list` with one element (a character vector) for each string initially provided. If `simplify = TRUE` it returns a character matrix.  
+Aşağıdaki basit örnek, verilen dizeyi değerlendirir ve onu üçe böler. Varsayılan olarak, her dizin her bir bölümü (bir karakter vektörü) `list` sınıfının bir nesnesine dönüştürülür. Eğer argüman `simplify = TRUE` ise, sonuç bir karakter matrisi olacaktır.
 
-In this example, one string is provided, and the function returns a list with one element - a character vector with three values.  
+Bu örnekte, dize fonksiyon ile, listeye dönüştürülür - üç değer içeren bir karakter vektörü. 
 
 ```{r}
 str_split(string = "jaundice, fever, chills",
           pattern = ",")
 ```
 
-If the output is saved, you can then access the nth split value with bracket syntax. To access a specific value you can use syntax like this: `the_returned_object[[1]][2]`, which would access the second value from the first evaluated string ("fever"). See the [R basics] page for more detail on accessing elements.    
+Çıktı kaydedilirse, parantez sözdizimi ile n'inci değerine erişebilirsiniz. Belirli bir değere erişmek için `the_returned_object[[1]][2]` argümanı kullanılır. Bu fonksiyonla listedeki ("fever") ikinci değere erişir. Değerlere erişim hakkında daha fazla ayrıntı için [R temelleri] sayfasına bakabilirsiniz. 
 
 ```{r}
 pt1_symptoms <- str_split("jaundice, fever, chills", ",")
 
-pt1_symptoms[[1]][2]  # extracts 2nd value from 1st (and only) element of the list
+pt1_symptoms[[1]][2]  # listeden 2. değeri çıkarır
 ```
 
-If multiple strings are provided by `str_split()`, there will be more than one element in the returned list.  
+`str_split()` fonksiyonuyla listede birden fazla karakter dizisi mevcutsa, döndürülen listede de birden fazla eleman olacaktır.
 
 ```{r}
-symptoms <- c("jaundice, fever, chills",     # patient 1
-              "chills, aches, pains",        # patient 2 
-              "fever",                       # patient 3
-              "vomiting, diarrhoea",         # patient 4
-              "bleeding from gums, fever",   # patient 5
-              "rapid pulse, headache")       # patient 6
+symptoms <- c("jaundice, fever, chills",     # hasta 1
+              "chills, aches, pains",        # hasta 2 
+              "fever",                       # hasta 3
+              "vomiting, diarrhoea",         # hasta 4
+              "bleeding from gums, fever",   # hasta 5
+              "rapid pulse, headache")       # hasta 6
 
-str_split(symptoms, ",")                     # split each patient's symptoms
+str_split(symptoms, ",")                     # her hastanın semptomlarını ayırır
 ```
 
-
-To return a "character matrix" instead, which may be useful if creating data frame columns, set the argument `simplify = TRUE` as shown below:  
+Veri çerçevesi sütununa dönüştürebileceğiniz bir "karakter matrisi" çıktısını almak için, `simplify = TRUE` bağımsız değişkenini aşağıda gösterildiği gibi ayarlamalısınız:
 
 ```{r}
 str_split(symptoms, ",", simplify = TRUE)
 ```
 
-You can also adjust the number of splits to create with the `n = ` argument. For example, this restricts the number of splits to 2. Any further commas remain within the second values. 
+Ayrıca `n = ` argümanıyla oluşturulacak bölmelerin sayısını da ayarlayabilirsiniz. Aşağıdaki örnekte bölme sayısı 2 ile sınırlandırılmıştır. Diğer virgül ve dizeler ikinci değer içinde kalır.
 
 ```{r}
 str_split(symptoms, ",", simplify = TRUE, n = 2)
 ```
 
-*Note - the same outputs can be achieved with `str_split_fixed()`, in which you do not give the `simplify` argument, but must instead designate the number of columns (`n`).* 
+*Not - aynı çıktıları, "simplify" argümanını kullanmadığınız, bunun yerine sütun sayısını (`n`) belirtmeniz gereken `str_split_fixed()` fonksiyonu ile de elde edilebilirsiniz.* 
 
 ```{r, eval=F}
 str_split_fixed(symptoms, ",", n = 2)
 ```
 
+### Sütunları ayırma {.unnumbered}  
 
+Veri çerçevesine ait bir sütunu bölmeye çalışıyorsanız, **dplyr** paketinden `separate()` fonksiyonu en iyi seçenektir. Bu fonksiyon var olan bir karakter sütununu diğer sütunlara bölmek için kullanılır.
 
-
-### Split columns {.unnumbered}  
-
-If you are trying to split data frame column, it is best to use the `separate()` function from **dplyr**. It is used to split one character column into other columns.  
-
-Let's say we have a simple data frame `df` (defined and united in the [unite section](#str_unite)) containing a `case_ID` column, one character column with many symptoms, and one outcome column. Our goal is to separate the `symptoms` column into many columns - each one containing one symptom.  
-
+Diyelim ki bir `case_ID` sütunu, birçok semptom içeren bir karakter sütunu ve bir sonuç sütunu içeren basit bir "df" ([Sütunları birleştirme bölümünde](#str_unite) içinde tanımlanmış ve birleştirilmiş) veri çerçevemiz var. Bu örnekte amacımız, `semptomlar` sütununu her biri bir semptom içeren birçok sütuna ayırmaktır.
 
 ```{r, echo=F}
 DT::datatable(df, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Assuming the data are piped into `separate()`, first provide the column to be separated. Then provide `into = ` as a vector `c( )` containing the *new* columns names, as shown below.  
+Verileri `separate()` fonksiyonuna aktarıldığını varsayarsak, önce ayrılacak sütunu fonksiyona tanımlamalısınız. Ardından, aşağıda gösterildiği gibi *yeni* sütun adlarını içeren bir `c( )` vektörünü olarak `into = ` argümanına aktarabilirsiniz.
 
-* `sep = ` the separator, can be a character, or a number (interpreted as the character position to split at) 
-* `remove = ` FALSE by default, removes the input column  
-* `convert = ` FALSE by default, will cause string "NA"s to become `NA`  
-* `extra = ` this controls what happens if there are more values created by the separation than new columns named.  
-     * `extra = "warn"` means you will see a warning but it will drop excess values (**the default**)  
-     * `extra = "drop"` means the excess values will be dropped with no warning  
-     * **`extra = "merge"` will only split to the number of new columns listed in `into` - *this setting will preserve all your data***  
+* `sep = ` ayırıcı, bir karakter veya bir sayı olabilir (bölünecek karakter konumu olarak yorumlanır)
+* `remove = ` Varsayılan olarak FALSE, giriş sütununu kaldırır  
+* `convert = ` Varsayılan olarak FALSE, "NA" dizelerinin "NA" (eksik veri) formatına dönüştürür 
+* `extra = ` bu, ayırılan yeni sütunlarda daha fazla değer varsa bunların ne olacağını kontrol eder.  
+     * `extra = "warn"` sizi uyarır, ancak aşırı değerlerin kaybolacağı anlamına gelir (**the default**)  
+     * `extra = "drop"` aşırı değerlerin uyarı yapılmadan kaybolacağı anlamına gelir 
+     * **`extra = "merge"` yalnızca "into" argümanında tanımlanan sütun sayısına bölünür - *bu ayar tüm verilerinizi korur***  
 
-
-An example with `extra = "merge"` is below - no data is lost. Two new columns are defined but any third symptoms are left in the second new column:  
+Aşağıda `extra = "merge"` içeren bir örnek verilmiştir - burada hiçbir veri kaybolmaz. İki yeni sütun tanımlanır, ancak ikinci yeni sütunda üçüncü semptomlar kalmaya devam eder: 
 
 ```{r}
-# third symptoms combined into second new column
+# ikinci ve üçüncü semptomlar ikinci sütunda birleştirildi
 df %>% 
   separate(symptoms, into = c("sym_1", "sym_2"), sep=",", extra = "merge")
 ```
 
-When the default `extra = "drop"` is used below, a warning is given but the third symptoms are lost:  
+Aşağıda varsayılan `extra = "drop"` kullanıldığında sistem bir uyarı verir ancak üçüncü semptomlar kaybolur:
 
 ```{r}
-# third symptoms are lost
+# üçüncü semptomlar kaybolur
 df %>% 
   separate(symptoms, into = c("sym_1", "sym_2"), sep=",")
 ```
 
-
-<span style="color: orange;">**_CAUTION:_** If you do not provide enough `into` values for the new columns, your data may be truncated.</span>  
-
-
-
-
-
+<span style="color: orange;">**_DİKKAT:_** Yeni sütunlar için yeterli `into` değeri sağlamazsanız verileriniz kaybolabilir.</span>  
 
 <!-- ======================================================= -->
-### Arrange alphabetically {.unnumbered} 
+### Alfabetik olarak düzenle {.unnumbered} 
 
-Several strings can be sorted by alphabetical order. `str_order()` returns the order, while `str_sort()` returns the strings in that order.  
+Birkaç dize alfabetik sıraya göre sıralanabilir. `str_order()` dizelerin alfabetik olarak sırasını verirken, `str_sort()` dizeleri alfabetik olarak sıralar.  
 
 ```{r}
-# strings
+# dizeler
 health_zones <- c("Alba", "Takota", "Delta")
 
-# return the alphabetical order
+# alfabetik sırasını döndürür
 str_order(health_zones)
 
-# return the strings in alphabetical order
+# dizeleri alfabetik olarak sıralar
 str_sort(health_zones)
 ```
 
-To use a different alphabet, add the argument `locale = `. See the full list of locales by entering `stringi::stri_locale_list()` in the R console.  
-
-
-
-
+Farklı bir alfabe kullanmak için `locale =` argümanını ekleyebilirsiniz. R konsoluna `stringi::stri_locale_list()` girerek yerel ayarların tam listesine bakabınız.
 
 <!-- ======================================================= -->
-### base R functions {.unnumbered}
+### R tabanı fonksiyonları {.unnumbered}
 
-It is common to see **base** R functions `paste()` and `paste0()`, which concatenate vectors after converting all parts to character. They act similarly to `str_c()` but the syntax is arguably more complicated - in the parentheses each part is separated by a comma. The parts are either character text (in quotes) or pre-defined code objects (no quotes). For example:
+Tüm parçaları karaktere dönüştürdükten sonra vektörleri birleştiren R tabanındaki `paste()` ve `paste0()` fonksiyonları yaygın bir şekilde kullanılmaktadır. Bunlar `str_c()` fonksiyonuna benzer şekilde hareket ederler, ancak sözdizimi daha karmaşıktır - parantez içinde her bölüm bir virgülle ayrılır. Parçalar ya karakter metnidir (tırnak içinde) ya da önceden tanımlanmış kod nesneleridir (tırnak işaretleri olmadan). Örnek olarak:
 
 ```{r}
 n_beds <- 10
@@ -388,20 +357,14 @@ n_masks <- 20
 paste0("Regional hospital needs ", n_beds, " beds and ", n_masks, " masks.")
 ```
 
-`sep = ` and `collapse = ` arguments can be specified. `paste()` is simply `paste0()` with a default `sep = " "` (one space).  
+`sep = ` ve `collapse = ` argümanları özelleştirilebilir. `paste0()` basitçe `paste()` fonksiyonunun `sep = " "` (bir boşluk) argümanlı halidir.  
 
-
-
-
-
-
-## Clean and standardise  
-
+## Temizleme ve standartlaştırma  
 
 <!-- ======================================================= -->
-### Change case {.unnumbered}
+### Karakterleri değiştirme {.unnumbered}
 
-Often one must alter the case/capitalization of a string value, for example names of jursidictions. Use `str_to_upper()`, `str_to_lower()`, and `str_to_title()`, from **stringr**, as shown below:  
+Çoğu zaman, bir dize değerinin büyük/küçük harf kullanımı değiştirilmelidir, örneğin şehir adları. Aşağıda **stringr** paketinden `str_to_upper()`, `str_to_lower()` ve `str_to_title()` fonksiyonlarına ait örnekler verilmiştir:
 
 ```{r}
 str_to_upper("California")
@@ -409,63 +372,60 @@ str_to_upper("California")
 str_to_lower("California")
 ```
 
-Using *base** R, the above can also be achieved with `toupper()`, `tolower()`.  
+Yukarıdaki örnekler R tabanındaki `toupper()`, `tolower()` fonksiyonlarıyla da yapılabilir.
 
+**İlk karakter**  
 
-**Title case**  
-
-Transforming the string so each word is capitalized can be achieved with `str_to_title()`:  
+Her kelimenin ilk harfini büyütmek için `str_to_title()` fonksiyonu kullanılır:  
 
 ```{r}
 str_to_title("go to the US state of california ")
 ```
 
-Use `toTitleCase()` from the **tools** package to achieve more nuanced capitalization (words like "to", "the", and "of" are not capitalized).  
+Daha hassas bir büyük harf kullanımı elde etmek için **tools** paketinden `toTitleCase()` fonksiyonunu kullanabilirsiniz ("to", "the" ve "of" gibi sözcükler büyük harfle yazılmaz). 
 
 ```{r}
 tools::toTitleCase("This is the US state of california")
 ```
 
-You can also use `str_to_sentence()`, which capitalizes only the first letter of the string.
+Ayrıca cümlenin yalnızca ilk harfini büyük harf yapan `str_to_sentence()` kullanabilirsiniz.
 
 ```{r}
 str_to_sentence("the patient must be transported")
 ```
 
 
+### Karakter uzunluğu {#str_pad .unnumbered}
 
-### Pad length  {#str_pad .unnumbered}
-
-Use `str_pad()` to add characters to a string, to a minimum length. By default spaces are added, but you can also pad with other characters using the `pad = ` argument.  
-
+Bir dizeye minimum uzunlukta karakter eklemek için `str_pad()` fonksiyonunu kullanabilirsiniz. Varsayılan olarak boşluklar eklenir, ancak `pad = ` argümanını kullanarak diğer karakterlerle de doldurabilirsiniz.
 
 ```{r}
-# ICD codes of differing length
+# Farklı uzunluktaki ICD kodları
 ICD_codes <- c("R10.13",
                "R10.819",
                "R17")
 
-# ICD codes padded to 7 characters on the right side
+# Sağ tarafta 7 karaktere kadar doldurulmuş ICD kodları
 str_pad(ICD_codes, 7, "right")
 
-# Pad with periods instead of spaces
+# Boşluk yerine nokta içeren karakter alanı
 str_pad(ICD_codes, 7, "right", pad = ".")
 ```
 
-For example, to pad numbers with leading zeros (such as for hours or minutes), you can pad the number to minimum length of 2 with `pad = "0"`.
+Örneğin, sayıların başını sıfırlarla doldurmak için (saat veya dakika gibi), sayıyı `pad = "0"` ile minimum 2 uzunluğa kadar doldurabilirsiniz.
 
 ```{r}
-# Add leading zeros to two digits (e.g. for times minutes/hours)
+# İki basamağın başına sıfır ekle (ör. dakika/saat zamanları için)
 str_pad("4", 2, pad = "0") 
 
-# example using a numeric column named "hours"
-# hours <- str_pad(hours, 2, pad = "0")
+# "saat" adlı sayısal bir sütun kullanan örnek
+hours <- str_pad(hours, 2, pad = "0")
 ```
 
 
-### Truncate {.unnumbered} 
+### Kesme {.unnumbered} 
 
-`str_trunc()` sets a maximum length for each string. If a string exceeds this length, it is truncated (shortened) and an ellipsis (...) is included to indicate that the string was previously longer. Note that the ellipsis *is* counted in the length. The ellipsis characters can be changed with the argument `ellipsis = `.  The optional `side = ` argument specifies which where the ellipsis will appear within the truncated string ("left", "right", or "center").  
+`str_trunc()` her dize için bir maksimum bir uzunluk belirler. Bir dize bu uzunluğu aşarsa, kısaltılır (kısaltılır) ve dizenin öncesinde daha uzun olduğunu belirtmek için bir üç nokta (...) eklenir. Üç noktanın *uzunluk* olarak sayıldığına dikkat etmelisiniz. Üç nokta karakterleri `ellipsis = ` argümanı ile değiştirilebilir. İsteğe bağlı `side = ` argümanı, üç noktanın kesilen dize ("sol", "sağ" veya "merkez") içinde nerede görüneceğini belirtir.
 
 ```{r}
 original <- "Symptom onset on 4/3/2020 with vomiting"
@@ -473,57 +433,56 @@ str_trunc(original, 10, "center")
 ```
 
 
-### Standardize length {.unnumbered}
+### Standart uzunluk {.unnumbered}
 
-Use `str_trunc()` to set a maximum length, and then use `str_pad()` to expand the very short strings to that truncated length. In the example below, 6 is set as the maximum length (one value is truncated), and then one very short value is padded to achieve length of 6.    
+Standart uzunluğu belirlemek için `str_trunc()` fonksiyonunu kullanabilirsiniz. Standart uzunluğa göre kısa olan dizeleri genişletmek için `str_pad()` fonksiyonu kullanılır. Aşağıdaki örnekte, maksimum uzunluk olarak 6 ayarlanmıştır. Burada daha uzun değerler kesilir ve kısa olan değerler genişler. 
 
 ```{r}
-# ICD codes of differing length
+# Farklı uzunluktaki ICD kodları
 ICD_codes   <- c("R10.13",
                  "R10.819",
                  "R17")
 
-# truncate to maximum length of 6
+# en fazla 6 karakterle sınırla
 ICD_codes_2 <- str_trunc(ICD_codes, 6)
 ICD_codes_2
 
-# expand to minimum length of 6
+# en az 6 karakter uzunluğunda tut
 ICD_codes_3 <- str_pad(ICD_codes_2, 6, "right")
 ICD_codes_3
 ```
 
 
-### Remove leading/trailing whitespace {.unnumbered}  
+### Baştaki/sondaki boşlukları kaldırma {.unnumbered}  
 
-Use `str_trim()` to remove spaces, newlines (`\n`) or tabs (`\t`) on sides of a string input. Add `"right"` `"left"`, or `"both"` to the command to specify which side to trim (e.g. `str_trim(x, "right")`. 
+Bir dize girişinin kenarlarındaki boşlukları, yeni satırları (`\n`) veya sekmeleri (`\t`) kaldırmak için `str_trim()` kullanın. Hangi tarafın kırpılacağını belirtmek için komuta `"sağ"` `"sol"` veya `"her ikisi"` ekleyin (ör. `str_trim(x, "sağ")`).
 
 ```{r}
-# ID numbers with excess spaces on right
-IDs <- c("provA_1852  ", # two excess spaces
-         "provA_2345",   # zero excess spaces
-         "provA_9460 ")  # one excess space
+# Sağda fazla boşluk bulunan kimlik numaraları
+IDs <- c("provA_1852  ", # iki fazla boşluk
+         "provA_2345",   # fazla boşluk yok
+         "provA_9460 ")  # bir fazla boşluk
 
-# IDs trimmed to remove excess spaces on right side only
+# Kimlik numaraların yalnızca sağ taraftaki fazla boşlukları kaldırılır
 str_trim(IDs)
 ```
 
 
-### Remove repeated whitespace within {.unnumbered}  
+### Tekrarlanan boşlukları kaldırma {.unnumbered}  
 
-Use `str_squish()` to remove repeated spaces that appear *inside* a string. For example, to convert double spaces into single spaces. It also removes spaces, newlines, or tabs on the outside of the string like `str_trim()`.  
-
+Bir dizenin *içindeki* yinelenen boşlukları kaldırmak için `str_squish()` fonksiyonunu kullanabilirsiniz. Örneğin, çift boşlukları tek boşluklara dönüştürmek için. Ayrıca `str_trim()` fonksiyonu gibi dizenin dışındaki boşlukları, yeni satırları veya sekmeleri de kaldırır.
 
 ```{r}
-# original contains excess spaces within string
+# orijinal, dize içinde fazla boşluk içeriyor
 str_squish("  Pt requires   IV saline\n") 
 ```
 
-Enter `?str_trim`, `?str_pad` in your R console to see further details.  
+Daha fazla ayrıntı görmek için R konsolunuza `?str_trim`, `?str_pad` komutunu giriniz. 
 
 
-### Wrap into paragraphs {.unnumbered}  
+### Paragrafa sığdırma {.unnumbered}  
 
-Use `str_wrap()` to wrap a long unstructured text into a structured paragraph with fixed line length. Provide the ideal character length for each line, and it applies an algorithm to insert newlines (`\n`) within the paragraph, as seen in the example below.   
+Uzun bir yapılandırılmamış metni sabit satır uzunluğuna sahip yapılandırılmış bir paragrafa sığdırmak için `str_wrap()` fonksiyonunu kullanabilirsiniz. Her satır için ideal karakter uzunluğunu tanımladığınızda, fonksiyon, aşağıdaki örnekte görüldüğü gibi paragraf içine yeni satırlar (`\n`) eklemek için bir algoritma uygular.
 
 ```{r}
 pt_course <- "Symptom onset 1/4/2020 vomiting chills fever. Pt saw traditional healer in home village on 2/4/2020. On 5/4/2020 pt symptoms worsened and was admitted to Lumta clinic. Sample was taken and pt was transported to regional hospital on 6/4/2020. Pt died at regional hospital on 7/4/2020."
@@ -531,155 +490,137 @@ pt_course <- "Symptom onset 1/4/2020 vomiting chills fever. Pt saw traditional h
 str_wrap(pt_course, 40)
 ```
 
-The **base** function `cat()` can be wrapped around the above command in order to print the output, displaying the new lines added.  
+R tabanındaki `cat()` fonksiyonu ile yapılandırılmış bu yeni paragrafın çıktısı alınabilir.  
 
 ```{r}
 cat(str_wrap(pt_course, 40))
 ```
 
 
-
-
-
-
-
-
-
-
-
-
 <!-- ======================================================= -->
-## Handle by position { }
+## Pozisyona göre düzenleme { }
 
 
-### Extract by character position {.unnumbered}  
+### Karakter pozisyonuna göre çıkarma {.unnumbered}  
 
-Use `str_sub()` to return only a part of a string. The function takes three main arguments:  
+Bir dizenin yalnızca bir kısmını döndürmek için `str_sub()` kullanın. Fonksiyon üç ana argüman alır:
 
-1) the character vector(s)  
-2) start position  
-3) end position  
+1) karakter vektör(leri)  
+2) başlangıç pozisyonu
+3) bitiş pozisyonu
 
-A few notes on position numbers:  
+Pozisyon değeri hakkında bir kaç:  
 
-* If a position number is positive, the position is counted starting from the left end of the string.  
-* If a position number is negative, it is counted starting from the right end of the string.  
-* Position numbers are inclusive.  
-* Positions extending beyond the string will be truncated (removed).  
+* Bir pozisyon değeri pozitifse, pozisyon dizenin sol ucundan başlayarak sayılır.  
+* Bir pozisyon değeri negatifse, pozisyon dizenin sağ ucundan başlayarak sayılır. 
+* Pozisyon numaraları dahildir.  
+* Dizinin ötesine uzanan konumlar kesilir (kaldırılır).
 
-Below are some examples applied to the string "pneumonia":  
+Aşağıda "pneumonia" dizesine uygulanan bazı örnekler verilmiştir.:  
 
 ```{r}
-# start and end third from left (3rd letter from left)
+# soldan üçüncü başlar ve biter (soldan üçüncü harf)
 str_sub("pneumonia", 3, 3)
 
-# 0 is not present
+# 0 mevcut değil
 str_sub("pneumonia", 0, 0)
 
-# 6th from left, to the 1st from right
+# soldan 6., sağdan 1. arasındaki
 str_sub("pneumonia", 6, -1)
 
-# 5th from right, to the 2nd from right
+# Sağdan 5., sağdan 2. arasındaki
 str_sub("pneumonia", -5, -2)
 
-# 4th from left to a position outside the string
+# 4. soldan dizenin dışındaki bir pozisyona
 str_sub("pneumonia", 4, 15)
 ```
 
 
+### Kelime pozisyonuna göre çıkarma {.unnumbered} 
 
-### Extract by word position {.unnumbered} 
+n'inci 'kelime'yi çıkarmak için, yine **stringr** paketinden `word()` fonksiyonunu kullanabilirsiniz. Fonksiyonu kullanabilmek için dizeyi, ardından ayıklanacak ilk sözcük konumunu ve ayıklanacak son sözcük konumunu tanımlamanız gerekmektedir.
 
-To extract the nth 'word', use `word()`, also from **stringr**. Provide the string(s), then the first word position to extract, and the last word position to extract.  
-
-By default, the separator between 'words' is assumed to be a space, unless otherwise indicated with `sep = ` (e.g. `sep = "_"` when words are separated by underscores.  
+Varsayılan olarak, `sep = ` ile aksi belirtilmedikçe 'kelimeler' arasındaki ayırıcının bir boşluk olduğu varsayılır (örneğin, kelimeler alt çizgilerle ayrıldığında `sep = "_"`.
 
 
 ```{r}
-# strings to evaluate
+# dizeleri değerlendirme
 chief_complaints <- c("I just got out of the hospital 2 days ago, but still can barely breathe.",
                       "My stomach hurts",
                       "Severe ear pain")
 
-# extract 1st to 3rd words of each string
+# her dizenin 1. ila 3. kelimelerin arasını ayır
 word(chief_complaints, start = 1, end = 3, sep = " ")
 ```
 
 
-### Replace by character position {.unnumbered} 
+### Karakteri pozisyonuna göre değiştirme {.unnumbered} 
 
-`str_sub()` paired with the assignment operator (`<-`) can be used to modify a part of a string: 
+Atama operatörüyle (`<-`) eşleştirilen `str_sub()` fonksiyonu, bir dizenin bir bölümünü değiştirmek için kullanılabilir:
 
 ```{r}
 word <- "pneumonia"
 
-# convert the third and fourth characters to X 
+# üçüncü ve dördüncü karakterleri X'e dönüştür
 str_sub(word, 3, 4) <- "XX"
 
 # print
 word
 ```
 
-An example applied to multiple strings (e.g. a column). Note the expansion in length of "HIV".  
+Birden çok dizeye uygulanan bir örnek (örneğin bir sütun). "HIV" uzunluğundaki genişlemeye dikkat edin.
 
 ```{r}
 words <- c("pneumonia", "tubercolosis", "HIV")
 
-# convert the third and fourth characters to X 
+# üçüncü ve dördüncü karakterleri X'e dönüştür
 str_sub(words, 3, 4) <- "XX"
 
 words
 ```
 
 
-
-### Evaluate length  {.unnumbered}
+### Uzunluğu değerlendirme {.unnumbered}
 
 
 ```{r}
 str_length("abc")
 ```
 
-Alternatively, use `nchar()` from **base** R
-
-
-
-
-
+Alternatif olarak, R tabanından `nchar()` fonksiyonu kullanabilirsiniz.
 
 
 <!-- ======================================================= -->
-## Patterns { }
+## Paternler { }
 
-Many **stringr** functions work to detect, locate, extract, match, replace, and split based on a specified *pattern*.  
-
+Birçok **stringr** fonksiyonu, belirli bir *paterne* göre algılamak, bulmak, ayıklamak, eşleştirmek, değiştirmek ve bölmek için kullanılabilir.
 
 
 <!-- ======================================================= -->
-### Detect a pattern {.unnumbered}
+### Patern bulma {.unnumbered}
 
-Use `str_detect()` as below to detect presence/absence of a pattern within a string. First provide the string or vector to search in (`string = `), and then the pattern to look for (`pattern = `). Note that by default the search *is case sensitive*!
+Bir dize içindeki bir kalıbın varlığını/yokluğunu algılamak için aşağıdaki gibi `str_detect()` fonksiyonunu kullanabilirsiniz. Önce aranacak dizeyi veya vektörü (`string = `) ve sonra aranacak modeli (`pattern = `) belirlemeniz gerekmektedir. Varsayılan olarak aramanın *büyük/küçük harf duyarlı olduğunu* unutmayın!
 
 ```{r}
 str_detect(string = "primary school teacher", pattern = "teach")
 ```
 
-The argument `negate = ` can be included and set to `TRUE` if you want to know if the pattern is NOT present.  
+Desenin mevcut olup olmadığını bilmek istiyorsanız, `negate = ` argümanı eklenebilir ve `TRUE` olarak ayarlanabilir.
  
 ```{r}
 str_detect(string = "primary school teacher", pattern = "teach", negate = TRUE)
 ```
 
-To ignore case/capitalization, wrap the pattern within `regex()`, and *within* `regex()` add the argument `ignore_case = TRUE` (or `T` as shorthand).  
+Büyük/küçük harf kullanımını yok saymak için, kalıbı `regex()` içine sarın ve `regex()` komutu *içinde*, `ignore_case = TRUE` (veya `T`) argümanını ekleyin. 
 
 ```{r}
 str_detect(string = "Teacher", pattern = regex("teach", ignore_case = T))
 ```
 
-When `str_detect()` is applied to a character vector or a data frame column, it will return TRUE or FALSE for each of the values. 
+Bir karakter vektörüne veya bir veri çerçevesi sütununa `str_detect()` uygulandığında, değerlerin her biri için DOĞRU veya YANLIŞ sonucunu döndürür.
 
 ```{r}
-# a vector/column of occupations 
+# bir meslek vektörü/sütunu 
 occupations <- c("field laborer",
                  "university professor",
                  "primary school teacher & tutor",
@@ -691,23 +632,23 @@ occupations <- c("field laborer",
                  "office worker",
                  "food service")
 
-# Detect presence of pattern "teach" in each string - output is vector of TRUE/FALSE
+# Her dizede "teach" kalıbının varlığını tespit et - çıktı DOĞRU/YANLIŞ vektörüdür
 str_detect(occupations, "teach")
 ```
 
-If you need to count the `TRUE`s, simply `sum()` the output. This counts the number `TRUE`.  
+"DOĞRU"ları saymanız gerekiyorsa, çıktıyı `sum()` fonksiyonu içine almanız yeterlidir. Bu, "DOĞRU" çıktıların sayısını verir.
 
 ```{r}
 sum(str_detect(occupations, "teach"))
 ```
 
-To search inclusive of multiple terms, include them separated by OR bars (`|`) within the `pattern = ` argument, as shown below:  
+Birden çok terimi aramak için, bunları aşağıda gösterildiği gibi 'pattern = ' bağımsız değişkenine VEYA çubukları (`|`) ile ayırarak ekleyin:
 
 ```{r}
 sum(str_detect(string = occupations, pattern = "teach|professor|tutor"))
 ```
 
-If you need to build a long list of search terms, you can combine them using `str_c()` and `sep = |`, then define this is a character object, and then reference the vector later more succinctly. The example below includes possible occupation search terms for front-line medical providers.     
+Uzun bir arama terimleri listesi oluşturmanız gerekiyorsa, bunları `str_c()` ve `sep = |` kullanarak birleştirebilir ardından bunun bir karakter nesnesi olarak tanımlayabilir ve daha sonrasında vektör formatında arayabilirsiniz. Aşağıdaki örnek, birinci basamak sağlık çalışanları için olası meslek arama terimlerini içermektedir.
 
 ```{r}
 # search terms
@@ -724,44 +665,40 @@ occupation_med_frontline <- str_c("medical", "medicine", "hcw", "healthcare", "h
 occupation_med_frontline
 ```
 
-This command returns the number of occupations which contain any one of the search terms for front-line medical providers (`occupation_med_frontline`):  
+Aşağıdaki komut, birinci basamak sağlık çalışanları (`occupation_med_frontline`) için arama terimlerinden herhangi birini içeren mesleklerin sayısını döndürür:  
 
 ```{r}
 sum(str_detect(string = occupations, pattern = occupation_med_frontline))
 ```
 
 
+**R tabanı dizin arama işlevleri**  
 
-**Base R string search functions**  
+R tabanı fonksiyonu olan `grepl()`, `str_detect()` fonksiyonuna benzer bir şekilde çalışır. Çünkü o da bir modelle eşleşmeleri arar ve mantıksal bir vektör döndürür. Temel sözdizimi `grepl(pattern, strings_to_search, ignore.case = FALSE, ...)` şeklindedir. Avantajlardan biri, `ignore.case` argümanını yazmanın daha kolay olmasıdır (`regex()` fonksiyonunu dahil etmeye gerek yoktur).
 
-The **base** function `grepl()` works similarly to `str_detect()`, in that it searches for matches to a pattern and returns a logical vector. The basic syntax is `grepl(pattern, strings_to_search, ignore.case = FALSE, ...)`. One advantage is that the `ignore.case` argument is easier to write (there is no need to involve the `regex()` function).  
-
-Likewise, the **base** functions `sub()` and `gsub()` act similarly to `str_replace()`. Their basic syntax is: `gsub(pattern, replacement, strings_to_search, ignore.case = FALSE)`. `sub()` will replace the first instance of the pattern, whereas `gsub()` will replace all instances of the pattern.  
+Benzer şekilde, R tabanı fonksiyonları olan `sub()` ve `gsub()`, `str_replace()`a benzer şekilde hareket eder. Temel sözdizimleri şöyledir: `gsub(pattern, replace, strings_to_search, ignore.case = FALSE)`. `sub()` kalıbın ilk örneğini değiştirirken, `gsub()` kalıbın tüm örneklerini değiştirir.
 
 
-#### Convert commas to periods {.unnumbered}  
+#### Virgülleri noktalara dönüştürme {.unnumbered}  
 
-Here is an example of using `gsub()` to convert commas to periods in a vector of numbers. This could be useful if your data come from parts of the world other than the United States or Great Britain.  
+Burada, bir sayı vektöründe virgülleri noktalara dönüştürmek için `gsub()` kullanımına örnek verilmiştir. Bu durum özellikle verileriniz Amerika Birleşik Devletleri veya İngiltere dışındaki ülkelerden geliyorsa faydalı olabilir. 
 
-The inner `gsub()` which acts first on `lengths` is converting any periods to no space "". The period character  "." has to be "escaped" with two slashes to actually signify a period, because "." in regex means "any character". Then, the result (with only commas) is passed to the outer `gsub()` in which commas are replaced by periods.   
+İlk olarak "lengths" üzerinde etkili olan komutun içindeki `gsub()` fonksiyonu, herhangi bir noktayı boşluksuz "" değerine dönüştürmektedir (silmektedir). Noktayı doğru tanımlamak için başına iki eğik çizgi "eklenmesi" gerekir çünkü normal "." ifadesi "herhangi bir karakter" anlamına gelir. Ardından, sonuç (yalnızca virgülle), virgüllerin noktalarla değiştirildiği dış `gsub()` komutuna iletilir.
 
 ```{r, eval=F}
 lengths <- c("2.454,56", "1,2", "6.096,5")
 
-as.numeric(gsub(pattern = ",",                # find commas     
-                replacement = ".",            # replace with periods
-                x = gsub("\\.", "", lengths)  # vector with other periods removed (periods escaped)
+as.numeric(gsub(pattern = ",",                # virgülleri bul     
+                replacement = ".",            # nokta ile değiştir
+                x = gsub("\\.", "", lengths)  # binlik değerlerdeki noktaları kaldır
                 )
-           )                                  # convert outcome to numeric
+           )                                  # çıktıyı sayısal bir değer olarak tanımla
 ```
 
 
+### Tamamını değiştirme {.unnumbered}  
 
-
-
-### Replace all {.unnumbered}  
-
-Use `str_replace_all()` as a "find and replace" tool. First, provide the strings to be evaluated to `string = `, then the pattern to be replaced to `pattern = `, and then the replacement value to `replacement = `. The example below replaces all instances of "dead" with "deceased". Note, this IS case sensitive.  
+"Bul ve değiştir" aracı olarak `str_replace_all()` kullanabilirsiniz. İlk Önce, `string =` olarak değerlendirilecek dizeleri, sonra değiştirilecek kalıbı `pattern =` olarak ve ardından değiştirme değerini `replacement =` olarak tanımlamanız gerekmektedir. Aşağıdaki örnek, tüm "dead" örneklerini "deceased" ile değiştirmektedir. Bu komuttaki argümanların büyük/küçük harfe duyarlı olduğunu unutmayın.
 
 ```{r}
 outcome <- c("Karl: dead",
@@ -771,301 +708,267 @@ outcome <- c("Karl: dead",
 str_replace_all(string = outcome, pattern = "dead", replacement = "deceased")
 ```
 
-Notes:  
+Notlar:  
 
-* To replace a pattern with `NA`, use `str_replace_na()`.  
-* The function `str_replace()` replaces only the first instance of the pattern within each evaluated string.  
-
-
-
+* Paternleri `NA` olarak değiştirmek için `str_replace_na()` fonksiyonunu kullanın.  
+* `str_replace()` fonksiyonu her bir dizedeki sadece ilk paterni değiştirir, diğerlerini değiştirmez.
 
 
 <!-- ======================================================= -->
-### Detect within logic {.unnumbered}
+### Mantığa göre arama {.unnumbered}
 
 
-**Within `case_when()`**  
+**`case_when()` fonksiyonuyla**  
 
-`str_detect()` is often used within `case_when()` (from **dplyr**). Let's say `occupations` is a column in the linelist. The `mutate()` below creates a new column called `is_educator` by using conditional logic via `case_when()`. See the page on data cleaning to learn more about `case_when()`.  
-
+`str_detect()` genellikle `case_while()` içinde kullanılır (**dplyr** paketinden). `occupations`ın satır listesindeki bir sütun olduğunu varsayalım. Aşağıda `mutate()`, `case_while()` fonksiyonları aracılığıyla koşullu mantığı kullanarak `is_educator` adında yeni bir sütun oluşturmaktayız. `case_while()` hakkında daha fazla bilgi edinmek için veri temizleme sayfasına bakabilirsiniz.
 
 ```{r, eval=F}
 df <- df %>% 
   mutate(is_educator = case_when(
-    # term search within occupation, not case sensitive
+    # meslek içinde terim arama, büyük/küçük harfe duyarlı değil
     str_detect(occupations,
                regex("teach|prof|tutor|university",
                      ignore_case = TRUE))              ~ "Educator",
-    # all others
+    # diğerleri
     TRUE                                               ~ "Not an educator"))
 ```
 
-As a reminder, it may be important to add exclusion criteria to the conditional logic (`negate = F`):  
+Bir hatırlatma olarak, koşullu mantığa dışlama kriterlerini(`negate = F`) eklemeniz işinizi kolaylaştırabilir:
 
 ```{r, eval=F}
 df <- df %>% 
-  # value in new column is_educator is based on conditional logic
+  # is_educator yeni sütunundaki değer koşullu mantığa dayalıdır
   mutate(is_educator = case_when(
     
-    # occupation column must meet 2 criteria to be assigned "Educator":
-    # it must have a search term AND NOT any exclusion term
+    # Meslek sütununun "Educator" olarak atanabilmesi için 2 kriteri karşılaması gerekir:
+    # bir arama terimine sahip olmalı VE herhangi bir dışlama terimi olmamalı
     
-    # Must have a search term
+    # Bir arama terimi içermeli
     str_detect(occupations,
                regex("teach|prof|tutor|university", ignore_case = T)) &              
     
-    # AND must NOT have an exclusion term
+    # VE bir dışlama terimi İÇERMEMELİDİR
     str_detect(occupations,
                regex("admin", ignore_case = T),
                negate = TRUE                        ~ "Educator"
     
-    # All rows not meeting above criteria
+    # Yukarıdaki kriterlere uymayan tüm satırlar
     TRUE                                            ~ "Not an educator"))
 ```
 
 
-
-
-
 <!-- ======================================================= -->
-### Locate pattern position {.unnumbered}  
+### Patern konumunu bulma {.unnumbered}  
 
-To locate the *first* position of a pattern, use `str_locate()`. It outputs a start and end position.   
+Bir paternin *ilk* konumunu bulmak için `str_locate()` kullanabilirsiniz. Fonksiyon çıktı olarak bir başlangıç ve bitiş konumu verir.
 
 ```{r}
 str_locate("I wish", "sh")
 ```
 
-Like other `str` functions, there is an "_all" version (`str_locate_all()`) which will return the positions of *all* instances of the pattern within each string. This outputs as a `list`.  
+Diğer `str` fonksiyonları gibi, her dizede paterni karşılayan *bütün* örneklerin konumlarını döndürecek bir "_all" versiyonu (`str_locate_all()`) mevcuttur. Bu fonksiyon bir liste çıktısı verir.
 
 ```{r}
 phrases <- c("I wish", "I hope", "he hopes", "He hopes")
 
-str_locate(phrases, "h" )     # position of *first* instance of the pattern
-str_locate_all(phrases, "h" ) # position of *every* instance of the pattern
+str_locate(phrases, "h" )     # paternin *ilk* örneğinin konumu
+str_locate_all(phrases, "h" ) # paternin *her* örneğinin konumu
 ```
 
 
-
-
-
 <!-- ======================================================= -->
-### Extract a match {.unnumbered}  
+### Eşleşeni çıkarma {.unnumbered}  
 
-`str_extract_all()` returns the matching patterns themselves, which is most useful when you have offered several patterns via "OR" conditions. For example, looking in the string vector of occupations (see previous tab) for *either* "teach", "prof", or "tutor".
+`str_extract_all()` eşleşen kalıpların kendisini döndürür; bu fonksiyon, "VEYA" koşulları aracılığıyla birkaç kalıp önerdiğinizde en kullanışlı seçenektir. Örnek olarak, "teach", "prof" *veya* "tutor" paternleri için meslekler vektörünü (önceki sekmeye bakın) inceleyebilirsiniz.
 
-`str_extract_all()` returns a `list` which contains *all matches* for each evaluated string. See below how occupation 3 has two pattern matches within it.  
+`str_extract_all()`, değerlendirilen her dize için *tüm eşleşmeleri* içeren bir "liste" döndürür. Aşağıda, meslek vektörü içinde 3 paternin nasıl eşleştiğini görebilirsiniz.
 
 ```{r}
 str_extract_all(occupations, "teach|prof|tutor")
 ```
 
-
-`str_extract()` extracts *only the first match* in each evaluated string, producing a character vector with one element for each evaluated string. It returns `NA` where there was no match. The `NA`s can be removed by wrapping the returned vector with `na.exclude()`. Note how the second of occupation 3's matches is not shown.  
+`str_extract()`, değerlendirilen her dizede *yalnızca ilk eşleşmeyi* ortaya çıkararak, değerlendirilen her dize için bir elemanlı bir karakter vektörü üretir. Eşleşmenin olmadığı yerde `NA` sonucunu döndürür. `NA`lar, döndürülen vektör `na.exclude()` fonksiyonu ile sarılarak kaldırılabilir. Çıkan sonuçta ikincisinin nasıl gösterilmediğine dikkat ediniz.
 
 ```{r}
 str_extract(occupations, "teach|prof|tutor")
 ```
 
 <!-- ======================================================= -->
-### Subset and count {.unnumbered}  
+### Alt küme ve sayı {.unnumbered}  
 
-Aligned functions include `str_subset()` and `str_count()`.  
+Bu başlıktaki fonksiyonlar arasında `str_subset()` ve `str_count()` bulunmaktadır. 
 
-`str_subset()` returns the actual values which contained the pattern: 
+`str_subset()` fonksiyonu paterni içeren gerçek değerleri döndürür:
 
 ```{r}
 str_subset(occupations, "teach|prof|tutor")
 ```
 
-`str_count()` returns a vector of numbers: the **number of times** a search term appears in each evaluated value.  
+`str_count()` bir sayı vektörü döndürür: Değerlendirilen her değerde bir arama teriminin göründüğü **miktar**.
 
 ```{r}
 str_count(occupations, regex("teach|prof|tutor", ignore_case = TRUE))
 ```
 
 
+<!-- ======================================================= -->
+### Regex grupları {.unnumbered}
 
-
-
-
-
-
-
-
+HAZIRLANIYOR
 
 
 <!-- ======================================================= -->
-### Regex groups {.unnumbered}
+## Özel karakterler  
 
-UNDER CONSTRUCTION
+**Ters eğik çizgi `\`**
 
+Ters eğik çizgi `\` sonrasındaki karakteri "yok saymak" için kullanılır. Bu şekilde, diğer tırnak işaretleri (`\"`) *içinde* olan bir alıntı işaretini görüntülemek için bir ters eğik çizgi kullanılabilir - ortadaki alıntı işareti, çevreleyen alıntı işaretlerini "iptal etmez".
 
+Not - bu nedenle, bir ters eğik çizgi *görüntülemek* istiyorsanız için iki ters eğik çizgi `\\` yazmalısınız.
 
+**Özel Karakterler**  
 
-
-
-<!-- ======================================================= -->
-## Special characters  
-
-**Backslash `\` as escape**  
-
-The backslash `\` is used to "escape" the meaning of the next character. This way, a backslash can be used to have a quote mark display *within* other quote marks (`\"`) - the middle quote mark will not "break" the surrounding quote marks.  
-
-Note - thus, if you want to *display* a backslash, you must escape it's meaning with *another* backslash. So you must write two backslashes `\\` to display one.  
-
-**Special characters**  
-
-Special character | Represents  
+Özel Karakter | Anlamı  
 ----------------- | --------------------------------------------------------------    
-`"\\"` | backslash  
-`"\n"` | a new line (newline)   
-`"\""` | double-quote *within* double quotes  
-`'\''` | single-quote *within* single quotes  
-`"\`"` | grave accent  
-`"\r"` | carriage return  
-`"\t"` | tab  
-`"\v"` | vertical tab 
-`"\b"` | backspace  
+`"\\"` | ters eğik çizgi  
+`"\n"` | yeni satır  
+`"\""` | çift tırnak *içinde* çift tırnak 
+`'\''` | tek tırnak *içinde* tek tırnak 
+`"\`"` | şapka işareti 
+`"\r"` | satır başı
+`"\t"` | sekme
+`"\v"` | dikey sekme 
+`"\b"` | geri alma
 
 
-Run `?"'"` in the R Console to display a complete list of these special characters (it will appear in the RStudio Help pane). 
-
-
-
-<!-- ======================================================= -->
-## Regular expressions (regex) 
+Bu özel karakterlerin tam listesini görüntülemek için R Konsolunda `?"'"` komutunu çalıştırabilirsiniz (RStudio Yardım bölmesinde görünecektir). 
 
 
 <!-- ======================================================= -->
-## Regex and special characters { } 
-
-Regular expressions, or "regex", is a concise language for describing patterns in strings. If you are not familiar with it, a regular expression can look like an alien language. Here we try to de-mystify this language a little bit.  
-
-*Much of this section is adapted from [this tutorial](https://towardsdatascience.com/a-gentle-introduction-to-regular-expressions-with-r-df5e897ca432) and [this cheatsheet](https://evoldyn.gitlab.io/evomics-2018/ref-sheets/R_strings.pdf)*. We selectively adapt here knowing that this handbook might be viewed by people without internet access to view the other tutorials.    
+## Düzenli ifadeler (regex) 
 
 
-A regular expression is often applied to extract specific patterns from "unstructured" text - for example medical notes, chief complaints, patient history, or other free text columns in a data frame  
+<!-- ======================================================= -->
+## Regex ve özel karakterler { } 
 
-There are four basic tools one can use to create a basic regular expression:  
+Düzenli ifadeler veya "regex", dizelerdeki kalıpları açıklamak için kısa bir dildir. Eğer aşina değilseniz, düzenli ifadeler yabancı bir dil gibi görünebilir. Burada bu dili biraz gizeminden arındırmaya çalışacağız.
 
-1) Character sets  
-2) Meta characters  
-3) Quantifiers  
-4) Groups  
+*[Bölümün çocuğu bu rehberden alınmıştır](https://towardsdatascience.com/a-gentle-introduction-to-regular-expressions-with-r-df5e897ca432) and [this cheatsheet](https://evoldyn.gitlab.io/evomics-2018/ref-sheets/R_strings.pdf)*. Bu el kitabının internet erişimi olmayan kişiler tarafından da görüntülenebileceğini ön görülerek burada önemli olanları paylaşıyoruz.
+
+"Yapılandırılmamış" metinden belirli kalıplarını çıkarmak için genellikle düzenli bir ifade uygulanır - örneğin tıbbi notlar, hasta şikayetleri, geçmişi veya bir veri çerçevesindeki diğer serbest metin sütunları.
+
+Temel bir düzenli ifade oluşturmak için kullanılabilecek dört araç vardır:  
+
+1) Karakter setleri  
+2) Meta karakterler  
+3) Niceleyiciler  
+4) Grouplar
 
 
-**Character sets**  
+**Karakter setleri**  
 
-Character sets, are a way of expressing listing options for a character match, within brackets. So any a match will be triggered if any of the characters within the brackets are found in the string. For example, to look for vowels one could use this character set: "[aeiou]". Some other common character sets are:  
+Karakter setleri, bir karakter eşleşmesi için köşeli parantez içinde listeleme seçeneklerini ifade etmenin bir yoludur. Bu nedenle, köşeli parantez içindeki karakterlerden herhangi biri dizede bulunursa eşleşme tetiklenir. Örneğin, sesli harfleri aramak için şu karakter seti kullanılabilir: "[aeiou]". Diğer bazı yaygın karakter setleri şunlardır:
 
-Character set | Matches for  
+Karakter Seti | Anlamı 
 ----------------- | --------------------------------------------------------------    
-`"[A-Z]"` | any single capital letter  
-`"[a-z]"` | any single lowercase letter  
-`"[0-9]"` | any digit  
-`[:alnum:]` | any alphanumeric character  
-`[:digit:]` | any numeric digit  
-`[:alpha:]` | any letter (upper or lowercase)  
-`[:upper:]` | any uppercase letter  
-`[:lower:]` | any lowercase letter  
+`"[A-Z]"` | herhangi bir tek büyük harf  
+`"[a-z]"` | herhangi bir tek küçük harf  
+`"[0-9]"` | herhangi bir rakam 
+`[:alnum:]` | herhangi bir alfanümerik karakter  
+`[:digit:]` | herhangi bir sayısal rakam 
+`[:alpha:]` | herhangi bir harf (büyük veya küçük harf)
+`[:upper:]` | herhangi bir büyük harf 
+`[:lower:]` | herhangi bir küçük harf 
+
+Karakter setleri, `"[A-Za-z]"` (herhangi bir büyük veya küçük harf) veya başka bir örnek `"[t-z0-5]"` gibi tek bir parantez içinde (boşluksuz!) birleştirilebilir ( t'den z'ye kadar küçük harf VEYA 0'dan 5'e kadar sayılar).
 
 
-Character sets can be combined within one bracket (no spaces!), such as `"[A-Za-z]"` (any upper or lowercase letter), or another example `"[t-z0-5]"` (lowercase t through z OR number 0 through 5).  
+**Meta karakterler**  
 
+Meta karakterler, karakter setlerinin kısaltmasıdır. Önemli olanlardan bazıları aşağıda listelenmiştir:
 
-
-**Meta characters**  
-
-Meta characters are shorthand for character sets. Some of the important ones are listed below:  
-
-Meta character | Represents  
+Meta karakter | Anlamı  
 ----------------- | --------------------------------------------------------------    
-`"\\s"` | a single space  
-`"\\w"` | any single alphanumeric character (A-Z, a-z, or 0-9)  
-`"\\d"` | any single numeric digit (0-9)  
+`"\\s"` | tek bir boşluk  
+`"\\w"` | herhangi bir tek alfanümerik karakter (A-Z, a-z, or 0-9)  
+`"\\d"` | herhangi bir tek sayısal rakam (0-9)  
 
 
-**Quantifiers**  
+**Niceleyiciler**  
 
-Typically you do not want to search for a match on only one character. Quantifiers allow you to designate the length of letters/numbers to allow for the match.  
+Genellikle tek bir karakterde eşleşme aramak istemezsiniz. Niceleyiciler, eşleşmeye izin vermek için harflerin/sayıların uzunluğunu belirlemenize olanak tanır.
 
-Quantifiers are numbers written within curly brackets `{ }` *after* the character they are quantifying, for example,  
+Niceleyiciler, nicelleştirdikleri karakterin *sonrasında* olan `{ }` küme parantezleri içinde yazılan sayılardır, örneğin,  
 
-* `"A{2}"` will return instances of **two** capital A letters.  
-* `"A{2,4}"` will return instances of **between two and four** capital A letters *(do not put spaces!)*.  
-* `"A{2,}"` will return instances of **two or more** capital A letters.  
-* `"A+"` will return instances of **one or more** capital A letters (group extended until a different character is encountered).  
-* Precede with an `*` asterisk to return **zero or more** matches (useful if you are not sure the pattern is present)  
+* `"A{2}"` **iki** büyük A harfinin örneklerini döndürür.  
+* `"A{2,4}"` **iki ile dört** arasında büyük A harfi *(boşluk koymayın!)* örneklerini döndürür.
+* `"A{2,}"` **iki veya daha fazla** büyük A harfinin örneklerini döndürür.
+* `"A+"` **bir veya daha fazla** büyük A harfinin örneklerini döndürür (farklı bir karakterle karşılaşılıncaya kadar uzatılan grup).  
+* **Sıfır veya daha fazla** eşleşme döndürmek için bir `*` yıldız işareti ile başlayın (paternin mevcut olduğundan emin değilseniz kullanışlıdır) 
 
 
-Using the `+` plus symbol as a quantifier, the match will occur until a different character is encountered. For example, this expression will return all *words* (alpha characters: `"[A-Za-z]+"`  
+Nicelik belirteci olarak '+' artı sembolü kullanıldığında, farklı bir karakterle karşılaşılıncaya kadar eşleşme gerçekleşir. Örneğin, bu ifade tüm *kelimeleri* (alfa karakterleri: `"[A-Za-z]+"`) döndürür.
 
 
 ```{r}
-# test string for quantifiers
+# niceleyiciler için test dizisi
 test <- "A-AA-AAA-AAAA"
 ```
 
-When a quantifier of {2} is used, only pairs of consecutive A's are returned. Two pairs are identified within `AAAA`.  
+{2} niceleyicisi kullanıldığında, yalnızca ardışık A çiftleri döndürülür. "AAAA" içinde iki çift tanımlanmıştır. 
 
 ```{r}
 str_extract_all(test, "A{2}")
 ```
 
-When a quantifier of {2,4} is used, groups of consecutive A's that are two to four in length are returned.  
+{2,4} niceleyicisi kullanıldığında, uzunluğu iki ila dört olan ardışık A grupları döndürülebilir.
 
 ```{r}
 str_extract_all(test, "A{2,4}")
 ```
 
-With the quantifier `+`, groups of **one or more** are returned:  
+"+" niceleyicisiyle, **bir veya daha fazla** gruplar döndürülebilir:
 
 ```{r}
 str_extract_all(test, "A+")
 ```
 
-**Relative position**  
+**Relatif pozisyon**  
 
-These express requirements for what precedes or follows a pattern. For example, to extract sentences, "two numbers that are followed by a period" (`""`).  (?<=\\.)\\s(?=[A-Z]) 
+Relatif pozisyon, bir kalıptan önce gelen veya onu izleyen bir kalıba göre konumu ifade eder. Örneğin, cümleleri çıkarmak için "sonunda bir nokta bulunan iki sayı" (`""`).  (?<=\\.)\\s(?=[A-Z]) 
 
 ```{r}
 str_extract_all(test, "")
 ```
 
-Position statement | Matches to  
+Pozisyon Tanımı | Anlamı 
 ----------------- | --------------------------------------------------------------    
-`"(?<=b)a"` | "a" that **is preceded** by a "b"  
-`"(?<!b)a"` | "a" that **is NOT preceded** by a "b"  
-`"a(?=b)"` | "a" that **is followed** by a "b"  
-`"a(?!b)"` | "a" that **is NOT followed** by a "b"  
+`"(?<=b)a"` | **öncesinde** bir "b" bulunan "a"  
+`"(?<!b)a"` | **Öncesinde ** bir "b" olmayan "a"
+`"a(?=b)"` | **ardından** bir "b" gelen "a" 
+`"a(?!b)"` | **ardından** bir "b" gelmeyen "a"
 
 
+**Gruplar**  
+
+Düzenli ifadelerinizde grupları yakalamak, çıkarma işlemi sonrasında daha organize bir çıktı elde etmenin bir yoludur.  
 
 
+**Regex örnekleri**  
 
-**Groups**  
-
-Capturing groups in your regular expression is a way to have a more organized output upon extraction.  
-
-
-
-
-**Regex examples**  
-
-Below is a free text for the examples. We will try to extract useful information from it using a regular expression search term.  
+Aşağıda örnekler için serbest bir metin bulunmaktadır. Bir düzenli ifade arama terimi kullanarak ondan faydalı bilgiler çıkarmaya çalışacağız.
 
 ```{r}
 pt_note <- "Patient arrived at Broward Hospital emergency ward at 18:00 on 6/12/2005. Patient presented with radiating abdominal pain from LR quadrant. Patient skin was pale, cool, and clammy. Patient temperature was 99.8 degrees farinheit. Patient pulse rate was 100 bpm and thready. Respiratory rate was 29 per minute."
 ```
 
-This expression matches to all words (any character until hitting non-character such as a space):  
+Bu ifade tüm kelimelerle (boşluk gibi karakter olmayan bir karaktere ulaşana kadar herhangi bir karakter) eşleşir:
 
 ```{r}
 str_extract_all(pt_note, "[A-Za-z]+")
 ```
 
-The expression `"[0-9]{1,2}"` matches to consecutive numbers that are 1 or 2 digits in length. It could also be written `"\\d{1,2}"`, or `"[:digit:]{1,2}"`.  
+`"[0-9]{1,2}"` ifadesi, 1 veya 2 basamak uzunluğunda ardışık sayılarla eşleşir. Ayrıca `"\\d{1,2}"` veya `"[:digit:]{1,2}"` şeklinde de yazılabilir. 
 
 ```{r}
 str_extract_all(pt_note, "[0-9]{1,2}")
@@ -1078,21 +981,15 @@ str_extract_all(pt_note, "[0-9]{1,2}")
 <!-- ``` -->
 
 
-You can view a useful list of regex expressions and tips on page 2 of [this cheatsheet](https://evoldyn.gitlab.io/evomics-2018/ref-sheets/R_strings.pdf)  
+[Bu kopya kağıdının 2. sayfasında, normal ifadelerin ve ipuçlarının faydalı bir listesini görüntüleyebilirsiniz.](https://evoldyn.gitlab.io/evomics-2018/ref-sheets/R_strings.pdf)  
 
-Also see this [tutorial](https://towardsdatascience.com/a-gentle-introduction-to-regular-expressions-with-r-df5e897ca432).  
-
-
+[Ayrıca bu rehbere bakabilirsiniz](https://towardsdatascience.com/a-gentle-introduction-to-regular-expressions-with-r-df5e897ca432).  
 
 
 <!-- ======================================================= -->
-## Resources { }
+## Kaynaklar { }
 
-A reference sheet for **stringr** functions can be found [here](https://evoldyn.gitlab.io/evomics-2018/ref-sheets/R_strings.pdf)
-
-
-A vignette on **stringr** can be found [here](
-https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html)
+[**stringr** işlevleri için bir referans sayfası burada bulunabilir](https://evoldyn.gitlab.io/evomics-2018/ref-sheets/R_strings.pdf)
 
 
-
+[**stringr** ile ilgili bir gösterim burada bulunabilir](https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html)
