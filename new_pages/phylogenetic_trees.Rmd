@@ -1,17 +1,16 @@
 
-# Phylogenetic trees {}  
+# Filogenetik ağaçlar {}  
 
 
 <!-- ======================================================= -->
 
-## Overview {}
+## Genel Bakış {}
 
 
-**Phylogenetic trees** are used to visualize and describe the relatedness and evolution of organisms based on the sequence of their genetic code.  
+Filogenetik ağaçlar, organizmaların genetik kodlarının sekansına göre akrabalıklarını ve evrimlerini görselleştirmek ve tanımlamak için kullanılır.
+Uzaklığa dayalı yöntemler (komşu birleştirme yöntemi gibi) veya karakter tabanlı yöntemler (maksimum olabilirlik ve Bayesian Markov Zinciri Monte Carlo yöntemi gibi) kullanılarak genetik sekanslardan oluşturulabilirler. Yeni nesil sekanslama (NGS) daha uygun fiyatlı hale gelerek bulaşıcı hastalıklara neden olan patojenleri tanımlamak için halk sağlığında daha yaygın olarak kullanılmaya başlandı. Taşınabilir sekanslama cihazları, bekleme süresini azaltır ve verileri gerçek zamanlı olarak salgın araştırmasını desteklemek için kullanılabilir hale getirir. NGS verileri, bir salgın suşunun kökenini, kaynağını ve yayılımını belirlemek ve ayrıca antimikrobiyal direnç genlerinin varlığını göstermek için kullanılabilir. Örnekler arasındaki genetik ilişkiyi görselleştirmek için bir filogenetik ağaç oluşturulur.
+Bu sayfada, filogenetik ağaçların bir veri çerçevesiyle birleştirilmiş halde görselleştirilmesine izin veren **ggtree** paketinin nasıl kullanılacağını öğreneceğiz. Bu, motifleri gözlemlememizi ve salgın dinamiğinin anlaşılmasını geliştirmemizi sağlayacaktır.
 
-They can be constructed from genetic sequences using distance-based methods (such as neighbor-joining method) or character-based methods (such as maximum likelihood and Bayesian Markov Chain Monte Carlo method). Next-generation sequencing (NGS) has become more affordable and is becoming more widely used in public health to describe pathogens causing infectious diseases. Portable sequencing devices decrease the turn around time and hold promises to make data available for the support of outbreak investigation in real-time. NGS data can be used to identify the origin or source of an outbreak strain and its propagation, as well as determine presence of antimicrobial resistance genes. To visualize the genetic relatedness between samples a phylogenetic tree is constructed.  
-
-In this page we will learn how to use the **ggtree** package, which allows for combined visualization of phylogenetic trees with additional sample data in form of a dataframe. This will enable us to observe patterns and improve understanding of the outbreak dynamic.
 
 ```{r, phylogenetic_trees_overview_graph, out.width=c('80%'), fig.align='center', fig.show='hold', echo = FALSE}
 
@@ -22,53 +21,57 @@ tree <- ape::read.tree(here::here("data", "phylo", "Shigella_tree.txt"))
 sample_data <- read.csv(here::here("data","phylo", "sample_data_Shigella_tree.csv"),sep=",", na.strings=c("NA"), head = TRUE, stringsAsFactors=F)
 
 
-ggtree(tree, layout="circular", branch.length='none') %<+% sample_data + # the %<+% is used to add your dataframe with sample data to the tree
-  aes(color=I(Belgium))+ # color the branches according to a variable in your dataframe
-  scale_color_manual(name = "Sample Origin", # name of your color scheme (will show up in the legend like this)
-                    breaks = c("Yes", "No"), # the different options in your variable
-                   labels = c("NRCSS Belgium", "Other"), # how you want the different options named in your legend, allows for formatting
-                 values= c("blue", "black"), # the color you want to assign to the variable 
-                 na.value = "black") + # color NA values in black as well
-  new_scale_color()+ # allows to add an additional color scheme for another variable
-     geom_tippoint(aes(color=Continent), size=1.5)+ # color the tip point by continent, you may change shape adding "shape = "
-scale_color_brewer(name = "Continent",  # name of your color scheme (will show up in the legend like this)
-                       palette="Set1", # we choose a set of colors coming with the brewer package
-                   na.value="grey")+ # for the NA values we choose the color grey
+ggtree(tree, layout="circular", branch.length='none') %<+% sample_data + # %<+%, örnek verilerle veri çerçevenizi ağaca eklemek için kullanılır
+  aes(color=I(Belgium))+ # dalları veri çerçevenizdeki bir değişkene göre renklendirin
+  scale_color_manual(name = "Sample Origin", # renk düzeninizin adı (lejantta bu şekilde görünecektir)
+                    breaks = c("Yes", "No"), # değişkeninizdeki farklı seçenekler
+                   labels = c("NRCSS Belgium", "Other"), # lejandınızda adı geçen farklı seçenekler nasıl istediğinizi biçimlendirmenize olanak sağlar
+                 values= c("blue", "black"), # değişkene atamak istediğiniz renk
+                 na.value = "black") + # renkli NA değerleri de siyahtır
+  new_scale_color()+ # başka bir değişken için ek bir renk şeması eklemeye izin verir
+     geom_tippoint(aes(color=Continent), size=1.5)+ # uç noktasını kıtaya göre renklendirin, "shape =" ekleyerek şekli değiştirebilirsiniz
+scale_color_brewer(name = "Continent",  # renk düzeninizin adı (lejantta bu şekilde görünecektir)
+                       palette="Set1", # renk paketiyle birlikte gelen bir dizi renk seçiyoruz
+                   na.value="grey")+ # NA değerleri için gri rengi seçiyoruz
   theme(legend.position= "bottom")
 
 ```
 
 <!-- ======================================================= -->
 
-## Preparation {}
+## Hazırlık {}
 
-### Load packages {.unnumbered}  
+### Paketlerin yüklenmesi {.unnumbered}  
 
-This code chunk shows the loading of required packages. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Bu kod parçası, gerekli paketlerin yüklenmesini göstermektedir. Bu el kitabında, gerekirse paketi kuran ve kullanım için yükleyen pacman'ın p_load() fonksiyonunu vurguluyoruz. Ayrıca, temel R'dan library() ile kurulu paketleri yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için R’ın temelleri sayfasına bakın.
 
 ```{r, phylogenetic_trees_loading_packages}
 pacman::p_load(
-  rio,             # import/export
-  here,            # relative file paths
-  tidyverse,       # general data management and visualization
-  ape,             # to import and export phylogenetic files
-  ggtree,          # to visualize phylogenetic files
-  treeio,          # to visualize phylogenetic files
-  ggnewscale)      # to add additional layers of color schemes
+  rio,             # içe/dışa aktarım 
+  here,            # ilişkili dosya yolları
+  tidyverse,       # genel veri yönetimi ve görselleştirme
+  ape,             # filogenetik dosyaları içe ve dışa aktarmak için
+  ggtree,          # filogenetik dosyaları görselleştirmek için
+  treeio,          # filogenetik dosyaları görselleştirmek için
+  ggnewscale)      # ek renk şema katmanları eklemek için
 
 ```
 
-### Import data {.unnumbered}  
+### Verilerin içe aktarımı {.unnumbered}  
 
-The data for this page can be downloaded with the instructions on the [Download handbook and data] page.  
+Bu sayfadaki veriler, El kitabı ve verilerin indirilmesi sayfasındaki talimatlarla indirilebilir.
 
-There are several different formats in which a phylogenetic tree can be stored (eg. Newick, NEXUS, Phylip). A common one is the Newick file format (.nwk), which is the standard for representing trees in computer-readable form. This means an entire tree can be expressed in a string format such as  "((t2:0.04,t1:0.34):0.89,(t5:0.37,(t4:0.03,t3:0.67):0.9):0.59); ", listing all nodes and tips and their relationship (branch length) to each other.  
+Bir filogenetik ağacın saklanabileceği birkaç farklı format vardır (örn. Newick, NEXUS, Phylip). Yaygın olanlardan biri, ağaçların bilgisayar tarafından okunabilir biçimde gösterimi için standart olan Newic dosya biçimidir (.nwk).
 
-Note: It is important to understand that the phylogenetic tree file in itself does not contain sequencing data, but is merely the result of the genetic distances between the sequences. We therefore cannot extract sequencing data from a tree file.
+Bu, tüm ağacın “((t2:0.04,t1:0.34):0.89,(t5:0.37,(t4:0.03,t3:0.67):0.9):0.59);” gibi bir dize biçiminde ifade edilebileceği anlamına gelir. Bu dize tüm nodları ve uçları ve bunların birbirleriyle olan ilişkilerini (dal uzunluğu) listeler.
 
-First, we use the `read.tree()` function from **ape** package to import a Newick phylogenetic tree file in .txt format, and store it in a list object of class "phylo". If necessary, use the  `here()` function from the **here** package to specify the relative file path.
+Not: Filogenetik ağaç dosyasının kendi içinde sekans verileri içermediğini, yalnızca sekanslar arasındaki genetik mesafelerin bir sonucu olduğunu anlamak önemlidir. Bu nedenle, bir ağaç dosyasından sekanslama verilerini çıkaramıyoruz.
 
-Note: In this case the newick tree is saved as a .txt file for easier handling and downloading from Github.
+İlk olarak, bir Newick filogenetik ağaç dosyasını .txt formatında içe aktarmak için ape paketinden read.tree() fonksiyonunu kullanırız ve “phylo” sınıfı bir liste nesnesinde saklarız. Gerekirse, ilgili dosya yolunu belirtmek için here paketindeki here() fonksiyonunu kullanın.
+
+Not: Bu durumda newick ağacı, Github'dan daha kolay kullanım ve indirme için bir .txt dosyası olarak kaydedilir. 
+
+
 
 ```{r, echo=F}
 tree <- ape::read.tree(here::here("data", "phylo", "Shigella_tree.txt"))
@@ -79,13 +82,13 @@ tree <- ape::read.tree(here::here("data", "phylo", "Shigella_tree.txt"))
 tree <- ape::read.tree("Shigella_tree.txt")
 ```
 
-We inspect our tree object and see it contains 299 tips (or samples) and 236 nodes.  
+Ağaç nesnemizi inceliyoruz ve 299 uç (veya örnek) ve 236 nod içerdiğini görüyoruz.
 
 ```{r}
 tree
 ```
 
-Second, we import a table stored as a .csv file with additional information for each sequenced sample, such as gender, country of origin and attributes for antimicrobial resistance, using the `import()` function from the **rio** package:
+İkinci olarak, rio paketindeki import() fonksiyonunu kullanarak cinsiyet, menşe ülke ve antimikrobiyal direnç özellikleri gibi her numune için ek bilgiler içeren bir .csv dosyası olarak saklanan tabloyu içe aktarırız:
 
 ```{r, echo=F}
 sample_data <- import(here("data", "phylo", "sample_data_Shigella_tree.csv"))
@@ -95,34 +98,35 @@ sample_data <- import(here("data", "phylo", "sample_data_Shigella_tree.csv"))
 sample_data <- import("sample_data_Shigella_tree.csv")
 ```
 
-Below are the first 50 rows of the data:  
+Aşağıda verilerin ilk 50 satırı verilmiştir: 
 
 ```{r message=FALSE, echo=F}
 DT::datatable(head(sample_data,50), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-### Clean and inspect {.unnumbered}  
+### Temizleme ve inceleme  {.unnumbered}  
 
-We clean and inspect our data: In order to assign the correct sample data to the phylogenetic tree, the values in the column `Sample_ID` in the `sample_data` data frame need to match the `tip.labels` values in the `tree` file: 
+Verilerimizi temizler ve inceleriz: Filogenetik ağaca doğru örnek verilerini atamak için, sample_data veri çerçevesindeki Sample_ID sütunundaki değerlerin ağaç dosyasındaki tip.labels değerleriyle eşleşmesi gerekir:
 
-We check the formatting of the `tip.labels` in the `tree` file by looking at the first 6 entries using with `head()` from **base** R.
+Ağaç dosyasındaki tip.labels formatını, R tabanından head() ile ilk 6 girişe bakarak kontrol ederiz.
+
 ```{r, phylogenetic_trees_inspect_sampledata}
 head(tree$tip.label) 
 ```
 
-We also make sure the first column in our `sample_data` data frame is `Sample_ID`. We look at the column names of our dataframe using  `colnames()` from **base** R.
+Ayrıca sample_data veri çerçevemizdeki ilk sütunun Sample_ID olduğundan emin oluruz. Temel R'dan colnames() kullanarak veri çerçevemizin sütun adlarına bakarız.
 
 ```{r}
 colnames(sample_data)   
 ```
 
-We look at the `Sample_IDs` in the data frame to make sure the formatting is the same than in the `tip.label` (eg. letters are all capitals, no extra underscores `_` between letters and numbers, etc.)
+Biçimlendirmenin tip.label'dekiyle aynı olduğundan emin olmak için veri çerçevesindeki Sample_ID'lere bakarız (örneğin, harflerin tümü büyük harf olması, harfler ve sayılar arasında fazladan alt çizgi olmaması, vb.)
 
 ```{r}
 head(sample_data$Sample_ID) # we again inspect only the first 6 using head()
 ```
 
-We can also compare if all samples are present in the `tree` file and vice versa by generating a logical vector of TRUE or FALSE where they do or do not match. These are not printed here, for simplicity.  
+Ayrıca tüm örneklerin ağaç dosyasında bulunup bulunmadığını, eşleşip eşleşmedikleri bir DOĞRU veya YANLIŞ mantıksal vektörü oluşturarak karşılaştırabiliriz. (Basitleştirmek için burada gösterilmemiştir).
 
 ```{r, eval=F}
 sample_data$Sample_ID %in% tree$tip.label
@@ -130,87 +134,90 @@ sample_data$Sample_ID %in% tree$tip.label
 tree$tip.label %in% sample_data$Sample_ID
 ```
 
-We can use these vectors to show any sample IDs that are not on the tree (there are none).  
+Bu vektörleri ağaçta olmayan herhangi bir örnek kimliğini göstermek için kullanabiliriz (hiçbiri yoktur). 
 
 ```{r}
 sample_data$Sample_ID[!tree$tip.label %in% sample_data$Sample_ID]
 ```
 
-Upon inspection we can see that the format of `Sample_ID` in the dataframe corresponds to the format of sample names at the `tip.labels`. These do not have to be sorted in the same order to be matched.
+İnceleme sonucu, veri çerçevesindeki Sample_ID formatının tip.labels'deki örnek isimlerine karşılık geldiğini görebiliriz. Bunların eşleşmesi için aynı sırada sıralanması gerekmez.
 
-We are ready to go!
+Devam etmeye hazırız!
+
+
 
 
 
 
 <!-- ======================================================= -->
 
-## Simple tree visualization {}
+## Temel ağaç görselleştirmesi   {}
 
 
-### Different tree layouts {.unnumbered}  
+### Farklı ağaç düzenlemeleri {.unnumbered}  
 
-**ggtree** offers many different layout formats and some may be more suitable for your specific purpose than others. Below are a few demonstrations. For other options see this [online book](http://yulab-smu.top/treedata-book/chapter4.html).  
+ggtree birçok farklı düzen formatı sunar ve bazıları özel amacınız için diğerlerinden daha uygun olabilir. Aşağıda birkaç gösterim  var. Diğer seçenekler için bu [çevrimiçi kitaba](http://yulab-smu.top/treedata-book/chapter4.html) bakabilirsiniz.
 
-Here are some example tree layouts:
+İşte bazı örnek ağaç düzenleri:
+
 ```{r, phylogenetic_trees_example_formats, out.width=c('50%'), fig.show='hold'}
 
-ggtree(tree)                                            # simple linear tree
-ggtree(tree,  branch.length = "none")                   # simple linear tree with all tips aligned
-ggtree(tree, layout="circular")                         # simple circular tree
-ggtree(tree, layout="circular", branch.length = "none") # simple circular tree with all tips aligned
+ggtree(tree)                                            # basit doğrusal ağaç
+ggtree(tree,  branch.length = "none")                   # uçların hizalandığı basit doğrusal ağaç 
+ggtree(tree, layout="circular")                         # basit dairesel ağaç
+ggtree(tree, layout="circular", branch.length = "none") # uçların hizalandığı basit dairesel ağaç 
 
 ```
 
-### Simple tree plus sample data {.unnumbered}  
+### Örnek veriyi içeren basit ağaç  {.unnumbered}  
 
-The **%<+%** operator is used to connect the `sample_data` data frame to the `tree` file.
-The most easy annotation of your tree is the addition of the sample names at the tips, as well as coloring of tip points and if desired the branches:
+%<+% operatörü, sample_data veri çerçevesini ağaç dosyasına bağlamak için kullanılır. Ağacınızın en basit gösterimi, uçlara örnek isimlerin eklenmesi, ayrıca uç noktalarının ve istenirse dalların renklendirilmesidir:
 
-Here is an example of a circular tree: 
+İşte dairesel bir ağaç örneği:
+ 
 ```{r, phylogenetic_trees_adding_sampledata, fig.align='center', warning=F, message=F}
 
-ggtree(tree, layout = "circular", branch.length = 'none') %<+% sample_data + # %<+% adds dataframe with sample data to tree
-  aes(color = I(Belgium))+                       # color the branches according to a variable in your dataframe
+ggtree(tree, layout = "circular", branch.length = 'none') %<+% sample_data + #%<+%, ağaca örnek verilerle veri çerçevesi ekler
+  aes(color = I(Belgium))+                       # dalları veri çerçevenizdeki bir değişkene göre renklendirin
   scale_color_manual(
-    name = "Sample Origin",                      # name of your color scheme (will show up in the legend like this)
-    breaks = c("Yes", "No"),                     # the different options in your variable
-    labels = c("NRCSS Belgium", "Other"),        # how you want the different options named in your legend, allows for formatting
-    values = c("blue", "black"),                  # the color you want to assign to the variable 
-    na.value = "black") +                        # color NA values in black as well
-  new_scale_color()+                             # allows to add an additional color scheme for another variable
+    name = "Sample Origin",                      # renk düzeninizin adı (lejantta bu şekilde görünecektir)
+    breaks = c("Yes", "No"),                     # değişkeninizdeki farklı seçenekler
+    labels = c("NRCSS Belgium", "Other"),        # lejandınızda adı geçen farklı seçenekleri biçimlendirmenize olanak sağlar
+    values = c("blue", "black"),                  # değişkene atamak istediğiniz renk
+    na.value = "black") +                        # renkli NA değerleri siyahtır
+  new_scale_color()+                             # başka bir değişken için ek bir renk şeması eklemeye izin verir
     geom_tippoint(
-      mapping = aes(color = Continent),          # tip color by continent. You may change shape adding "shape = "
-      size = 1.5)+                               # define the size of the point at the tip
+      mapping = aes(color = Continent),          # kıtaya göre uç rengi. "shape =" ekleyerek şekli değiştirebilirsiniz.
+      size = 1.5)+                               # uçtaki noktanın boyutunu tanımlayın
   scale_color_brewer(
-    name = "Continent",                    # name of your color scheme (will show up in the legend like this)
-    palette = "Set1",                      # we choose a set of colors coming with the brewer package
-    na.value = "grey") +                    # for the NA values we choose the color grey
-  geom_tiplab(                             # adds name of sample to tip of its branch 
-    color = 'black',                       # (add as many text lines as you wish with + , but you may need to adjust offset value to place them next to each other)
+    name = "Continent",                    # renk şemanızın adı (lejantta bu şekilde görünecektir)
+    palette = "Set1",                      # brewer paketiyle birlikte gelen bir dizi renk seçiyoruz
+    na.value = "grey") +                    # NA değerleri için gri rengi seçiyoruz
+  geom_tiplab(                             # dalının ucuna numunenin adını ekler
+    color = 'black',                       # (+ ile istediğiniz kadar metin satırı ekleyin, ancak bunları yan yana yerleştirmek için ofset değerini ayarlamanız gerekebilir)
     offset = 1,
     size = 1,
     geom = "text",
     align = TRUE)+    
-  ggtitle("Phylogenetic tree of Shigella sonnei")+       # title of your graph
+  ggtitle("Phylogenetic tree of Shigella sonnei")+       # grafiğinizin başlığı
   theme(
-    axis.title.x = element_blank(), # removes x-axis title
-    axis.title.y = element_blank(), # removes y-axis title
-    legend.title = element_text(    # defines font size and format of the legend title
+    axis.title.x = element_blank(), # x ekseni başlığını kaldırır
+    axis.title.y = element_blank(), # y ekseni başlığını kaldırır
+    legend.title = element_text(    # açıklama başlığının yazı tipi boyutunu ve biçimini tanımlar
       face = "bold",
       size = 12),   
-    legend.text=element_text(       # defines font size and format of the legend text
+    legend.text=element_text(       # gösterge metninin yazı tipi boyutunu ve biçimini tanımlar
       face = "bold",
       size = 10),  
-    plot.title = element_text(      # defines font size and format of the plot title
+    plot.title = element_text(      # grafik başlığının yazı tipi boyutunu ve biçimini tanımlar
       size = 12,
       face = "bold"),  
-    legend.position = "bottom",     # defines placement of the legend
-    legend.box = "vertical",        # defines placement of the legend
+    legend.position = "bottom",     # lejant yerleşimini tanımlar
+    legend.box = "vertical",        # lejant yerleşimini tanımlar
     legend.margin = margin())   
 ```
 
-You can export your tree plot with `ggsave()` as you would any other ggplot object. Written this way, `ggsave()` saves the last image produced to the file path you specify. Remember that you can use `here()` and relative file paths to easily save in subfolders, etc.  
+Diğer herhangi bir ggplot nesnesinde yaptığınız gibi, ağaç grafiğinizi ggsave() ile dışa aktarabilirsiniz. Bu şekilde yazıldığında, ggsave(), üretilen son grafiği belirttiğiniz dosya yoluna kaydeder. Alt klasörlere vb. kolayca kaydetmek için here() ve ilgili dosya yollarını kullanabileceğinizi unutmayın.
 
 ```{r, eval=F}
 ggsave("example_tree_circular_1.png", width = 12, height = 14)
@@ -220,43 +227,45 @@ ggsave("example_tree_circular_1.png", width = 12, height = 14)
 
 <!-- ======================================================= -->
 
-## Tree manipulation {}
+## Ağacın Manipülasyonu {}
 
-Sometimes you may have a very large phylogenetic tree and you are only interested in one part of the tree. For example, if you produced a tree including historical or international samples to get a large overview of where your dataset might fit in the bigger picture. But then to look closer at your data you want to inspect only that portion of the bigger tree.
+Bazen çok büyük bir filogenetik ağacınız olabilir ve ağacın sadece bir kısmıyla ilgilenirsiniz. Örneğin, veri kümenizin büyük resimde nereye sığabileceğine dair geniş bir genel bakış elde etmek için tarihsel veya uluslararası örnekler içeren bir ağaç oluşturup daha sonra verilerinize daha yakından bakmak için daha büyük olan ağacın yalnızca o ilgilendiğiniz kısmını incelemek istersiniz.
 
-Since the phylogenetic tree file is just the output of sequencing data analysis, we can not manipulate the order of the nodes and branches in the file itself. These have already been determined in previous analysis from the raw NGS data. We are able though to zoom into parts, hide parts and even subset part of the tree. 
+Filogenetik ağaç dosyası yalnızca sekanslama veri analizinin çıktısı olduğundan, dosyanın kendisindeki nodların ve dalların sırasını değiştiremeyiz. Bunlar, ham NGS verilerinden önceki analizlerde zaten belirlenmiştir. Yine de parçaları yakınlaştırabiliyor, parçaları gizleyebiliyor ve hatta ağacın parçalarını alt kümelere ayırabiliyoruz.
 
-### Zoom in {.unnumbered}  
+### Yakınlaştırmak {.unnumbered}  
 
-If you don't want to "cut" your tree, but only inspect part of it more closely you can zoom in to view a specific part.
+Ağacınızı "kesmek" istemiyorsanız ve sadece bir kısmını daha yakından incelemek istiyorsanız, belirli bir kısmı görüntülemek için yakınlaştırabilirsiniz.
 
-First, we plot the entire tree in linear format and add numeric labels to each node in the tree.
+İlk olarak, tüm ağacı doğrusal biçimde çiziyoruz ve ağaçtaki her bir noda sayısal etiketler ekliyoruz.
+
 ```{r, phylogenetic_trees_zoom_in, out.width=c('50%'), fig.show='hold', fig.align='center'}
 
 p <- ggtree(tree,) %<+% sample_data +
-  geom_tiplab(size = 1.5) +                # labels the tips of all branches with the sample name in the tree file
+  geom_tiplab(size = 1.5) +                # ağaç dosyasındaki örnek adıyla tüm dalların uçlarını etiketler
   geom_text2(
     mapping = aes(subset = !isTip,
                   label = node),
     size = 5,
     color = "darkred",
     hjust = 1,
-    vjust = 1)                            # labels all the nodes in the tree
+    vjust = 1)                            # ağaçtaki tüm nodları etiketler
 
-p  # print
+p  # çıktı alın
 
 ```
 
-To zoom in to one particular branch (sticking out to the right), use `viewClade()` on the ggtree object `p` and provide the node number to get a closer look:
+Belirli bir dalı yakınlaştırmak için (sağa doğru uzanarak),  ggtree p nesnesinde viewClade() fonkisyonunu kullanın ve daha yakından bakmak için nod numarasını sağlayın:
+
 ```{r phylogenetic_trees_zoom_in_452, out.width=c('50%'), fig.show='hold', fig.align='center'}
 
 viewClade(p, node = 452)
 
 ```
 
-### Collapsing branches {.unnumbered} 
+### Daralan dallar  {.unnumbered} 
 
-However, we may want to ignore this branch and can collapse it at that same node (node nr. 452) using `collapse()`. This tree is defined as `p_collapsed`. 
+Ancak, bu dalı yok saymak isteyebiliriz ve aynı noddaki (nod nr. 452) collapse() fonksiyonunu kullanarak dalı daraltabiliriz. Bu ağaç p_collapsed olarak tanımlanır.
 
 ```{r phylogenetic_trees_collapse_452, out.width=c('50%'), fig.show='hold', fig.align='center'}
 
@@ -264,7 +273,8 @@ p_collapsed <- collapse(p, node = 452)
 p_collapsed
 ```
 
-For clarity, when we print `p_collapsed`, we add a `geom_point2()` (a blue diamond) at the node of the collapsed branch.  
+Anlaşılır olması için, p_collapsed’ı yazdırdığımızda, daraltılmış dalın noduna geom_point2() ile mavi elmas şekli ekleriz.
+
 ```{r}
 p_collapsed + 
 geom_point2(aes(subset = (node == 452)),  # we assign a symbol to the collapsed node
@@ -273,38 +283,40 @@ geom_point2(aes(subset = (node == 452)),  # we assign a symbol to the collapsed 
             fill = "steelblue")           # define the color of the symbol
 ```
 
-### Subsetting a tree {.unnumbered} 
+### Ağacın alt kümelere ayrılması  {.unnumbered} 
 
-If we want to make a more permanent change and create a new, reduced tree to work with we can subset part of it with `tree_subset()`. Then you can save it as new newick tree file or .txt file. 
+Daha kalıcı bir değişiklik yapmak ya da çalışma için yeni ve küçültülmüş bir ağaç oluşturmak istiyorsak, ağacın bir kısmının tree_subset() ile alt kümesini alabiliriz. Ardından bu alt kümeyi yeni bir newick ağaç dosyası veya .txt dosyası olarak kaydedebilirsiniz.
 
-First, we inspect the tree nodes and tip labels in order to decide what to subset.  
+İlk olarak, neyin altküme olacağına karar vermek için ağaç nodlarını ve uç etiketlerini inceleriz.
+
 
 ```{r, phylogenetic_trees_subsetting, out.width=c('50%'), fig.show='hold', fig.align='center'}
 ggtree(
   tree,
   branch.length = 'none',
-  layout = 'circular') %<+% sample_data +               # we add the asmple data using the %<+% operator
-  geom_tiplab(size = 1)+                                # label tips of all branches with sample name in tree file
+  layout = 'circular') %<+% sample_data +               # %<+% operatörünü kullanarak örnek verileri ekliyoruz
+  geom_tiplab(size = 1)+                                # ağaç dosyasında örnek adıyla tüm dalların uçlarını etiketliyoruz 
   geom_text2(
     mapping = aes(subset = !isTip, label = node),
     size = 3,
-    color = "darkred") +                                # labels all the nodes in the tree
+    color = "darkred") +                                # ağaçtaki tüm nodları etiketler
  theme(
-   legend.position = "none",                            # removes the legend all together
+   legend.position = "none",                            # lejantı uzaklaştırır
    axis.title.x = element_blank(),
    axis.title.y = element_blank(),
    plot.title = element_text(size = 12, face="bold"))
 ```
 
-Now, say we have decided to subset the tree at node 528 (keep only tips within this branch after node 528) and we save it as a new `sub_tree1` object:
+Şimdi, ağacın  528 numaralı nodundan alt küme oluşturmaya karar verdiğimizi varsayalım (sadece bu dalda 528 nodundan sonraki uçlarını tutalım) ve onu yeni bir sub_tree1 nesnesi olarak kaydedelim: 
+ 
 
 ```{r}
 sub_tree1 <- tree_subset(
   tree,
-  node = 528)                                            # we subset the tree at node 528
+  node = 528)                                            # ağacın 528 nodundan alt kümesini oluşturuyoruz
 ```
 
-Lets have a look at the subset tree 1:
+1 numaralı alt küme ağacına bir göz atalım:
 
 ```{r}
 ggtree(sub_tree1) +
@@ -312,16 +324,16 @@ ggtree(sub_tree1) +
   ggtitle("Subset tree 1")
 ```
 
-You can also subset based on one particular sample, specifying how many nodes "backwards" you want to include. Let's subset the same part of the tree based on a sample, in this case S17BD07692, going back 9 nodes and we save it as a new `sub_tree2` object:
+Ayrıca, "geriye" kaç tane nod eklemek istediğinizi belirterek belirli bir örneğe dayalı olarak alt kümeler oluşturabilirsiniz. Ağacın aynı kısmını bir örneğe dayanarak alt kümelendirelim, bu durumda S17BD07692 için 9 nod geriye giderek ve onu yeni bir sub_tree2 nesnesi olarak kaydedelim:
 
 ```{r}
 sub_tree2 <- tree_subset(
   tree,
   "S17BD07692",
-  levels_back = 9) # levels back defines how many nodes backwards from the sample tip you want to go
+  levels_back = 9) # geri seviye sayısı, örnek ucundan geriye kaç nod gideceğinizi tanımlar.
 ```
 
-Lets have a look at the subset tree 2:
+Şimdi alt küme ağacına bir göz atalım:
 
 ```{r}
 ggtree(sub_tree2) +
@@ -330,29 +342,30 @@ ggtree(sub_tree2) +
 
 ```
 
-You can also save your new tree either as a Newick type or even a text file using the `write.tree()` function from **ape** package:
+Yeni ağacınızı, ape paketindeki write.tree() fonksiyonunu kullanarak bir Newick formatında veya hatta bir metin dosyası olarak da kaydedebilirsiniz 
 
 ```{r, eval=F, phylogenetic_trees_write_tree}
-# to save in .nwk format
+# .nwk formatında kaydetmek için
 ape::write.tree(sub_tree2, file='data/phylo/Shigella_subtree_2.nwk')
 
-# to save in .txt format
+# .txt formatında kaydetmek için
 ape::write.tree(sub_tree2, file='data/phylo/Shigella_subtree_2.txt')
 
 ```
 
-### Rotating nodes in a tree {.unnumbered} 
+### Ağaçtaki nodları döndürmek  {.unnumbered} 
 
 
-As mentioned before we cannot change the order of tips or nodes in the tree, as this is based on their genetic relatedness and is not subject to visual manipulation. But we can rote branches around nodes if that eases our visualization.
+Daha önce de belirtildiği gibi, ağaçtaki uçların veya nodların sırasını değiştiremeyiz, çünkü bu onların genetik akrabalıklarına dayanır ve görsel manipülasyona izin yoktur. Ancak, görselleştirmemizi kolaylaştıracaksa, dalları nodların etrafında döndürebiliriz.
 
-First, we plot our new subset tree 2 with node labels to choose the node we want to manipulate and store it an a ggtree plot object `p`.
+İlk olarak, işlemek istediğimiz nodu seçmek için yeni alt küme ağacımızı (alt küme 2) nod etiketleriyle çizeriz ve bir ggtree çizim nesnesi 'p' olarak saklarız.
+
 
 ```{r, phylogenetic_trees_rotating_1, out.width=c('50%'), fig.show='hold', fig.align='center'}
 
 p <- ggtree(sub_tree2) +  
   geom_tiplab(size = 4) +
-  geom_text2(aes(subset=!isTip, label=node), # labels all the nodes in the tree
+  geom_text2(aes(subset=!isTip, label=node), # ağaçtaki tüm nodları etiketler
              size = 5,
              color = "darkred", 
              hjust = 1, 
@@ -360,64 +373,65 @@ p <- ggtree(sub_tree2) +
 p
 ```
 
-We can then manipulate nodes by applying **ggtree::rotate()** or **ggtree::flip()**: 
-Note: to illustrate which nodes we are manipulating we first apply the **geom_hilight()** function from **ggtree** to highlight the samples in the nodes we are interested in and store that ggtree plot object in a new object `p1`.
+Ardından, ggtree::rotate() veya ggtree::flip() fonksiyonlarını uygulayarak nodları değiştirebiliriz: Not: Hangi nodları manuple ettiğimizi göstermek için, ilgilendiğimiz noddaki örnekleri vurgulamak için önce ggtree'den geom_hilight() fonksiyonunu uygularız. ggtree çizim nesnesini yeni bir nesne olarak (p1) saklayın.
 
 ```{r, phylogenetic_trees_rotating_2, out.width=c('50%'), fig.show='hold', fig.align='center'}
 
-p1 <- p + geom_hilight(  # highlights node 39 in blue, "extend =" allows us to define the length of the color block
+p1 <- p + geom_hilight(  # nod 39'u mavi olarak vurgular, "extend =" renk bloğunun uzunluğunu tanımlamamızı sağlar
   node = 39,
   fill = "steelblue",
   extend = 0.0017) +  
-geom_hilight(            # highlights the node 37 in yellow
+geom_hilight(            # 37 numaralı düğümü sarı renkle vurgular
   node = 37,
   fill = "yellow",
   extend = 0.0017) +               
 ggtitle("Original tree")
 
 
-p1 # print
+p1 # çıktı alın
 ```
 
-Now we can rotate node 37 in object `p1` so that the samples on node 38 move to the top. We store the rotated tree in a new object `p2`.
+Şimdi p1 nesnesindeki nod 37'yi döndürebiliriz, böylece nod 38'deki örnekler en üste hareket eder. Döndürülen ağacı yeni bir p2 nesnesi olarak saklıyoruz. 
+
 ```{r}
 p2 <- rotate(p1, 37) + 
       ggtitle("Rotated Node 37")
 
 
-p2   # print
+p2   # çıktı alın
 ```
 
-Or we can use the flip command to rotate node 36 in object `p1` and switch node 37 to the top and node 39 to the bottom. We store the flipped tree in a new object `p3`.
+Ya da p1 nesnesindeki 36 nolu nodu döndürmek ve 37 nolu nodu yukarı ve 39 nolu nodu aşağıya çevirmek için flip (çevirme= komutunu kullanabiliriz. Ters çevrilmiş ağacı yeni bir p3 nesnesi olarak saklıyoruz.
+
 ```{r}
 
 p3 <-  flip(p1, 39, 37) +
       ggtitle("Rotated Node 36")
 
 
-p3   # print
+p3   # çıktı alın
 ```
 
-### Example subtree with sample data annotation {.unnumbered} 
+### Numune verilerini içeren açıklamalı örnek alt ağaç {.unnumbered} 
 
-Lets say we are investigating the cluster of cases with clonal expansion which occurred in 2017 and 2018 at node 39 in our sub-tree. We add the year of strain isolation as well as travel history and color by country to see origin of other closely related strains:
+2017 ve 2018'de alt ağacımızda 39. nodda meydana gelen klonal genişlemeli vaka kümesini araştırdığımızı varsayalım. Yakın ilişkili diğer suşların kökenini görmek için suş izolasyonunun yanı sıra ülkeye göre seyahat geçmişi ve rengi de ekliyoruz:
 
 ```{r, phylogenetic_trees_inspect_subset_example, out.width=c('80%'), fig.show='hold', fig.align='center', warning=F, message=F}
 
-ggtree(sub_tree2) %<+% sample_data +     # we use th %<+% operator to link to the sample_data
-  geom_tiplab(                          # labels the tips of all branches with the sample name in the tree file
+ggtree(sub_tree2) %<+% sample_data +     # sample_data'ya bağlanmak için %<+% operatörünü kullanırız
+  geom_tiplab(                          # ağaç dosyasındaki numune adıyla tüm dalların uçlarını etiketler
     size = 2.5,
     offset = 0.001,
     align = TRUE) + 
   theme_tree2()+
-  xlim(0, 0.015)+                       # set the x-axis limits of our tree
-  geom_tippoint(aes(color=Country),     # color the tip point by continent
+  xlim(0, 0.015)+                       # ağacımızın x ekseni sınırlarını ayarlar
+  geom_tippoint(aes(color=Country),     # uç noktasını kıtaya göre renklendir
                 size = 1.5)+ 
   scale_color_brewer(
     name = "Country", 
     palette = "Set1", 
     na.value = "grey")+
-  geom_tiplab(                          # add isolation year as a text label at the tips
+  geom_tiplab(                          # uçlara bir metin etiketi olarak izolasyon yılı ekleyin
     aes(label = Year),
     color = 'blue',
     offset = 0.0045,
@@ -425,7 +439,7 @@ ggtree(sub_tree2) %<+% sample_data +     # we use th %<+% operator to link to th
     linetype = "blank" ,
     geom = "text",
     align = TRUE)+ 
-  geom_tiplab(                          # add travel history as a text label at the tips, in red color
+  geom_tiplab(                          # uçlara kırmızı renkte bir metin etiketi olarak seyahat geçmişi ekleyin
     aes(label = Travel_history),
     color = 'red',
     offset = 0.006,
@@ -433,8 +447,8 @@ ggtree(sub_tree2) %<+% sample_data +     # we use th %<+% operator to link to th
     linetype = "blank",
     geom = "text",
     align = TRUE)+ 
-  ggtitle("Phylogenetic tree of Belgian S. sonnei strains with travel history")+  # add plot title
-  xlab("genetic distance (0.001 = 4 nucleotides difference)")+                    # add a label to the x-axis 
+  ggtitle("Phylogenetic tree of Belgian S. sonnei strains with travel history")+  # grafik başlığı ekle
+  xlab("genetic distance (0.001 = 4 nucleotides difference)")+                    # x eksenine bir etiket ekleyin
   theme(
     axis.title.x = element_text(size = 10),
     axis.title.y = element_blank(),
@@ -444,16 +458,18 @@ ggtree(sub_tree2) %<+% sample_data +     # we use th %<+% operator to link to th
 
 ```
 
-Our observation points towards an import event of strains from Asia, which then circulated in Belgium over the years and seem to have caused our latest outbreak.
+Gözlemimiz, yıllar içinde Belçika'da dolaşan ve en son salgınımıza neden olan Asya'dan kaynaklanan suşa işaret ediyor.
+
 
 <!-- ======================================================= -->
 
-## More complex trees: adding heatmaps of sample data {.unnumbered}
+## Daha karmaşık ağaçlar: Örnek verilerin ısı haritalarını ekleme  {.unnumbered}
 
 
-We can add more complex information, such as categorical presence of antimicrobial resistance genes and numeric values for actually measured resistance to antimicrobials in form of a heatmap using the **ggtree::gheatmap()** function.
+ggtree::gheatmap() fonksiyonunu kullanarak bir ısı haritası biçiminde antimikrobiyal direnç genlerinin kategorik olarak varlığı ve antimikrobiyallere karşı ölçülen direnç için sayısal değerler gibi daha karmaşık bilgiler de ekleyebiliriz.
 
-First we need to plot our tree (this can be either linear or circular) and store it in a new ggtree plot object `p`: We will use the sub_tree from part 3.)
+İlk önce ağacımızı çizmemiz gerekiyor (bu doğrusal veya dairesel olabilir) ve ağacı yeni bir ggtree çizim nesnesi p'de saklamamız gerekiyor: Bölüm 3'teki sub_tree'yi kullanacağız.)
+
 ```{r, phylogenetic_trees_sampledata_heatmap, out.width=c('60%'), fig.align='center', fig.show='hold'}
 
 p <- ggtree(sub_tree2, branch.length='none', layout='circular') %<+% sample_data +
@@ -471,37 +487,43 @@ p
 
 ```
 
-Second, we prepare our data. To visualize different variables with new color schemes, we subset our dataframe to the desired variable. It is important to add the `Sample_ID` as rownames otherwise it cannot match the data to the tree `tip.labels`:
+İkinci olarak verilerimizi hazırlıyoruz. Farklı değişkenleri yeni renk şemaları ile görselleştirmek için veri çerçevemizi istenen değişkene göre alt gruplara ayırıyoruz. Sample_ID'yi satır adları olarak eklemek önemlidir, aksi takdirde verileri ağaç tip.labels ile eşleştiremez:
 
-In our example we want to look at gender and mutations that could confer resistance to Ciprofloxacin, an important first line antibiotic used to treat Shigella infections.
+Örneğimizde Shigella enfeksiyonlarını tedavi etmek için kullanılan önemli bir birinci basamak antibiyotik olan siprofloksasine direnç kazandırabilecek mutasyonlara ve cinsiyete bakmak istiyoruz.
 
-We create a dataframe for gender: 
+Cinsiyet için bir veri çerçevesi oluşturuyoruz:
+
+
 ```{r, phylogenetic_trees_sampledata_heatmap_data}
 gender <- data.frame("gender" = sample_data[,c("Gender")])
 rownames(gender) <- sample_data$Sample_ID
 ```
 
-We create a dataframe for mutations in the gyrA gene, which confer Ciprofloxacin resistance:
+Siprofloksasin direncine nede olan gyrA genindeki mutasyonlar için bir veri çerçevesi oluşturuyoruz: 
+
 ```{r}
 cipR <- data.frame("cipR" = sample_data[,c("gyrA_mutations")])
 rownames(cipR) <- sample_data$Sample_ID
 
 ```
-We create a dataframe for the measured minimum inhibitory concentration (MIC) for Ciprofloxacin from the laboratory:
+
+Siprofloksasin için ölçülen minimum inhibitör konsantrasyonu (MIC) için bir veri çerçevesi oluşturuyoruz:
+
 ```{r}
 MIC_Cip <- data.frame("mic_cip" = sample_data[,c("MIC_CIP")])
 rownames(MIC_Cip) <- sample_data$Sample_ID
 ```
 
-We create a first plot adding a binary heatmap for gender to the phylogenetic tree and storing it in a new ggtree plot object `h1`:
+Filogenetik ağaca cinsiyet için ikili bir ısı haritası ekleyen ve onu yeni bir ggtree grafi nesnesi h1'de saklayan bir ilk grafik oluşturuyoruz:
+
 ```{r, phylogenetic_trees_sampledata_heatmap_gender, out.width=c('70%'), fig.show='hold', fig.align='center'}
 
-h1 <-  gheatmap(p, gender,                                 # we add a heatmap layer of the gender dataframe to our tree plot
-                offset = 10,                               # offset shifts the heatmap to the right,
-                width = 0.10,                              # width defines the width of the heatmap column,
-                color = NULL,                              # color defines the boarder of the heatmap columns
-         colnames = FALSE) +                               # hides column names for the heatmap
-  scale_fill_manual(name = "Gender",                       # define the coloring scheme and legend for gender
+h1 <-  gheatmap(p, gender,                                 # ağaç grafiğimize cinsiyet veri çerçevesinin ısı haritası katmanını ekliyoruz
+                offset = 10,                               # ofset, ısı haritasını sağa kaydırır,
+                width = 0.10,                              # genişlik, ısı haritası sütununun genişliğini tanımlar,
+                color = NULL,                              # renk, ısı haritası sütunlarının kenarlığını tanımlar
+         colnames = FALSE) +                               # ısı haritası için sütun adlarını gizler
+  scale_fill_manual(name = "Gender",                       # cinsiyet için renklendirme şemasını ve lejandı tanımlayın
                     values = c("#00d1b1", "purple"),
                     breaks = c("Male", "Female"),
                     labels = c("Male", "Female")) +
@@ -513,20 +535,21 @@ h1
 
 ```
 
-Then we add information on mutations in the gyrA gene, which confer resistance to Ciprofloxacin:
+Ardından, gyrA genindeki siprofloksasine direnç sağlayan mutasyonlar hakkında bilgi ekliyoruz:
 
-Note: The presence of chromosomal point mutations in WGS data was prior determined using the PointFinder tool developed by Zankari et al. (see reference in the additional references section)
+Not: WGS verilerinde kromozomal nokta mutasyonlarının varlığı, Zankari ve arkadaşları tarafından geliştirilen PointFinder aracı kullanılarak önceden belirlenmiştir. (referanslar bölümündeki referansa bakın)
 
-First, we assign a new color scheme to our existing plot object `h1` and store it in a now object `h2`. This enables us to define and change the colors for our second variable in the heatmap.
+İlk olarak, mevcut çizim nesnemiz h1'e yeni bir renk şeması atarız ve onu nesne h2'de saklarız. Bu, ısı haritasındaki ikinci değişkenimizin renklerini tanımlamamızı ve değiştirmemizi sağlar.
+
 ```{r}
 h2 <- h1 + new_scale_fill() 
 ```
 
-Then we add the second heatmap layer to `h2` and store the combined plots in a new object `h3`:
+Ardından ikinci ısı haritası katmanını h2'ye ekler ve birleştirilmiş grafikleri yeni bir nesne h3'te saklarız:
 
 ```{r, phylogenetic_trees_sampledata_heatmap_cip_genes, out.width=c('80%'), fig.show='hold', fig.align='center'}
 
-h3 <- gheatmap(h2, cipR,         # adds the second row of heatmap describing Ciprofloxacin resistance mutations
+h3 <- gheatmap(h2, cipR,         # Siprofloksasine direnç mutasyonlarını tanımlayan ikinci ısı haritası satırını ekler
                offset = 12, 
                width = 0.10, 
                colnames = FALSE) +
@@ -542,17 +565,18 @@ h3 <- gheatmap(h2, cipR,         # adds the second row of heatmap describing Cip
 h3
 ```
 
-We repeat the above process, by first adding a new color scale layer to our existing object `h3`, and then adding the continuous data on the minimum inhibitory concentration (MIC) of Ciprofloxacin for each strain to the resulting object `h4` to produce the final object `h5`:
+İlk önce mevcut nesne h3'e yeni bir renk ölçeği katmanı ekleyerek ve ardından nihai nesne h5'i üretmek için elde edilen h4 nesnesine her suş için siprofloksasin için minimum inhibitör konsantrasyonu (MIC) verilerini ekleyerek yukarıdaki işlemi tekrarlıyoruz. :
+
 ```{r, phylogenetic_trees_sampledata_heatmap_cip_MIC, out.width=c('90%'), fig.show='hold', fig.align='center'}
-# First we add the new coloring scheme:
+# İlk önce yeni renklendirme şemasını ekliyoruz:
 h4 <- h3 + new_scale_fill()
 
-# then we combine the two into a new plot:
+# sonra ikisini yeni bir grafikte birleştiriyoruz:
 h5 <- gheatmap(h4, MIC_Cip,  
                offset = 14, 
                width = 0.10,
                 colnames = FALSE)+
-  scale_fill_continuous(name = "MIC for Ciprofloxacin",  # here we define a gradient color scheme for the continuous variable of MIC
+  scale_fill_continuous(name = "MIC for Ciprofloxacin",  # burada MIC'in sürekli değişkeni için bir gradyan renk şeması tanımlıyoruz
                       low = "yellow", high = "red",
                       breaks = c(0, 0.50, 1.00),
                       na.value = "white") +
@@ -565,7 +589,8 @@ h5
 
 ```
 
-We can do the same exercise for a linear tree:
+Aynı alıştırmayı doğrusal bir ağaç için de yapabiliriz:
+
 ```{r, phylogenetic_trees_sampledata_heatmap_linear_1, out.width=c('80%'), fig.show='hold', fig.align='center'}
 
 p <- ggtree(sub_tree2) %<+% sample_data +
@@ -582,7 +607,7 @@ p <- ggtree(sub_tree2) %<+% sample_data +
 p
 ```
 
-First we add gender:  
+Öncelikle cinsiyeti giriyoruz
 
 ```{r, phylogenetic_trees_sampledata_heatmap_linear_2, out.width=c('80%'), fig.show='hold', fig.align='center'}
 
@@ -603,8 +628,7 @@ h1
 ```
 
 
-Then we add Ciprofloxacin resistance mutations after adding another color scheme layer:
-
+Ardından, başka bir renk şeması katmanı ekledikten sonra siprofloksasine direnç mutasyonlarını ekliyoruz:
 
 ```{r, phylogenetic_trees_sampledata_heatmap_linear_3, out.width=c('80%'), fig.show='hold', fig.align='center'}
 
@@ -626,7 +650,7 @@ h3 <- gheatmap(h2, cipR,
  h3
 ```
 
-Then we add the minimum inhibitory concentration determined by the laboratory (MIC):
+Ardından laboratuvar tarafından belirlenen minimum engelleyici konsantrasyonu (MIC) ekliyoruz:
 
 ```{r, phylogenetic_trees_sampledata_heatmap_linear_4, out.width=c('80%'), fig.show='hold', fig.align='center'}
 
@@ -652,7 +676,7 @@ h5
 
 
 <!-- ======================================================= -->
-## Resources {}
+## Kaynaklar {}
 
 http://hydrodictyon.eeb.uconn.edu/eebedia/index.php/Ggtree# Clade_Colors
 https://bioconductor.riken.jp/packages/3.2/bioc/vignettes/ggtree/inst/doc/treeManipulation.html
