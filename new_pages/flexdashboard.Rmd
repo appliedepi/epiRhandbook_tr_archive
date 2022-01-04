@@ -1,75 +1,73 @@
 
-# Dashboards with R Markdown { }
+# R Markdown ile gösterge panelleri { }
 
 ```{r out.width = "100%", fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_output.png"))
 ```
 
-This page will cover the basic use of the **flexdashboard** package. This package allows you to easily format R Markdown output as a dashboard with panels and pages. The dashboard content can be text, static figures/tables or interactive graphics.  
+Bu sayfa, **flexdashboard** paketinin temel kullanımını kapsayacaktır. Bu paket, R Markdown çıktısını paneller ve sayfalar içeren bir pano olarak kolayca biçimlendirmenize olanak tanır. Pano içeriği metin, istatistik şekiller/tablolar veya etkileşimli grafikler olabilir.
 
-Advantages of **flexdashboard**:  
+Flexdashboard'un avantajları:
+• Minimum düzeyde standart dışı R kodlaması gerektirir - çok az pratikle hızlı bir şekilde bir gösterge paneli oluşturabilirsiniz
+• Kontrol panelini genellikle bağımsız bir HTML dosyası olarak e-postayla gönderilebilirsiniz - sunucu gerekmez
+• Etkileşim eklemek için flexdashboard'u shiny, ggplotly ve diğer "html widget'ları" ile birleştirebilirsiniz
 
-* It requires minimal non-standard R coding - with very little practice you can quickly create a dashboard  
-* The dashboard can usually be emailed to colleagues as a self-contained HTML file - no server required  
-* You can combine **flexdashboard** with **shiny**, **ggplotly**, and other *"html widgets"* to add interactivity  
+Flexdashboard'un dezavantajları:
+• Bir gösterge paneli oluşturmak için tek başına shiny kullanmaya kıyasla daha az özelleştirme
 
-Disadvantages of **flexdashboard**:  
-
-* Less customization as compared to using **shiny** alone to create a dashboard  
-
-
-Very comprehensive tutorials on using **flexdashboard** that informed this page can be found in the Resources section. Below we describe the core features and give an example of building a dashboard to explore an outbreak, using the case `linelist` data.  
+Bu sayfadaki bilgilerin esas kaynağı olan, esnek panel kullanımına ilişkin çok kapsamlı bilgileri kaynaklar bölümünde bulunabilir. Aşağıda, paketin temel özelliklerini açıklıyoruz ve vaka satır listesi verilerini kullanarak salgını araştırmak için bir gösterge paneli oluşturmaya ilişkin bir örnek veriyoruz. 
 
 
-## Preparation
 
-### Load packages {.unnumbered}  
+## Hazırlık
 
-In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+### Paketlerin yüklenmesi {.unnumbered}  
+
+Bu el kitabında, gerekirse paketi kuran ve kullanım için yükleyen pacman'ın p_load() fonksiyonunu vurguluyoruz. Ayrıca, temel R'dan library() ile kurulu paketleri yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için R’ın temelleri sayfasına bakın.
 
 ```{r}
 pacman::p_load(
-  rio,             # data import/export     
-  here,            # locate files
-  tidyverse,       # data management and visualization
-  flexdashboard,   # dashboard versions of R Markdown reports
-  shiny,           # interactive figures
-  plotly           # interactive figures
+  rio,             # verinin içe / dışa aktarımı   
+  here,            # dosyaları bul
+  tidyverse,       # veri yönetimi ve görselleştirme
+  flexdashboard,   # R Markdown raporlarının panel sürümleri
+  shiny,           # interaktif figürler
+  plotly           # interaktif figürler
 )
 ```
 
-### Import data {.unnumbered}  
+### Verileri içe aktarın {.unnumbered}  
 
-We import the dataset of cases from a simulated Ebola epidemic. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file). Import data with the `import()` function from the **rio** package (it handles many file types like .xlsx, .csv, .rds - see the [Import and export] page for details). 
+Simüle edilmiş bir Ebola salgını vakalarının veri setini içe aktarıyoruz. Devam etmek istiyorsanız, “temiz” satır listesini (.rds dosyası olarak) indirmek için tıklayın. Verileri rio paketinden import() fonksiyonuyla içe aktarın (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için İçe Aktarma ve Dışa Aktarma sayfasına bakabilirsiniz).<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> 
 
 ```{r, echo=F}
-# import the linelist into R
+# satır listesini R'a aktar
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
 ```
 
 ```{r, eval=F}
-# import the linelist
+# satır listesini içe aktarma
 linelist <- import("linelist_cleaned.rds")
 ```
 
-The first 50 rows of the linelist are displayed below.
+Satır listesinin ilk 50 satırı aşağıda gösterilmiştir. 
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# satır listesini tablo olarak gösterin
 DT::datatable(head(linelist, 50), rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
 
-## Create new R Markdown  
+## Yeni bir R Markdown oluştur 
 
-After you have installed the package, create a new R Markdown file by clicking through to *File > New file > R Markdown*. 
+Paketi kurduktan sonra, Dosya > Yeni dosya > R Markdown yolunu kullanarak yeni bir R Markdown dosyası oluşturun.
 
 ```{r out.width = "100%", fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_new1.png"))
 ```
 
 
-In the window that opens, select "From Template" and select the "Flex Dashboard" template. You will then be prompted to name the document. In this page's example, we will name our R Markdown as "outbreak_dashboard.Rmd".  
+Açılan pencerede “From Template-Şablondan”ı seçin ve “Flex Dashboard” şablonunu seçin. Daha sonra belgeyi adlandırmanız istenecektir. Bu sayfanın örneğinde, R Markdown'ımızı “outbreak_dashboard.Rmd” olarak adlandıracağız.
   
 
 ```{r out.width = "100%", out.height="75%", fig.align = "center", echo=F}
@@ -78,16 +76,17 @@ knitr::include_graphics(here::here("images", "flexdashboard_new2.png"))
 
 
 
+## Komutlar  
 
-## The script  
+Komut dosyası bir R Markdown komut dosyasıdır ve bu nedenle R Markdown ile Raporlar sayfasında açıklananla aynı bileşenlere ve organizasyona sahiptir. Bunları kısaca yeniden inceleyeceğiz ve diğer R Markdown çıktı biçimlerinden farklılıklarını vurgulayacağız.
 
-The script is an R Markdown script, and so has the same components and organization as described in the page on [Reports with R Markdown]. We briefly re-visit these and highlight differences from other R Markdown output formats.  
 
 ### YAML {.unnumbered}  
 
-At the top of the script is the "YAML" header. This must begin with three dashes `---` and must close with three dashes `---`. YAML parameters comes in `key:value` pairs. **The indentation and placement of colons in YAML is important** - the `key:value` pairs are separated by colons (not equals signs!). 
+Komut dosyasının en üstünde “YAML” başlığı bulunur. Bu kısım, üç tire ile başlamalı --- ve üç tire ile kapatılmalıdır ---. YAML parametreleri anahtar:değer çiftleri halinde gelir. YAML'de iki nokta üst üste işaretinin girintisi ve yerleşimi önemlidir - anahtar:değer çiftleri iki nokta üst üste ile ayrılır (eşittir işaretleri değil!).
 
-The YAML should begin with metadata for the document. The order of these primary YAML parameters (not indented) does not matter. For example:  
+YAML, belge için meta verilerle başlamalıdır. Bu birincil YAML parametrelerinin (girintisiz) sırası önemli değildir. Örneğin:
+
 
 ```{r, eval=F}
 title: "My document"
@@ -95,9 +94,9 @@ author: "Me"
 date: "`r Sys.Date()`"
 ```
 
-You can use R code in YAML values by putting it like in-line code (preceeded by `r` within backticks) but also within quotes (see above for Date).  
+YAML değerlerinde R kodunu, satır içi kod gibi (backticks içinde r'den önce gelir) veya tırnak işaretleri içine koyarak (Tarih için yukarıya bakın) kullanabilirsiniz. Üretilecek dosyanın türünü bir YAML parametresi çıktısı belirtir. (ör. html_document, pdf_document, word_document veya powerpoint_presentation). 
 
-A required YAML parameter is `output: `, which specifies the type of file to be produced (e.g. `html_document`, `pdf_document`, `word_document`, or `powerpoint_presentation`). For **flexdashboard** this parameter value is a bit confusing - it must be set as `output:flexdashboard::flex_dashboard`. Note the single and double colons, and the underscore. This YAML output parameter is often followed by *an additional colon* and indented sub-parameters (see `orientation: ` and `vertical_layout: ` parameters below).  
+Flexdashboard için bu parametre değeri biraz kafa karıştırıcıdır - output:flexdashboard::flex_dashboard olarak ayarlanmalıdır.  Tek ve çift sayıda iki nokta üst üste ve alt çizgiye noktalama işaretlerine dikkat edin. Bu YAML çıktı parametresini genellikle ek bir iki nokta üst üste ve girintili alt parametreler izler (aşağıdaki orientation:-oryantasyon: ve vertical_layout: -dikey_düzen: parametrelere bakın).
 
 ```{r, eval=F}
 title: "My dashboard"
@@ -109,74 +108,72 @@ output:
     vertical_layout: scroll
 ```
 
-As shown above, indentations (2 spaces) are used for sub-parameters. In this case, do not forget to put an additional colon after the primary, like `key:value:`.  
-
-If appropriate, logical values should be given in YAML in lowercase (`true`, `false`, `null`). If a colon is part of your value (e.g. in the title) put the value in quotes. See the examples in sections below.  
+Yukarıda gösterildiği gibi, alt parametreler için girintiler (2 boşluk) kullanılır. Bu durumda, birincilden sonra anahtar:değer: gibi ek bir iki nokta üst üste koymayı unutmayın.Uygunsa, mantık değerleri YAML'de küçük harfle (true, false, null) verilmelidir. İki nokta üst üste karakteri değerinizin bir parçasıysa (örneğin başlıkta), değeri tırnak içine alın. Aşağıdaki bölümlerdeki örneklere bakın. 
 
 
 
-### Code chunks {.unnumbered}  
+### Kod parçaları {.unnumbered}  
 
-An R Markdown script can contain multiple code "chunks" - these are areas of the script where you can write multiple-line R code and they function just like mini R scripts.  
+Bir R Markdown komut dosyası birden çok kod "parçası" içerebilir - bunlar komut dosyasının çok satırlı R kodu yazabileceğiniz alanlarıdır ve tıpkı mini R komut dosyaları gibi çalışırlar.
 
-Code chunks are created with three back-ticks and curly brackets with a lowercase "r" within. The chunk is closed with three backticks. You can create a new chunk by typing it out yourself, by using the keyboard shortcut "Ctrl + Alt + i" (or Cmd + Shift + r in Mac), or by clicking the green 'insert a new code chunk' icon at the top of your script editor. Many examples are given below.  
-
-
-### Narrative text {.unnumbered}  
-
-Outside of an R code "chunk", you can write narrative text. As described in the page on [Reports with R Markdown], you can italicize text by surrounding it with one asterisk (*), or bold by surrounding it with two asterisks (**). Recall that bullets and numbering schemes are sensitive to newlines, indentation, and finishing a line with two spaces.  
-
-You can also insert in-line R code into text as described in the [Reports with R Markdown] page, by surrounding the code with backticks and starting the command with "r": `` ` 1+1` ``(see example with date above).  
+Kod parçaları, içinde küçük bir "r" harfi bulunan üç ters tik işareti ve küme parantezleri ile oluşturulur. Kod parçası, üç ters tik ile kapatılır. Kendiniz yazarak, “Ctrl + Alt + i” (veya Mac'te Cmd + Shift + r) klavye kısayolunu kullanarak veya komut dosyası düzenleyicinizin en üstünde 'yeni bir kod parçası ekle' simgesini tıklayarak yeni bir kod parçası oluşturabilirsiniz.. Aşağıda birçok örnek verilmiştir.  
 
 
+### Anlatı metni {.unnumbered}  
 
-### Headings {.unnumbered}  
+Bir R kodu "parçası" dışında, anlatı metni de yazabilirsiniz. R Markdown ile Raporlar sayfasında açıklandığı gibi, metni bir yıldız işaretiyle (*) çevreleyerek italik veya iki yıldız işaretiyle (**) çevreleyerek kalın yazabilirsiniz. Madde işaretleri ve numaralandırma düzenlerinin yeni satırlara, girintilere ve iki boşlukla bir satırı bitirmeye duyarlı olduğunu hatırlayın.
 
-Different heading levels are established with different numbers of hash symbols, as described in the [Reports with R Markdown] page.  
+Ayrıca satır içi R kodunu, R Markdown ile Raporlar sayfasında açıklandığı gibi, kodu ters tiklerle çevreleyerek ve komutu “r”: ` 1+1` ile başlatarak metne ekleyebilirsiniz (yukarıdaki tarih içeren örneğe bakın). 
 
-In **flexdashboard**, a primary heading (#) creates a "page" of the dashboard. Second-level headings (##) create a column or a row depending on your `orientation:` parameter (see details below). Third-level headings (###) create panels for plots, charts, tables, text, etc.   
+
+
+
+### Başlıklar {.unnumbered}  
+
+R Markdown ile Raporlar sayfasında açıklandığı gibi, farklı sayıda hash sembolü ile farklı başlık seviyeleri oluşturulur.
+
+Flexdashboard'da, birincil başlık (#) gösterge tablosunun bir "sayfasını" oluşturur. İkinci düzey başlıklar (##), oryantasyonunuza bağlı olarak bir sütun veya satır oluşturur: Parametre (aşağıdaki ayrıntılara bakın). Üçüncü düzey başlıklar (###) çizimler, çizelgeler, tablolar, metin vb. için paneller oluşturur.
+
 
 ```md
-# First-level heading (page)
+# Birinci düzey başlık (sayfa)
 
-## Second level heading (row or column)  
+## İkinci düzey başlık (satır veya sütun)
 
-### Third-level heading (pane for plot, chart, etc.)
+### Üçüncü düzey başlık (çizim, çizelge vb. için bölme) 
+
 ```
 
 
+## Bölüm Özellikleri  
+
+Normal bir R Markdown dosyasında olduğu gibi, bir başlıktan sonra, küme parantezleri { } içinde anahtar=değer seçeneklerini ekleyerek gösterge tablonuzun bölümlerine uygulanacak özellikleri belirleyebilirsiniz. Örneğin, tipik bir HTML R Markdown raporunda, ## Başlığım {.tabset} ile alt başlıkları sekmeler halinde düzenleyebilirsiniz. Bu niteliklerin, komut dosyasının metin bölümünde bir başlıktan sonra yazıldığını unutmayın. Bunlar, out.height = gibi R kodu parçalarının üstüne eklenen knitr seçeneklerinden farklıdır. 
+
+Flexdashboard'a özgü bölüm özellikleri şunları içerir:
+• {data-orientation=} Satırlara veya sütunlara göre ayarlama. Gösterge panelinizde birden fazla sayfa varsa, oryantasyonu belirtmek için bu özelliği her sayfaya ekleyin (düzen bölümünde daha ayrıntılı açıklanmıştır).
+• {data-width=} ve {data-height=}, aynı boyutta (yatay veya dikey) düzenlenen grafiklerin, sütunların, satırların göreli boyutunu ayarlar. Flexbox motoru sayesinde mutlak boyutlar, herhangi bir görüntüleme cihazındaki alanı en iyi şekilde dolduracak şekilde ayarlanır.
+• Grafiklerin yüksekliği, YAML parametresini vertical_layout: fill (dolgu) olarak mı yoksa vertical_layout: scroll (kaydırma) olarak mı ayarladığınıza da bağlıdır. Kaydırılacak şekilde ayarlanırsa, şekil yüksekliği, R kodu öbeğindeki geleneksel fig.height = seçeneğini yansıtacaktır.
+• flexdashboard web sitesindeki tam boyut belgelerine bakın
+• {.hidden} Belirli bir sayfayı gezinme çubuğundan hariç tutmak için bunu kullanın
+• {data-navbar=} Bunu, bir gezinme çubuğu açılır menüsü içine yerleştirmek için sayfa düzeyinde bir başlıkta kullanın. Açılır menünün adını (tırnak içinde) belirtin. Aşağıdaki örneğe bakın. 
 
 
 
-## Section attributes  
+## Yerleşim Düzeni {#layout}  
 
-As in a normal R markdown, you can specify attributes to apply to parts of your dashboard by including `key=value` options after a heading, within curly brackets `{ }`. For example, in a typical HTML R Markdown report you might organize sub-headings into tabs with `## My heading {.tabset}`.  
-
-Note that these attributes are written after a *heading* in a text portion of the script. These are different than the **knitr** options inserted within at the top of R code chunks, such as `out.height = `.  
-
-Section attributes specific to **flexdashboard** include:  
-
-* `{data-orientation=}` Set to either `rows` or `columns`. If your dashboard has multiple pages, add this attribute to each page to indicate orientation (further explained in [layout section](#layout)).  
-* `{data-width=}` and `{data-height=}` set relative size of charts, columns, rows laid out in the same dimension (horizontal or vertical). Absolute sizes are adjusted to best fill the space on any display device thanks to the [flexbox](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Using_CSS_flexible_boxes) engine.  
-     * Height of charts also depends on whether you set the YAML parameter `vertical_layout: fill` or `vertical_layout: scroll`. If set to scroll, figure height will reflect the traditional `fig.height = ` option in the R code chunk.  
-     * See complete size documentation at the [flexdashboard website](https://rmarkdown.rstudio.com/flexdashboard/using.html#sizing)  
-* `{.hidden}` Use this to exclude a specific page from the navigation bar  
-* `{data-navbar=}` Use this in a page-level heading to nest it within a navigation bar drop-down menu. Provide the name (in quotes) of the drop-down menu. See example below.  
+Kontrol panelinizin düzenini aşağıdaki şekillerde ayarlayın:
+• R Markdown başlıklarına sahip sayfalar, sütunlar/satırlar ve grafikler ekleyin (ör. #, ## veya ###)
+• YAML parametre yönünü ayarlayın: Satırlara veya sütunlara
+• Düzenin tarayıcıyı dolduracağını ya da kaydırmaya mı izin vereceğini belirtin
+• Belirli bir bölüm başlığına sekmeler ekleyin
 
 
-## Layout {#layout}  
 
-Adjust the layout of your dashboard in the following ways:  
+### Sayfalar {.unnumbered}  
 
-* Add pages, columns/rows, and charts with R Markdown headings (e.g. #, ##, or ###)  
-* Adjust the YAML parameter `orientation:` to either `rows` or `columns`  
-* Specify whether the layout fills the browser or allows scrolling  
-* Add tabs to a particular section heading  
+R Markdown'daki birinci düzey başlıklar (#), gösterge tablosunun "sayfalarını" temsil edecektir. 
+Varsayılan olarak sayfalar, gösterge tablosunun üst kısmındaki bir gezinme çubuğunda görünür.
 
-
-### Pages {.unnumbered}  
-
-First-level headings (#) in the R Markdown will represent "pages" of the dashboard. By default, pages will appear in a navigation bar along the top of the dashboard.  
 
 ```{r, out.height = c('100%'), out.width = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_pages_top_script.png"))
@@ -188,122 +185,122 @@ knitr::include_graphics(here::here("images", "flexdashboard_pages_top_view.png")
 ```
 
 
+Sayfa başlığına {data-navmenu=} özelliğini ekleyerek sayfaları üst gezinme çubuğunda bir "menü" halinde gruplayabilirsiniz. Dikkatli olun - eşittir işaretinin etrafına boşluk eklemeyin, aksi takdirde çalışmaz!
 
-You can group pages into a "menu" within the top navigation bar by adding the attribute `{data-navmenu=}` to the page heading. Be careful - do not include spaces around the equals sign otherwise it will not work!  
 
 ```{r, out.width=c('100%', '100%'), echo=F, fig.show='hold', fig.width = 12, fig.height = 9, message=F, warning=F}
 knitr::include_graphics(here::here("images", "flexdashboard_navmenu_script.png"))
 ```
 
 
-Here is what the script produces:  
-
+İşte betiğin ürettiği:
 
 ```{r, out.width=c('100%', '100%'), echo=F, fig.show='hold', fig.width = 12, fig.height = 9, message=F, warning=F}
 knitr::include_graphics(here::here("images", "flexdashboard_navmenu_view.png"))
 ```
 
-You can also convert a page or a column into a "sidebar" on the left side of the dashboard by adding the `{.sidebar}` attribute. It can hold text (viewable from any page), or if you have integrated **shiny** interactivity it can be useful to hold user-input controls such as sliders or drop-down menus.  
+{.sidebar} özelliği ekleyerek, bir sayfayı veya sütunu kontrol panelinin sol tarafında bir "kenar çubuğuna" da dönüştürebilirsiniz. Metni (herhangi bir sayfadan görüntülenebilir) veya entegre shiny etkileşiminiz varsa, kaydırıcılar veya açılır menüler gibi kullanıcı giriş kontrollerini eklemek faydalı olabilir.
+
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_sidebar_script.png"))
 ```
 
-Here is what the script produces:  
+İşte betiğin ürettiği:
 
 ```{r, out.width=c('100%', '100%'), echo=F, fig.show='hold', fig.width = 12, fig.height = 9, message=F, warning=F}
 knitr::include_graphics(here::here("images", "flexdashboard_sidebar_view.png"))
 ```
 
 
+### Oryantasyon {.unnumbered}  
 
+İkinci düzey (##) R Markdown başlıklarınızın nasıl yorumlanması gerektiğini belirtmek için oryantasyon: yaml parametresini ayarlayın - oryantasyon: sütunlar (orientation: columns) veya oryantasyon: satırlar (orientation: rows) olarak. 
 
-### Orientation {.unnumbered}  
+İkinci düzey başlıklar (##), bu yönlendirme ayarına göre yeni sütunlar veya satırlar olarak yorumlanacaktır. 
 
-Set the `orientation:` yaml parameter to indicate how your second-level (##) R Markdown headings should be interpreted - as either `orientation: columns` or `orientation: rows`. 
-
-Second-level headings (##) will be interpreted as new columns or rows based on this `orientation` setting.  
-
-If you set `orientation: columns`, second-level headers will create new columns in the dashboard. The below dashboard has one page, containing two columns, with a total of three panels. You can adjust the relative width of the columns with `{data-width=}` as shown below.  
+Oryantasyon: sütunlar (orientation: columns) olarak ayarlarsanız, ikinci düzey başlıklar gösterge tablosunda yeni sütunlar oluşturur. Aşağıdaki gösterge paneli, toplam üç panel içeren iki sütun içeren bir sayfaya sahiptir. Sütunların göreli genişliğini aşağıda gösterildiği gibi {data-width=} ile ayarlayabilirsiniz.
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_columns_script.png"))
 ```
 
-Here is what the script produces:  
+İşte betiğin ürettiği:
 
 ```{r, out.width=c('100%', '100%'), echo=F, fig.show='hold', fig.width = 12, fig.height = 9, message=F, warning=F}
 knitr::include_graphics(here::here("images", "flexdashboard_columns_view.png"))
 ```
 
-If you set `orientation: rows`, second-level headers will create new rows instead of columns. Below is the same script as above, but `orientation: rows` so that second-level headings produce rows instead of columns. You can adjust the relative *height* of the rows with `{data-height=}` as shown below.  
+Oryantasyon: satırlar  (orientation: rows)olarak ayarlarsanız, ikinci düzey başlıklar sütunlar yerine yeni satırlar oluşturur. Aşağıda, yukarıdakiyle aynı komut dosyası vardır, ancak oryantasyon: satırlar olarak ayarlanmıştır, böylece ikinci düzey başlıklar sütunlar yerine satırlar oluşturur. {data-height=} ile satırların göreli yüksekliğini aşağıda gösterildiği gibi ayarlayabilirsiniz.
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_rows_script.png"))
 ```
 
-Here is what the script produces:  
+İşte betiğin ürettiği:
 
 ```{r, out.width=c('100%', '100%'), echo=F, fig.show='hold', fig.width = 12, fig.height = 9, message=F, warning=F}
 knitr::include_graphics(here::here("images", "flexdashboard_rows_view.png"))
 ```
 
-If your dashboard has multiple pages, you can designate the orientation for each specific page by adding the `{data-orientation=}` attribute the header of each page (specify either `rows` or `columns` without quotes).  
+Kontrol panelinizde birden fazla sayfa varsa, her sayfanın başlığına {data-orientation=} özniteliğini ekleyerek (tırnak işaretleri olmadan satırları veya sütunları belirtin) seçili sayfanın yönünü belirleyebilirsiniz.  
 
-### Tabs {.unnumbered} 
+### Sekmeler {.unnumbered} 
 
-You can divide content into tabs with the `{.tabset}` attribute, as in other HTML R Markdown outputs.  
+Diğer HTML R Markdown çıktılarında olduğu gibi içeriği {.tabset} özniteliği ile sekmelere bölebilirsiniz.
 
-Simply add this attribute after the desired heading. Sub-headings under that heading will be displayed as tabs. For example, in the example script below column 2 on the right (##) is modified so that the epidemic curve and table panes (###) are displayed in tabs.  
+Bu özelliği istediğiniz başlıktan sonra eklemeniz yeterlidir. Bu başlığın altındaki alt başlıklar sekmeler halinde görüntülenecektir. Örneğin, aşağıdaki örnek komut dosyasında sağdaki 2. sütun (##), salgın eğrisi ve tablo bölmeleri (###) sekmelerde görüntülenecek şekilde değiştirilir.
 
-You can do the same with rows if your orientation is rows.  
+Oryantasyonunuz satırlarsa, aynısını satırlarla da yapabilirsiniz.
+ 
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_tabs_script.png"))
 ```
 
-Here is what the script produces:  
+İşte betiğin ürettiği: 
 
 ```{r, out.width=c('100%', '100%'), echo=F, fig.show='hold', fig.width = 12, fig.height = 9, message=F, warning=F}
 knitr::include_graphics(here::here("images", "flexdashboard_tabs_view.png"))
 ```
 
 
-## Adding content  
+## İçerik Ekleme  
 
-Let's begin to build a dashboard. Our simple dashboard will have 1 page, 2 columns, and 4 panels. We will build the panels piece-by-piece for demonstration.  
+Bir kontrol paneli oluşturmaya başlayalım. Basit panomuz 1 sayfa, 2 sütun ve 4 panelden oluşacaktır. Gösteri için panelleri parça parça inşa edeceğiz.
 
-You can easily include standard R outputs such as text, ggplots, and tables (see [Tables for presentation] page). Simply code them within an R code chunk as you would for any other R Markdown script.  
+Metin, ggplot'lar ve tablolar gibi standart R çıktılarını kolayca dahil edebilirsiniz (Sunum için Tablolar sayfasına bakın). Bunları, diğer herhangi bir R Markdown betiğinde yaptığınız gibi, bir R kod parçası içinde kodlayın.
 
-Note: you can download the finished Rmd script and HTML dashboard output - see the [Download handbook and data] page.  
+Not: Tamamlanmış Rmd komut dosyasını ve HTML gösterge tablosu çıktısını indirebilirsiniz - El kitabı ve verilerin indirilmesi sayfasına bakın. 
 
 
-### Text {.unnumbered}  
 
-You can type in Markdown text and include *in-line* code as for any other R Markdown output. See the [Reports with R Markdown] page for details. 
+### Metin {.unnumbered}  
 
-In this dashboard we include a summary text panel that includes dynamic text showing the latest hospitalisation date and number of cases reported in the outbreak. 
+Markdown metnini yazabilir ve diğer herhangi bir R Markdown çıktısında olduğu gibi satır içi kod ekleyebilirsiniz. Ayrıntılar için R Markdown ile Raporlar sayfasına bakın.
 
-### Tables {.unnumbered}  
+Bu panele, en son hastaneye yatış tarihini ve salgında bildirilen vaka sayısını gösteren dinamik metin içeren bir özet metin paneli ekledik. 
 
-You can include R code chunks that print outputs such as tables. But the output will look best and respond to the window size if you use the `kable()` function from **knitr** to display your tables. The **flextable** functions may produce tables that are shortened / cut-off.  
 
-For example, below we feed the `linelist()` through a `count()` command to produce a summary table of cases by hospital. Ultimately, the table is piped to `knitr::kable()` and the result has a scroll bar on the right. You can read more about customizing your table with `kable()` and **kableExtra** [here](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html).  
+### Tablo {.unnumbered}  
+
+Tablolar gibi çıktıları yazdıran R kodu parçalarını dahil edebilirsiniz. Ancak, tablolarınızı görüntülemek için knitr'den kable() fonksiyonunu kullanırsanız, çıktı en iyi şekilde görünecek ve pencere boyutuna yanıt verecektir. Flextable fonksiyonları, kısaltılmış/kesilmiş tablolar üretebilir.
+Örneğin, hastaneye göre vakaların özet bir tablosunu oluşturmak için aşağıda linelist()'i bir count() komutuyla besliyoruz. Sonuç olarak, tablo knitr::kable()'a yönlendirilir ve sağ tarafında bir kaydırma çubuğu bulunur. Panelinizi kable() ve kableExtra ile özelleştirme hakkında daha fazla bilgiyi burada bulabilirsiniz. [buradan](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html).  
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_tables_script.png"))
 ```
 
-Here is what the script produces:  
+İşte betiğin ürettiği:
 
 ```{r, out.width=c('100%', '100%'), echo=F, fig.show='hold', fig.width = 12, fig.height = 9, message=F, warning=F}
 knitr::include_graphics(here::here("images", "flexdashboard_tables_view.png"))
 ```
 
+Kullanıcının veri çerçevesinin "sayfalarını" filtrelemesine, sıralamasına ve/veya tıklamasına izin veren dinamik bir tablo oluşturmak istiyorsanız, aşağıdaki kodda olduğu gibi DT paketini ve onun datatable() fonksiyonunu kullanın.
 
-If you want to show a dynamic table that allows the user to filter, sort, and/or click through "pages" of the data frame, use the package **DT** and it's function `datatable()`, as in the code below.  
+Aşağıdaki örnek kod, veri çerçevesi satır listesi yazdırılır. Yatay alanı korumak için rownames = FALSE ve her sütunun üstünde filtreler olması için filter = "top" argümanını ayarlayabilirsiniz. options =  argümanı diğer özelliklerin bir listesi verebilir. Aşağıda, 5 satır görünecek şekilde pageLength = argümanını ve kullanıcının yatay olarak kaydırmak için alttaki kaydırma çubuğunu kullanabilmesi için scrollX = argümanını ayarladık. class = 'white-space: nowrap' argümanı, her satırın yalnızca bir satır (birden çok satır değil) içermesini sağlar. Diğer olası argümanlar ve değerler hakkında [buradan](https://rstudio.github.io/DT/?_ga=2.2810736.1321860763.1619286819-369061888.1601594705) veya ?datatable komutunu girerek bilgi edinebilirsiniz.
 
-The example code below, the data frame `linelist` is printed. You can set `rownames = FALSE` to conserve horizontal space, and `filter = "top"` to have filters on top of every column. A list of other specifications can be provided to `options = `. Below, we set `pageLength = ` so that 5 rows appear and `scrollX = ` so the user can use a scroll bar on the bottom to scroll horizontally. The argument `class = 'white-space: nowrap'` ensures that each row is only one line (not multiple lines). You can read about other possible arguments and values [here](https://rstudio.github.io/DT/?_ga=2.2810736.1321860763.1619286819-369061888.1601594705) or by entering `?datatable`
 
 ```{r, eval=F}
 DT::datatable(linelist, 
@@ -312,24 +309,24 @@ DT::datatable(linelist,
               class = 'white-space: nowrap' )
 ```
 
-### Plots {.unnumbered}  
+### Grafikler {.unnumbered}  
 
-You can print plots to a dashboard pane as you would in an R script. In our example, we use the **incidence2** package to create an "epicurve" by age group with two simple commands (see [Epidemic curves] page). However, you could use `ggplot()` and print a plot in the same manner.  
+Grafikleri, bir R komut dosyasında olduğu gibi bir panel bölmesine yazdırabilirsiniz. Örneğimizde, iki basit komutla yaş grubuna göre bir “salgın eğrisi” oluşturmak için incidence2 paketini kullanıyoruz (bkz. Salgın eğriler sayfası). Ancak, ggplot()'u kullanabilir ve aynı şekilde bir grafik oluşturabilirsiniz.  
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_plots_script.png"))
 ```
 
-Here is what the script produces:  
+İşte betiğin ürettiği:
 
 ```{r, out.width=c('100%', '100%'), echo=F, fig.show='hold', fig.width = 12, fig.height = 9, message=F, warning=F}
 knitr::include_graphics(here::here("images", "flexdashboard_plots_view.png"))
 ```
 
 
-### Interactive plots {.unnumbered}  
+### İnteraktif grafikler  {.unnumbered}  
 
-You can also pass a standard ggplot or other plot object to `ggplotly()` from the **plotly** package (see the [Interactive plots] page). This will make your plot interactive, allow the reader to "zoom in", and show-on-hover the value of every data point (in this scenario the number of cases per week and age group in the curve).  
+Ayrıca standart bir ggplot veya başka bir grafik nesnesini plotly paketinden ggplotly() fonksiyonuna iletebilirsiniz (İnteraktif grafikler sayfasına bakabilirsiniz). Bu, grafiğinizi interaktif hale getirecek, okuyucunun "yaklaştırmasına" ve her veri noktasının değerinin (bu senaryoda eğrideki haftalık vaka sayısı ve yaş grubu) üzerinde fareyle gezinerek göstermesine izin verecektir. 
 
 ```{r, eval=F}
 age_outbreak <- incidence(linelist, date_onset, "week", groups = age_cat)
@@ -337,31 +334,32 @@ plot(age_outbreak, fill = age_cat, col_pal = muted, title = "") %>%
   plotly::ggplotly()
 ```
 
-Here is what this looks like in the dashboard (gif). This interactive functionality will still work even if you email the dashboard as a static file (not online on a server).  
+Gösterge panelinde bunun nasıl göründüğü aşağıda açıklanmıştır(gif). Bu interaktif fonksiyon, paneli statik bir dosya olarak e-posta olarak gönderseniz bile (bir sunucuda çevrimiçi değil) çalışmaya devam edecektir.   
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_ggplotly.gif"))
 ```
 
-### HTML widgets {.unnumbered}
+### HTML Araçları {.unnumbered}
 
-[HTML widgets for R](http://www.htmlwidgets.org/) are a special class of R packages that increases interactivity by utilizing JavaScript libraries. You can embed them in R Markdown outputs (such as a flexdashboard) and in Shiny dashboards.  
+[R için HTML widget'ları](http://www.htmlwidgets.org/), JavaScript kitaplıklarını kullanarak etkileşimi artıran özel bir R paketi sınıfıdır. Bunları R Markdown çıktılarına (bir flexdashboard gibi) ve shiny panolara gömebilirsiniz.
 
-Some common examples of these widgets include:  
+Bu widget'ların bazı yaygın örnekleri şunları içerir:
 
-* Plotly (used in this handbook page and in the [Interative plots] page)
-* visNetwork (used in the [Transmission Chains] page of this handbook)  
-* Leaflet (used in the [GIS Basics] page of this handbook)  
-* dygraphs (useful for interactively showing time series data)  
-* DT (`datatable()`) (used to show dynamic tables with filter, sort, etc.)  
+• Plotly (Bu el kitabı sayfasında ve [İnteraktif grafikler] sayfasında kullanılır)
+• visNetwork (Bu el kitabının İletim Zincirleri sayfasında kullanılır)
+• Leaflet (Bu el kitabının GIS Temelleri sayfasında kullanılır)
+• dygraphs (Zaman serisi verilerini etkileşimli olarak göstermek için kullanışlıdır)
+• DT (datatable()) (filtre, sıralama vb. ile dinamik tabloları göstermek için kullanılır)
 
-Below we demonstrate adding an epidemic transmission chain which uses visNetwork to the dashboard. The script shows only the new code added to the "Column 2" section of the R Markdown script. You can find the code in the [Transmission chains] page of this handbook.  
+Aşağıda, gösterge paneline visNetwork kullanan bir salgın iletim zinciri eklemeyi gösteriyoruz. Komut dosyası, yalnızca R Markdown komut dosyasının “Sütun 2” bölümüne eklenen yeni kodu gösterir. Kodu, bu el kitabının İletim zincirleri sayfasında bulabilirsiniz.
+
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_chain_script.png"))
 ```
 
-Here is what the script produces:  
+İşte betiğin ürettiği:
 
 ```{r, out.width=c('100%', '100%'), echo=F, fig.show='hold', fig.width = 12, fig.height = 9, message=F, warning=F}
 knitr::include_graphics(here::here("images", "flexdashboard_chain.gif"))
@@ -369,33 +367,34 @@ knitr::include_graphics(here::here("images", "flexdashboard_chain.gif"))
 
 
 
-## Code organization
+## Kodun düzenlenmesi
 
-You may elect to have all code within the R Markdown **flexdashboard** script. Alternatively, to have a more clean and concise dashboard script you may choose to call upon code/figures that are hosted or created in external R scripts. This is described in greater detail in the [Reports with R Markdown] page. 
+Tüm kodun R Markdown flexdashboard komut dosyası içinde olmasını seçebilirsiniz. Alternatif olarak, daha temiz ve yoğun bir pano komut dosyasına sahip olmak için, harici R komut dosyalarında bulunan veya oluşturulan kod/şekilleri çağırmayı seçebilirsiniz. [R Markdown ile Raporlar] sayfasında daha ayrıntılı olarak açıklanmaktadır.  
 
 
 ## Shiny  
 
-Integrating the R package **shiny** can make your dashboards even more reactive to user input. For example, you could have the user select a jurisdiction, or a date range, and have panels react to their choice (e.g. filter the data displayed). To embed **shiny** reactivity into **flexdashboard**, you need only make a few changes to your **flexdashboard** R Markdown script.  
+Shiny R paketini entegre etmek, gösterge panellerini kullanıcı girdilerine karşı daha da reaktif hale getirebilir. Örneğin, kullanıcının bir yetki alanı veya bir tarih aralığı seçmesini ve panellerin seçimlerine tepki vermesini sağlayabilirsiniz (örneğin, görüntülenen verileri filtreleme). Shiny’nin reaktif özelliklerini flexdashboard'a gömmek için, flexdashboard R Markdown betiğinizde sadece birkaç değişiklik yapmanız yeterlidir. 
 
-You can use **shiny** to produce apps/dashboards *without* flexdashboard too. The handbook page on [Dashboards with Shiny] gives an overview of this approach, including primers on **shiny** syntax, app file structure, and options for sharing/publishing (including free server options). These syntax and general tips translate into the **flexdashboard** context as well.  
+flexdashboard olmadan da uygulamalar/gösterge panoları oluşturmak için shiny’i kullanabilirsiniz. Shiny ile gösterge panelleri sayfası, shiny sintaksı, uygulama dosyası yapısı ve paylaşım/yayınlama seçenekleri (ücretsiz sunucu seçenekleri dahil) ile ilgili temel bilgiler dahil olmak üzere bu yaklaşıma genel bir bakış sunar. Bu sintaks ve genel ipuçları, flexdashboard bağlamında da düşünülebilir.
 
-Embedding **shiny** in **flexdashboard** is however, a fundamental change to your flexdashboard. It will no longer produce an HTML output that you can send by email and anyone could open and view. Instead, it will be an "app". The "Knit" button at the top of the script will be replaced by a "Run document" icon, which will open an instance of the interactive the dashboard locally on your computer.  
+Ancak, flexdashboard'a shiny’i yerleştirmek, flexdashboard'unuz için temel bir değişikliktir. Artık e-posta ile gönderebileceğiniz ve herkesin açıp görüntüleyebileceği bir HTML çıktısı üretmeyecektir. Bunun yerine, bir “uygulama” olacaktır. Komut dosyasının üstündeki "Knit-Ör" düğmesinin yerini, etkileşimli panelin bir örneğini bilgisayarınızda yerel olarak açacak olan bir " Run document- Belgeyi çalıştır" simgesi alacaktır.
 
-Sharing your dashboard will now require that you either:  
+Kontrol panelinizi paylaşmak artık şunları yapmanızı gerektirecek:
 
-* Send the Rmd script to the viewer, they open it in R on their computer, and run the app, or  
-* The app/dashboard is hosted on a server accessible to the viewer  
-
-Thus, there are benefits to integrating **shiny**, but also complications. If easy sharing by email is a priority and you don't need **shiny** reactive capabilities, consider the reduced interactivity offered by `ggplotly()` as demonstrated above.    
-
-Below we give a very simple example using the same "outbreak_dashboard.Rmd" as above. Extensive documentation on integrating Shiny into **flexdashboard** is available online [here](https://rmarkdown.rstudio.com/flexdashboard/shiny.html).  
+• Rmd komut dosyasını görüntüleyiciye gönderin, bilgisayarlarınızda R'da açın ve uygulamayı çalıştırın veya
+• Uygulama/pano, izleyicinin erişebileceği bir sunucuda saklanmalıdır
 
 
+Bu nedenle, shiny entegrasyonun faydaları vardır, aynı zamanda komplikasyonları da vardır. E-posta ile kolay paylaşım bir öncelikse ve shiny’nin reaktif özelliklerine ihtiyacınız yoksa, yukarıda gösterildiği gibi ggplotly() tarafından sunulan azaltılmış etkileşimli versiyonu düşünün.  
 
-### Settings {.unnumbered}  
+Aşağıda, yukarıdakiyle aynı “outbreak_dashboard.Rmd”yi kullanarak çok basit bir örnek veriyoruz. Shiny'yi flexdashboard'a entegre etmeye ilişkin kapsamlı belgeleri [buradan](https://rmarkdown.rstudio.com/flexdashboard/shiny.html) çevrimiçi olarak okuyabilirsiniz.  
 
-Enable **shiny** in a **flexdashboard** by adding the YAML parameter `runtime: shiny` at the same indentation level as `output: `, as below:  
+
+
+### Ayarlar {.unnumbered}  
+
+Aşağıdaki gibi çıktı (output:) ile aynı girinti düzeyinde YAML parametresi ekleyerek (runtime: shiny) flexdashboard‘da shiny özelliğini etkinleştirin:
 
 ```md
 ---
@@ -409,38 +408,42 @@ runtime: shiny
 
 ```
 
-It is also convenient to enable a "side bar" to hold the shiny input widgets that will collect information from the user. As explained above, create a column and indicate the `{.sidebar}` option to create a side bar on the left side. You can add text and R chunks containing the **shiny** `input` commands within this column.  
+Kullanıcıdan bilgi toplayacak shiny giriş widget'larını tutmak için bir "kenar çubuğunu-side bar" etkinleştirmek de uygundur. Yukarıda açıklandığı gibi, bir sütun oluşturun ve sol tarafta bir kenar çubuğu oluşturmak için {.sidebar} seçeneğini belirtin. Bu sütuna shiny giriş komutlarını içeren metin ve R parçaları ekleyebilirsiniz.
 
-If your app/dashboard is hosted on a server and may have multiple simultaneous users, name the first R code chunk as `global`. Include the commands to import/load your data in this chunk. This special named chunk is treated differently, and the data imported within it are only imported once (not continuously) and are available for all users. This improves the start-up speed of the app.  
+Uygulamanız/gösterge tablonuz bir sunucudaysa ve aynı anda birden çok kullanıcıya sahipse, ilk R kodu parçasına “global” adını verin. Verilerinizi içe aktarmak/yüklemek için bu kod parçasına gereken komutları ekleyin. Bu özel adlandırılmış kod parçası farklı şekilde ele alınır ve içine aktarılan veriler yalnızca bir kez içe aktarılır (sürekli değil) ve tüm kullanıcılar tarafından kullanılabilir. Bu, uygulamanın başlatma hızını artırır.  
 
-### Worked example {.unnumbered}  
+### Üzerinde çalışılmış örnek {.unnumbered}  
 
-Here we adapt the flexdashboard script "outbreak_dashboard.Rmd" to include **shiny**. We will add the capability for the user to select a hospital from a drop-down menu, and have the epidemic curve reflect only cases from that hospital, with a dynamic plot title. We do the following:  
+Burada, “outbreak_dashboard.Rmd” flexdashboard komut dosyasını shiny’i içerecek şekilde uyarlıyoruz. Kullanıcıya açılır menüden bir hastane seçme yeteneği ekleyeceğiz ve salgın eğrisinin dinamik bir grafik başlığı ile yalnızca o hastaneden vakaları yansıtmasını sağlayacağız. Aşağıdakileri yapıyoruz:
 
-* Add `runtime: shiny` to the YAML  
-* Re-name the setup chunk as `global`  
-* Create a sidebar containing:  
-  * Code to create a vector of unique hospital names  
-  * A `selectInput()` command (**shiny** drop-down menu) with the choice of hospital names. The selection is saved as `hospital_choice`, which can be referenced in later code as `input$hospital_choice`  
-* The epidemic curve code (column 2) is wrapped within `renderPlot({ })`, including:  
-  * A filter on the dataset restricting the column `hospital` to the current value of `input$hospital_choice`  
-  * A dynamic plot title that incorporates `input$hospital_choice`  
+* •	YAML ‘e runtime: shiny ekleyin 
+•	Kurulum yığınını global şeklinde yeniden adlandırın
+•	Bir kenar çubuğu oluşturun 
+•	Benzersiz hastane adlarından oluşan vektörü oluşturmak için kod
+•	Hastane isimleri seçimi ile bir selectInput() komutu (shiny açılır menüsü). Seçim, daha sonraki kodda input$hospital_choice olarak başvurulabilecek olan hospital_choice olarak kaydedilir.
+•	Salgın eğrisi kodu (sütun 2) renderPlot({ })ile sarılmıştır ve bunları içerir:  
+•	Hastane sütununu input$hospital_choice'in geçerli değeriyle sınırlayan veri kümesindeki bir filtre
+•	input$hospital_choice içeren dinamik bir grafik başlığı
+
   
-Note that any code referencing an `input$` value must be within a `render({})` function (to be reactive).  
+Bir input$ değerine başvuran herhangi bir kodun (reaktif olması için) render({}) fonkisyonu içinde olması gerektiğini unutmayın.
 
-Here is the top of the script, including YAML, global chunk, and sidebar:  
+YAML, global kod parçası ve kenar çubuğu da dahil olmak üzere betiğin üst kısmı:
+
+
+
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_shiny_script1.png"))
 ```
   
-Here is the Column 2, with the reactive epicurve plot:  
+Reaktif eğri grafiğiyle birlikte 2. Sütun:
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_shiny_script2.png"))
 ```
 
-And here is the dashboard:  
+Ve işte kontrol paneli:
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
 knitr::include_graphics(here::here("images", "flexdashboard_shiny_view.gif"))
@@ -449,23 +452,24 @@ knitr::include_graphics(here::here("images", "flexdashboard_shiny_view.gif"))
 
 
 
-### Other examples {.unnumbered}  
+### Diğer Örnekler {.unnumbered}  
 
-To read a health-related example of a Shiny-**flexdashboard** using the **shiny** interactivity and the **leaflet** mapping widget, see this chapter of the online book [Geospatial Health Data: Modeling and Visualization with R-INLA and Shiny](https://www.paulamoraga.com/book-geospatial/sec-dashboardswithshiny.html).  
-
-
+Shiny etkileşimi ve broşür haritalama widget'ını kullanan bir Shiny-flexdashboard'un sağlıkla ilgili bir örneğini incelemek için  [Geospatial Health Data: R-INLA ve Shiny ile Modelleme ve Görselleştirme çevrimiçi kitabının bu bölümüne](https://www.paulamoraga.com/book-geospatial/sec-dashboardswithshiny.html)  bakabilirsiniz.  
 
 
-## Sharing  
-
-Dashboards that do not contain Shiny elements will output an HTML file (.html), which can be emailed (if size permits). This is useful, as you can send the "dashboard" report and not have to set up a server to host it as a website.  
-
-If you have embedded **shiny**, you will not be able to send an output by email, but you can send the script itself to an R user, or host the dashboard on a server as explained above.  
 
 
-## Resources  
+## Paylaşım  
 
-Excellent tutorials that informed this page can be found below. If you review these, most likely within an hour you can have your own dashboard.  
+Shiny öğeleri içermeyen panolar, boyutu izin veriyorsa e-postayla gönderilebilecek bir HTML dosyası (.html) verir. “Gösterge paneli” raporunu gönderebildiğiniz için ve bir web sitesi olarak saklamak için bir sunucu kurmanız gerekmediği için bu yararlıdır.
+
+Shiny öğelerini yerleştirdiyseniz, e-posta ile çıktı gönderemezsiniz, ancak komut dosyasının kendisini bir R kullanıcısına gönderebilir veya yukarıda açıklandığı gibi gösterge panelini bir sunucuda saklayabilirsiniz. 
+
+
+
+## Kaynaklar   
+
+Bu sayfanın referans aldığı mükemmel eğitimleri aşağıda bulunabilir. Bunları gözden geçirirseniz, büyük olasılıkla bir saat içinde kendi gösterge tablonuzu hazırlayabilirsiniz.
 
 https://bookdown.org/yihui/rmarkdown/dashboards.html
 
