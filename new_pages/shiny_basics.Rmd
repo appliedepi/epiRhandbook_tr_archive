@@ -253,7 +253,7 @@ Bu liste oldukça basittir ve yapılması çok zor olmamalıdır. Artık bu sür
 ```{r, echo = TRUE}
 pacman::p_load("tidyverse", "lubridate")
 
-# read data
+# veriyi oku
 malaria_data <- rio::import(here::here("data", "malaria_facility_count_data.rds")) %>% 
   as_tibble()
 
@@ -263,7 +263,7 @@ print(malaria_data)
 ```
 
 
-It will be easier to work with this data if we use tidy data standards, so we should also transform into a longer data format, where age group is a column, and cases is another column. We can do this easily using what we've learned in the [Pivoting data] page.  
+Tidy (düzenli) veri standartları kullanırsak bu verilerle çalışmak daha kolay olacaktır, bu nedenle yaş grubunun bir sütun olduğu ve vakaların başka bir sütun olduğu uzun bir veri formatına da pivotlamalıyız. Verilerin pivotlanması sayfasında öğrendiklerimizi kullanarak bunu kolayca yapabiliriz. 
 
 
 ```{r, echo = TRUE}
@@ -276,13 +276,14 @@ print(malaria_data)
 
 ```
 
-And with that we've finished preparing our data! This crosses items 1, 2, and 3 off our list of things to develop for our "testing R script". The last, and most difficult task will be building a function to produce an epicurve based on user defined parameters. As mentioned previously, it's *highly recommended* that anyone learning shiny first look at the section on functional programming ([Writing functions]) to understand how this works!
+Bu şeklide verilerimizi hazırlamayı bitirdik! Bu iş paketi, "R komut dosyasını test etme" için geliştirilecek şeyler listemizdeki 1, 2 ve 3 numaralı maddeleri kapsar. Son ve en zor görev, kullanıcı tanımlı parametrelere dayalı bir salgın eğrisi üretmek için bir fonksiyon oluşturmak olacaktır. Daha önce de belirtildiği gibi, shiny öğrenen herkesin, çalışma prensiplerini anlamak için önce fonksiyonel programlama (fonkisyonların yazılması) bölümünü incelemesi şiddetle tavsiye edilir!
 
-When defining our function, it might be hard to think about what parameters we want to include. For functional programming with shiny, every relevent parameter will generally have a widget associated with it, so thinking about this is usually quite easy! For example in our current app, we want to be able to filter by district, and have a widget for this, so we can add a district parameter to reflect this. We *don't* have any app functionality to filter by facility (for now), so we don't need to add this as a parameter. Lets start by making a function with three parameters:
+Fonksiyonumuzu tanımlarken, hangi parametreleri dahil etmek istediğimizi planlamak zor olabilir. Shiny ile fonksiyonel programlama için, ilgili her parametrenin genellikle kendisiyle ilişkilendirilmiş bir widget'ı olacaktır, bu nedenle bunu planlamak genellikle oldukça kolaydır! Örneğin mevcut uygulamamızda, bölgeye göre filtreleme yapabilmek ve bunun için bir widget'ımız olmasını istiyoruz, bunun için bir bölge parametresini ekleyebiliriz. Tesise göre filtrelemek için herhangi bir uygulama işlevimiz şimdilik olmadığı için bu nedenle bunu bir parametre olarak eklememize gerek yoktur. Üç parametreli bir fonksiyon yazarak başlayalım:
 
-1. The core dataset
-2. The district of choice
-3. The age group of choice
+1. Çekirdek veri seti
+2. Seçim bölgesi
+3. Tercih edilen yaş grubu
+
 
 ```{r}
 
@@ -300,7 +301,7 @@ plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot") {
     
   }
   
-  # if no remaining data, return NULL
+  # kalan veri yoksa, NULL getir
   if (nrow(data) == 0) {
     
     return(NULL)
@@ -310,7 +311,7 @@ plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot") {
     filter(age_group == agegroup)
   
   
-  # if no remaining data, return NULL
+  # kalan veri yoksa, NULL getir
   if (nrow(data) == 0) {
     
     return(NULL)
@@ -340,11 +341,12 @@ plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot") {
 ```
 
 
-We won't go into great detail about this function, as it's relatively simple in how it works. One thing to note however, is we handle errors by returning `NULL` when it would otherwise give an error. This is because when a shiny server produces a `NULL` object instead of a plot object, nothing will be shown in the ui! This is important, as otherwise errors will often cause your app to stop working.  
+Nasıl çalıştığı nispeten basit olduğu için bu fonksiyon hakkında çok fazla ayrıntıya girmeyeceğiz. Bununla birlikte, not edilmesi gereken bir nota, hata vereceği zamanlarda NULL elde ederek hataları ayıklamamızdır. Bunun nedeni, shiny’de sunucu bir çizim nesnesi yerine bir NULL nesnesi ürettiğinde, kullanıcı arayüzünde hiçbir şey gösterilmeyecek olmasıdır! Bu önemlidir, aksi takdirde hatalar genellikle uygulamanızın çalışmayı durdurmasına neden olur.
 
-Another thing to note is the use of the `%in%` operator when evaluating the `district` input. As mentioned above, this could arrive as a character vector with multiple values, so using `%in%` is more flexible than say, `==`.  
+Dikkat edilmesi gereken bir diğer nokta da, bölge girdisini değerlendirirken %in% operatörünün kullanılmasıdır. Yukarıda bahsedildiği gibi bu operatör birden çok değere sahip bir karakter vektörü olarak kullanılabilir ,bu nedenle %in% operatörünü kullanmak, == operatöründen daha esnektir.
 
-Let's test our function!
+Fonksiyonumuzu test edelim!
+
 
 ```{r, echo = TRUE, warning = FALSE}
 
@@ -352,33 +354,34 @@ plot_epicurve(malaria_data, district = "Bolo", agegroup = "malaria_rdt_0-4")
 
 ```
 
-With our function working, we now have to understand how this all is going to fit into our shiny app. We mentioned the concept of _startup code_ before, but lets look at how we can actually incorporate this into the structure of our app. There are two ways we can do this!
+Fonksiyonumuz çalışırken, tüm bunların shiny uygulamamıza nasıl sığacağını anlamamız gerekiyor. Başlangıç kodu kavramından daha önce bahsetmiştik, ancak şimdi bunu uygulamamızın yapısına nasıl dahil edebileceğimize bakalım. Bunu yapabilmemizin iki yolu var!
 
-1. Put this code in your _app.R_ file at the start of the script (above the UI), or  
-2. Create a new file in your app's directory called _global.R_, and put the startup code in this file.
+1. Bu kodu _app.R_ dosyanıza komut dosyasının başına (kullanıcı arayüzünün üstüne) koyun veya
+2. Uygulamanızın _global.R_ adlı dizininde yeni bir dosya oluşturun ve başlangıç kodunu bu dosyaya yerleştirin.
 
-It's worth noting at this point that it's generally easier, especially with bigger apps, to use the second file structure, as it lets you separate your file structure in a simple way. Lets fully develop a this global.R script now. Here is what it could look like:
+Bu noktada, dosya yapınızı basit bir şekilde ayırmanıza izin verdiği için, özellikle daha büyük uygulamalarda, ikinci seçenekteki dosya yapısını kullanmanın genellikle daha kolay olduğunu belirtmekte fayda var. Şimdi bu global.R betiğini tamamen geliştirelim. Böyle görünebilir:
+
 
 
 ```{r, eval = F}
-# global.R script
+# global.R betiği
 
 pacman::p_load("tidyverse", "lubridate", "shiny")
 
-# read data
+# veriyi oku
 malaria_data <- rio::import(here::here("data", "malaria_facility_count_data.rds")) %>% 
   as_tibble()
 
-# clean data and pivot longer
+# veriyi temizle ve uzun pivotla
 malaria_data <- malaria_data %>%
   select(-newid) %>%
   pivot_longer(cols = starts_with("malaria_"), names_to = "age_group", values_to = "cases_reported")
 
 
-# define plotting function
+# grafik fonksiyonunu tanımla
 plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot") {
   
-  # create plot title
+  # grafik başlığı oluştur
   if (!("All" %in% district)) {            
     data <- data %>%
       filter(District %in% district)
@@ -391,18 +394,18 @@ plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot") {
     
   }
   
-  # if no remaining data, return NULL
+  # kalan veri yoksa, NULL sonucunu getir  
   if (nrow(data) == 0) {
     
     return(NULL)
   }
   
-  # filter to age group
+  # yaş grubuna filtrele
   data <- data %>%
     filter(age_group == agegroup)
   
   
-  # if no remaining data, return NULL
+  # kalan veri yoksa, NULL sonucunu getir  
   if (nrow(data) == 0) {
     
     return(NULL)
@@ -434,9 +437,10 @@ plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot") {
 ```
 
 
-Easy! One great feature of shiny is that it will understand what files named _app.R_, _server.R_, _ui.R_, and _global.R_ are for, so there is no need to connect them to each other via any code. So just by having this code in _global.R_ in the directory it will run before we start our app!.  
+Bright'ın harika bir özelliği, app.R, server.R, ui.R ve global.R adlı dosyaların ne için olduğunu anlamasıdır, bu nedenle herhangi bir kod aracılığıyla bunları birbirine bağlamaya gerek yoktur. Bu yüzden sadece global.R'deki bu kodu dizinde bulundurmak uygulamamızı başlatmadan önce çalışması için yeterlidir!
 
-We should also note that it would improve our app's organisation if we moved the plotting function to its own file - this will be especially helpful as apps become larger. To do this, we could make another directory called _funcs_, and put this function in as a file called _plot_epicurve.R_. We could then read this function in via the following command in _global.R_
+Ayrıca, çizim işlevini kendi dosyasına taşımamızın uygulamamızın organizasyonunu iyileştireceğini de unutmamalıyız – bu eylem özellikle uygulamalar büyüdükçe yararlı olacaktır. Bunu yapmak için funcs adında başka bir dizin oluşturabilir ve bu işlevi plot_epicurve.R adlı bir dosyaya yerleştirebiliriz. Daha sonra bu işlevi global.R'de aşağıdaki komutla okuyabiliriz:
+
 
 ```{r, eval = F}
 
@@ -444,19 +448,20 @@ source(here("funcs", "plot_epicurve.R"), local = TRUE)
 
 ```
 
-Note that you should *always* specify `local = TRUE` in shiny apps, since it will affect sourcing when/if the app is published on a server. 
+Uygulama bir sunucuda yayınlandığında kaynak bulmayı etkileyeceğinden, shiny uygulamalarında her zaman local argümanını 'local= TRUE' belirtmeniz gerektiğini unutmayın. 
 
-## Developing an app server
+## Bir uygulama sunucusu geliştirme
 
-Now that we have most of our code, we just have to develop our server. This is the final piece of our app, and is probably the hardest to understand. The server is a large R function, but its helpful to think of it as a series of smaller functions, or tasks that the app can perform. It's important to understand that these functions are not executed in a linear order. There is an order to them, but it's not fully necessary to understand when starting out with shiny. At a very basic level, these tasks or functions will activate when there is a change in user inputs that affects them, *unless the developer has set them up so they behave differently*. Again, this is all quite abstract, but lets first go through the three basic types of shiny _objects_
+Artık kodumuzun çoğunu yazdığımıza göre, sadece sunucumuzu geliştirmemiz gerekiyor. Bu, uygulamamızın son parçasıdır ve muhtemelen anlaşılması en zor olanıdır. Sunucu büyük bir R işlevidir, ancak onu bir dizi daha küçük işlev veya uygulamanın gerçekleştirebileceği görevler olarak düşünmek yararlıdır. Bu işlevlerin doğrusal bir sırada yürütülmediğini anlamak önemlidir. Onlara verilen bir emir vardır ancak shiny’de başlangıç seviyesinde bu süreci tam olarak anlamak gerekli değildir. Çok temel düzeyde, bu görevler veya işlevler, geliştirici farklı davranacak şekilde ayarlamadıkça, sadece kullanıcı girdilerinde kendilerini etkileyen bir değişiklik olduğunda etkinleşir. Yine, bunların hepsi oldukça soyut kavramlardır. Ama önce üç temel shiny nesne türünü inceleyelim.
 
-1. Reactive sources - this is another term for user inputs. The shiny server has access to the outputs from the UI through the widgets we've programmed. Every time the values for these are changed, this is passed down to the server.
+1. Reaktif kaynaklar - bu, kullanıcı girdileri için başka bir terimdir. Shiny sunucusu, programladığımız widget'lar aracılığıyla UI'den (kullanıcı arayüzünden) gelen çıktılara erişebilir. Değerleri her değiştirildiğinde, bu bilgi sunucuya iletilir.
 
-2. Reactive conductors - these are objects that exist *only* inside the shiny server. We don't actually need these for simple apps, but they produce objects that can only be seen inside the server, and used in other operations. They generally depend on reactive sources.
+2. Reaktif iletkenler - bunlar yalnızca shiny sunucusunun içinde bulunan nesnelerdir. Bunlara aslında basit uygulamalar için ihtiyacımız yoktur, yalnızca sunucu içinde görülebilen ve diğer işlemlerde kullanılabilen nesneler üretirler. Genellikle reaktif kaynaklara bağlıdırlar.
 
-3. Endpoints - these are outputs that are passed from the server to the UI. In our example, this would be the epi curve we are producing. 
+3. Son noktalar - bunlar sunucudan kullanıcı arayüzüne iletilen çıktılardır. Örneğimizde, ürettiğimiz salgın eğrisi bu olacaktır.
 
-With this in mind lets construct our server step-by-step. We'll show our UI code again here just for reference:
+Bunu akılda tutarak, sunucumuzu adım adım oluşturalım. Burada sadece referans olması için UI kodumuzu tekrar göstereceğiz: 
+
 
 ```{r, eval = FALSE}
 
@@ -467,7 +472,7 @@ ui <- fluidPage(
   sidebarLayout(
 
     sidebarPanel(
-         # selector for district
+         # bölge için seçici
          selectInput(
               inputId = "select_district",
               label = "Select district",
@@ -481,7 +486,7 @@ ui <- fluidPage(
               selected = "All",
               multiple = TRUE
          ),
-         # selector for age group
+         # yaş grubu için seçici
          selectInput(
               inputId = "select_agegroup",
               label = "Select age group",
@@ -498,7 +503,7 @@ ui <- fluidPage(
     ),
 
     mainPanel(
-      # epicurve goes here
+      # salgın eğrisi burada bulunur
       plotOutput("malaria_epicurve")
     )
     
@@ -508,15 +513,16 @@ ui <- fluidPage(
 
 ```
 
-From this code UI we have:
+Bu kod kullanıcı arayüzünden elimize:
+• İki giriş ulaşır: 
+• Bölge seçicisi(bir select_district giriş kimliğiyle)
+• Yaş grubu seçicisi (inputId'si select_agegroup olan)
 
-- Two inputs:
-  - District selector (with an inputId of `select_district`)
-  - Age group selector (with an inputId of `select_agegroup`)
-- One output:
-  - The epicurve (with an outputId of `malaria_epicurve`)
+• Bir çıktı:
+• Salgın eğrisi (sıtma_epicurve çıkış kimliği ile)
 
-As stated previously, these unique names we have assigned to our inputs and outputs are crucial. They *must be unique* and are used to pass information between the ui and server. In our server, we access our inputs via the syntax `input$inputID` and outputs and passed to the ui through the syntax `output$output_name` Lets have a look at an example, because again this is hard to understand otherwise!
+Daha önce de belirtildiği gibi, girdi ve çıktılarımıza atadığımız bu benzersiz isimler çok önemlidir. Benzersiz olmalıdırlar ve kullanıcı arayüzü ile sunucu arasında bilgi iletmek için kullanılırlar. Sunucumuzda girdilerimize 'input$inputID' ve output sintaksı aracılığıyla erişiyoruz ve 'output$output_name' sintaksı aracılığıyla kullanıcı arayüzüne iletiyoruz. Şimdi bir örneğe bakalım, çünkü bunu başka türlü anlaşılması güçtür. 
+
 
 ```{r, eval = FALSE}
 
@@ -531,17 +537,17 @@ server <- function(input, output, session) {
 
 ```
 
+Bunun gibi basit bir uygulamanın sunucusu aslında oldukça basittir! Sunucunun üç parametreli bir fonksiyon olduğunu fark edeceksiniz - giriş, çıkış ve oturum - bunu anlamak bu basamakta o kadar önemli değildir , ancak bu kuruluma bağlı kalmak önemlidir! Sunucumuzda sadece bir görevimiz mevcuttur – bu da daha önce oluşturduğumuz fonksiyonumuza ve sunucudan gelen girdilere dayalı bir grafik oluşturmaktır. Giriş ve çıkış nesnelerinin adlarının, kullanıcı arabirimindekilere tam olarak nasıl karşılık geldiğine dikkat edin.
 
-The server for a simple app like this is actually quite straightforward! You'll notice that the server is a function with three parameters - `input`, `output`, and `session` - this isn't that important to understand for now, but its important to stick to this setup! In our server we only have one task - this renders a plot based on our function we made earlier, and the inputs from the server. Notice how the names of the input and output objects correspond exactly to those in the ui.
+Sunucunun kullanıcı girdilerine nasıl tepki verdiğinin temellerini anlamak için, girdiler değiştiğinde çıktının (altta yatan paket aracılığıyla) da değişeceğin ve her değişimle bir grafik oluşturmak için bu fonksiyonu yeniden çalıştıracağını unutmamalısınız. Burada renderPlot() fonksiyonunu da kullandığımızı unutmayın – bu fonksiyon, nesneleri bir kullanıcı arabirimi çıktısına ileten sınıfa özgü fonkisyonlar ailesindendir. Benzer şekilde davranan birkaç fonksiyon vardır, ancak kullanılan fonksiyonun kullanıcı arayüzüne ilettiğiniz nesnenin sınıfıyla eşleştiğinden emin olmanız gerekir! Örneğin:
 
-To understand the basics of how the server reacts to user inputs, you should note that the output will know (through the underlying package) when inputs change, and rerun this function to create a plot every time they change. Note that we also use the `renderPlot()` function here - this is one of a family of class-specific functions that pass those objects to a ui output. There are a number of functions that behave similarly, but you need to ensure the function used matches the class of object you're passing to the ui! For example:
 
-- `renderText()` - send text to the ui
-- `renderDataTable` - send an interactive table to the ui.
+- `renderText()` - kullanıcı arayüzüne metin gönderir
+- `renderDataTable` - kullanıcı arayüzüne etkileşimli bir tablo gönderir.
 
-Remember that these also need to match the output *function* used in the ui - so `renderPlot()` is paired with `plotOutput()`, and `renderText()` is matched with `textOutput()`. 
+Bunların da kullanıcı arayüzünde kullanılan çıktı işleviyle eşleşmesi gerektiğini unutmayın - bu nedenle renderPlot(), plotOutput() ile eşleştirilir ve renderText(), textOutput() ile eşleştirilir.
 
-So we've finally made a functioning app! We can run this by pressing the Run App button on the top right of the script window in Rstudio. You should note that you can choose to run your app in your default browser (rather than Rstudio) which will more accurately reflect what the app will look like for other users.  
+Sonunda çalışan bir uygulama yaptık! Bunu Rstudio'da komut dosyası penceresinin sağ üst kısmındaki Uygulamayı Çalıştır düğmesine basarak çalıştırabiliriz. Uygulamanızı, diğer kullanıcılar için uygulamanın nasıl görüneceğini daha doğru bir şekilde yansıtacak olan varsayılan tarayıcınızda (Rstudio yerine) çalıştırmayı seçebileceğinizi unutmayın.
 
 
 ```{r, out.width = c('100%'), out.height = c('100%'), echo=F}
@@ -549,7 +555,7 @@ knitr::include_graphics(here::here("images", "shiny", "app_simple_view.gif"))
 ```
 
 
-It is fun to note that in the R console, the app is "listening"! Talk about reactivity!  
+Uygulamanın R konsolunda "dinlediğini" fark  etmek eğlencelidir! Reaktivite hakkında konuşun!
 
 ```{r, echo=F}
 knitr::include_graphics(here::here("images", "shiny", "listening.png"))
@@ -560,35 +566,38 @@ knitr::include_graphics(here::here("images", "shiny", "listening.png"))
 
 
 
-## Adding more functionality
+## Daha fazla işlevsellik eklemek
 
-At this point we've finally got a running app, but we have very little functionality. We also haven't really scratched the surface of what shiny can do, so there's a lot more to learn about! Lets continue to build our existing app by adding some extra features. Some things that could be nice to add could be: 
+Bu noktada nihayet çalışan bir uygulamamız var, ancak işlevsellik düzeyi düşüktür. Ayrıca, shine paketiyle yapabileceklerin henüz çok az kısımını gördük, bu yüzden öğrenecek daha çok şey var! Bazı ekstra özellikler ekleyerek mevcut uygulamamızı oluşturmaya devam edelim. Eklemenin uygun olacağı  bazı seçenekler şunlar olabilir:
 
-1. Some explanatory text 
-2. A download button for our plot - this would provide the user with a high quality version of the image that they're generating in the app
-3. A selector for specific facilities
-4. Another dashboard page - this could show a table of our data.
+1. Açıklayıcı metinler
+2. Grafikler için bir indirme düğmesi - bu, kullanıcının uygulamada oluşturdukları görüntünün yüksek kaliteli bir sürümünü elde etmesini sağlar
+3. Belirli tesisler için bir seçici
+4. Başka bir gösterge paneli sayfası - bu, verilerimizin bir tablosunu gösterebilir.
 
-This is a lot to add, but we can use it to learn about a bunch of different shiny featues on the way. There is so much to learn about shiny (it can get *very* advanced, but its hopefully the case that once users have a better idea of how to use it they can become more comfortable using external learning sources as well).
+Bu şekilde eklenebilecek çok şey vardır, bu şekilde bir sürü farklı shiny özelliği hakkında bilgi edinebiliriz. Shiny hakkında öğrenilecek çok şey var (çok gelişmiş olabilir, ancak umarız ki kullanıcılar shiny’yi nasıl kullanacakları konusunda daha iyi bir fikre sahip olduklarında, harici öğrenme kaynaklarını kullanarak da daha rahat olabilirler).
 
 
 
-### Adding static text {.unnumbered}  
 
-Lets first discuss adding static text to our shiny app. Adding text to our app is extremely easy, once you have a basic grasp of it. Since static text doesn't change in the shiny app (If you'd like it to change, you can use *text rendering* functions in the server!), all of shiny's static text is generally added in the ui of the app. We wont go through this in great detail, but you can add a number of different elements to your ui (and even custom ones) by interfacing R with *HTML* and *css*.
+### Statik metin eklemek {.unnumbered}  
 
-HTML and css are languages that are explicitly involved in user interface design. We don't need to understand these too well, but *HTML* creates objects in UI (like a text box, or a table), and *css* is generally used to change the style and aesthetics of those objects. Shiny has access to a large array of _HTML tags_ - these are present for objects that behave in a specific way, such as headers, paragraphs of text, line breaks, tables, etc. We can use some of these examples like this:
+Önce shiny uygulamamıza statik metin eklemeyi tartışalım. İşin temellerini bildikten sonra, uygulamamıza metin eklemek son derece kolaydır. Shiny uygulamasında statik metin değişmediğinden (Değişmesini isterseniz, sunucudaki metin oluşturma fonkisyonlarını kullanabilirsiniz!), shiny’nin tüm statik metinleri genellikle uygulamanın kullanıcı arayüzüne eklenir. Bunu çok ayrıntılı olarak ele almayacağız, ancak R'ı HTML ve css ile arayüz olarak kullanarak; kullanıcı arayüzünüze (ve hatta özelleştirilmiş olanlara) bir dizi farklı öğe ekleyebilirsiniz.
 
-- `h1()` - this a a *header* tag, which will make enclosed text automatically larger, and change defaults as they pertain to the font face, colour etc (depending on the overall theme of your app). You can access _smaller and smaller_ sub-heading with `h2()` down to `h6()` as well. Usage looks like:
+HTML ve css, kullanıcı arayüzü tasarımında açıkça yer alan dillerdir. Bunları çok iyi anlamamıza gerek yok, ancak HTML, UI'de nesneler oluşturur (metin kutusu veya tablo gibi) ve css genellikle bu nesnelerin stilini ve estetiğini değiştirmek için kullanılır. Shiny'nin çok sayıda HTML etiketine erişimi vardır – bunların arasında başlıklar, metin paragrafları, satır sonları, tablolar vb. gibi belirli bir şekilde davranan nesneler için bulunur. Bu örneklerden bazılarını şu şekilde kullanabiliriz:
+
+
+- `h1()` - bu, ekteki metni otomatik olarak büyütecek ve yazı tipi yüzü, rengi vb. ile ilgili varsayılanları değiştirecek bir başlık etiketidir (uygulamanızın ana temasına bağlı olarak). h2() ile h6()'ya kadar daha küçük ve daha küçük alt başlıklara da erişebilirsiniz. Kullanım şuna benzer:
   * `h1("my header - section 1")`
 
-- `p()` - this is a *paragraph* tag, which will make enclosed text similar to text in a body of text. This text will automatically wrap, and be of a relatively small size (footers could be smaller for example.) Think of it as the text body of a word document. Usage looks like:  
+- `p()` - bu, içine alınmış metni bir metin gövdesindeki metne benzer hale getiren bir paragraf etiketidir. Bu metin otomatik olarak sarılır ve nispeten küçük bir boyutta olur (örneğin alt bilgiler daha küçük olabilir.) Bunu bir word belgesinin metin gövdesi olarak düşünün. Kullanım şuna benzer:
 
-  * `p("This is a larger body of text where I am explaining the function of my app")`
+  * `p("Bu, uygulamamın işlevini açıkladığım daha büyük bir metindir")`
   
-- `tags$b()` and `tags$i()` - these are used to create bold `tags$b()` and italicised `tags$i()` with whichever text is enclosed!
+- `tags$b()` ve `tags$i()` - bunlar kalın etiketler tags$b() ve italik etiketler tags$i() oluşturmak için kullanılır.
 
-- `tags$ul()`, `tags$ol()` and `tags$li()` - these are tags used in creating *lists*. These are all used within the syntax below, and allow the user to create either an ordered list (`tags$ol()`; i.e. numbered) or unordered list (`tags$ul()`, i.e. bullet points). `tags$li()` is used to denote items in the list, regardless of which type of list is used. e.g.:
+- `tags$ul()`, `tags$ol()` ve `tags$li()` - bunlar, listelerin oluşturulmasında kullanılan etiketlerdir. Bunların tümü aşağıdaki sintaks içinde kullanılır ve kullanıcının sıralı bir liste (tags$ol(); yani numaralandırılmış) veya sırasız liste (tags$ul(), yani madde işareti noktaları) oluşturmasına izin verir. Tags$li(), kullanılan liste türünden bağımsız olarak listedeki öğeleri belirtmek için kullanılır. Örneğin.:
+
 
 ```{r, eval = F}
 
@@ -604,17 +613,18 @@ tags$ol(
 
 ```
 
-- `br()` and `hr()` - these tags create *linebreaks* and *horizontal lines* (with a linebreak) respectively. Use them to separate out the sections of your app and text! There is no need to pass any items to these tags (parentheses can remain empty).
+- `br()` ve `hr()` - bu etiketler sırasıyla satır sonu ve yatay satır (satır sonu ile) oluşturur. Uygulamanızı ve metninizi bölümlerini ayırmak için bunları kullanın! Bu etiketlere herhangi bir öğe iletmeye gerek yoktur (parantezler boş kalabilir).
 
 
-- `div()` - this is a *generic* tag that can *contain anything*, and can be *named anything*. Once you progress with ui design, you can use these to compartmentalize your ui, give specific sections specific styles, and create interactions between the server and UI elements. We won't go into these in detail, but they're worth being aware of!
+- `div()` - bu etiket her şeyi içerebilen ve herhangi bir adla adlandırılabilen genel bir etikettir. Kullanıcı arayüzü tasarımında ilerlediğinizde, bunları kullanıcı arayüzünüzü bölümlere ayırmak, belirli bölümlere belirli stiller vermek ve sunucu ile kullanıcı arabirimi öğeleri arasında etkileşimler oluşturmak için kullanabilirsiniz. Bunlara ayrıntılı olarak girmeyeceğiz, ancak bu etiketin farkında olmak önemlidir!
 
-Note that every one of these objects can be accessed through `tags$...` or for some, just the function. These are effectively synonymous, but it may help to use the `tags$...` style if you'd rather be more explicit and not overwrite the functions accidentally. This is also by no means an exhaustive list of tags available. There is a full list of all tags available in shiny  [here](https://shiny.rstudio.com/articles/tag-glossary.html) and even more can be used by inserting HTML directly into your ui!
+Bu nesnelerin her birine, `tags$...` aracılığıyla veya bazıları için de yalnızca fonksiyon aracılığıyla erişilebileceğini unutmayın. Bunlar eş anlamlıdır, ancak daha açık olmayı ve yanlışlıkla fonksiyonların üzerine yazmamayı tercih ederseniz, `tags$...` stili etiketleri kullanmak yardımcı olabilir. Bu aynı zamanda mevcut etiketlerin kapsamlı bir listesi değildir. Tüm etiketlerin tam listesi [burada](https://shiny.rstudio.com/articles/tag-glossary.html) shiny olarak mevcuttur ve daha da fazlası HTML'yi doğrudan kullanıcı arayüzünüze ekleyerek kullanılabilir!
 
 
-If you're feeling confident, you can also add any *css styling elements* to your HTML tags with the `style` argument in any of them. We won't go into how this works in detail, but one tip for testing aesthetic changes to a UI is using the HTML inspector mode in chrome (of your shiny app you are running in browser), and editing the style of objects yourself!
+Kendinize güveniyorsanız, herhangi birindeki stil argümanı ile HTML etiketlerinize herhangi bir **css stil öğesi** de ekleyebilirsiniz. Bunun nasıl çalıştığına ayrıntılı olarak girmeyeceğiz, ancak bir kullanıcı arayüzündeki estetik değişiklikleri test etmek için, chrome’da (tarayıcıda çalıştırdığınız shiny uygulamanızın) HTML denetçi modunu kullanmak ve nesnelerin stilini kendiniz düzenleyebilirsiniz!
 
-Lets add some text to our app
+Uygulamamıza biraz metin ekleyelim
+
 
 ```{r, eval = F}
 
@@ -656,7 +666,7 @@ ui <- fluidPage(
     ),
 
     mainPanel(
-      # epicurve goes here
+      # salgın eğrisi burada bulunur
       plotOutput("malaria_epicurve"),
       br(),
       hr(),
@@ -684,9 +694,9 @@ knitr::include_graphics(here::here("images", "shiny", "app_text_view.png"))
 ```
 
 
-### Adding a link {.unnumbered}
+### Bir link (köprü) eklemek {.unnumbered}
 
-To add a link to a website, use `tags$a()` with the link and display text as shown below. To have as a standalone paragraph, put it within `p()`. To have only a few words of a sentence linked, break the sentence into parts and use `tags$a()` for the hyperlinked part. To ensure the link opens in a *new* browser window, add `target = "_blank"` as an argument.  
+Bir web sitesine link eklemek için, bağlantıyla birlikte tags$a() kullanın ve metni aşağıda gösterildiği gibi görüntüleyin. Bağımsız bir paragrafa için metni p() içine koyun. Bir cümlenin sadece birkaç kelimesini linke bağlamak için, cümleyi parçalara ayırın ve köprülü kısım için tag$a() kullanın. Bağlantının yeni bir tarayıcı penceresinde açılmasını sağlamak için argüman olarak target = "_blank" ekleyin.
 
 ```{r, eval=F}
 tags$a(href = "www.epiRhandbook.com", "Visit our website!")
@@ -694,12 +704,12 @@ tags$a(href = "www.epiRhandbook.com", "Visit our website!")
 
 
 
-### Adding a download button {.unnumbered}
+### İndirme düğmesi eklemek {.unnumbered}
 
-Lets move on to the second of the three features. A download button is a fairly common thing to add to an app and is fairly easy to make. We need to add another Widget to our ui, and we need to add another output to our server to attach to it. We can also introduce *reactive conductors* in this example!
+Üç özellikten ikincisine geçelim. İndirme düğmesini uygulamaya eklemek oldukça yaygındır ve yapılması oldukça kolaydır. Kullanıcı arayüzümüze başka bir widget eklememiz gerekiyor ve bunun için sunucumuza başka bir çıktı eklememiz gerekiyor. Bu örnekte reaktif iletkenleri de tanıtabiliriz!
 
+Önce kullanıcı arabirimimizi güncelleyelim - bu kolay çünkü shiny, downloadButton() adlı bir widget ile birlikte gelir - ona bir inputId ve bir etiket verelim.
 
-Lets update our ui first - this is easy as shiny comes with a widget called `downloadButton()` - lets give it an inputId and a label.
 
 ```{r, eval = FALSE}
 
@@ -724,7 +734,7 @@ ui <- fluidPage(
               selected = "All",
               multiple = FALSE
          ),
-         # selector for age group
+         # yaş grubu için seçici
          selectInput(
               inputId = "select_agegroup",
               label = "Select age group",
@@ -737,7 +747,7 @@ ui <- fluidPage(
               selected = "All",
               multiple = FALSE
          ),
-         # horizontal line
+         # dikey hat
          hr(),
          downloadButton(
            outputId = "download_epicurve",
@@ -747,7 +757,7 @@ ui <- fluidPage(
     ),
 
     mainPanel(
-      # epicurve goes here
+      # salgon eğrisi buradadır
       plotOutput("malaria_epicurve"),
       br(),
       hr(),
@@ -770,9 +780,9 @@ ui <- fluidPage(
 
 ```
  
-Note that we've also added in a `hr()` tag - this adds a horizontal line separating our control widgets from our download widgets. This is another one of the HTML tags that we discussed previously.
+Burada ek olarak bir hr() etiketi eklediğimizi unutmayın - bu, kontrol widgetlarımızı indirme widgetlarımızdan ayıran yatay bir çizgi ekler. Bu, daha önce tartıştığımız HTML etiketlerinden bir diğeridir.
 
-Now that we have our ui ready, we need to add the server component. Downloads are done in the server with the `downloadHandler()` function. Similar to our plot, we need to attach it to an output that has the same inputId as the download button. This function takes two arguments - `filename` and `content` - these are both functions. As you might be able to guess, `filename` is used to specify the name of the downloaded file, and `content` is used to specify what should be downloaded. `content` contain a function that you would use to save data locally - so if you were downloading a csv file you could use `rio::export()`. Since we're downloading a plot, we'll use `ggplot2::ggsave()`. Lets look at how we would program this (we won't add it to the server yet). 
+Artık kullanıcı arayüzümüz hazır olduğuna göre, sunucu bileşenini eklememiz gerekiyor. İndirmeler, downloadHandler() fonksiyonuyla sunucuda yapılır. Grafiğimize benzer şekilde, indirme düğmesiyle aynı inputId'ye sahip bir çıktıya eklememiz gerekiyor. Bu fonkisyonun iki argümanı vardır - dosya adı ve içerik - bunların ikisi de işlevdir. Tahmin edebileceğiniz gibi, dosya adı indirilen dosyanın adını belirtmek için, içerik ise neyin indirileceğini belirtmek için kullanılır. İçerik, verileri yerel olarak kaydetmek için kullanacağınız bir fonkisyon içerir - bu nedenle, bir csv dosyası indiriyorsanız rio::export() fonksiyonunu kullanabilirsiniz. Bir grafik indirdiğimiz için ggplot2::ggsave() kullanacağız. Bunu nasıl programlayacağımıza bakalım (henüz sunucuya eklemeyeceğiz). 
 
 ```{r, eval = FALSE}
 
@@ -801,14 +811,16 @@ server <- function(input, output, session) {
 ```
 
 
-Note that the `content` function always takes a `file` argument, which we put where the output file name is specified. You might also notice that we're repeating code here - we are using our `plot_epicurve()` function twice in this server, once for the download and once for the image displayed in the app. While this wont massively affect performance, this means that the code to generate this plot will have to be run when the user changes the widgets specifying the district and age group, *and* again when you want to download the plot. In larger apps, suboptimal decisions like this one will slow things down more and more, so it's good to learn how to make our app more efficient in this sense. What would make more sense is if we had a way to run the epicurve code when the districts/age groups are changes, *and let that be used by* the renderPlot() and downloadHandler() functions. This is where reactive conductors come in! 
+İçerik fonksiyonunun her zaman çıktı dosyası adının belirtildiği bir dosya argümanına ihtiyacı olduğunu unutmayın. Burada kodu tekrarladığımızı da fark edebilirsiniz - bu sunucuda bir kez indirme için ve bir kez de uygulamada görüntülenen grafik için olmak üzere plot_epicurve() fonksiyonumuzu iki kez kullanıyoruz. Bu, performansı büyük ölçüde etkilemeyecek olsa da,  , kullanıcı bölge ve yaş grubunu belirten widgetları değiştirdiğinde ve grafiği indirmek istediğinde grafiği oluşturacak kodun çalıştırılması gerektiği anlamına gelir. Daha büyük uygulamalarda, bunun gibi optimal olmayan kararlar işleri daha da yavaşlatacaktır, bu nedenle uygulamamızı bu anlamda nasıl daha verimli hale getireceğimizi öğrenmek gerekir. Daha mantıklı olan, bölgeler/yaş grupları değiştiğinde epicurve kodunu çalıştırmanın bir yolu olması ve bunun renderPlot() ve downloadHandler() fonksiyonları tarafından kullanılmasına izin verilmesidir. Burada reaktif iletkenler devreye girer!
+ 
+Reaktif iletkenler, shiny sunucusunda reaktif bir şekilde oluşturulan, ancak çıktısı alınmayan nesnelerdir - yalnızca sunucunun diğer bölümleri tarafından kullanılabilirler. Birkaç farklı türde reaktif iletken vardır, ancak temel ikisini inceleyeceğiz.
 
-Reactive conductors are objects that are created in the shiny server in a *reactive* way, but are not outputted - they can just be used by other parts of the server. There are a number of different kinds of *reactive conductors*, but we'll go through the basic two.
+1.reactive() - bu en temel reaktif iletkendir - içinde kullanılan herhangi bir girdi değiştiğinde tepki verir (bu durumda bölge/yaş grubu widget'larımız)
 
-1.`reactive()` - this is the most basic reactive conductor - it will react whenever any inputs used inside of it change (so our district/age group widgets)  
-2. `eventReactive()`- this rective conductor works the same as `reactive()`, except that the user can specify which inputs cause it to rerun. This is useful if your reactive conductor takes a long time to process, but this will be explained more later.  
+2. eventReactive()- bu rektif iletken, kullanıcının hangi girişlerin tekrar çalışmasına neden olduğunu belirleyebilmesi dışında, reaktif() ile aynı şekilde çalışır. Bu, reaktif iletkeninizin işlenmesi uzun zaman alıyorsa yararlıdır, ancak reaktif iletken daha sonra açıklanacaktır.
 
-Lets look at the two examples:
+İki örneğe bakalım:
+
 
 ```{r, eval = FALSE}
 
@@ -819,7 +831,7 @@ malaria_plot_r <- reactive({
 })
 
 
-# only runs when the district selector changes!
+# sadece bölge seçici değiştiğinde çalışır!
 malaria_plot_er <- eventReactive(input$select_district, {
   
   plot_epicurve(malaria_data, district = input$select_district, agegroup = input$select_agegroup)
@@ -830,9 +842,9 @@ malaria_plot_er <- eventReactive(input$select_district, {
 
 ```
 
-When we use the `eventReactive()` setup, we can specify which inputs cause this chunk of code to run - this isn't very useful to us at the moment, so we can leave it for now. Note that you can include multiple inputs with `c()`
+eventReactive() kurulumunu kullandığımızda, bu kod parçasının çalışmasına hangi girdilerin neden olduğunu belirleyebiliriz - bu şu anda bizim için pek kullanışlı değil, bu yüzden şimdilik bırakabiliriz. c() ile birden çok giriş ekleyebileceğinizi unutmayın.
 
-Lets look at how we can integrate this into our server code:
+Bunu sunucu kodumuza nasıl entegre edebileceğimize bakalım:
 
 
 ```{r, eval = FALSE}
@@ -868,7 +880,7 @@ server <- function(input, output, session) {
 
 ```
 
-You can see we're just calling on the output of our reactive we've defined in both our download and plot rendering functions. One thing to note that often trips people up is you have to use the outputs of reactives as if they were functions - so you *must add empty brackets at the end of them* (i.e. `malaria_plot()` is correct, and `malaria_plot` is not). Now that we've added this solution our app is a little tidyer, faster, and easier to change since all our code that runs the epicurve function is in one place.
+Hem indirme hem de grafik oluşturma işlevlerimizde tanımladığımız reaktif iletkenimizin çıktısını çağırdığımızı görebilirsiniz. Reaktiflerin çıktılarını fonksiyon gibi kullanmanız gerekir - bu nedenle sonlarına boş parantezler eklemelisiniz (yani, malaria_plot() doğrudur ve malaria_plot değil). Artık bu çözümü de eklediğimize göre, salgın eğrisi fonksiyonunu çalıştıran tüm kodlarımız tek bir yerde olduğundan uygulamamız daha düzenli (tidy), ve hızlıdır, değiştirilmesi de daha kolay.
 
 
 ```{r, echo=F}
@@ -876,9 +888,9 @@ knitr::include_graphics(here::here("images", "shiny", "download_button_view.png"
 ```
 
 
-### Adding a facility selector {.unnumbered}  
+### Tesis seçici eklemek {.unnumbered}  
 
-Lets move on to our next feature - a selector for specific facilities. We'll implement another parameter into our function so we can pass this as an argument from our code. Lets look at doing this first - it just operates off the same principles as the other parameters we've set up. Lets update and test our function.
+Bir sonraki özelliğimize geçelim - belirli tesisler için bir seçici. Fonksiyonumuza kodumuzdan bir argüman olarak iletebileceğimiz başka bir parametre uygulayacağız. İlk önce bunu yapmaya odaklanalım. – Yeni parametre diğer parametrelerle aynı ilkelere göre çalışır. Fonksiyonumuzu güncelleyip test edelim.
 
 
 ```{r, echo = TRUE}
@@ -897,7 +909,7 @@ plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot", faci
     
   }
   
-  # if no remaining data, return NULL
+  # kalan veri yoksa, NULL getir
   if (nrow(data) == 0) {
     
     return(NULL)
@@ -907,7 +919,7 @@ plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot", faci
     filter(age_group == agegroup)
   
   
-  # if no remaining data, return NULL
+  # kalan veri yoksa, NULL getir
   if (nrow(data) == 0) {
     
     return(NULL)
@@ -931,7 +943,7 @@ plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot", faci
     
   }
   
-  # if no remaining data, return NULL
+  # kalan veri yoksa, NULL getir
   if (nrow(data) == 0) {
     
     return(NULL)
@@ -954,7 +966,7 @@ plot_epicurve <- function(data, district = "All", agegroup = "malaria_tot", faci
 }
 ```
 
-Let's test it:  
+Haydi deneyelim:  
 
 ```{r, warning=F, message=F}
 
@@ -963,7 +975,7 @@ plot_epicurve(malaria_data, district = "Spring", agegroup = "malaria_rdt_0-4", f
 ```
 
 
-With all the facilites in our data, it isn't very clear which facilities correspond to which districts - and the end user won't know either. This might make using the app quite unintuitive. For this reason, we should make the facility options in the UI change dynamically as the user changes the district - so one filters the other! Since we have so many variables that we're using in the options, we might also want to generate some of our options for the ui in our _global.R_ file _from the data_. For example, we can add this code chunk to _global.R_ after we've read our data in:
+Verilerimizdeki tüm tesisler için hangi tesislerin hangi bölgelere karşılık geldiği çok net değildir - ve son kullanıcı da bu bilgiye erişemeyecektir. Bu, uygulamayı kullanmayı oldukça zor hale getirebilir. Bu nedenle, kullanıcı bölgeyi değiştirdikçe UI'deki tesis seçeneklerini dinamik olarak değiştirmeliyiz - biri diğerini filtrelemelidir! Seçeneklerde kullandığımız çok fazla değişken olduğundan, global.R dosyamızdaki kullanıcı arayüzü için bazı ayarlarımızı verilerimizden oluşturmak isteyebiliriz. Örneğin, verilerimizi okuduktan sonra bu kod parçasını global.R'ye ekleyebiliriz:
 
 
 
@@ -971,7 +983,7 @@ With all the facilites in our data, it isn't very clear which facilities corresp
 
 all_districts <- c("All", unique(malaria_data$District))
 
-# data frame of location names by district
+# bölgeye göre konum adlarının veri çerçevesi
 facility_list <- malaria_data %>%
   group_by(location_name, District) %>%
   summarise() %>% 
@@ -979,7 +991,7 @@ facility_list <- malaria_data %>%
 
 ```
 
-Let's look at them:  
+Bölgelere bakalım 
 
 ```{r}
 all_districts
@@ -991,8 +1003,7 @@ facility_list
 ```
 
 
-We can pass these new variables to the ui without any issue, since they are globally visible by both the server and the ui! Lets update our UI:
-
+Bu yeni değişkenler, hem sunucu hem de kullanıcı arabirimi tarafından global olarak görünür olduklarından, herhangi bir sorun olmadan kullanıcı arabirimine geçirebiliriz! Arayüzümüzü güncelleyelim:
 
 ```{r, eval = FALSE}
 
@@ -1004,7 +1015,7 @@ ui <- fluidPage(
   sidebarLayout(
 
     sidebarPanel(
-         # selector for district
+         # bölge için seçici
          selectInput(
               inputId = "select_district",
               label = "Select district",
@@ -1012,7 +1023,7 @@ ui <- fluidPage(
               selected = "All",
               multiple = FALSE
          ),
-         # selector for age group
+         # yaş grubu için seçici
          selectInput(
               inputId = "select_agegroup",
               label = "Select age group",
@@ -1025,7 +1036,7 @@ ui <- fluidPage(
               selected = "All",
               multiple = FALSE
          ),
-         # selector for facility
+         # kurum için seçici
          selectInput(
            inputId = "select_facility",
            label = "Select Facility",
@@ -1033,7 +1044,7 @@ ui <- fluidPage(
            selected = "All"
          ),
          
-         # horizontal line
+         # dikey çizgi
          hr(),
          downloadButton(
            outputId = "download_epicurve",
@@ -1043,7 +1054,7 @@ ui <- fluidPage(
     ),
 
     mainPanel(
-      # epicurve goes here
+      # salgın eğrisi buradadır
       plotOutput("malaria_epicurve"),
       br(),
       hr(),
@@ -1067,21 +1078,22 @@ ui <- fluidPage(
 ```
 
 
-Notice how we're now passing variables for our choices instead of hard coding them in the ui! This might make our code more compact as well! Lastly, we'll have to update the server. It will be easy to update our function to incorporate our new input (we just have to pass it as an argument to our new parameter), but we should remember we also want the ui to update dynamically when the user changes the selected district. It is important to understand here that we *can change the parameters and behaviour of widgets* while the app is running, but this needs to be done *in the server*. We need to understand a new way to output to the server to learn how to do this.
+Artık seçimlerimiz için değişkenleri kullanıcı arayüzünde kodlamak yerine nasıl ilettiğimize dikkat edin! Bu, kodumuzu da daha kompakt hale getirebilir! Son olarak, sunucuyu güncellememiz gerekecek. Yeni girdimizi dahil etmek için fonksiyonumuzu güncellemek kolay olacaktır (sadece yeni parametremize bir argüman olarak iletmemiz gerekiyor), ancak kullanıcı seçilen bölgeyi değiştirdiğinde kullanıcı arayüzünün dinamik olarak güncellenmesini istediğimizi hatırlamalıyız. Uygulama çalışırken widget'ların parametrelerini ve davranışını değiştirebileceğimizi burada anlamak önemlidir, ancak bunun sunucuda yapılması gerekir. Bunun nasıl yapılacağını öğrenmek için sunucuya çıktı almanın yeni bir yolunu anlamamız gerekiyor. 
 
-The functions we need to understand how to do this are known as *observer* functions, and are similar to *reactive* functions in how they behave. They have one key difference though:
+Bunu gerçekleştiren fonksiyonlar, gözlemci fonksiyonlar olarak bilinir ve davranışları reaktif fonksiyonlara benzer. Yine de önemli bir farkları var:
+• Reaktif fonksiyonlar, çıktıları doğrudan etkilemez ve sunucudaki diğer konumlarda görülebilen nesneler üretir. 
+• Gözlemci fonksiyonlar, sunucu çıktılarını etkileyebilir, ancak bunu diğer fonksiyonların fonksiyonlar yan etkileri yoluyla yapar. (Başka şeyler de yapabilirler, ancak pratikte bu onların ana işlevidir)
 
-- Reactive functions do not directly affect outputs, and produce objects that can be seen in other locations in the server
-- Observer functions *can* affect server outputs, but do so via side effects of other functions. (They can also do other things, but this is their main function in practice)
+Reaktif fonksiyonlara benzer şekilde, gözlemci fonksiyonların iki çeşidi vardır ve bunlar reaktif fonksiyonlarla aynı mantıkla sınıflandırılırlar: 
 
-Similar to reactive functions, there are two flavours of observer functions, and they are divided by the same logic that divides reactive functions:
+1. observe() - bu fonksiyon,  kullanılan herhangi bir girdi değiştiğinde çalışır
+2. observeEvent() - bu fonksiyon, kullanıcı tarafından belirlenen bir girdi değiştiğinde çalışır
 
-1. `observe()` - this function runs whenever any inputs used inside of it change
-2. `observeEvent()` - this function runs when a *user-specified* input changes
+Ayrıca, widget'ları güncelleyen shiny fonksiyonlarını da anlamamız gerekir. Bunların çalıştırılması oldukça basittir - önce sunucu fonkisyonundan oturum nesnesini alırlar (bunun şimdilik anlaşılması gerekmez), ardından değiştirilecek fonksiyonun inputId'sini alırlar. Ardından, selectInput() tarafından seçilmiş olan tüm parametrelerin yeni sürümleri iletilir - bunlar widget’ta otomatik olarak güncellenecektir.
 
-We also need to understand the shiny-provided functions that update widgets. These are fairly straightforward to run - they first take the `session` object from the server function (this doesn't need to be understood for now), and then the `inputId` of the function to be changed. We then pass new versions of all parameters that are already taken by `selectInput()` - these will be automatically updated in the widget. 
+Bunu sunucumuzda nasıl kullanabileceğimize dair izole bir örneğe bakalım. Kullanıcı bölgeyi değiştirdiğinde, tesis gruplarımızı bölgeye göre filtrelemek ve seçenekleri yalnızca o bölgede mevcut olanları) yansıtacak (ve tüm tesisler için bir seçenek oluşturacak şekilde güncellemek istiyoruz. 
+ 
 
-Lets look at an isolated example of how we could use this in our server. When the user changes the district, we want to filter our tibble of facilities by district, and update the choices to *only reflect those that are available in that district* (and an option for all facilities)
 
 ```{r, eval = FALSE}
 
@@ -1105,7 +1117,7 @@ observe({
 
 ```
 
-And that's it! we can add it into our server, and that behaviour will now work. Here's what our new server should look like:
+Ve bu kadar! Bunu sunucumuza ekleyebiliriz ve bu davranış şimdi işe yarayacaktır. Yeni sunucumuz şöyle görünmelidir:
 
 ```{r, eval = FALSE}
 server <- function(input, output, session) {
@@ -1169,14 +1181,14 @@ knitr::include_graphics(here::here("images", "shiny", "app_menu_view.gif"))
 
 
 
-### Adding another tab with a table {.unnumbered}
+### Tabloya yeni bir sekme eklemek  {.unnumbered}
 
-Now we'll move on to the last component we want to add to our app. We'll want to separate our ui into two tabs, one of which will have an interactive table where the user can see the data they are making the epidemic curve with. To do this, we can use the packaged ui elements that come with shiny relevant to tabs. On a basic level, we can enclose most of our main panel in this general structure:
+Şimdi uygulamamıza eklemek istediğimiz son bileşene geçeceğiz. Kullanıcı arayüzünü iki sekmeye ayırmak isteyeceğiz, bunlardan biri, kullanıcının salgın eğrisini oluşturdukları verileri görebileceği etkileşimli bir tabloya sahip olacak. Bunu yapmak için, sekmelerle ilgili shiny ile birlikte gelen paket dahili kullanıcı arabirimi öğelerini kullanabiliriz. Temel düzeyde, ana panelimizin çoğunu bu genel yapıya dahil edebiliriz:
 
 ```{r, eval = FALSE}
 
 
-# ... the rest of ui
+# ... kullanıcı arayüzünden geri kalan
 
 mainPanel(
   
@@ -1196,7 +1208,7 @@ mainPanel(
 
 ```
 
-Lets apply this to our ui. We also will want to use the **DT** package here - this is a great package for making interactive tables from pre-existing data. We can see it being used for `DT::datatableOutput()` in this example.
+Bunu kullanıcı arayüzümüze uygulayalım. Ayrıca burada DT paketini kullanmak isteyeceğiz - bu, önceden var olan verilerden etkileşimli tablolar oluşturmak için harika bir pakettir. Bu örnekte DT::datatableOutput() fonksiyonunun kullanıldığını görebiliriz.
 
 ```{r, echo = FALSE}
 library(DT)
@@ -1210,7 +1222,7 @@ ui <- fluidPage(
      sidebarLayout(
           
           sidebarPanel(
-               # selector for district
+               # bölge için seçici
                selectInput(
                     inputId = "select_district",
                     label = "Select district",
@@ -1218,7 +1230,7 @@ ui <- fluidPage(
                     selected = "All",
                     multiple = FALSE
                ),
-               # selector for age group
+               # yaş grubu için seçici
                selectInput(
                     inputId = "select_agegroup",
                     label = "Select age group",
@@ -1231,7 +1243,7 @@ ui <- fluidPage(
                     selected = "All",
                     multiple = FALSE
                ),
-               # selector for facility
+               # kurum için seçici
                selectInput(
                     inputId = "select_facility",
                     label = "Select Facility",
@@ -1239,7 +1251,7 @@ ui <- fluidPage(
                     selected = "All"
                ),
                
-               # horizontal line
+               # dikey çizgi
                hr(),
                downloadButton(
                     outputId = "download_epicurve",
@@ -1281,8 +1293,7 @@ ui <- fluidPage(
 
 ```
 
-
-Now our app is arranged into tabs! Lets make the necessary edits to the server as well. Since we dont need to manipulate our dataset at all before we render it this is actually very simple - we just render the malaria_data dataset via DT::renderDT() to the ui!
+Artık uygulamamız sekmeler halinde düzenlenmiştir! Sunucuda da gerekli düzenlemeleri yapalım. Veri setimizi oluşturmadan önce değiştirmemiz gerekmediğinden, sadece malaria_data veri setini DT::renderDT() aracılığıyla kullanıcı arayüzüne dönüştürüyoruz! 
 
 
 ```{r, eval = FALSE}
@@ -1330,7 +1341,7 @@ server <- function(input, output, session) {
     
   )
   
-  # render data table to ui
+  
   output$raw_data <- DT::renderDT(
     malaria_data
   )
@@ -1347,58 +1358,67 @@ knitr::include_graphics(here::here("images", "shiny", "app_table_view.gif"))
 ```
 
 
-## Sharing shiny apps
+## Shiny Uygulamalarının Paylaşılması 
 
-Now that you've developed your app, you probably want to share it with others - this is the main advantage of shiny after all! We can do this by sharing the code directly, or we could publish on a server. If we share the code, others will be able to see what you've done and build on it, but this will negate one of the main advantages of shiny - *it can eliminate the need for end-users to maintain an R installation*. For this reason, if you're sharing your app with users who are not comfortable with R, it is much easier to share an app that has been published on a server. 
+Artık uygulamanızı geliştirdiğinize göre, muhtemelen başkalarıyla paylaşmak istersiniz - bu, ne de olsa shiny’nin esas avantajıdır! Paylaşımı doğrudan kodu paylaşarak yapabiliriz veya bir sunucuda yayınlayabiliriz. Kodu paylaşırsak, başkaları ne yaptığınızı görebilir ve üzerine inşa edebilir, ancak bu, shiny’nin esas avantajlarından birini ortadan kaldıracaktır - son kullanıcıların bir R yükleme zorunluluğunu ortadan kaldırabilir. Bu nedenle, uygulamanızı R kullanmayan kullanıcılarla paylaşıyorsanız, sunucuda yayınlanan bir uygulamayı paylaşmak çok daha kolaydır.
 
-If you'd rather share the code, you could make a .zip file of the app, or better yet, *publish your app on github and add collaborators.* You can refer to the section on github for further information here.
+Kodu paylaşmayı tercih ederseniz, uygulamanın bir .zip dosyası oluşturabilir veya daha iyisi uygulamanızı github'da yayınlayabilir ve ortak çalışanlar ekleyebilirsiniz. Daha fazla bilgi için burada github ile ilgili bölüme başvurabilirsiniz.
 
-However, if we're publishing the app online, we need to do a little more work. Ultimately, we want your app to be able to be accessed via a web URL so others can get quick and easy access to it. Unfortunately, to publish you app on a server, you need to have access to a server to publish it on! There are a number of hosting options when it comes to this:
+Ancak, uygulamayı çevrimiçi yayınlıyorsak, biraz daha çalışmamız gerekiyor. Sonuç olarak, başkalarının hızlı ve kolay bir şekilde erişebilmesi için uygulamanıza bir web URL'si aracılığıyla erişilebilmesini istiyoruz. Ne yazık ki, uygulamanızı bir sunucuda yayınlamak için, bir sunucuya erişiminiz olması gerekir! Bu söz konusu olduğunda bir dizi barındırma seçeneği vardır:
 
-- _shinyapps.io_: this is the easiest place to publish shiny apps, as it has the smallest amount of configuration work needed, and has some free, but limited licenses.
+• brightapps.io: Bu seçenekte shiny uygulamalarını yayınlamak için yapılandırma iş yükü düşüktür ve kısmen ücretsizdir, (ancak sınırlı lisanslara sahiptir) bu nedenle, shiny uygulamaları yayınlamak için en kolay yerdir.
+• RStudio Connect: Bu seçenek, shiny uygulamalarını yayınlamak dahil birçok işlemi gerçekleştirebilen bir R sunucusunun güçlü bir sürümüdür. Bununla birlikte, kullanımı daha zordur ve ilk kez kullananlar için daha az tavsiye edilir.
 
-- _RStudio Connect_: this is a far more powerful version of an R server, that can perform many operations, including publishing shiny apps. It is however, harder to use, and less recommended for first-time users.
+Bu metnin amaçları doğrultusunda, ilk kez kullananlar için daha kolay olduğu için brightapps.io'yu kullanacağız. Başlamak için buradan ücretsiz bir hesap oluşturabilirsiniz - gerekirse sunucu lisansları için farklı fiyat seçenekleri de vardır. Ne kadar çok kullanıcıya sahip olmayı planlıyorsunuz, fiyat planınız o kadar pahalı olabilir, bu yüzden bunu göz önünde bulundurun. Küçük bir grup kişinin kullanması için bir uygulama oluşturmak istiyorsanız, ücretsiz bir lisans tamamen uygun olabilir, ancak halka açık bir uygulama daha fazla lisansa ihtiyaç duyabilir.
 
-For the purposes of this document, we will use _shinyapps.io_, since it is easier for first time users. You can make a free account here to start - there are also different price plans for server licesnses if needed. The more users you expect to have, the more expensive your price plan may have to be, so keep this under consideration. If you're looking to create something for a small set of individuals to use, a free license may be perfectly suitable, but a public facing app may need more licenses.
+Öncelikle uygulamamızın bir sunucuda yayınlanmaya uygun olduğundan emin olmalıyız. Uygulamanızda, R oturumunuzu yeniden başlatmalı ve herhangi bir ekstra kod çalıştırmadan çalıştığından emin olmalısınız. Bu önemlidir, çünkü paket yükleme gerektiren bir uygulama veya uygulama kodunuzda tanımlanmayan veri olması durumunda sunucuda çalışmayacaktır. Ayrıca, uygulamanızda herhangi bir açık dosya yoluna sahip olamayacağınızı unutmayın - bunlar sunucu ayarında geçersiz olacaktır - buradaki paketi kullanmak bu sorunu çok iyi çözer. Son olarak, kuruluşunuzun sunucuları gibi kullanıcı kimlik doğrulaması gerektiren bir kaynaktan veri okuyorsanız, bu genellikle bir sunucuda çalışmaz. Shiny sunucusunu beyaz listeye nasıl ekleyeceğinizi öğrenmek için bilgi işlem departmanınızla bağlantı kurmanız gerekecek.
 
-First we should make sure our app is suitable for publishing on a server. In your app, you should restart your R session, and ensure that it runs without running any extra code. This is important, as an app that requires package loading, or data reading not defined in your app code won't run on a server. Also note that you can't have any *explicit* file paths in your app - these will be invalid in the server setting - using the `here` package solves this issue very well. Finally, if you're reading data from a source that requires user-authentication, such as your organisation's servers, this will not generally work on a server. You will need to liase with your IT department to figure out how to whitelist the shiny server here.
+Hesabınızı aldıktan sonra, Hesaplar altındaki belirteçler (tokens) sayfasına gidebilirsiniz. Burada yeni bir belirteç eklemek isteyeceksiniz – bu belirteç, uygulamanızı dağıtmak için kullanılacaktır.
+Buradan, hesabınızın url'sinin uygulamanızın adını yansıtacağını unutmamalısınız - bu nedenle uygulamanızın adı my_app ise, url xxx.io/my_app/ olarak eklenecektir. Uygulamanızın adını akıllıca seçin! Artık hazır olduğunuza göre, dağıt'a (deploy) tıklayın - başarılı olursa, bu uygulamanızı seçtiğiniz web url'sinde çalıştıracaktır!
 
-*signing up for account*
+*belgelerde uygulama yapma konusunda ek bir şey var mı?*
 
-Once you have your account, you can navigate to the tokens page under _Accounts_. Here you will want to add a new token - this will be used to deploy your app. 
+## İleri okuma
 
-From here, you should note that the url of your account will reflect the name of your app - so if your app is called _my_app_, the url will be appended as _xxx.io/my_app/_. Choose your app name wisely! Now that you are all ready, click deploy - if successful this will run your app on the web url you chose!
+Şimdiye kadar, shiny’nin birçok yönünü ele aldık ancak tüm bilgiler göz önünde bulundurulursa shiny’yi ancak yüzeyel olarak gözden geçirdik. Bu kılavuz bir giriş niteliğinde olsa da, shiny’yi tam olarak anlamak için öğrenilecek daha çok şey var. Uygulamalar oluşturmaya başlamalı ve giderek daha fazla işlevsellik eklemelisiniz. 
 
-*something on making apps in documents?*
+## Önerilen shiny uzantıları
 
-## Further reading
+Aşağıdakiler, shiny’den çok daha fazlasını elde etmenize yardımcı olabilecek yüksek kalitede shiny uzantıların bir seçimini temsil etmektedir. Bu uzantılar belirli bir sırada değildir: 
 
-So far, we've covered a lot of aspects of shiny, and have barely scratched the surface of what is on offer for shiny. While this guide serves as an introduction, there is loads more to learn to fully understand shiny. You should start making apps and gradually add more and more functionality
-
-
-## Recommended extension packages
-
-The following represents a selection of high quality shiny extensions that can help you get a lot more out of shiny. In no particular order:
-
-- **shinyWidgets** - this package gives you many many more widgets that can be used in your app. Run `shinyWidgets::shinyWidgetsGallery()` to see a selection of available widgets with this package. See examples [here](https://github.com/dreamRs/shinyWidgets)  
-
-- **shinyjs** - this is an excellent package that gives the user the ability to greatly extend shiny's utility via a series of javascript. The applications of this package range from very simple to highly advanced, but you might want to first use it to manipulate the ui in simple ways, like hiding/showing elements, or enabling/disabling buttons. Find out more [here](https://deanattali.com/shinyjs/basic)
-
-- **shinydashboard** - this package massively expands the available ui that can be used in shiny, specifically letting the user create a complex dashboard with a variety of complex layouts. See more [here](https://rstudio.github.io/shinydashboard/)
-
-- **shinydashboardPlus** - get even more features out of the **shinydashboard** framework! See more [here](https://rinterface.github.io/shinydashboardPlus/articles/shinydashboardPlus.html)
-
-- **shinythemes** - change the default css theme for your shiny app with a wide range of preset templates! See more [here](https://rstudio.github.io/shinythemes/)
+• brightWidgets - bu paket size uygulamanızda kullanabileceğiniz çok daha fazla widget sunar. Bu pakette mevcut widgetların bir seçimini görmek için shinyWidgets::shinyWidgetsGallery()'yi çalıştırın. [buradaki](https://github.com/dreamRs/shinyWidgets) örneklere bakabilirsiniz. 
 
 
-There are also a number of packages that can be used to create interactive outputs that are shiny compatible. 
-
-- **DT** is semi-incorporated into base-shiny, but provides a great set of functions to create interactive tables.
-
-- **plotly** is a package for creating interactive plots that the user can manipulate in app. You can also convert your plot to interactive versions via `plotly::ggplotly()`! As alternatives, **dygraphs** and **highcharter** are also excellent.
+• shinyjs – bu uzantı, kullanıcıya bir dizi javascript aracılığıyla shiny’ye büyük ölçüde genişletme yeteneği veren mükemmel bir pakettir. Bu paketin uygulamaları çok basitten son derece gelişmişe kadar değişir, ancak ilk önce kullanıcı arabirimini öğeleri gizleme/gösterme veya düğmeleri etkinleştirme/devre dışı bırakma gibi basit yollarla değiştirmek için kullanmak isteyebilirsiniz. Daha fazlasını buradan öğrenin:
 
 
-## Recommended resources
+• shinydashboard - bu paket, shiny’de kullanılabilecek mevcut kullanıcı arayüzünü büyük ölçüde genişletir ve özellikle kullanıcının çeşitli karmaşık düzenlerle karmaşık bir panel oluşturmasına izin verir. Burada daha fazlasını görün:
+
+
+• shinydashboardPlus - shinydashboard çerçevesinden daha da fazla özellik elde edin! Burada daha fazlasını görün:
+
+• shinythemes - çok çeşitli önceden ayarlanmış şablonlarla shiny uygulamanız için varsayılan css temasını değiştirin! Burada daha fazlasını görün:
+
+Shiny uyumlu etkileşimli çıktılar oluşturmak için kullanılabilecek bir dizi paket de vardır.
+• DT, temel shiny’ye yarı entegredir, ancak etkileşimli tablolar oluşturmak için harika bir dizi fonksiyon sağlar.
+• plotly, kullanıcının uygulamada değiştirebileceği etkileşimli grafikler oluşturmaya yönelik bir pakettir. Ayrıca plotly::ggplotly() yoluyla grafiğinizi etkileşimli sürümlere dönüştürebilirsiniz! Alternatif olarak, dygraphs ve highcharter da mükemmeldir. 
+
+- **shinyWidgets** - this package gives you many many more widgets that can be used in your app. Run `shinyWidgets::shinyWidgetsGallery()` to see a selection of available widgets with this package. See examples   
+
+- **shinyjs** - bu uzantı, kullanıcıya bir dizi javascript aracılığıyla shiny’ye büyük ölçüde genişletme yeteneği veren mükemmel bir pakettir. Bu paketin uygulamaları çok basitten son derece gelişmişe kadar değişir, ancak ilk önce kullanıcı arabirimini öğeleri gizleme/gösterme veya düğmeleri etkinleştirme/devre dışı bırakma gibi basit yollarla değiştirmek için kullanmak isteyebilirsiniz. Daha fazlasını [buradan](https://deanattali.com/shinyjs/basic) öğrenin.
+
+- **shinydashboard** - bu paket, shiny’de kullanılabilecek mevcut kullanıcı arayüzünü büyük ölçüde genişletir ve özellikle kullanıcının çeşitli karmaşık düzenlerle karmaşık bir panel oluşturmasına izin verir. [Burada](https://rstudio.github.io/shinydashboard/) daha fazlasını görün
+
+- **shinydashboardPlus** - shinydashboard çerçevesinden daha da fazla özellik elde edin! [Burada](https://rinterface.github.io/shinydashboardPlus/articles/shinydashboardPlus.html) daha fazlasını görün.
+
+- **shinythemes** - çok çeşitli önceden ayarlanmış şablonlarla shiny uygulamanız için varsayılan css temasını değiştirin! [Burada](https://rstudio.github.io/shinythemes/) daha fazlasını görün.
+
+
+
+Shiny uyumlu etkileşimli çıktılar oluşturmak için kullanılabilecek bir dizi paket de vardır.
+• **DT**, temel shiny’ye yarı entegredir, ancak etkileşimli tablolar oluşturmak için harika bir dizi fonksiyon sağlar.
+• **plotly**, kullanıcının uygulamada değiştirebileceği etkileşimli grafikler oluşturmaya yönelik bir pakettir. Ayrıca plotly::ggplotly() yoluyla grafiğinizi etkileşimli sürümlere dönüştürebilirsiniz! Alternatif olarak, **dygraphs** ve **highcharter** da mükemmeldir. 
+
 
 
 
