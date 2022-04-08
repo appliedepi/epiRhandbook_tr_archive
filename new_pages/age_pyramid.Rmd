@@ -1,6 +1,5 @@
 
-# Demographic pyramids and Likert-scales {}  
-
+# Demografik piramidler ve likert ölçekler {}  
 
 
 ```{r, out.width = c('50%', '50%'), fig.show='hold', echo=F}
@@ -10,77 +9,69 @@ knitr::include_graphics(here::here("images", "likert.png"))
 ```
 
 
-Demographic pyramids are useful to show distributions of age and gender. Similar code can be used to visualize the results of Likert-style survey questions (e.g. "Strongly agree", "Agree", "Neutral", "Disagree", "Strongly disagree"). In this page we cover the following:  
+Demografik piramitler, yaş ve cinsiyet dağılımlarını göstermek için kullanışlıdır. Benzer kod, Likert tarzı anket sorularının sonuçlarını görselleştirmek için de kullanılabilir (örneğin, "Kesinlikle katılıyorum", "Katılıyorum", "Nötr", "Katılıyorum", "Kesinlikle katılmıyorum"). Bu sayfada aşağıdaki başlıkları ele alacağız: 
 
-* Fast & easy pyramids using the **apyramid** package  
-* More customizeable pyramids using `ggplot()`  
-* Displaying "baseline" demographics in the background of the pyramid  
-* Using pyramid-style plots to show other types of data (e.g responses to **Likert-style** survey questions)  
-
-
-
+* **apiramit** paketini kullanarak hızlı ve kolay piramit grafiği oluşturma 
+* `ggplot()` kullanarak daha fazla özelleştirilebilir piramit grafiği oluşturma
+* Piramidin arka planında "temel" demografik bilgileri görüntüleme 
+* Diğer veri türlerini görselleştirmek için piramit tarzı grafikler kullanma (ör. **Likert tarzı** anket sorularına verilen yanıtlar)
 
 
 <!-- ======================================================= -->
-## Preparation {}
+## Hazırlık {}
 
+### Paketleri yükleme {.unnumbered}
 
-
-### Load packages {.unnumbered}
-
-This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Aşağıdaki kod parçası, analizler için gerekli olan paketlerin yüklenmesini göstermektedir. Bu el kitabında, gerekirse paketi kuran *ve* kullanım için yükleyen **pacman**'dan `p_load()` fonksiyonunu ön plana çıkardık. R tabanından `library()` ile kurulu paketleri de yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R temelleri] sayfasına bakınız.
 
 ```{r}
-pacman::p_load(rio,       # to import data
-               here,      # to locate files
-               tidyverse, # to clean, handle, and plot the data (includes ggplot2 package)
-               apyramid,  # a package dedicated to creating age pyramids
-               janitor,   # tables and cleaning data
-               stringr)   # working with strings for titles, captions, etc.
+pacman::p_load(rio,       # verileri içe aktarmak için
+               here,      # dosyaları bulmak için
+               tidyverse, # verileri temizlemek, işlemek ve çizmek için (ggplot2 paketini içerir)
+               apyramid,  # yaş piramitleri oluşturmak için
+               janitor,   # tablo ve veri temizlemek için
+               stringr)   # başlık, alt yazı vb. dizelerle çalışmak için
 ```
 
 
+### Veriyi içe aktarma {.unnumbered}  
 
-
-### Import data {.unnumbered}  
-
-To begin, we import the cleaned linelist of cases from a simulated Ebola epidemic. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file). Import data with the `import()` function from the **rio** package (it handles many file types like .xlsx, .csv, .rds - see the [Import and export] page for details).  
+Başlamak için, Ebola salgını simulasyonuna ait temizlenmiş vaka listesini içe aktarıyoruz. Takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz satır listesi" dosyasını indirmek için tıklayınız.</a> (.rds dosyası olarak). **rio** paketinden `import()` fonksiyonu ile veriler içe aktarılmalıdır (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe ve dışa aktarma] sayfasına bakınız).
 
 ```{r, echo=F}
-# import the linelist into R
+# satır listesini R'a aktar
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
 ```
 
 ```{r, eval=F}
-# import case linelist 
+# vaka satır listesini içe aktar 
 linelist <- import("linelist_cleaned.rds")
 ```
 
-The first 50 rows of the linelist are displayed below.
+Satır listesinin ilk 50 satırı aşağıda gösterilmiştir.
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# satır listesi verilerini bir tablo olarak göster
 DT::datatable(head(linelist, 50), rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-### Cleaning {.unnumbered}  
+### Temizleme {.unnumbered}  
 
-To make a traditional age/gender demographic pyramid, the data must first be cleaned in the following ways:  
+Geleneksel bir yaş/cinsiyet demografik piramidi oluşturmak için verilerin öncelikle aşağıda tanımlandığı gibi temizlenmesi gerekir: 
 
-* The gender column must be cleaned.  
-* Depending on your method, age should be stored as either a numeric or in an *age category* column.  
+* Cinsiyet sütunu temizlenmelidir.  
+* Kullanmak istediğiniz yönteme bağlı olarak yaş, sayısal olarak veya *yaş kategorisi* sütununda saklanmalıdır. 
 
-If using age categories, the column values should be corrected ordered, either by default alpha-numeric or intentionally set by converting to class factor.  
+Eğer Yaş kategorileri kullanılacaksa, sütun değerleri varsayılan olarak alfasayısal olarak veya sınıf faktörüne dönüştürülerek düzeltilmelidir.
 
-Below we use `tabyl()` from **janitor** to inspect the columns `gender` and `age_cat5`.  
+Aşağıda, `gender` ve `age_cat5` sütunlarını incelemek için **janitor** paketinden `tabyl()` fonksiyonunu kullanıyoruz. 
 
 ```{r}
 linelist %>% 
   tabyl(age_cat5, gender)
 ```
 
-
-We also run a quick histogram on the `age` column to ensure it is clean and correctly classified:  
+Ayrıca, temiz ve doğru şekilde sınıflandırıldığından emin olmak için "age" sütununu hızlıca histograma dönüştürüyoruz:
 
 ```{r}
 hist(linelist$age)
@@ -88,18 +79,17 @@ hist(linelist$age)
 
 
 <!-- ======================================================= -->
-## **apyramid** package {}
+## **apyramid** paketi {}
 
-The package **apyramid** is a product of the [R4Epis](https://r4epis.netlify.com/) project. You can read more about this package [here](https://cran.r-project.org/web/packages/apyramid/vignettes/intro.html). It allows you to quickly make an age pyramid. For more nuanced situations, see the section below [using `ggplot()`](#demo_pyr_gg). You can read more about the **apyramid** package in its Help page by entering `?age_pyramid` in your R console. 
+**apyramid** paketi [R4Epis](https://r4epis.netlify.com/) projesinin bir ürünüdür. Bu paket hakkında daha fazla bilgiyi [buradan](https://cran.r-project.org/web/packages/apyramid/vignettes/intro.html) okuyabilirsiniz. Paket, hızlı bir şekilde bir yaş piramidi yapmanızı sağlar. Daha ayrıntılı durumlar için aşağıdaki bölüme bakabilirsiniz [`ggplot()` kullanarak](#demo_pyr_gg). R konsolunuza `?age_pyramid` girerek yardım sayfasında **apyramid** paketi hakkında daha fazla bilgi edinebilirsiniz.
 
 ### Linelist data {.unnumbered}  
 
+Temizlenmiş 'satır listesi' veri setini kullanarak, `age_pyramid()` komutuyla basit bir yaş piramidi oluşturabiliriz. Bu komutta:
 
-Using the cleaned `linelist` dataset, we can create an age pyramid with one simple `age_pyramid()` command. In this command:  
-
-* The `data = ` argument is set as the `linelist` data frame  
-* The `age_group = ` argument (for y-axis) is set to the name of the categorical age column (in quotes)  
-* The `split_by = ` argument (for x-axis) is set to the gender column  
+* `data = ` argümanı "satır listesi" veri çerçevesi olarak ayarlanır  
+* `age_group = ` argümanı (y ekseni için) kategorik yaş sütununun adına ayarlanır (tırnak içinde)
+* `split_by = ` argüman (x ekseni için) cinsiyet sütununa ayarlanır
 
 ```{r, warning=F, message=F}
 apyramid::age_pyramid(data = linelist,
@@ -108,7 +98,7 @@ apyramid::age_pyramid(data = linelist,
 ```
 
 
-The pyramid can be displayed with percent of all cases on the x-axis, instead of counts, by including `proportional = TRUE`.  
+Piramit, `proportional = TRUE` argümanı dahil edilerek, sayılar yerine x eksenindeki tüm verileri yüzdesi ile görüntülenebilir.
 
 ```{r, warning=F, message=F}
 apyramid::age_pyramid(data = linelist,
@@ -117,8 +107,7 @@ apyramid::age_pyramid(data = linelist,
                       proportional = TRUE)
 ```
 
-
-When using **agepyramid** package, if the `split_by` column is binary (e.g. male/female, or yes/no), then the result will appear as a pyramid. However if there are more than two values in the `split_by` column (not including `NA`), the pyramid will appears as a faceted bar plot with grey bars in the "background" indicating the range of the un-faceted data for that age group. In this case, values of `split_by = ` will appear as labels at top of each facet panel. For example, below is what occurs if the `split_by = ` is assigned the column `hospital`.  
+**agepyramid** paketini kullanırken, `split_by` sütunu ikili ise (ör. erkek/dişi veya evet/hayır), sonuç bir piramit olarak görünecektir. Bununla birlikte, `split_by` sütununda ikiden fazla değer varsa (`NA` dahil değildir), piramit "arka planda" gri çubuklar olan yönlü bir çubuk grafiği olarak görünecektir. Bu durum yaş grubu gibi yönlü olmayan verilerin aralığını gösterir. Bu durumda, `split_by =` değerleri her yön panelinin üstünde etiketler olarak görünecektir. Örneğin, `split_by = `, `hospital` sütununa atanırsa kodun nasıl yazılacağı aşağıda belirtilmiştir.
 
 ```{r, warning=F, message=F}
 apyramid::age_pyramid(data = linelist,
@@ -126,9 +115,9 @@ apyramid::age_pyramid(data = linelist,
                       split_by = "hospital")  
 ```
 
-#### Missing values {.unnumbered}  
+#### Eksik veriler {.unnumbered}  
 
-Rows that have `NA` missing values in the `split_by = ` or `age_group = ` columns, if coded as `NA`, will not trigger the faceting shown above. By default these rows will not be shown. However you can specify that they appear, in an adjacent barplot and as a separate age group at the top, by specifying `na.rm = FALSE`.  
+Eğer eksik veriler `NA` olarak kodlanmışsa, `split_by = ` veya `age_group = ` sütunlarındaki eksik veri olan satırlar, grafiğin oluşmasını etkilemez. Varsayılan olarak bu satırlar gösterilmeyecektir. Bununla birlikte, `na.rm = FALSE` argümanıyla üstte, ayrı bir bitişik çubuk grafiğinde görünmelerini sağlayabilirsiniz.
 
 ```{r, warning=F, message=F}
 apyramid::age_pyramid(data = linelist,
@@ -137,46 +126,45 @@ apyramid::age_pyramid(data = linelist,
                       na.rm = FALSE)         # show patients missing age or gender
 ```
 
-#### Proportions, colors, & aesthetics {.unnumbered}  
+#### Oranlar, renkler ve estetik {.unnumbered}  
 
-By default, the bars display counts (not %), a dashed mid-line for each group is shown, and the colors are green/purple. Each of these parameters can be adjusted, as shown below:  
+Varsayılan olarak, çubuklar sayılarını belirtmektedir (yüzdelerini değil). Her grup kesikli bir orta çizgi ile gösterilir ve rengi yeşil/mordur. Bu parametrelerin her biri aşağıda gösterildiği gibi ayarlanabilir:
 
-You can also add additional `ggplot()` commands to the plot using the standard `ggplot()` "+" syntax, such as aesthetic themes and label adjustments: 
+İstediğiniz estetik ve etiket ayarlamalarını standart `ggplot()` fonksiyonu ve "+" argümanını kullanarak ek `ggplot()` komutlarıyla belirleyebilirsiniz:
 
 ```{r, warning=F, message=F}
 apyramid::age_pyramid(
   data = linelist,
   age_group = "age_cat5",
   split_by = "gender",
-  proportional = TRUE,              # show percents, not counts
-  show_midpoint = FALSE,            # remove bar mid-point line
-  #pal = c("orange", "purple")      # can specify alt. colors here (but not labels)
+  proportional = TRUE,              # yüzdeyi göster, sayıları değil
+  show_midpoint = FALSE,            # orta nokta çizgisini kaldır
+  #pal = c("orange", "purple")      # burada alternatif renkler belirtebilirsiniz (ancak etiketleri değil)
   )+                 
   
   # additional ggplot commands
-  theme_minimal()+                               # simplfy background
-  scale_fill_manual(                             # specify colors AND labels
+  theme_minimal()+                               # arka planı basitleştir
+  scale_fill_manual(                             # renkleri VE etiketleri belirtin
     values = c("orange", "purple"),              
     labels = c("m" = "Male", "f" = "Female"))+
-  labs(y = "Percent of all cases",              # note x and y labs are switched
+  labs(y = "Percent of all cases",              # x ve y laboratuvarları değiştirildiğine dikkat edin
        x = "Age categories",                          
        fill = "Gender", 
        caption = "My data source and caption here",
        title = "Title of my plot",
        subtitle = "Subtitle with \n a second line...")+
   theme(
-    legend.position = "bottom",                          # legend to bottom
-    axis.text = element_text(size = 10, face = "bold"),  # fonts/sizes
+    legend.position = "bottom",                          # açıklama aşağıya
+    axis.text = element_text(size = 10, face = "bold"),  # font ve boyut
     axis.title = element_text(size = 12, face = "bold"))
 ```
 
 
+### Toplu veri {.unnumbered}  
 
-### Aggregated data {.unnumbered}  
+Yukarıdaki örnekler, verilerinizin gözlem başına bir satır olacak şekilde bir satır listesi biçiminde olduğunu varsaymaktadır. Verileriniz zaten yaş kategorisine göre sayılar halinde toplanmışsa, aşağıda gösterildiği gibi **apyramid** paketini kullanmaya devam edebilirsiniz.
 
-The examples above assume your data are in a linelist format, with one row per observation. If your data are already aggregated into counts by age category, you can still use the **apyramid** package, as shown below.  
-
-For demonstration, we aggregate the linelist data into counts by age category and gender, into a "wide" format. This will simulate as if your data were in counts to begin with. Learn more about [Grouping data] and [Pivoting data] in their respective pages.  
+Örnek olması için, satır listesi verilerini yaş kategorisine ve cinsiyete göre sayımlar halinde "geniş" bir formatta topluyoruz. Burada, verileriniz başlangıçta sayıymış gibi simüle edilecektir. İlgili sayfalarında [Gruplama verileri] ve [Özetleme verileri] hakkında daha fazla bilgi edinebilirsiniz.
 
 ```{r, warning=F, message=F}
 demo_agg <- linelist %>% 
@@ -188,130 +176,126 @@ demo_agg <- linelist %>%
   rename(`missing_gender` = `NA`)
 ```
 
-...which makes the dataset looks like this: with columns for age category, and male counts, female counts, and missing counts.  
+...bu da veri setinin şu şekilde görünmesini sağlar: yaş kategorisi, erkek sayısı, kadın sayısı ve eksik veri sütunları.
 
 ```{r, echo=F, warning=F, message=F}
-# View the aggregated data
+# Toplu veriyi göster
 DT::datatable(demo_agg, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-To set-up these data for the age pyramid, we will pivot the data to be "long" with the `pivot_longer()` function from **dplyr**. This is because `ggplot()` generally prefers "long" data, and **apyramid** is using `ggplot()`.  
+Bu verileri yaş piramidine uyarlamak için, veriler **dplyr** paketinden `pivot_longer()` fonksiyonuyla "long" formatına döndürülecektir. Bunun nedeni, `ggplot()` fonksiyonunun genellikle "long" verileri tercih etmesi ve **apyramid** paketinin `ggplot()`u kullanmasıdır.
 
 ```{r, warning=F, message=F}
-# pivot the aggregated data into long format
+# Toplu veriyi long formatına döndür
 demo_agg_long <- demo_agg %>% 
   pivot_longer(
-    col = c(f, m, missing_gender),            # cols to elongate
-    names_to = "gender",                # name for new col of categories
-    values_to = "counts") %>%           # name for new col of counts
+    col = c(f, m, missing_gender),            # long formatına çevrilecek sütunlar
+    names_to = "gender",                # kategori sütunu için yeni ad
+    values_to = "counts") %>%           # sayım sütunları için yeni ad
   mutate(
-    gender = na_if(gender, "missing_gender")) # convert "missing_gender" to NA
+    gender = na_if(gender, "missing_gender")) # "missing_gender"ı NA'ya çevir
 ``` 
 
 ```{r, echo=F, warning=F, message=F}
-# View the aggregated data
+# Toplu veriyi göster
 DT::datatable(demo_agg_long, rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Then use the `split_by = ` and `count = ` arguments of `age_pyramid()` to specify the respective columns in the data:  
+Ardından, verilerdeki ilgili sütunları belirtmek için `age_pyramid()` fonksiyonunun `split_by = ` ve `count = ` argümanını kullanın:
 
 ```{r, warning=F, message=F}
 apyramid::age_pyramid(data = demo_agg_long,
-                      age_group = "age_cat5",# column name for age category
-                      split_by = "gender",   # column name for gender
-                      count = "counts")      # column name for case counts
+                      age_group = "age_cat5",# yaş kategorisi sütunu için yeni ad
+                      split_by = "gender",   # cinsiyet sütunu için yeni ad
+                      count = "counts")      # vaka sayıları sütunu için yeni ad
 ```
 
-Note in the above, that the factor order of "m" and "f" is different (pyramid reversed). To adjust the order you must re-define gender in the aggregated data as a Factor and order the levels as desired. See the [Factors] page.  
-
-
+Yukarıda "m" ve "f" faktör sırasının farklı olduğuna dikkat edin (ters piramit). Sıralamayı ayarlamak için, toplu verilerde cinsiyeti Faktör olarak yeniden tanımlamalı ve seviyeleri istediğiniz gibi sıralamalısınız. [Faktörler] sayfasına bakınız.
 
 
 <!-- ======================================================= -->
 ## `ggplot()` {#demo_pyr_gg}
 
+Yaş piramidinizi oluşturmak için `ggplot()`u kullanmak daha fazla esneklik sağlar, ancak `ggplot()`un nasıl çalıştığına dair daha fazla bilgi sahibi olmanız gerekmektedir. Çünkü bu pakette hata yapmak da daha kolaydır.
 
-Using `ggplot()` to build your age pyramid allows for more flexibility, but requires more effort and understanding of how `ggplot()` works. It is also easier to accidentally make mistakes.  
+Demografik piramitler yapmak üzere `ggplot()`u kullanmak için, iki çubuk grafiği (her cinsiyet için bir tane) oluşturursunuz, bir grafikteki değerleri negatife çevirirsiniz ve son olarak çubuk grafiklerini dikey olarak, tabanlarını görüntülemek için x ve y eksenlerini çevirirsiniz.
 
-To use `ggplot()` to make demographic pyramids, you create two bar plots (one for each gender), convert the values in one plot to negative, and finally flip the x and y axes to display the bar plots vertically, their bases meeting in the plot middle.  
+### Hazırlık {.unnumbered}
 
-
-### Preparation {.unnumbered}
-
-This approach uses the *numeric* age column, not the *categorical* column of `age_cat5`. So we will check to ensure the class of this column is indeed numeric.  
+Bu yaklaşım, `age_cat5` verilerinin *kategorik* değil, *sayısal* yaş sütununu kullanır. Bu yüzden bu sütunun sınıfının gerçekten sayısal olup olmadığını kontrol edeceğiz.
 
 ```{r}
 class(linelist$age)
 ```
 
-You could use the same logic below to build a pyramid from categorical data using `geom_col()` instead of `geom_histogram()`.  
+Aşağıdaki mantığı, `geom_histogram()` yerine `geom_col()` kullanarak kategorik verilerden bir piramit oluşturmak için de kullanabilirsiniz.
 
 <!-- ======================================================= -->
-### Constructing the plot {.unnumbered} 
+### Grafiği oluşturma {.unnumbered} 
 
-First, understand that to make such a pyramid using `ggplot()` the approach is as follows:
+İlk olarak, `ggplot()` kullanarak bir piramit yapmak için aşağıdaki yaklaşımı anlamanız gerekmektedir:
 
-* Within the `ggplot()`, create **two** histograms using the numeric age column. Create one for each of the two grouping values (in this case genders male and female). To do this, the data for each histogram are specified within their respective `geom_histogram()` commands, with the respective filters applied to `linelist`.    
+* `ggplot()` içinde, sayısal yaş sütununu kullanarak **iki** histogram oluşturun: İki gruplama değerinin her biri için bir tane (bu durumda cinsiyetler erkek ve kadın). Bunu yapmak için, her bir histogram için veriler, ilgili filtreler "satır listesine" uygulanarak ilgili `geom_histogram()` komutlarında tanımlanır.
 
-* One graph will have positive count values, while the other will have its counts converted to negative values - this creates the "pyramid" with the `0` value in the middle of the plot. The negative values are created using a special **ggplot2** term `..count..` and multiplying by -1.  
+* Bir grafik pozitif değerlere sahip olacak, diğeri ise negatif değerlere dönüştürülecek - bu, grafiğin ortasında "0" değeri olan bir "piramit" yaratır. Negatif değerler, özel bir **ggplot2** terimi `..count..` kullanılarak ve -1 ile çarpılarak oluşturulur.
 
-* The command `coord_flip()` switches the X and Y axes, resulting in the graphs turning vertical and creating the pyramid.
+* `coord_flip()` komutu X ve Y eksenlerini değiştirerek grafiklerin 90 derece dönmesine ve piramidin oluşturulmasına neden olur.
 
-* Lastly, the counts-axis value labels must be altered so they appear as "positive" counts on both sides of the pyramid (despite the underlying values on one side being negative). 
+* Son olarak, sayım ekseni değer etiketleri, piramidin her iki tarafında "pozitif" sayımlar olarak görünecek şekilde değiştirilmelidir (bir taraftaki temel değerlerin negatif olmasına rağmen). 
 
-A **simple** version of this, using `geom_histogram()`, is below:
+`geom_histogram()` fonksiyonu kullanılarak hazırlanan **basit** bir versiyonu aşağıdadır:
 
 ```{r, warning=F, message=F}
-  # begin ggplot
+  # ggplotu başlat
   ggplot(mapping = aes(x = age, fill = gender)) +
   
-  # female histogram
+  # kadın histogram
   geom_histogram(data = linelist %>% filter(gender == "f"),
                  breaks = seq(0,85,5),
                  colour = "white") +
   
-  # male histogram (values converted to negative)
+  # erkek histogram (veriler negatife çevrilecek)
   geom_histogram(data = linelist %>% filter(gender == "m"),
                  breaks = seq(0,85,5),
                  mapping = aes(y = ..count..*(-1)),
                  colour = "white") +
   
-  # flip the X and Y axes
+  # X ve Y eksenlerini çevir
   coord_flip() +
   
-  # adjust counts-axis scale
+  # sayım ekseni ölçeğini ayarla
   scale_y_continuous(limits = c(-600, 900),
                      breaks = seq(-600,900,100),
                      labels = abs(seq(-600, 900, 100)))
 ```
 
-<span style="color: red;">**_DANGER:_** If the **limits** of your counts axis are set too low, and a counts bar exceeds them, the bar will disappear entirely or be artificially shortened! Watch for this if analyzing data which is routinely updated. Prevent it by having your count-axis limits auto-adjust to your data, as below.</span>  
+<span style="color: red;">**_TEHLİKE:_** Sayım ekseninizin **sınırları** çok düşük ayarlanmışsa ve bir sayım çubuğu bunları aşarsa, çubuk tamamen kaybolur veya yapay olarak kısaltılır! Rutin olarak güncellenen verileri analiz ediyorsanız buna dikkat etmelisiniz. Sayım ekseni sınırlarınızın aşağıdaki gibi verilerinize göre otomatik olarak ayarlanmasını sağlayarak bunu önleyebilirsiniz.</span>  
 
-There are many things you can change/add to this simple version, including:  
+Bu basit versiyonda değiştirebileceğiniz/ekleyebileceğiniz pek çok şey vardır:  
 
-* Auto adjust counts-axis scale to your data (avoid errors discussed in warning below)  
-* Manually specify colors and legend labels  
+* Sayım ekseni ölçeğini verilerinize göre otomatik olarak ayarlama (aşağıdaki uyarıda açıklanan hatalardan kaçınmalısınız) 
+* Renkleri ve gösterge etiketlerini manuel olarak belirtme
 
-**Convert counts to percents**  
+**Sayıları yüzdelere dönüştürme**  
 
-To convert counts to percents (of total), do this in your data prior to plotting. Below, we get the age-gender counts, then `ungroup()`, and then `mutate()` to create new percent columns. If you want percents by gender, skip the ungroup step.  
+Sayıları yüzdelere (toplamına göre) dönüştürmek için, hazırlıklarınızı çizimden önce yapmanız gerekmektedir. Aşağıda, yeni yüzde sütunları oluşturmak için yaş-cinsiyet sayılarını, `ungroup()` ve ardından `mutate()` fonksiyonlarını kullanıyoruz. Cinsiyete göre yüzdeleri istiyorsanız, `ungroup()` adımını atlayabilirsiniz.
 
 
 ```{r, warning=F, message=F}
-# create dataset with proportion of total
+# toplama göre oranlamak için veri kümesi oluştur
 pyramid_data <- linelist %>%
   count(age_cat5,
         gender,
         name = "counts") %>% 
-  ungroup() %>%                 # ungroup so percents are not by group
+  ungroup() %>%                 # grubu çöz, böylece yüzdeler gruba göre belirlenmesin
   mutate(percent = round(100*(counts / sum(counts, na.rm=T)), digits = 1), 
          percent = case_when(
             gender == "f" ~ percent,
-            gender == "m" ~ -percent,     # convert male to negative
-            TRUE          ~ NA_real_))    # NA val must by numeric as well
+            gender == "m" ~ -percent,     # erkeği negatife çevir
+            TRUE          ~ NA_real_))    # NA değeri de sayısal olmalıdır
 ```
 
-Importantly, we save the max and min values so we know what the limits of the scale should be. These will be used in the `ggplot()` command below.    
+Daha da önemlisi, maksimum ve minimum değerleri kaydederek ölçeğin sınırlarının ne olması gerektiğini biliriz. Bunlar aşağıdaki `ggplot()` komutunda kullanılacaktır.   
 
 ```{r}
 max_per <- max(pyramid_data$percent, na.rm=T)
@@ -321,43 +305,43 @@ max_per
 min_per
 ```
 
-Finally we make the `ggplot()` on the percent data. We specify `scale_y_continuous()` to extend the pre-defined lengths in each direction (positive and "negative"). We use `floor()` and `ceiling()` to round decimals the appropriate direction (down or up) for the side of the axis.  
+Son olarak yüzde verisi üzerinde `ggplot()` komutunu kullanıyoruz. Önceden tanımlı uzunlukları her yönde (pozitif ve "negatif") uzatmak için `scale_y_continuous()` fonksiyonunu tanımlıyoruz. Ondalık sayıları eksenin kenarı için uygun yöne (aşağı veya yukarı) yuvarlamak için `floor()` ve `ceiling()` argümanlarını kullanırız.
 
 ```{r, warning=F, message=F}
-# begin ggplot
-  ggplot()+  # default x-axis is age in years;
+# ggplot başlangıcı
+  ggplot()+  # varsayılan x ekseni, yıl cinsinden yaştır;
 
-  # case data graph
+  # vaka veri grafiği
   geom_col(data = pyramid_data,
            mapping = aes(
              x = age_cat5,
              y = percent,
              fill = gender),         
-           colour = "white")+       # white around each bar
+           colour = "white")+       # her çubuğun etrafı beyaz
   
-  # flip the X and Y axes to make pyramid vertical
+  # piramidi dikey yapmak için X ve Y eksenlerini çevir
   coord_flip()+
   
 
-  # adjust the axes scales
+  # eksen boyunu düzenle
   # scale_x_continuous(breaks = seq(0,100,5), labels = seq(0,100,5)) +
   scale_y_continuous(
     limits = c(min_per, max_per),
-    breaks = seq(from = floor(min_per),                # sequence of values, by 2s
+    breaks = seq(from = floor(min_per),                # 2s ile değer dizisi
                  to = ceiling(max_per),
                  by = 2),
-    labels = paste0(abs(seq(from = floor(min_per),     # sequence of absolute values, by 2s, with "%"
+    labels = paste0(abs(seq(from = floor(min_per),     # mutlak değerler dizisi, 2s ile, "%" ile
                             to = ceiling(max_per),
                             by = 2)),
                     "%"))+  
 
-  # designate colors and legend labels manually
+  #renkleri ve açıklama etiketlerini manuel olarak belirle
   scale_fill_manual(
     values = c("f" = "orange",
                "m" = "darkgreen"),
     labels = c("Female", "Male")) +
   
-  # label values (remember X and Y flipped now)
+  # etiket değerleri (şimdi X ve Y'nin çevrildiğini unutmayın)
   labs(
     title = "Age and gender of cases",
     x = "Age group",
@@ -365,7 +349,7 @@ Finally we make the `ggplot()` on the percent data. We specify `scale_y_continuo
     fill = NULL,
     caption = stringr::str_glue("Data are from linelist \nn = {nrow(linelist)} (age or sex missing for {sum(is.na(linelist$gender) | is.na(linelist$age_years))} cases) \nData as of: {format(Sys.Date(), '%d %b %Y')}")) +
   
-  # display themes
+  # temayı görüntüle
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -380,53 +364,53 @@ Finally we make the `ggplot()` on the percent data. We specify `scale_y_continuo
 
 
 <!-- ======================================================= -->
-### Compare to baseline  {.unnumbered} 
+### Baz değerleriyle ile karşılaştırma  {.unnumbered} 
 
-With the flexibility of `ggplot()`, you can have a second layer of bars in the background that represent the "true" or "baseline" population pyramid. This can provide a nice visualization to compare the observed with the baseline.  
+`ggplot()`un esnekliğiyle, arka planda "gerçek" veya "baz" nüfus piramidini temsil eden ikinci bir çubuk katmanına sahip olabilirsiniz. Bu, gözlemlenenleri taban çizgisiyle karşılaştırmak için güzel bir görselleştirme sağlayabilir.
 
-Import and view the population data (see [Download handbook and data] page):
+Nüfus verilerini içe aktarın ve görüntüleyin (bkz. [El kitabını ve verileri indirin] sayfası):
 
 ```{r echo=F}
-# import the population demographics data
+# nüfus demografisi verilerini içe aktar
 pop <- rio::import(here::here("data", "standardization", "country_demographics.csv"))
 ```
 
 ```{r eval=F}
-# import the population demographics data
+# nüfus demografisi verilerini içe aktar
 pop <- rio::import("country_demographics.csv")
 ```
 
 ```{r, echo=F, warning=F, message=F}
-# display the linelist data as a table
+# satır listesi verilerini bir tablo olarak göster
 DT::datatable(pop, rownames = FALSE, options = list(pageLength = 10, scrollX=T), class = 'white-space: nowrap' )
 ```
 
 
-First some data management steps:  
+İlk önce bazı veri yönetimi adımları: 
 
-Here we record the order of age categories that we want to appear. Due to some quirks the way the `ggplot()` is implemented, in this specific scenario it is easiest to store these as a character vector and use them later in the plotting function.  
+Burada görünmesini istediğimiz yaş kategorilerinin sırasını kaydediyoruz. `ggplot()`un uygulanma biçimindeki bazı tuhaflıklar nedeniyle, bu özel senaryoda bunları bir karakter vektörü olarak saklamak ve daha sonra çizim işlevinde kullanmak en kolay yoldur.
 
 ```{r}
-# record correct age cat levels
+# doğru yaş kategorisi seviyelerini kaydedin
 age_levels <- c("0-4","5-9", "10-14", "15-19", "20-24",
                 "25-29","30-34", "35-39", "40-44", "45-49",
                 "50-54", "55-59", "60-64", "65-69", "70-74",
                 "75-79", "80-84", "85+")
 ```
 
-Combine the population and case data through the **dplyr** function `bind_rows()`:  
+Popülasyon ve vaka verilerini **dplyr** paketinden `bind_rows()` fonksiyonu aracılığıyla birleştirin:
 
-* First, ensure they have the *exact same* column names, age categories values, and gender values  
-* Make them have the same data structure: columns of age category, gender, counts, and percent of total  
-* Bind them together, one on-top of the other (`bind_rows()`)  
+* İlk olarak, *tam olarak aynı* sütun adlarına, yaş kategorisi değerlerine ve cinsiyet değerlerine sahip olduklarından emin olmalısınız
+* Verilerin aynı veri yapısına sahip olmalarını sağlayın: yaş kategorisi sütunları, cinsiyet, sayılar ve toplamın yüzdesi
+* Bunları üst üste gelecek şekilde birbirine bağlayın (`bind_rows()`)
 
 
 
 ```{r, warning=F, message=F}
-# create/transform populaton data, with percent of total
+# toplamın yüzdesi ile nüfus verilerini oluştur/dönüştür
 ########################################################
 pop_data <- pop %>% 
-  pivot_longer(      # pivot gender columns longer
+  pivot_longer(      # cinsiyet sütunlarını long formatına döndür
     cols = c(m, f),
     names_to = "gender",
     values_to = "counts") %>% 
@@ -435,113 +419,111 @@ pop_data <- pop %>%
     percent  = round(100*(counts / sum(counts, na.rm=T)),1),  # % of total
     percent  = case_when(                                                        
      gender == "f" ~ percent,
-     gender == "m" ~ -percent,               # if male, convert % to negative
+     gender == "m" ~ -percent,               # erkek ise, %'yi negatife çevir
      TRUE          ~ NA_real_))
 ```
 
-Review the changed population dataset
+Değiştirilen nüfus veri kümesini gözden geçirin
 
 ```{r, echo=F, warning=F, message=F}
-# display the linelist data as a table
+# satır listesi verilerini bir tablo olarak göster
 DT::datatable(pop_data, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Now implement the same for the case linelist.  Slightly different because it begins with case-rows, not counts.  
+Şimdi aynısını vaka satır listesi için uygulayın. Burada durum biraz farklıdır çünkü veriler vaka satırlarıyla başlıyor, sayılarla değil.  
 
 ```{r, warning=F, message=F}
-# create case data by age/gender, with percent of total
+# toplamın yüzdesi ile yaşa/cinsiyete göre vaka verileri oluştur
 #######################################################
 case_data <- linelist %>%
-  count(age_cat5, gender, name = "counts") %>%  # counts by age-gender groups
+  count(age_cat5, gender, name = "counts") %>%  # yaş-cinsiyet gruplarına göre say
   ungroup() %>% 
   mutate(
-    percent = round(100*(counts / sum(counts, na.rm=T)),1),  # calculate % of total for age-gender groups
-    percent = case_when(                                     # convert % to negative if male
+    percent = round(100*(counts / sum(counts, na.rm=T)),1),  # yaş-cinsiyet grupları için toplamın yüzdesini hesapla
+    percent = case_when(                                     # erkek ise %'yi negatife çevir
       gender == "f" ~ percent,
       gender == "m" ~ -percent,
       TRUE          ~ NA_real_))
 ```
 
-Review the changed case dataset  
+Değiştirilen vaka veri kümesini gözden geçirin
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# satır listesi verilerini bir tablo olarak göster
 DT::datatable(case_data, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Now the two data frames are combined, one on top of the other (they have the same column names). We can "name" each of the data frame, and use the `.id = ` argument to create a new column "data_source" that will indicate which data frame each row originated from. We can use this column to filter in the `ggplot()`.  
-
-
+Şimdi iki veri çerçevesi, biri diğerinin üzerinde olacak şekilde birleştirilmiştir (aynı sütun adlarına sahiptirler). Veri çerçevesinin her birini yeniden "adlandırabiliriz" ve her satırın hangi veri çerçevesinden kaynaklandığını gösterecek yeni bir "veri_kaynağı" sütunu oluşturmak için `.id = ` argümanını kullanabiliriz. Bu sütunu daha sonrasında `ggplot()` içinde filtrelemek için kullanabiliriz.
 
 ```{r, warning=F, message=F}
-# combine case and population data (same column names, age_cat values, and gender values)
+# vaka ve popülasyon verilerini birleştir (aynı sütun adları, age_cat değerleri ve cinsiyet değerleri)
 pyramid_data <- bind_rows("cases" = case_data, "population" = pop_data, .id = "data_source")
 ```
 
-Store the maximum and minimum percent values, used in the plotting function to define the extent of the plot (and not cut short any bars!)  
+Çizimin kapsamını tanımlamak için çizim işlevinde kullanılan maksimum ve minimum yüzde değerlerini saklayabilirsiniz (ve herhangi bir çubuğu daha kısa kesmeyin!)
 
 ```{r}
-# Define extent of percent axis, used for plot limits
+# Çizim sınırları için kullanılan yüzde ekseninin kapsamını tanımla
 max_per <- max(pyramid_data$percent, na.rm=T)
 min_per <- min(pyramid_data$percent, na.rm=T)
 ```
 
-Now the plot is made with `ggplot()`: 
+Şimdi grafik `ggplot()` ile hazırlanabilir:
 
-* One bar graph of population data (wider, more transparent bars)
-* One bar graph of case data (small, more solid bars)  
+* Nüfus verilerinin bir çubuk grafiği (daha geniş, daha şeffaf çubuklar)
+* Vaka verilerinin bir çubuk grafiği (küçük, daha opak çubuk)
 
 
 ```{r, warning=F, message=F}
 
-# begin ggplot
+# ggplot'u başlat
 ##############
-ggplot()+  # default x-axis is age in years;
+ggplot()+  # varsayılan x ekseni, yıl cinsinden yaştır;
 
-  # population data graph
+  # nüfus veri grafiği
   geom_col(
     data = pyramid_data %>% filter(data_source == "population"),
     mapping = aes(
       x = age_cat5,
       y = percent,
       fill = gender),
-    colour = "black",                               # black color around bars
-    alpha = 0.2,                                    # more transparent
-    width = 1)+                                     # full width
+    colour = "black",                               # çubukların etrafındaki siyah renk
+    alpha = 0.2,                                    # daha şeffaf
+    width = 1)+                                     # tam genişlik
   
-  # case data graph
+  # vaka veri grafiği
   geom_col(
     data = pyramid_data %>% filter(data_source == "cases"), 
     mapping = aes(
-      x = age_cat5,                               # age categories as original X axis
-      y = percent,                                # % as original Y-axis
-      fill = gender),                             # fill of bars by gender
-    colour = "black",                               # black color around bars
-    alpha = 1,                                      # not transparent 
-    width = 0.3)+                                   # half width
+      x = age_cat5,                               # orijinal X ekseni olarak yaş kategorileri
+      y = percent,                                # orijinal Y ekseni olarak %
+      fill = gender),                             # cinsiyete göre çubukların doldurulması
+    colour = "black",                               # çubukların etrafındaki siyah renk
+    alpha = 1,                                      # opak 
+    width = 0.3)+                                   # yarım genişlik
   
-  # flip the X and Y axes to make pyramid vertical
+  # piramidi dikey yapmak için X ve Y eksenlerini çevir
   coord_flip()+
   
-  # manually ensure that age-axis is ordered correctly
-  scale_x_discrete(limits = age_levels)+     # defined in chunk above
+  # yaş ekseninin doğru sıralandığından manuel olarak emin ol
+  scale_x_discrete(limits = age_levels)+     # yukarıdaki parçada tanımlanmış
   
-  # set percent-axis 
+  # yüzde ekseni ayarla
   scale_y_continuous(
-    limits = c(min_per, max_per),                                          # min and max defined above
-    breaks = seq(floor(min_per), ceiling(max_per), by = 2),                # from min% to max% by 2 
-    labels = paste0(                                                       # for the labels, paste together... 
+    limits = c(min_per, max_per),                                          # yukarıda tanımlanan min ve max
+    breaks = seq(floor(min_per), ceiling(max_per), by = 2),                # min%'den maksimum% 2'ye
+    labels = paste0(                                                       # etiketler için birlikte yapıştır...
               abs(seq(floor(min_per), ceiling(max_per), by = 2)), "%"))+                                                  
 
-  # designate colors and legend labels manually
+  # renkleri ve açıklama etiketlerini manuel olarak belirle
   scale_fill_manual(
-    values = c("f" = "orange",         # assign colors to values in the data
+    values = c("f" = "orange",         # verilerdeki değerlere renk ata
                "m" = "darkgreen"),
     labels = c("f" = "Female",
-               "m"= "Male"),      # change labels that appear in legend, note order
+               "m"= "Male"),      # göstergede görünen etiketleri değiştir, not sırası
   ) +
 
-  # plot labels, titles, caption    
+  # grafik etiketleri, başlıklar, başlık  
   labs(
     title = "Case age and gender distribution,\nas compared to baseline population",
     subtitle = "",
@@ -550,9 +532,9 @@ ggplot()+  # default x-axis is age in years;
     fill = NULL,
     caption = stringr::str_glue("Cases shown on top of country demographic baseline\nCase data are from linelist, n = {nrow(linelist)}\nAge or gender missing for {sum(is.na(linelist$gender) | is.na(linelist$age_years))} cases\nCase data as of: {format(max(linelist$date_onset, na.rm=T), '%d %b %Y')}")) +
   
-  # optional aesthetic themes
+  # opsiyonel estetik ayarlamalar
   theme(
-    legend.position = "bottom",                             # move legend to bottom
+    legend.position = "bottom",                             # açıklamayı aşağıya taşı
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
@@ -564,9 +546,9 @@ ggplot()+  # default x-axis is age in years;
 
 
 <!-- ======================================================= -->
-## Likert scale {}
+## Likert ölçek {}
 
-The techniques used to make a population pyramid with `ggplot()` can also be used to make plots of Likert-scale survey data.  
+'ggplot()' ile bir nüfus piramidi yapmak için kullanılan teknikler, Likert ölçekli anket verilerinin çizimlerini yapmak için de kullanılabilir.
 
 ```{r, eval=F, echo=F}
 data_raw <- import("P:/Shared/equateur_mve_2020/lessons learned/Ebola After-Action Survey - HQ epi team (form responses).csv")
@@ -595,31 +577,31 @@ table(likert_data$status)
 rio::export(likert_data, here::here("data", "likert_data.csv"))
 ```
 
-Import the data (see [Download handbook and data] page if desired).  
+Verileri içe aktarın ([El kitabını ve verileri indir] sayfasına bakabilirsiniz).
 
 ```{r echo=F}
-# import the likert survey response data
+# likert anketi yanıt verilerini içe aktar
 likert_data <- rio::import(here::here("data", "likert_data.csv"))
 ```
 
 ```{r, eval=F}
-# import the likert survey response data
+# likert anketi yanıt verilerini içe aktar
 likert_data <- rio::import("likert_data.csv")
 ```
 
-Start with data that looks like this, with a categorical classification of each respondent (`status`) and their answers to 8 questions on a 4-point Likert-type scale ("Very poor", "Poor", "Good", "Very good").  
+Her katılımcının kategorik bir sınıflandırması (`status`) ve 4 puanlı Likert tipi bir ölçekte 8 soruya verdikleri yanıtlara ("Çok kötü", "Kötü", "İyi", "Çok iyi") ait verileri ele alacağız.
 
 ```{r, echo=F, message=FALSE}
-# display the linelist data as a table
+# satır listesi verilerini bir tablo olarak göster
 DT::datatable(likert_data, rownames = FALSE, filter="top", options = list(pageLength = 10, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-First, some data management steps:  
+İlk olarak, veri yönetimi adımları: 
 
-* Pivot the data longer  
-* Create new column `direction` depending on whether response was generally "positive" or "negative"  
-* Set the Factor level order for the `status` column and the `Response` column  
-* Store the max count value so limits of plot are appropriate  
+* Verileri `pivot_longer` fonksiyonuyla alt gruplarına döndürme
+* Yanıtın genellikle "olumlu" veya "olumsuz" olmasına bağlı olarak yeni bir `direction` sütunu oluşturma
+* `status` sütunu ve `Response` sütunu için Faktör düzeyi sırasını ayarlama  
+* Maksimum sayım değerini, çizim sınırlarının uygun olması için saklama 
 
 
 ```{r, warning=F, message=F}
@@ -637,37 +619,37 @@ melted <- likert_data %>%
     
     status = fct_relevel(status, "Junior", "Intermediate", "Senior"),
     
-    # must reverse 'Very Poor' and 'Poor' for ordering to work
+    # çalışması için 'Çok Zayıf' ve 'Zayıf' kelimeleri tersine çevirilmelidir
     Response = fct_relevel(Response, "Very Good", "Good", "Very Poor", "Poor")) 
 
-# get largest value for scale limits
+# ölçek limitleri için en büyük değeri al
 melted_max <- melted %>% 
-  count(status, Question) %>% # get counts
-  pull(n) %>%                 # column 'n'
-  max(na.rm=T)                # get max
+  count(status, Question) %>% # sayıları al
+  pull(n) %>%                 # sütunu 'n'i
+  max(na.rm=T)                # maksimumu al
 ```
 
 
-Now make the plot. As in the age pyramids above, we are creating two bar plots and inverting the values of one of them to negative. 
+Şimdi grafiği hazırlayabiliriz. Yukarıdaki yaş piramitlerinde olduğu gibi iki çubuk grafiği oluşturuyoruz ve bunlardan birinin değerlerini negatife çeviriyoruz. 
 
-We use `geom_bar()` because our data are one row per observation, not aggregated counts. We use the special **ggplot2** term `..count..` in one of the bar plots to invert the values negative (*-1), and we set `position = "stack"` so the values stack on top of each other.  
+`geom_bar()` fonksiyonunu kullanıyoruz çünkü verilerimiz toplu sayı olarak değil, gözlem başına bir satır olacak şekilde düzenlendi. Negatif değerleri (*-1*) tersine çevirmek için çubuk grafiklerden birinde özel **ggplot2** terimi olan `..count..`u ve değerlerin üstüne eklenmesi için `position = "stack"` argümanını kullanıyoruz.
 
 ```{r, warning=F, message=F}
-# make plot
+# garfiği hazırla
 ggplot()+
      
-  # bar graph of the "negative" responses 
+  # "olumsuz" yanıtların çubuk grafiği 
      geom_bar(
        data = melted %>% filter(direction == "Negative"),
        mapping = aes(
          x = status,
-         y = ..count..*(-1),    # counts inverted to negative
+         y = ..count..*(-1),    # negatife çevrilen sayımlar
          fill = Response),
        color = "black",
        closed = "left",
        position = "stack")+
      
-     # bar graph of the "positive responses
+     # "olumlu" yanıtların çubuk grafiği
      geom_bar(
        data = melted %>% filter(direction == "Positive"),
        mapping = aes(
@@ -677,62 +659,62 @@ ggplot()+
        closed = "left",
        position = "stack")+
      
-     # flip the X and Y axes
+     # X ve Y eksenlerini çevirin
      coord_flip()+
   
-     # Black vertical line at 0
+     # 0'da siyah dikey çizgi
      geom_hline(yintercept = 0, color = "black", size=1)+
      
-    # convert labels to all positive numbers
+    # etiketlerin tümünü pozitif sayılara dönüştür
     scale_y_continuous(
       
-      # limits of the x-axis scale
-      limits = c(-ceiling(melted_max/10)*11,    # seq from neg to pos by 10, edges rounded outward to nearest 5
+      # x ekseni ölçeğinin sınırları
+      limits = c(-ceiling(melted_max/10)*11,    # 10 ile negatiften pozitife doğru sıra, kenarlar dışa doğru en yakın 5'e yuvarlanır
                  ceiling(melted_max/10)*10),   
       
-      # values of the x-axis scale
+      # x ekseni ölçeğinin değerleri
       breaks = seq(from = -ceiling(melted_max/10)*10,
                    to = ceiling(melted_max/10)*10,
                    by = 10),
       
-      # labels of the x-axis scale
+      # x ekseni ölçeğinin etiketleri
       labels = abs(unique(c(seq(-ceiling(melted_max/10)*10, 0, 10),
                             seq(0, ceiling(melted_max/10)*10, 10))))) +
      
-    # color scales manually assigned 
+    # manuel olarak atanan renk skalaları
     scale_fill_manual(
-      values = c("Very Good"  = "green4", # assigns colors
+      values = c("Very Good"  = "green4", # renk ata
                 "Good"      = "green3",
                 "Poor"      = "yellow",
                 "Very Poor" = "red3"),
-      breaks = c("Very Good", "Good", "Poor", "Very Poor"))+ # orders the legend
+      breaks = c("Very Good", "Good", "Poor", "Very Poor"))+ # açıklamanın sırası
      
     
      
-    # facet the entire plot so each question is a sub-plot
+    # tüm grafiği şekillendirin, böylece her soru bir alt grafik olur
     facet_wrap( ~ Question, ncol = 3)+
      
-    # labels, titles, caption
+    # etiketler, başlıklar, başlık
     labs(
       title = str_glue("Likert-style responses\nn = {nrow(likert_data)}"),
       x = "Respondent status",
       y = "Number of responses",
       fill = "")+
 
-     # display adjustments 
+     # görselin ayarları 
      theme_minimal()+
      theme(axis.text = element_text(size = 12),
            axis.title = element_text(size = 14, face = "bold"),
-           strip.text = element_text(size = 14, face = "bold"),  # facet sub-titles
+           strip.text = element_text(size = 14, face = "bold"),  # alt başlıklar
            plot.title = element_text(size = 20, face = "bold"),
-           panel.background = element_rect(fill = NA, color = "black")) # black box around each facet
+           panel.background = element_rect(fill = NA, color = "black")) # her metin etrafındaki siyah çerçeve
 ```
 
 
 <!-- ======================================================= -->
-## Resources {}
+## Kaynaklar {}
 
-[apyramid documentation](https://cran.r-project.org/web/packages/apyramid/vignettes/intro.html)
+[apyramid dokümantasyonu](https://cran.r-project.org/web/packages/apyramid/vignettes/intro.html)
 
 
 

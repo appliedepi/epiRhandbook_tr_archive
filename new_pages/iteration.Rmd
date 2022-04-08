@@ -1,59 +1,59 @@
 
-# Iteration, loops, and lists { }  
+# Yineleme, döngüler ve listeler { }  
 
-Epidemiologists often are faced with repeating analyses on subgroups such as countries, districts, or age groups. These are but a few of the many situations involving *iteration*. Coding your iterative operations using the approaches below will help you perform such repetitive tasks faster, reduce the chance of error, and reduce code length.  
+Epidemiyologlar sıklıkla ülkeler, ilçeler veya yaş grupları gibi alt gruplar üzerinde tekrar eden analizlerle karşı karşıya kalırlar. Bunlar *yinelemeyi* içeren birçok durumdan sadece birkaçıdır. Aşağıdaki yaklaşımları kullanarak yinelemeli işlemlerinizi kodlamak, bu tür tekrarlayan görevleri daha hızlı gerçekleştirmenize, hata olasılığını azaltmanıza ve kod uzunluğunu azaltmanıza yardımcı olacaktır.
 
-This page will introduce two approaches to iterative operations - using *for loops* and using the package **purrr**.  
+Bu sayfa, yinelemeli işlemlere iki yaklaşım sunacaktır - *for döngülerini* ve *purrr* paketini kullanmak.
 
-1) *for loops* iterate code across a series of inputs, but are less common in R than in other programming languages. Nevertheless, we introduce them here as a learning tool and reference  
-2) The **purrr** package is the **tidyverse** approach to iterative operations - it works by "mapping" a function across many inputs (values, columns, datasets, etc.)  
+1) *for döngüleri*, bir dizi giriş boyunca kodu yineler, ancak R'da diğer programlama dillerinden daha az yaygındır. Yine de, onları burada bir öğrenme aracı ve referans olarak tanıtıyoruz.
+2) **purrr** paketi, yinelemeli işlemlere **tidyverse** yaklaşımdır - bir işlevi birçok girdi arasında "eşleyerek" çalışır (değerler, sütunlar, veri kümeleri vb.)
 
-Along the way, we'll show examples like:  
+Yol boyunca, aşağıdaki gibi örnekler göstereceğiz:
 
-* Importing and exporting multiple files  
-* Creating epicurves for multiple jurisdictions  
-* Running T-tests for several columns in a data frame  
+* Birden çok dosyayı içe ve dışa aktarma  
+* Birden fazla yetki alanı için eğriler oluşturma  
+* Bir veri çerçevesindeki birkaç sütun için T testleri çalıştırma
 
-In the **purrr** [section](#iter_purrr) we will also provide several examples of creating and handling `lists`.  
+**purrr**[section](#iter_purrr) bölümünde, listeleri - `lists` oluşturma ve işlemeye ilişkin birkaç örnek de sunacağız.
 
 
 
-## Preparation {  }
+## Hazırlık {  }
      
      
-### Load packages {.unnumbered}  
+### Paketleri yükleme {.unnumbered}  
 
-This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Bu kod parçası, analizler için gerekli olan paketlerin yüklenmesini gösterir. Bu el kitabında, gerekli olursa paketi kuran *ve* kullanım için yükleyen **pacman**'ın  `p_load()` fonksiyonunu vurguluyoruz. Ayrıca, R tabanından `library()` ile kurulu paketleri yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R temelleri] sayfasına bakın.  
 
 ```{r}
 pacman::p_load(
-     rio,         # import/export
-     here,        # file locator
-     purrr,       # iteration
-     tidyverse    # data management and visualization
+     rio,         # içe/dışa aktarma
+     here,        # dosya bulucu
+     purrr,       # yineleme
+     tidyverse    # veri yönetimi ve görselleştirme
 )
 ```
 
 
-### Import data {.unnumbered}  
+### Verileri içe aktarma {.unnumbered}  
 
-We import the dataset of cases from a simulated Ebola epidemic. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file). Import data with the `import()` function from the **rio** package (it handles many file types like .xlsx, .csv, .rds - see the [Import and export] page for details).  
+Simüle edilmiş bir Ebola salgınından vakaların veri setini içe aktarıyoruz. Devam etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>“temiz” satır listesini indirmek için tıklayın</a> (.rds dosyası olarak). Verileri **rio** paketinden `import()` fonksiyonuyla içe aktarın (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe ve Dışa Aktarma] sayfasına bakın). 
 
 ```{r, echo=F}
-# import the linelist into R
+# satır listesini içe aktar
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds"))
 ```
 
 ```{r, eval=F}
-# import the linelist
+# satır listesini içe aktar
 linelist <- import("linelist_cleaned.rds")
 ```
 
-The first 50 rows of the linelist are displayed below.
+Çizgi listesinin ilk 50 satırı aşağıda görüntülenir.
 
 
 ```{r, message=FALSE, echo=F}
-# display the linelist data as a table
+# satır listesini tablo olarak göster
 DT::datatable(head(linelist, 50), rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap')
 ```
 
@@ -61,175 +61,175 @@ DT::datatable(head(linelist, 50), rownames = FALSE, options = list(pageLength = 
 
 <!-- ======================================================= -->
 
-## *for loops* {  }
+## *for döngüleri* {  }
 
-### *for loops* in R {#iter_loops .unnumbered}  
+### R'daki for döngüleri* {#iter_loops .unnumbered}  
 
-*for loops* are not emphasized in R, but are common in other programming languages. As a beginner, they can be helpful to learn and practice with because they are easier to "explore", "de-bug", and otherwise grasp exactly what is happening for each iteration, especially when you are not yet comfortable writing your own functions.  
+*for döngüleri* R'de vurgulanmaz, ancak diğer programlama dillerinde yaygındır. Yeni başlayan olarak, "keşfetmek"te , "hata ayıklamak"ta daha kolay oldukları için öğrenmek ve pratik yapmak için yardımcı olabilirler ve aksi takdirde, özellikle kendi işlevlerinizi yazarken henüz rahat değilseniz, her yinelemenin tam olarak ne olduğunu anlamalısınız.
 
-You may move quickly through *for loops* to iterating with mapped functions with **purrr** (see [section below](#iter_purrr)).  
+**purrr** ile eşlenmiş işlevlerle yinelemek için *for döngüleri* sayesinde hızla ilerleyebilirsiniz ([aşağıdaki bölüme bakın](#iter_purrr)).
 
 
-### Core components {.unnumbered}   
+### Temel bileşenler {.unnumbered}   
 
-A *for loop* has three core parts:  
+Bir *for döngüsünün* üç temel parçası vardır: 
      
-1) The **sequence** of items to iterate through  
-2) The **operations** to conduct per item in the sequence  
-3) The **container** for the results (optional)  
+1) Yinelenecek öğelerin **sırası**  
+2) Sıradaki her öğe başına yapılacak **işlemler** 
+3) Sonuçlar için **kapsayıcı** (isteğe bağlı)  
 
-The basic syntax is: `for (item in sequence) {do operations using item}`. Note the parentheses and the curly brackets. The results could be printed to console, or stored in a container R object.   
+Temel sözdizimi şudur: `for (sıradaki öğe) {öğeyi kullanarak işlemler yapın}`. Parantezlere ve küme parantezlerine dikkat edin. Sonuçlar konsola yazdırılabilir veya bir kapsayıcı R nesnesinde saklanabilir.
 
-A simple *for loop* example is below.   
+Basit bir *for döngüsü* örneği aşağıdadır.   
 
 ```{r}
-for (num in c(1,2,3,4,5)) {  # the SEQUENCE is defined (numbers 1 to 5) and loop is opened with "{"
-  print(num + 2)             # The OPERATIONS (add two to each sequence number and print)
-}                            # The loop is closed with "}"                            
-                             # There is no "container" in this example
+for (num in c(1,2,3,4,5)) {  # SIRA tanımlanır (1'den 5'e kadar sayılar) ve "{" ile döngü açılır
+  print(num + 2)             # İŞLEMLER (her sıra numarasına iki tane ekleyin ve yazdırın)
+}                            # Döngü "}" ile kapatılır                          
+                             # Bu örnekte "kapsayıcı" yok
 ```
 
 
 
-### Sequence {.unnumbered}  
+### Sıralama {.unnumbered}  
 
-This is the "for" part of a *for loop* - the operations will run "for" each item in the sequence. The sequence can be a series of values (e.g. names of jurisdictions, diseases, column names, list elements, etc), or it can be a series of consecutive numbers (e.g. 1,2,3,4,5). Each approach has their own utilities, described below.  
+Bu, *for döngüsünün* "for" kısmıdır - işlemler dizideki her öğe için "for" çalışır. Sıra, bir dizi değer (ör. yetki alanlarının adları, hastalıklar, sütun adları, liste öğeleri, vb.) olabilir veya bir dizi ardışık sayı (ör. 1,2,3,4,5) olabilir. Her yaklaşımın aşağıda açıklanan kendi araçları vardır. 
 
-The basic structure of a sequence statement is `item in vector`.  
+Bir dizi ifadesinin temel yapısı `vektördeki öğedir`.  
 
-* You can write any character or word in place of "item" (e.g. "i", "num", "hosp", "district", etc.). The value of this "item" changes with each iteration of the loop, proceeding through each value in the vector.  
-* The *vector* could be of character values, column names, or perhaps a sequence of numbers - these are the values that will change with each iteration. You can use them within the *for loop* operations using the "item" term.  
+* “Öğe” yerine herhangi bir karakter veya kelime yazabilirsiniz (örn. “i”, “num”, “hosp”, “bölge” vb.). Bu "öğenin" değeri, vektördeki her değerden geçerek döngünün her yinelemesinde değişir. 
+* *Vektör*, karakter değerleri, sütun adları veya belki bir dizi sayı olabilir - bunlar her yinelemede değişecek olan değerlerdir. Bunları “item” terimini kullanarak *for döngüsü* işlemleri içinde kullanabilirsiniz.  
 
-**Example: sequence of character values**  
+**Örnek: karakter değerleri dizisi**  
 
-In this example, a loop is performed for each value in a pre-defined character vector of hospital names.  
+Bu örnekte, hastane adlarının önceden tanımlanmış bir karakter vektöründeki her bir değer için bir döngü gerçekleştirilir.
 
 ```{r}
-# make vector of the hospital names
+# hastane isimlerinin vektörünü yap
 hospital_names <- unique(linelist$hospital)
-hospital_names # print
+hospital_names # yazdır
 ```
 
-We have chosen the term `hosp` to represent values from the vector `hospital_names`. For the first iteration of the loop, the value of `hosp` will be ` hospital_names[[1]]`. For the second loop it will be ` hospital_names[[2]]`. And so on...  
+Hastane_adı - `hospital_names` vektöründen değerleri temsil etmek için `hosp` terimini seçtik. Döngünün ilk yinelemesi için, hosp değeri hastane_adı - `hospital_names[[1]]` olacaktır. İkinci döngü için hastane_adı - `hospital_names[[2]]` olacaktır. Ve bunun gibi… 
 
 ```{r, eval=F}
-# a 'for loop' with character sequence
+# karakter sıralı bir 'for döngüsü'
 
-for (hosp in hospital_names){       # sequence
+for (hosp in hospital_names){       # sıra
   
-       # OPERATIONS HERE
+       # İŞLEMLER BURAYA YAZILIR
   }
 ```
 
-**Example: sequence of column names**  
+**Örnek: sütun adları dizisi**  
      
-This is a variation on the character sequence above, in which the names of an existing R object are extracted and become the vector. For example, the column names of a data frame. Conveniently, in the operations code of the *for loop*, the column names can be used to *index* (subset) their original data frame  
+Bu, mevcut bir R nesnesinin adlarının çıkarıldığı ve vektör haline geldiği, yukarıdaki karakter dizisinin bir varyasyonudur. Örneğin, bir veri çerçevesinin sütun adları. Uygun bir şekilde, *for döngüsünün* işlem kodunda, sütun adları orijinal veri çerçevelerini *indekslemek* (alt kümeler) için kullanılabilir.
 
-Below, the sequence is the `names()` (column names) of the `linelist` data frame. Our "item" name is `col`, which will represent each column name as the loops proceeds.  
+Aşağıda sıra, `satır listesi` veri çerçevesinin adları - `names()` (sütun adları) şeklindedir. "Öğe" adımız, döngüler ilerledikçe her sütun adını temsil edecek olan `col`'dur.
 
-For purposes of example, we include operations code inside the *for loop*, which is run for every value in the sequence. In this code, the sequence values (column names) are used to *index* (subset) `linelist`, one-at-a-time. As taught in the [R basics] page, double branckets `[[ ]]` are used to subset. The resulting column is passed to `is.na()`, then to `sum()` to produce the number of values in the column that are missing. The result is printed to the console - one number for each column.  
+Örnek olarak, dizideki her değer için çalıştırılan *for döngüsünün* içine işlem kodunu ekledik. Bu kodda, sıra değerleri (sütun adları), her seferinde bir `satır listesini` *indekslemek* (alt küme) için kullanılır. R temelleri sayfasında öğretildiği gibi, alt küme için çift köşeli ayraçlar `[[ ]]` kullanılır. Elde edilen sütun `is.na()` öğesine, ardından sütunda eksik olan değerlerin sayısını üretmek için `sum()` öğesine iletilir. Sonuç konsola yazdırılır - her sütun için bir sayı.
 
-A note on indexing with column names - whenever referencing the column itself *do not just write "col"!* `col` represents just the character column name! To refer to the entire column you must use the column name as an *index* on `linelist` via `linelist[[col]]`.  
+Sütun adlarıyla indeksleme hakkında bir not - sütunun kendisine atıfta bulunurken *sadece “col” yazmayın!* col sadece karakter sütun adını temsil eder! Tüm sütuna başvurmak için, sütun adını `linelist[[col]]` aracılığıyla `satır listesinde` bir *dizin* olarak kullanmalısınız.
 
 ```{r}
-for (col in names(linelist)){        # loop runs for each column in linelist; column name represented by "col" 
+for (col in names(linelist)){        # satır listesindeki her sütun için döngü çalışır; "col" ile temsil edilen sütun adı
   
-  # Example operations code - print number of missing values in column
-  print(sum(is.na(linelist[[col]])))  # linelist is indexed by current value of "col"
+  # Örnek işlem kodu - sütundaki eksik değerlerin sayısını yazdır
+  print(sum(is.na(linelist[[col]])))  # sıra listesi, "col" öğesinin geçerli değeriyle indekslenir
      
 }
 ```
 
 
 
-**Sequence of numbers**  
-     
-In this approach, the sequence is a series of consecutive numbers. Thus, the value of the "item" is not a character value (e.g. "Central Hospital" or "date_onset") but is a number. This is useful for looping through data frames, as you can use the "item" number inside the *for loop* to index the data frame by *row number*.  
+**Sayıların dizisi**
 
-For example, let's say that you want to loop through every row in your data frame and extract certain information. Your "items" would be numeric row numbers. Often, "items" in this case are written as `i`.  
+Bu yaklaşımda, dizi ardışık sayılar dizisidir. Bu nedenle, "öğe"nin değeri bir karakter değeri değil (ör. "Merkez Hastane" veya "tarih_başlangıç") bir sayıdır. Bu, veri çerçevesini *satır numarası*na göre indekslemek için *for döngüsü* içindeki "öğe" numarasını kullanabileceğiniz için veri çerçeveleri arasında döngü yapmak için kullanışlıdır.
 
-The *for loop* process could be explained in words as "for every item in a sequence of numbers from 1 to the total number of rows in my data frame, do X". For the first iteration of the loop, the value of "item" `i` would be 1. For the second iteration, `i` would be 2, etc.  
+Örneğin, veri çerçevenizdeki her satırda döngü yapmak ve belirli bilgileri çıkarmak istediğinizi varsayalım. "Öğeleriniz" sayısal satır numaraları olacaktır. Çoğu zaman, bu durumda “öğeler” `i` olarak yazılır.
 
-Here is what the sequence looks like in code: `for (i in 1:nrow(linelist)) {OPERATIONS CODE}` where `i` represents the "item" and `1:nrow(linelist)` produces a sequence of consecutive numbers from 1 through the number of rows in `linelist`.  
+*For döngüsü* işlemi, "veri çerçevemdeki 1'den toplam satır sayısına kadar bir sayı dizisindeki her öğe için X yap" şeklinde açıklanabilir. Döngünün ilk yinelemesi için “item” `i` değeri 1 olur. İkinci yineleme için `i` 2 olur, vb.
+
+Sıra kodda şöyle görünür: `for (i in 1:nrow(linelist)) {OPERATIONS CODE}` burada `i` "öğeyi" temsil eder ve `1:nrow(linelist)` 1'den `satır listesindeki` satır sayısına kadar ardışık sayılar dizisi üretir.
 
 
 ```{r, eval=F}
-for (i in 1:nrow(linelist)) {  # use on a data frame
-  # OPERATIONS HERE
+for (i in 1:nrow(linelist)) {  # bir veri çerçevesinde kullan
+  # İŞLEMLER BURAYA YAZILIR
 }  
 ```
 
-If you want the sequence to be numbers, but you are starting from a vector (not a data frame), use the shortcut `seq_along()` to return a sequence of numbers for each element in the vector. For example, `for (i in seq_along(hospital_names) {OPERATIONS CODE}`.  
+Dizinin sayı olmasını istiyorsanız, ancak bir vektörden başlıyorsanız (bir veri çerçevesi değil), vektördeki her bir öğeki bir sayı dizisini döndürmek için `seq_along()` kısayolunu kullanın. Örneğin, `for (i in seq_along(hospital_names) {OPERATIONS CODE}`.
 
-The below code actually returns numbers, which would become the value of `i` in their respective loop.     
+Aşağıdaki kod aslında kendi döngülerinde `i`'nin değeri olacak olan sayıları döndürür.    
 
 ```{r}
-seq_along(hospital_names)  # use on a named vector
+seq_along(hospital_names)  # adlandırılmış bir vektör üzerinde kullan
 ```
 
-One advantage of using numbers in the sequence is that is easy to also use the `i` number to index a *container* that stores the loop outputs. There is an example of this in the Operations section below.  
+Dizide sayıları kullanmanın bir avantajı, döngü çıktılarını depolayan bir *kapsayıcıyı* indekslemek için `i` numarasını kullanmanın da kolay olmasıdır. Aşağıdaki İşlemler bölümünde bunun bir örneği var.
 
-### Operations  {.unnumbered}  
+### Operasyonlar  {.unnumbered}  
 
-This is code within the curly brackets `{ }` of the *for loop*. You want this code to run for each "item" in the *sequence*. Therefore, be careful that every part of your code that changes by the "item" is correctly coded such that it actually changes! E.g. remember to use `[[ ]]` for indexing.  
+Bu, *for döngüsünün* küme parantezleri `{ }`  içindeki koddur. Bu kodun *sıradaki* her "öğe" için çalışmasını istiyorsunuz. Bu nedenle, kodunuzun “öğe” ile değişen her parçasının gerçekten değişeceği şekilde doğru kodlanmış olmasına dikkat edin! Örneğin, indeksleme için `[[ ]]` kullanmayı unutmayın.
 
-In the example below, we iterate through each row in the `linelist`. The `gender` and `age` values of each row are pasted together and stored in the container character vector `cases_demographics`. Note how we also use indexing `[[i]]` to save the loop output to the correct position in the "container" vector.  
+Aşağıdaki örnekte, `satır listesindeki` her bir satırı yineliyoruz. Her satırın cinsiyet - `gender` ve yaş - `age` değerleri birbirine yapıştırılır ve `cases_demographics` kapsayıcı karakter vektöründe saklanır. Döngü çıktısını “kapsayıcı” vektöründe doğru konuma kaydetmek için indekslemeyi `[[i]]` nasıl kullandığımıza dikkat edin.
 
 ```{r}
-# create container to store results - a character vector
+# sonuçları depolamak için kapsayıcı oluştur - bir karakter vektörü
 cases_demographics <- vector(mode = "character", length = nrow(linelist))
 
-# the for loop
+# for döngüsü
 for (i in 1:nrow(linelist)){
   
-  # OPERATIONS
-  # extract values from linelist for row i, using brackets for indexing
+  # OPERASYONLAR
+  # indeksleme için parantez kullanarak satır i için satır listesinden değerleri ayıkla
   row_gender  <- linelist$gender[[i]]
-  row_age     <- linelist$age_years[[i]]    # don't forget to index!
+  row_age     <- linelist$age_years[[i]]    # indekslemeyi unutmayın!
      
-  # combine gender-age and store in container vector at indexed location
+  # cinsiyet-yaşı birleştirin ve indekslenmiş konumda kapsayıcı vektöründe sakla
   cases_demographics[[i]] <- str_c(row_gender, row_age, sep = ",") 
 
-}  # end for loop
+}  # döngü sonu
 
 
-# display first 10 rows of container
+# kapsayıcının ilk 10 satırını göster
 head(cases_demographics, 10)
 ```
 
 
-### Container {.unnumbered}
+### Kapsayıcı {.unnumbered}
 
-Sometimes the results of your *for loop* will be printed to the console or RStudio Plots pane. Other times, you will want to store the outputs in a "container" for later use. Such a container could be a vector, a data frame, or even a list.  
+Bazen *for döngüsünün* sonuçları konsola veya RStudio Plots bölmesine yazdırılır. Diğer zamanlarda, çıktıları daha sonra kullanmak üzere bir “kapsayıcı”da saklamak isteyeceksiniz. Böyle bir kapsayıcı, bir vektör, bir veri çerçevesi ve hatta bir liste olabilir.
 
-It is most efficient to create the container for the results *before* even beginning the *for loop*. In practice, this means creating an empty vector, data frame, or list. These can be created with the functions `vector()` for vectors or lists, or with `matrix()` and `data.frame()` for a data frame. 
+*For döngüsüne* başlamadan *önce* bile sonuçlar için kapsayıcı oluşturmak en verimli yöntemdir. Pratikte bu, boş bir vektör, veri çerçevesi veya liste oluşturmak anlamına gelir. Bunlar, vektörler veya listeler için `vector()` işlevleriyle veya bir veri çerçevesi için `matrix()` ve `data.frame()` işlevleriyle oluşturulabilir.
 
-**Empty vector**  
+**Boş vektör**  
 
-Use `vector()` and specify the `mode = ` based on the expected class of the objects you will insert - either "double" (to hold numbers), "character", or "logical". You should also set the `length = ` in advance. This should be the length of your *for loop* sequence.  
+`vector()`'u kullanın ve ekleyeceğiniz nesnelerin beklenen sınıfına göre `mode =` belirtin - "çift" (sayıları tutmak için), "karakter" veya "mantıksal". Ayrıca `length =` önceden ayarlamalısınız. Bu, *for döngüsü* dizinizin uzunluğu olmalıdır.
 
-Say you want to store the median delay-to-admission for each hospital. You would use "double" and set the length to be the number of expected outputs (the number of unique hospitals in the data set).  
+Her hastane için medyan kabul gecikmesini saklamak istediğinizi varsayalım. “Çift” kullanır ve uzunluğu beklenen çıktıların sayısı (veri setindeki benzersiz hastanelerin sayısı) olarak ayarlarsınız.
 
 ```{r}
 delays <- vector(
-  mode = "double",                            # we expect to store numbers
-  length = length(unique(linelist$hospital))) # the number of unique hospitals in the dataset
+  mode = "double",                            # numaraları kaydetmeyi bekliyoruz
+  length = length(unique(linelist$hospital))) # veri setindeki benzersiz hastanelerin sayısı
 ```
 
-**Empty data frame**  
+**Boş veri çerçevesi**  
      
-You can make an empty data frame by specifying the number of rows and columns like this:  
+Bunun gibi satır ve sütun sayısını belirterek boş bir veri çerçevesi oluşturabilirsiniz:
      
 ```{r, eval=F}
 delays <- data.frame(matrix(ncol = 2, nrow = 3))
 ```
 
 
-**Empty list**  
+**Boş liste**  
      
-You may want store some plots created by a *for loop* in a list. A list is like vector, but holds other R objects within it that can be of different classes. Items in a list could be a single number, a dataframe, a vector, and even another list.  
+Bir *for döngüsü* tarafından oluşturulan bazı grafikleri bir listede saklamak isteyebilirsiniz. Liste vektör gibidir, ancak içinde farklı sınıflardan olabilen diğer R nesnelerini içerir. Listedeki öğeler tek bir sayı, bir veri çerçevesi, bir vektör ve hatta başka bir liste olabilir.  
 
-You actually initialize an empty list using the same `vector()` command as above, but with `mode = "list"`. Specify the length however you wish.  
+Aslında yukarıdakiyle aynı `vector()` komutunu kullanarak, ancak  `mode = "list"` ile boş bir liste başlatıyorsunuz. Uzunluğu istediğiniz gibi belirtin.
 
 ```{r, eval=F}
 plots <- vector(mode = "list", length = 16)
@@ -238,11 +238,11 @@ plots <- vector(mode = "list", length = 16)
 
 
 
-### Printing {.unnumbered}  
+### Yazdırma {.unnumbered}  
 
-Note that to print from within a *for loop* you will likely need to explicitly wrap with the function `print()`.  
+Bir *for döngüsü* içinden yazdırmak için büyük olasılıkla `print()` işleviyle açıkça sarmanız gerekeceğini unutmayın.
 
-In this example below, the sequence is an explicit character vector, which is used to subset the linelist by hospital. The results are not stored in a container, but rather are printed to console with the `print()` function.    
+Aşağıdaki bu örnekte dizi, hastane tarafından satır listesinin alt kümesi için kullanılan açık bir karakter vektörüdür. Sonuçlar bir kapsayıcıda saklanmaz, bunun yerine `print()` işleviyle konsola yazdırılır.    
 
 ```{r}
 for (hosp in hospital_names){ 
@@ -252,65 +252,64 @@ for (hosp in hospital_names){
 ```
 
 
-### Testing your for loop {.unnumbered}
+### For döngüsünü test etme {.unnumbered}
 
-To test your loop, you can run a command to make a temporary assignment of the "item", such as `i <- 10` or `hosp <- "Central Hospital"`. Do this *outside the loop* and then run your operations code only (the code within the curly brackets) to see if the expected results are produced.  
-
-
+Döngünüzü test etmek için, `i <- 10` veya `hosp <- "Central Hospital"` gibi "öğe"nin geçici bir atamasını yapmak için bir komut çalıştırabilirsiniz. Bunu *döngünün dışında* yapın ve ardından beklenen sonuçların üretilip üretilmediğini görmek için yalnızca işlem kodunuzu (kıvrımlı parantez içindeki kod) çalıştırın.
 
 
-### Looping plots {.unnumbered}
 
-To put all three components together (container, sequence, and operations) let's try to plot an epicurve for each hospital (see page on [Epidemic curves]).  
+### Döngü grafikleri {.unnumbered}
 
-We can make a nice epicurve of *all* the cases by gender using the **incidence2** package as below:  
+Üç bileşeni (kapsayıcı, sıralama ve operasyonlar) bir araya getirmek için her hastane için bir epi eğrisi çizmeye çalışalım ([Salgın eğrileri] sayfasına bakın).
+
+Aşağıdaki gibi **incidence2** paketini kullanarak *tüm* vakaların cinsiyete göre güzel bir epik eğrisini yapabiliriz: 
 
 ```{r, warning=F, message=F}
-# create 'incidence' object
+# 'insidans' nesnesi oluşturun
 outbreak <- incidence2::incidence(   
-     x = linelist,                   # dataframe - complete linelist
-     date_index = date_onset,        # date column
-     interval = "week",              # aggregate counts weekly
-     groups = gender,                # group values by gender
-     na_as_group = TRUE)             # missing gender is own group
+     x = linelist,                   # dataframe - tam satır listesi
+     date_index = date_onset,        # tarih sütunu
+     interval = "week",              # haftalık toplu sayımlar
+     groups = gender,                # cinsiyete göre grup değerleri
+     na_as_group = TRUE)             # eksik cinsiyet ayrı bir gruptur
 
-# plot epi curve
-plot(outbreak,                       # name of incidence object
-     fill = "gender",                # color bars by gender
-     color = "black",                # outline color of bars
-     title = "Outbreak of ALL cases" # title
+# plot epi eğrisi
+plot(outbreak,                       # olay nesnesinin adı
+     fill = "gender",                # cinsiyete göre renk çubukları
+     color = "black",                # çubukların anahat rengi
+     title = "Outbreak of ALL cases" # başlık
      )
 ```
 
-To produce a separate plot for each hospital's cases, we can put this epicurve code within a *for loop*. 
+Her hastanenin vakası için ayrı bir grafik oluşturmak için bu epi eğri kodunu bir *for döngüsüne* koyabiliriz.
 
-First, we save a named vector of the unique hospital names, `hospital_names`. The *for loop* will run once for each of these names: `for (hosp in hospital_names)`. Each iteration of the *for loop*, the current hospital name from the vector will be represented as `hosp` for use within the loop.  
+İlk olarak, benzersiz hastane adlarının adlandırılmış bir vektörünü, `hospital_names` olarak kaydederiz. *for döngüsü* şu adların her biri için bir kez çalışacaktır: `for (hosp in hospital_names)`. *for döngüsünün* her yinelemesinde, vektörden gelen mevcut hastane adı, döngü içinde kullanım için `hosp` olarak temsil edilecektir.
 
-Within the loop operations, you can write R code as normal, but use the "item" (`hosp` in this case) knowing that its value will be changing. Within this loop:  
+Döngü işlemleri içinde, normal olarak R kodunu yazabilirsiniz, ancak değerinin değişeceğini bilerek “öğe”yi (bu durumda `hosp`) kullanın. Bu döngü içinde: 
      
-* A `filter()` is applied to `linelist`, such that column `hospital` must equal the current value of `hosp`  
-* The incidence object is created on the filtered linelist  
-* The plot for the current hospital is created, with an auto-adjusting title that uses `hosp`  
-* The plot for the current hospital is temporarily saved and then printed  
-* The loop then moves onward to repeat with the next hospital in `hospital_names`  
+* Satır listesine bir `filter()` uygulanır, öyle ki hastane - `hospital` sütunu,  `hosp`'un mevcut değerine eşit olmalıdır.
+* İnsidans nesnesi, filtrelenmiş satır listesinde oluşturulur.
+* Mevcut hastane için grafik, `hosp` kullanan otomatik ayarlı bir başlıkla oluşturulur.
+* Mevcut hastane için grafik geçici olarak kaydedilir ve ardından yazdırılır.
+* Döngü, daha sonra, `hospital_names` içindeki bir sonraki hastane ile tekrar etmek için ilerler 
 
 ```{r, out.width='50%', message = F}
-# make vector of the hospital names
+# hastane isimlerinin vektörünü yapın
 hospital_names <- unique(linelist$hospital)
 
-# for each name ("hosp") in hospital_names, create and print the epi curve
+# hospital_names deki her ad ("hosp") için epi eğrisini oluşturun ve yazdırın
 for (hosp in hospital_names) {
      
-     # create incidence object specific to the current hospital
+     # mevcut hastaneye özgü olay nesnesi oluşturun
      outbreak_hosp <- incidence2::incidence(
-          x = linelist %>% filter(hospital == hosp),   # linelist is filtered to the current hospital
+          x = linelist %>% filter(hospital == hosp),   # satır listesi mevcut hastaneye göre filtrelenir
           date_index = date_onset,
           interval = "week", 
           groups = gender,
           na_as_group = TRUE
      )
      
-     # Create and save the plot. Title automatically adjusts to the current hospital
+     # Grafik oluşturun ve kaydedin. Başlık otomatik olarak mevcut hastaneye göre ayarlanır
      plot_hosp <- plot(
        outbreak_hosp,
        fill = "gender",
@@ -318,24 +317,24 @@ for (hosp in hospital_names) {
        title = stringr::str_glue("Epidemic of cases admitted to {hosp}")
      )
      
-     # print the plot for the current hospital
+     # mevcut hastane için grafik yazdırın
      print(plot_hosp)
      
-} # end the for loop when it has been run for every hospital in hospital_names 
+} # hospital_names içindeki her hastane için çalıştırıldığında for döngüsünü sonlandırın 
 ```
 
 
 
-### Tracking progress of a loop {.unnumbered} 
+### Bir döngünün ilerlemesini izleme {.unnumbered} 
 
-A loop with many iterations can run for many minutes or even hours. Thus, it can be helpful to print the progress to the R console. The `if` statement below can be placed *within* the loop operations to print every 100th number. Just adjust it so that `i` is the "item" in your loop.  
+Birçok yinelemeli bir döngü, dakikalarca hatta saatlerce çalışabilir. Bu nedenle, ilerlemeyi R konsoluna yazdırmak yararlı olabilir. Aşağıdaki `if` ifadesi, her 100. sayıyı yazdırmak için döngü fonksiyonlarının *içine* yerleştirilebilir. Döngünüzdeki "öğe" `i` olacak şekilde ayarlayın.
 
 ```{r, eval=F}
-# loop with code to print progress every 100 iterations
+# her 100 yinelemede ilerlemeyi yazdırmak için kodlu döngü
 for (i in seq_len(nrow(linelist))){
 
-  # print progress
-  if(i %% 100==0){    # The %% operator is the remainder
+  # yazdırma ilerlemesi
+  if(i %% 100==0){    # %% operatörü kalandır
     print(i)
 
 }
@@ -346,68 +345,67 @@ for (i in seq_len(nrow(linelist))){
 
 
 <!-- ======================================================= -->
-## **purrr** and lists {#iter_purrr}
-     
-Another approach to iterative operations is the **purrr** package - it is the **tidyverse** approach to iteration.  
+## **purrr** ve listeler {#iter_purrr}
 
-If you are faced with performing the same task several times, it is probably worth creating a generalised solution that you can use across many inputs. For example, producing plots for multiple jurisdictions, or importing and combining many files.  
+Yinelemeli işlemlere başka bir yaklaşım da **purrr** paketidir - yineleme için **tidyverse** yaklaşımdır.
 
-There are also a few other advantages to **purrr** - you can use it with pipes `%>%`, it handles errors better than normal *for loops*, and the syntax is quite clean and simple! If you are using a *for loop*, you can probably do it more clearly and succinctly with **purrr**! 
-   
-Keep in mind that **purrr** is a *functional programming tool*. That is, the operations that are to be iteratively applied are wrapped up into *functions*. See the [Writing functions] page to learn how to write your own functions.  
+Aynı görevi birkaç kez yapmakla karşı karşıya kalırsanız, muhtemelen birçok girdide kullanabileceğiniz genelleştirilmiş bir çözüm oluşturmaya değer. Örneğin, birden fazla yetki alanları için grafikler oluşturmak veya birçok dosyayı içe aktarmak ve birleştirmek.
 
-**purrr** is also almost entirely based around *lists* and *vectors* - so think about it as applying a function to each element of that list/vector!
+Ayrıca **purrr**'ın birkaç avantajı daha vardır - `%>%` tünelleriyle kullanabilirsiniz, *for döngülerine* kıyasla normalden daha iyi hataları ele alır ve sözdizimi oldukça temiz ve basittir! Bir *for döngüsü* kullanıyorsanız, muhtemelen **purrr** ile daha net ve özlü bir şekilde yapabilirsiniz!
+
+**purrr**'ın *fonksiyonel programlama* aracı olduğunu unutmayın. Yani, yinelemeli olarak uygulanacak işlemler *fonksiyonlara* sarılır. Kendi işlevlerinizi nasıl yazacağınızı öğrenmek için [Yazma işlevleri] sayfasına bakın.
+
+**purrr** ayrıca neredeyse tamamen *listeler* ve *vektörler* üzerine kuruludur - bu yüzden bunu o listenin/vektörün her bir öğesine bir işlev uygulamak olarak düşünün!
      
-### Load packages {.unnumbered}  
-     
-**purrr** is part of the **tidyverse**, so there is no need to install/load a separate package.  
+### Paketleri yükleme {.unnumbered}  
+
+**purrr** **tidyverse**'in bir parçasıdır, bu nedenle ayrı bir paket kurmaya/yüklemeye gerek yoktur.
 
 ```{r}
 pacman::p_load(
-     rio,            # import/export
-     here,           # relative filepaths
-     tidyverse,      # data mgmt and viz
-     writexl,        # write Excel file with multiple sheets
-     readxl          # import Excel with multiple sheets
+     rio,            # içe/dışa aktar
+     here,           # ilgili dosya yolları
+     tidyverse,      # mgt ve viz verisi
+     writexl,        # Excel dosyasını birden çok sayfayla yaz
+     readxl          # Excel'i birden çok sayfayla içe aktar
 )
 ```
 
 
 ### `map()` {.unnumbered}  
 
-One core **purrr** function is `map()`, which "maps" (applies) a function to each input element of a list/vector you provide.  
+**purrr**’un temel bir işlevi, sağladığınız bir listenin/vektörün her giriş öğesine bir işlevi "eşleyen" (uygulayan) `map()` işlevidir. 
 
-The basic syntax is `map(.x = SEQUENCE, .f = FUNCTION, OTHER ARGUMENTS)`. In a bit more detail:  
+Temel sözdizimi `map(.x = SEQUENCE, .f = FUNCTION, OTHER ARGUMENTS)`. Biraz daha ayrıntılı olarak:  
      
-* `.x = ` are the *inputs* upon which the `.f` function will be iteratively applied - e.g. a vector of jurisdiction names, columns in a data frame, or a list of data frames  
-* `.f = ` is the *function* to apply to each element of the `.x` input - it could be a function like `print()` that already exists, or a custom function that you define. The function is often written after a tilde `~` (details below). 
+* `.x =`, `.f` işlevinin yinelemeli olarak uygulanacağı *girdilerdir* - ör. yetki alanları adları vektörü, veri çerçevesindeki sütunlar veya veri çerçeveleri listesi. 
+* `.f =`, `.x` girişinin her bir öğesine uygulanacak *fonksiyondur* - zaten var olan `print()` gibi bir işlev veya tanımladığınız özel bir işlev olabilir. İşlev genellikle yaklaşık işaretinden sonra yazılır `~` (ayrıntılar aşağıdadır).
 
-A few more notes on syntax:  
+Sözdizimi hakkında birkaç not daha:  
      
-* If the function needs no further arguments specified, it can be written with no parentheses and no tilde (e.g. `.f = mean`). To provide arguments that will be the same value for each iteration, provide them within `map()` but outside the `.f = ` argument, such as the `na.rm = T` in `map(.x = my_list, .f = mean, na.rm=T)`.  
-* You can use `.x` (or simply `.`) *within* the `.f = ` function as a placeholder for the `.x` value of that iteration  
-* Use tilde syntax (`~`) to have greater control over the function - write the function as normal with parentheses, such as: `map(.x = my_list, .f = ~mean(., na.rm = T))`. Use this syntax particularly if the value of an argument will change each iteration, or if it is the value `.x` itself (see examples below)  
+* Fonksiyonun daha fazla argümana ihtiyacı yoksa, parantez ve yaklaşık işareti olmadan yazılabilir (ör. `.f = mean`). Her yineleme için aynı değerde olacak bağımsız değişkenler sağlamak için, bunları `map()` içinde ancak `.f =` bağımsız değişkeninin dışında sağlayın, örneğin `na.rm = T` içine `map(.x = my_list, .f = mean, na.rm=T)`.
+* Bu yinelemenin `.x` değeri için yer tutucu olarak `.f =` fonksiyonu *içinde* `.x` (veya basitçe `.`) kullanabilirsiniz.
+* Fonksiyon üzerinde daha fazla kontrole sahip olmak için yaklaşık sözdizimini (`~`) kullanın - fonksiyonu parantez içinde normal olarak yazın, örneğin: `map(.x = my_list, .f = ~mean(., na.rm = T))`. Bu söz dizimini özellikle bir bağımsız değişkenin değeri her yinelemeyi değiştirecekse veya `.x` değerinin kendisiyse kullanın (aşağıdaki örneklere bakın)
 
+**`map()` kullanımının çıktısı bir listedir** - liste, vektör gibi bir nesne sınıfıdır, ancak öğeleri farklı sınıflardan olabilir. Bu nedenle, `map()` tarafından üretilen bir liste birçok veri çerçevesi veya birçok vektör, birçok tek değer ve hatta birçok liste içerebilir! Aşağıda açıklanan ve diğer çıktı türlerini üreten alternatif `map()` sürümleri vardır (örneğin, bir veri çerçevesi oluşturmak için `.map_dfr()`, karakter vektörleri üretmek için `map_chr()` ve sayısal vektörler üretmek için `map_dbl()`).
 
-**The output of using `map()` is a *list*** - a list is an object class like a vector but whose elements can be of different classes. So, a list produced by `map()` could contain many data frames, or many vectors, many single values, or even many lists! There are alternative versions of `map()` explained below that produce other types of outputs (e.g. `map_dfr()` to produce a data frame, `map_chr()` to produce character vectors, and `map_dbl()` to produce numeric vectors).  
+#### Örnek - Excel sayfalarını içe aktarın ve birleştirin {#iter_combined .unnumbered}  
 
-#### Example - import and combine Excel sheets {#iter_combined .unnumbered}  
+**Yaygın bir epidemiyolog göreviyle gösterelim:** - *aka verileri içeren bir Excel çalışma kitabını içe aktarmak istiyorsunuz, ancak veriler çalışma kitabındaki farklı adlandırılmış sayfalara bölünüyor. Sayfaları tek bir veri çerçevesinde nasıl verimli bir şekilde içe aktarır ve birleştirirsiniz?*  
 
-**Let's demonstrate with a common epidemiologist task:** - *You want to import an Excel workbook with case data, but the data are split across different named sheets in the workbook. How do you efficiently import and combine the sheets into one data frame?*  
-
-Let's say we are sent the below Excel workbook. Each sheet contains cases from a given hospital.  
+Diyelim ki aşağıdaki Excel çalışma kitabı bize gönderildi. Her sayfa belirli bir hastaneden vakaları içerir. 
 
 ```{r, fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "hospital_linelists_excel_sheets.png"))
 ```
 
-Here is one approach that uses `map()`:  
+İşte `map()` kullanan bir yaklaşım:  
      
-1) `map()` the function `import()` so that it runs for each Excel sheet  
-2) Combine the imported data frames into one using `bind_rows()`  
-3) Along the way, preserve the original sheet name for each row, storing this information in a new column in the final data frame  
+1) `map()` `import()` işlevi, böylece her Excel sayfası için çalışır 
+2) `bind_rows()` kullanarak içe aktarılan veri çerçevelerini bir araya getirin
+3) Yol boyunca, her satır için orijinal sayfa adını koruyarak bu bilgiyi son veri çerçevesinde yeni bir sütunda saklayın 
 
-First, we need to extract the sheet names and save them. We provide the Excel workbook's file path to the function `excel_sheets()` from the package **readxl**, which extracts the sheet names. We store them in a character vector called `sheet_names`.  
+İlk olarak, sayfa adlarını çıkarmamız ve kaydetmemiz gerekiyor. Excel çalışma kitabının dosya yolunu, sayfa adlarını ayıklayan **readxl** paketinden `excel_sheets()` işlevine sağlıyoruz. Bunları `sheet_names` adlı bir karakter vektöründe saklarız.
 
 ```{r, echo=F}
 sheet_names <- readxl::excel_sheets(here::here("data", "example", "hospital_linelists.xlsx"))
@@ -418,19 +416,19 @@ sheet_names <- readxl::excel_sheets(here::here("data", "example", "hospital_line
 sheet_names <- readxl::excel_sheets("hospital_linelists.xlsx")
 ```
 
-Here are the names:  
+İşte isimler:  
 
 ```{r}
 sheet_names
 ```
 
-Now that we have this vector of names, `map()` can provide them one-by-one to the function `import()`. In this example, the `sheet_names` are `.x` and `import()` is the function `.f`.  
+Artık bu ad vektörüne sahip olduğumuza göre, `map()` bunları import()işlevine birer birer sağlayabilir. Bu örnekte `sheet_names`, `.x`  ve `import()` `.f` işlevidir.
 
-Recall from the [Import and export] page that when used on Excel workbooks, `import()` can accept the argument `which = ` specifying the sheet to import. Within the `.f` function `import()`, we provide `which = .x`, whose value will change with each iteration through the vector `sheet_names` - first "Central Hospital", then "Military Hospital", etc.  
+İçe aktarma ve dışa aktarma sayfasından, Excel çalışma kitaplarında kullanıldığında `import()` öğesinin içe aktarılacak sayfayı belirten `which =` bağımsız değişkeni kabul edebileceğini hatırlayın.`.f` fonksiyonu `import()` içinde, sheet_names vektörü aracılığıyla değeri her yinelemede değişecek olan `which = .x`'i sağlarız - önce “Merkez Hastane”, ardından “Askeri Hastane” vb.
 
-Of note - because we have used `map()`, the data in each Excel sheet will be saved as a separate data frame within a list. We want each of these list elements (data frames) to have a *name*, so before we pass `sheet_names` to `map()` we pass it through `set_names()` from **purrr**, which ensures that each list element gets the appropriate name.  
+Not - `map()` kullandığımız için, her Excel sayfasındaki veriler bir liste içinde ayrı bir veri çerçevesi olarak kaydedilecektir. Bu liste öğelerinin (veri çerçevelerinin) her birinin bir *ada* sahip olmasını istiyoruz, bu nedenle `sheet_names` `map()`'e aktarmadan önce onu `set_names()` aracılığıyla **purrr**'dan geçiririz, bu da her liste öğesinin uygun adı almasını sağlar.
 
-We save the output list as `combined`.  
+Çıktı listesini `combined` olarak kaydediyoruz.
 
 ```{r, echo=F}
 combined <- sheet_names %>% 
@@ -444,16 +442,16 @@ combined <- sheet_names %>%
   map(.f = ~import("hospital_linelists.xlsx", which = .x))
 ```
 
-When we inspect output, we see that the data from each Excel sheet is saved in the list with a name. This is good, but we are not quite finished.  
+Çıktıyı incelediğimizde, her bir Excel sayfasındaki verilerin bir adla listeye kaydedildiğini görüyoruz. Bu iyi, ama tam olarak bitirmedik.  
 
 
 ```{r, fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "sheets_as_list.png"))
 ```
 
-Lastly, we use the function `bind_rows()` (from **dplyr**) which accepts the list of similarly-structured data frames and combines them into one data frame. To create a new column from the list element *names*, we use the argument `.id = ` and provide it with the desired name for the new column.  
+Son olarak, benzer şekilde yapılandırılmış veri çerçevelerinin listesini kabul eden ve bunları tek bir veri çerçevesinde birleştiren `bind_rows()` (**dplyr**'den) işlevini kullanıyoruz. Liste öğesi adlarından yeni bir sütun oluşturmak için, `.id =` bağımsız değişkenini kullanırız ve ona yeni sütun için istenen *adı* veririz.
 
-Below is the whole sequence of commands:  
+Tüm komut dizisi aşağıdadır:  
 
 ```{r, echo=F}
 sheet_names <- readxl::excel_sheets(here::here("data", "example", "hospital_linelists.xlsx"))
@@ -474,26 +472,26 @@ combined <- sheet_names %>%                                     # begin with she
   bind_rows(.id = "origin_sheet") # combine list of data frames, preserving origin in new column  
 ```
 
-And now we have one data frame with a column containing the sheet of origin!  
+Ve şimdi, orijin sayfasını içeren bir sütuna sahip bir veri çerçevemiz var!
 
 ```{r, fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "sheets_as_df.png"))
 ```
 
-There are variations of `map()` that you should be aware of. For example, `map_dfr()` returns a data frame, not a list. Thus, we could have used it for the task above and not have had to bind rows. But then we would not have been able to capture which sheet (hospital) each case came from.  
+Bilmeniz gereken `map()` varyasyonları vardır. Örneğin, `map_dfr()` bir liste değil, bir veri çerçevesi döndürür. Böylece yukarıdaki görev için kullanabilirdik ve satırları bağlamak zorunda kalmazdık. Ama o zaman her vakanın hangi sayfadan (hastaneden) geldiğini yakalayamazdık.
 
-Other variations include `map_chr()`, `map_dbl()`. These are very useful functions for two reasons. Firstly. they automatically convert the output of an iterative function into a vector (not a list). Secondly, they can explicitly control the class that the data comes back in - you ensure that your data comes back as a character vector with `map_chr()`, or numeric vector with `map_dbl()`. Lets return to these later in the section!
+Diğer varyasyonlar arasında `map_chr()`, `map_dbl()` bulunur. Bunlar iki nedenden dolayı çok faydalı işlevlerdir. İlk önce. yinelemeli bir işlevin çıktısını otomatik olarak bir vektöre (listeye değil) dönüştürürler. İkincisi, verilerin geri geldiği sınıfı açıkça kontrol edebilirler - verilerinizin `map_chr()` ile bir karakter vektörü veya `map_dbl()` ile sayısal vektör olarak geri gelmesini sağlarsınız. Bölümde daha sonra bunlara dönelim!
 
-The functions `map_at()` and `map_if()` are also very useful for iteration - they allow you to specify which elements of a list you should iterate at! These work by simply applying a vector of indexes/names (in the case of `map_at()`) or a logical test (in the case of `map_if()`).  
-
-Lets use an example where we didn't want to read the first sheet of hospital data. We use `map_at()` instead of `map()`, and specify the `.at = ` argument to `c(-1)` which means to *not* use the first element of `.x`. Alternatively, you can provide a vector of positive numbers, or names, to `.at = ` to specify which elements to use.  
+`map_at()` ve `map_if()` işlevleri yineleme için de çok kullanışlıdır - bir listenin hangi öğelerini yinelemeniz gerektiğini belirlemenize izin verirler! Bunlar basitçe bir dizin/ad vektörü (`map_at()` durumunda) veya mantıksal bir test (`map_if()` durumunda) uygulayarak çalışır.
+ 
+Hastane verilerinin ilk sayfasını okumak istemediğimiz bir örnek kullanalım. `map()` yerine `map_at()` kullanırız ve `.at =` bağımsız değişkeni `c(-1)` olarak belirtiriz, bu da `.x`'in ilk öğesini *kullanılmaması* anlamına gelir. Alternatif olarak, hangi öğelerin kullanılacağını belirtmek için, `.at =` için, bir pozitif sayı veya ad vektörü sağlayabilirsiniz. 
 
 ```{r, echo=F}
 sheet_names <- readxl::excel_sheets(here::here("data", "example", "hospital_linelists.xlsx"))
 
 combined <- sheet_names %>% 
      purrr::set_names() %>% 
-     # exclude the first sheet
+     # ilk sayfayı hariç tut
      map_at(.f = ~import(here::here("data", "example", "hospital_linelists.xlsx"), which = .x),
             .at = c(-1))
 ```
@@ -504,38 +502,38 @@ sheet_names <- readxl::excel_sheets("hospital_linelists.xlsx")
 
 combined <- sheet_names %>% 
      purrr::set_names() %>% 
-     # exclude the first sheet
+     # ilk sayfayı hariç tut
      map_at(.f = ~import( "hospital_linelists.xlsx", which = .x),
             .at = c(-1))
 ```
 
-Note that the first sheet name will still appear as an element of the output list - but it is only a single character name (not a data frame). You would need to remove this element before binding rows. We will cover how to remove and modify list elements in a later section.  
+İlk sayfa adının yine de çıktı listesinin bir öğesi olarak görüneceğini unutmayın - ancak bu yalnızca tek bir karakter adıdır (veri çerçevesi değil). Satırları bağlamadan önce bu öğeyi kaldırmanız gerekir. Liste öğelerinin nasıl kaldırılacağını ve değiştirileceğini daha sonraki bir bölümde ele alacağız.  
 
 
-### Split dataset and export {.unnumbered}  
+### Veri kümesini bölme ve dışa aktarma {.unnumbered}  
 
-Below, we give an example of how to split a dataset into parts and then use `map()` iteration to export each part as a separate Excel sheet, or as a separate CSV file.  
+Aşağıda, bir veri kümesinin parçalara nasıl bölüneceğine ve ardından her bir parçayı ayrı bir Excel sayfası veya ayrı bir CSV dosyası olarak dışa aktarmak için `map()` yinelemesinin nasıl kullanılacağına ilişkin bir örnek veriyoruz.  
 
-#### Split dataset {.unnumbered}  
+#### Bölünmüş veri seti {.unnumbered}  
 
-Let's say we have the complete case `linelist` as a data frame, and we now want to create a separate linelist for each hospital and export each as a separate CSV file. Below, we do the following steps:  
-     
-Use `group_split()` (from **dplyr**) to split the `linelist` data frame by unique values in column `hospital`. The output is a list containing one data frame per hospital subset.  
+Veri çerçevesi olarak tam vaka `satır listesine` sahip olduğumuzu ve şimdi her hastane için ayrı bir satır listesi oluşturmak ve her birini ayrı bir CSV dosyası olarak dışa aktarmak istediğimizi varsayalım. Aşağıda, izleyen adımları yapıyoruz:
+
+`hospital` sütunundaki benzersiz değerlere göre `satır listesi` veri çerçevesini bölmek için `group_split()` (**dplyr**'den) kullanın. Çıktı, her hastane alt kümesi başına bir veri çerçevesi içeren bir listedir.
 
 ```{r}
 linelist_split <- linelist %>% 
      group_split(hospital)
 ```
 
-We can run `View(linelist_split)` and see that this list contains 6 data frames ("tibbles"), each representing the cases from one hospital. 
+`View(linelist_split)` çalıştırabilir ve bu listenin her birinin bir hastaneden vakaları temsil eden 6 veri çerçevesi (“tibbles”) içerdiğini görebiliriz.
 
 ```{r, fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "purrr_linelist_split.png"))
 ```
 
-However, note that the data frames in the list do not have names by default! We want each to have a name, and then to use that name when saving the CSV file.  
+Ancak, listedeki veri çerçevelerinin varsayılan olarak adları olmadığını unutmayın! Her birinin bir adı olmasını ve ardından CSV dosyasını kaydederken bu adı kullanmasını istiyoruz.  
 
-One approach to extracting the names is to use `pull()` (from **dplyr**) to extract the `hospital` column from each data frame in the list. Then, to be safe, we convert the values to character and then use `unique()` to get the name for that particular data frame. All of these steps are applied to each data frame via `map()`.  
+Adları çıkarmaya yönelik bir yaklaşım, listedeki her veri çerçevesinden hospital sütununu çıkarmak için  `pull()` (**dplyr**'den) kullanmaktır. Ardından, güvende olmak için değerleri karaktere dönüştürürüz ve ardından o belirli veri çerçevesinin adını almak için `unique()` işlevini kullanırız. Bu adımların tümü, her veri çerçevesine `map()` aracılığıyla uygulanır.
 
 ```{r}
 names(linelist_split) <- linelist_split %>%   # Assign to names of listed data frames 
@@ -545,7 +543,7 @@ names(linelist_split) <- linelist_split %>%   # Assign to names of listed data f
      map(.f = ~unique(.x))                    # Take the unique hospital name
 ```
 
-We can now see that each of the list elements has a name. These names can be accessed via `names(linelist_split)`.  
+Artık liste öğelerinin her birinin bir adı olduğunu görebiliriz. Bu isimlere `names(linelist_split)` üzerinden erişilebilir.
 
 ```{r, fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "purrr_linelist_split_named.png"))
@@ -556,30 +554,30 @@ names(linelist_split)
 ```
 
 
-##### More than one `group_split()` column {.unnumbered}  
+##### Birden fazla `group_split()` sütunu {.unnumbered}  
 
-If you wanted to split the linelist by *more than one grouping column*, such as to produce subset linelist by intersection of hospital AND gender, you will need a different approach to naming the list elements. This involves collecting the unique "group keys" using `group_keys()` from **dplyr** - they are returned as a data frame. Then you can combine the group keys into values with `unite()` as shown below, and assign these conglomerate names to `linelist_split`.  
+Hastane VE cinsiyetin kesişimine göre alt küme satır listesi üretmek gibi, satır listesini *birden fazla gruplama sütununa* bölmek istiyorsanız, liste öğelerini adlandırmak için farklı bir yaklaşıma ihtiyacınız olacaktır. Bu, **dplyr**'den `group_keys()` kullanarak benzersiz "grup anahtarları"nın toplanmasını içerir - bunlar bir veri çerçevesine döndürülür. Ardından, aşağıda gösterildiği gibi `unite()` ile grup anahtarlarını değerler halinde birleştirebilir ve bu grup adlarını `linelist_split`'e atayabilirsiniz.
 
 ```{r}
-# split linelist by unique hospital-gender combinations
+# benzersiz hastane-cinsiyet kombinasyonlarına göre bölünmüş satır listesi
 linelist_split <- linelist %>% 
      group_split(hospital, gender)
 
-# extract group_keys() as a dataframe
+# group_keys() öğesini bir veri çerçevesi olarak çıkar
 groupings <- linelist %>% 
      group_by(hospital, gender) %>%       
      group_keys()
 
-groupings      # show unique groupings 
+groupings      # benzersiz gruplamaları göster 
 ```
 
-Now we combine the groupings together, separated by dashes, and assign them as the names of list elements in `linelist_split`. This takes some extra lines as we replace `NA` with "Missing", use `unite()` from **dplyr** to combine the column values together (separated by dashes), and then convert into an un-named vector so it can be used as names of `linelist_split`.  
+Şimdi, tire ile ayrılmış gruplamaları bir araya getiriyoruz ve bunları `linelist_split`'te liste elemanlarının adları olarak atadık. NA'yı "Eksik" ile değiştirdiğimiz için bu, bazı ekstra satırlar alır, sütun değerlerini birleştirmek için **dplyr**'den `unite()` kullanın (tire ile ayrılmış), ve sonra linelist_split adları olarak kullanılabilmesi için adsız bir vektöre dönüştürün.
 
 ```{r, eval=F}
-# Combine into one name value 
+# Tek bir ad değerinde birleştir
 names(linelist_split) <- groupings %>% 
-     mutate(across(everything(), replace_na, "Missing")) %>%  # replace NA with "Missing" in all columns
-     unite("combined", sep = "-") %>%                         # Unite all column values into one
+     mutate(across(everything(), replace_na, "Missing")) %>%  # tüm sütunlarda NA'yı "Eksik" ile değiştir
+     unite("combined", sep = "-") %>%                         # Tüm sütun değerlerini tek bir sütunda birleştir
      setNames(NULL) %>% 
      as_vector() %>% 
      as.list()
@@ -587,16 +585,16 @@ names(linelist_split) <- groupings %>%
 
 
 
-#### Export as Excel sheets {.unnumbered}  
+#### Excel sayfaları olarak dışa aktar {.unnumbered}  
 
-To export the hospital linelists as *an Excel workbook with one linelist per sheet*, we can just provide the named list `linelist_split` to the `write_xlsx()` function from the **writexl** package. This has the ability to save one Excel workbook with multiple sheets. The list element names are automatically applied as the sheet names.  
+Hastane satır listelerini, *sayfa başına bir satır listesi ile bir Excel çalışma kitabı olacak şekilde* dışa aktarmak için, `writexl` paketinden `write_xlsx()` işlevine yalnızca `linelist_split` adlı listeyi sağlayabiliriz. Bu, birden çok sayfa içeren bir Excel çalışma kitabını kaydetme özelliğine sahiptir. Liste öğesi adları, sayfa adları olarak otomatik olarak uygulanır.
 
 ```{r, eval=F}
 linelist_split %>% 
      writexl::write_xlsx(path = here("data", "hospital_linelists.xlsx"))
 ```
 
-You can now open the Excel file and see that each hospital has its own sheet.  
+Artık Excel dosyasını açıp her hastanenin kendi sayfası olduğunu görebilirsiniz.
 
 ```{r, fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "purrr_export_sheets.png"))
@@ -604,24 +602,25 @@ knitr::include_graphics(here::here("images", "purrr_export_sheets.png"))
 
 #### Export as CSV files {.unnumbered}  
 
-It is a bit more complex command, but you can also export each hospital-specific linelist as a separate CSV file, with a file name specific to the hospital.  
+Bu biraz daha karmaşık bir komuttur, ancak hastaneye özel her bir satır listesini hastaneye özel bir dosya adıyla ayrı bir CSV dosyası olarak da dışa aktarabilirsiniz.
 
-Again we use `map()`: we take the vector of list element names (shown above) and use `map()` to iterate through them, applying `export()` (from the **rio** package, see [Import and export] page) on the data frame in the list `linelist_split` that has that name. We also use the name to create a unique file name. Here is how it works:  
-     
-* We begin with the vector of character names, passed to `map()` as `.x`  
-* The `.f` function is `export()` , which requires a data frame and a file path to write to  
-* The input `.x` (the hospital name) is used *within* `.f` to extract/index that specific element of `linelist_split` list. This results in only one data frame at a time being provided to `export()`.  
-* For example, when `map()` iterates for "Military Hospital", then `linelist_split[[.x]]` is actually `linelist_split[["Military Hospital"]]`, thus returning the second element of `linelist_split` - which is all the cases from Military Hospital.  
-* The file path provided to `export()` is dynamic via use of `str_glue()` (see [Characters and strings] page):  
-     * `here()` is used to get the base of the file path and specify the "data" folder (note single quotes to not interrupt the `str_glue()` double quotes)  
-* Then a slash `/`, and then again the `.x` which prints the current hospital name to make the file identifiable  
-* Finally the extension ".csv" which `export()` uses to create a CSV file  
+Yine `map()` kullanıyoruz: liste öğesi adlarının (yukarıda gösterilen) vektörünü alıyoruz ve bunlar arasında yineleme yapmak için `map()` kullanıyoruz, bu adı taşıyan `linelist_split` listesindeki veri çerçevesine `export()` (**rio** paketinden, [İçe ve dışa aktarma] sayfasına bakın) uyguluyoruz. Adı benzersiz bir dosya adı oluşturmak için de kullanırız. İşte nasıl çalıştığı:
+
+* `map()`'e `.x` olarak iletilen karakter adlarının vektörüyle başlıyoruz.
+* `.f` fonksiyonu, bir veri çerçevesi ve yazmak için bir dosya yolu gerektiren `export()` işlevidir. 
+* `.x` girişi (hastane adı), `linelist_split` listesinin o belirli öğesini çıkarmak/indekslemek için `.f` *içinde* kullanılır. Bu, `export()` işlevine aynı anda yalnızca bir veri çerçevesinin sağlanmasıyla sonuçlanır.
+* Örneğin, `map()` “Askeri Hastane” için yinelendiğinde, `linelist_split[[.x]]` aslında `linelist_split[["Military Hospital"]]` olur, bu nedenle `linelist_split` öğesinin ikinci öğesini döndürür - ki bu, Askeri Hastanedeki tüm vakalardır.
+* `export()` için sağlanan dosya yolu, `str_glue()` kullanımı yoluyla dinamiktir (bkz. Karakterler ve dizeler sayfası):
+  * `here()` dosya yolunun temelini almak ve “data” klasörünü belirtmek için kullanılır (`str_glue()` çift tırnak işaretini kesmemek için tek tırnak işaretlerini not edin)
+* Ardından bir eğik çizgi `/` ve ardından tekrar dosyanın tanımlanabilmesi için mevcut hastane adını yazdıran` .x`
+* Son olarak, `export()` öğesinin bir CSV dosyası oluşturmak için kullandığı “.csv” uzantısı
 
 ```{r, eval=F, message = F, warning=F}
 names(linelist_split) %>%
      map(.f = ~export(linelist_split[[.x]], file = str_glue("{here('data')}/{.x}.csv")))
 ```
-Now you can see that each file is saved in the "data" folder of the R Project "Epi_R_handbook"!  
+
+Artık her dosyanın R Project “Epi_R_handbook” un “data” klasörüne kaydedildiğini görebilirsiniz!
      
 ```{r, fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "purrr_export_csv.png"))
@@ -629,21 +628,21 @@ knitr::include_graphics(here::here("images", "purrr_export_csv.png"))
 
 
 
-### Custom functions {.unnumbered}  
+### Özel işlevler {.unnumbered}  
 
-You may want to create your own function to provide to `map()`.  
+`map()` sağlamak için kendi işlevinizi oluşturmak isteyebilirsiniz.
 
-Let's say we want to create epidemic curves for each hospital's cases. To do this using **purrr**, our `.f` function can be `ggplot()` and extensions with `+` as usual. As the output of `map()` is always a list, the plots are stored in a list. Because they are plots, they can be extracted and plotted with the `ggarrange()` function from the **ggpubr** package ([documentation](https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html)).  
+Her hastanenin vakası için salgın eğrileri oluşturmak istediğimizi varsayalım. Bunu **purrr** kullanarak yapmak için, `.f` işlevimiz her zamanki gibi `ggplot()` ve + ile uzantılar olabilir. `map()` çıktısı her zaman bir liste olduğundan, grafikler bir listede saklanır. Grafikler oldukları için, **ggpubr** paketinden `ggarrange()` fonksiyonuyla çıkarılabilir ve grafiklendirilebilir. ([dokümantasyon](https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html))
 
 
 ```{r, message = F, warning=F}
 
-# load package for plotting elements from list
+# listeden öğeleri grafiklendirebilmek için paketi yükle
 pacman::p_load(ggpubr)
 
-# map across the vector of 6 hospital "names" (created earlier)
-# use the ggplot function specified
-# output is a list with 6 ggplots
+# 6 hastane "adlar"ının vektörü boyunca haritala (daha önce oluşturulmuş)
+# belirtilen ggplot işlevini kullanın
+# çıktı, 6 ggplot içeren bir listedir
 
 hospital_names <- unique(linelist$hospital)
 
@@ -654,14 +653,14 @@ my_plots <- map(
                 labs(title = .x)
 )
 
-# print the ggplots (they are stored in a list)
+# ggplot'ları yazdırın (bir listede saklanırlar)
 ggarrange(plotlist = my_plots, ncol = 2, nrow = 3)
 ```
 
-If this `map()` code looks too messy, you can achieve the same result by saving your specific `ggplot()` command as a custom user-defined function, for example we can name it `make_epicurve())`. This function is then used within the `map()`. `.x` will be iteratively replaced by the hospital name, and used as `hosp_name` in the `make_epicurve()` function. See the page on [Writing functions].
+Bu `map()` kodu çok dağınık görünüyorsa, ilgili `ggplot()` komutunuzu özel bir kullanıcı tanımlı fonksiyon olarak kaydederek aynı sonucu elde edebilirsiniz, örneğin ona `make_epicurve()` adını verebiliriz. Bu işlev daha sonra `map()` içinde kullanılır. `.x` yinelemeli olarak hastane adıyla değiştirilecek ve `make_epicurve()` fonksiyonunda `hosp_name` olarak kullanılacaktır. Detaylar için [Yazma fonksiyonları] sayfasına bakın.
 
 ```{r, eval=F}
-# Create function
+# Fonksiyon oluştur
 make_epicurve <- function(hosp_name){
   
   ggplot(data = linelist %>% filter(hospital == hosp_name)) +
@@ -673,127 +672,126 @@ make_epicurve <- function(hosp_name){
 ```
 
 ```{r, eval=F}
-# mapping
+# haritalama
 my_plots <- map(hospital_names, ~make_epicurve(hosp_name = .x))
 
-# print the ggplots (they are stored in a list)
+# ggplot'ları yazdırın (bir listede saklanırlar)
 ggarrange(plotlist = my_plots, ncol = 2, nrow = 3)
 ```
 
 
 
 
-### Mapping a function across columns {.unnumbered}  
+### Sütunlar arasında bir fonksiyonu eşleme  {.unnumbered}  
 
-Another common use-case is to map a function across many columns. Below, we `map()` the function `t.test()` across numeric columns in the data frame `linelist`, comparing the numeric values by gender.  
+Diğer bir yaygın kullanım durumu, bir işlevi birçok sütun arasında eşlemektir. Aşağıda, `t.test()` fonksiyonunu, sayısal değerleri cinsiyete göre karşılaştırarak, veri çerçevesi `satır listesindeki` sayısal sütunlar arasında eşliyoruz / `map()`.
 
-Recall from the page on [Simple statistical tests] that `t.test()` can take inputs in a formula format, such as `t.test(numeric column ~ binary column)`. In this example, we do the following:    
-     
-* The numeric columns of interest are selected from `linelist` - these become the `.x` inputs to `map()`  
-* The function `t.test()` is supplied as the `.f` function, which is applied to each numeric column  
-* Within the parentheses of `t.test()`:  
-  * the first `~` precedes the `.f` that `map()` will iterate over `.x`  
-  * the `.x` represents the current column being supplied to the function `t.test()`  
-  * the second `~` is part of the t-test equation described above  
-  * the `t.test()` function expects a binary column on the right-hand side of the equation. We supply the vector `linelist$gender` independently and statically (note that it is not included in `select()`).  
+[Basit istatistiksel testler] sayfasından `t.test()`’in `t.test(numeric column ~ binary column)` gibi bir formül biçiminde girdiler alabileceğini hatırlayın. Bu örnekte aşağıdakileri yapıyoruz:
 
-`map()` returns a list, so the output is a list of t-test results - one list element for each numeric column analysed.  
+* İlgilenilen sayısal sütunlar `satır listesinden` seçilir - bunlar `map()` için `.x` girdileri olur
+* `t.test()` metodu, her sayısal sütuna uygulanan `.f` fonksiyonu olarak sağlanır
+* `t.test()` parantezleri içinde:
+  * ilk `~` , `map()`'in `.x` üzerinde yineleneceği `.f`'den önce gelir
+  * `.x`,  `t.test()` işlevine sağlanan geçerli sütunu temsil eder
+  * ikinci `~` yukarıda açıklanan t testi denkleminin bir parçasıdır
+  * `t.test()` işlevi, denklemin sağ tarafında bir ikili sütun bekler. `linelist$gender` vektörünü bağımsız ve statik olarak sağlıyoruz (`select()`'e dahil edilmediğine dikkat edin). 
+
+`map()` bir liste döndürür, bu nedenle çıktı t-test sonuçlarının bir listesidir - analiz edilen her sayısal sütun için bir liste öğesi. 
 
 ```{r}
-# Results are saved as a list
+# Sonuçlar bir liste olarak kaydedilir
 t.test_results <- linelist %>% 
-  select(age, wt_kg, ht_cm, ct_blood, temp) %>%  # keep only some numeric columns to map across
-  map(.f = ~t.test(.x ~ linelist$gender))        # t.test function, with equation NUMERIC ~ CATEGORICAL
+  select(age, wt_kg, ht_cm, ct_blood, temp) %>%  # eşlemek için yalnızca bazı sayısal sütunları saklayın
+  map(.f = ~t.test(.x ~ linelist$gender))        # t.test fonksiyonu, SAYISAL ~ KATEGORİSEL denklemi ile
 ```
 
-Here is what the list `t.test_results` looks like when opened (Viewed) in RStudio. We have highlighted parts that are important for the examples in this page.  
+RStudio'da açıldığında (Görüntülendiğinde) `t.test_results` listesi şöyle görünür. Bu sayfadaki örnekler için önemli olan kısımları vurguladık.
 
-* You can see at the top that the whole list is named `t.test_results` and has five elements. Those five elements are named `age`, `wt_km`, `ht_cm`, `ct_blood`, `temp` after each variable that was used in a t-test with `gender` from the `linelist`.  
-* Each of those five elements are themselves lists, with elements within them such as `p.value` and `conf.int`. Some of these elements like `p.value` are single numbers, whereas some such as `estimate` consist of two or more elements (`mean in group f` and `mean in group m`).  
+* En üstte tüm listenin `t.test_results` olarak adlandırıldığını ve beş öğeye sahip olduğunu görebilirsiniz. Bu beş öğe, `linelist`‘den cinsiyet - `gender` ile bir t-testinde kullanılan her değişkenden sonra `age`, `wt_km`, `ht_cm`, `ct_blood`, `temp` olarak adlandırılır.
+* Bu beş öğenin her biri, içinde `p.value` ve `conf.int` gibi öğeler bulunan listelerdir. `p.value` gibi bu öğelerden bazıları tek sayılardır, oysa tahmin - `estimate` gibi bazıları iki veya daha fazla öğeden oluşur (`f grubunda ortalama` ve `m grubunda ortalama`).
 
 ```{r, out.height="150%", echo=F}
 knitr::include_graphics(here::here("images", "purrr_ttest.png"))
 ```
 
-
-Note: Remember that if you want to apply a function to only certain columns in a data frame, you can also simply use `mutate()` and `across()`, as explained in the [Cleaning data and core functions] page. Below is an example of applying `as.character()` to only the "age" columns. Note the placement of the parentheses and commas.  
+Not: Bir veri çerçevesindeki yalnızca belirli sütunlara bir işlev uygulamak istiyorsanız, [Verileri temizleme ve temel işlevler] sayfasında açıklandığı gibi `mutate()` ve `across()`'u da kullanabileceğinizi unutmayın. Aşağıda, yalnızca "yaş" sütunlarına `as.character()` uygulamasının bir örneği verilmiştir. Parantez ve virgüllerin yerleşimine dikkat edin.
 
 ```{r, eval=F}
-# convert columns with column name containing "age" to class Character
+# "yaş" içeren sütun adına sahip sütunları karakter sınıfına dönüştürün
 linelist <- linelist %>% 
   mutate(across(.cols = contains("age"), .fns = as.character))  
 ```
 
 
-### Extract from lists {.unnumbered}  
+### Listeden çıkarma {.unnumbered}  
 
-As `map()` produces an output of class List, we will spend some time discussing how to extract data from lists using accompanying **purrr** functions. To demonstrate this, we will use the list `t.test_results` from the previous section. This is a list of 5 lists - each of the 5 lists contains the results of a t-test between a column from `linelist` data frame and its binary column `gender`. See the image in the section above for a visual of the list structure.  
+`map()` List sınıfının bir çıktısını ürettiği için, eşlik eden **purrr** fonksiyonlarını kullanarak listelerden nasıl veri çıkarılacağını tartışmak için biraz zaman harcayacağız. Bunu göstermek için önceki bölümdeki `t.test_results` listesini kullanacağız. Bu 5 listeden oluşan bir listedir - 5 listenin her biri, `linelist` veri çerçevesinden bir sütun ile ikili sütun cinsiyeti - `gender` arasındaki bir t-testinin sonuçlarını içerir. Liste yapısının görseli için yukarıdaki bölümdeki resme bakın.
 
-#### Names of elements {.unnumbered}  
+#### Elementlerin isimleri {.unnumbered}  
 
-To extract the names of the elements themselves, simply use `names()` from **base** R. In this case, we use `names()` on `t.test_results` to return the names of each sub-list, which are the names of the 5 variables that had t-tests performed.  
+Öğelerin adlarını çıkarmak için, yalnızca **R tabanından** `names()` fonksiyonunu kullanın. Bu durumda, t-testleri gerçekleştirilen 5 değişkenin adları olan her bir alt listenin adını döndürmek için `t.test_results` üzerinde `names()` kullanırız.
 
 ```{r}
 names(t.test_results)
 ```
 
-#### Elements by name or position {.unnumbered}  
+#### Ada veya konuma göre öğeler {.unnumbered}  
 
-To extract list elements by name or by position you can use brackets `[[ ]]` as described in the [R basics] page. Below we use double brackets to index the list `t.tests_results` and display the first element which is the results of the t-test on `age`.  
+Liste öğelerini ada veya konuma göre çıkarmak için, R temelleri sayfasında açıklandığı gibi köşeli ayraçları `[[ ]]` kullanabilirsiniz. Aşağıda, `t.tests_results` listesini indekslemek için çift parantez kullanıyoruz ve t-testinin yaşa - `age` göre sonuçları olan ilk öğeyi gösteriyoruz.  
 
 ```{r}
-t.test_results[[1]] # first element by position
-t.test_results[[1]]["p.value"] # return element named "p.value" from first element  
+t.test_results[[1]] # pozisyona göre ilk eleman
+t.test_results[[1]]["p.value"] # ilk öğeden "p.value" adlı öğeyi döndür 
 ```
 
-However, below we will demonstrate use of the simple and flexible **purrr** functions `map()` and `pluck()` to achieve the same outcomes.  
+Bununla birlikte, aşağıda aynı sonuçları elde etmek için basit ve esnek **purrr** fonksiyonları `map()` ve `pluck()` kullanımını göstereceğiz.
 
 #### `pluck()` {.unnumbered}  
 
-`pluck()` pulls out elements by name or by position. For example - to extract the t-test results for age, you can use `pluck()` like this:  
+`pluck()`, elemanları ada veya konuma göre çeker. Örneğin - yaş için t testi sonuçlarını çıkarmak için `pluck()` işlevini şu şekilde kullanabilirsiniz:
 
 ```{r}
 t.test_results %>% 
-  pluck("age")        # alternatively, use pluck(1)
+  pluck("age")        # alternatif olarak, pluck(1) kullanın
 ```
 
-Index deeper levels by specifying the further levels with commas. The below extracts the element named "p.value" from the list `age` within the list `t.test_results`. You can also use numbers instead of character names.    
+Diğer seviyeleri virgülle belirterek daha derin seviyeleri indeksleyin. Aşağıdaki, `t.test_results` listesindeki liste yaşından `age` “p.value” adlı öğeyi çıkarır. Karakter adları yerine sayıları da kullanabilirsiniz.
 
 ```{r}
 t.test_results %>% 
   pluck("age", "p.value")
 ```
 
-You can extract such inner elements from *all* first-level elements by using `map()` to run the `pluck()` function across each first-level element. For example, the below code extracts the "p.value" elements from all lists within `t.test_results`. The list of t-test results is the `.x` iterated across, `pluck()` is the `.f` function being iterated, and the value "p-value" is provided to the function.     
+`pluck()` işlevini *her bir* birinci düzey öğede çalıştırmak için `map()` kullanarak tüm birinci düzey öğelerden bu tür iç öğeleri ayıklayabilirsiniz. Örneğin, aşağıdaki kod, `t.test_results` içindeki tüm listelerden "p.value" öğelerini çıkarır. t testi sonuçlarının listesi, yinelenen `.x`'dir, `pluck()` yinelenen `.f` fonksiyonudur ve fonksiyona "p-değeri" sağlar.
 
 ```{r}
 t.test_results %>%
-  map(pluck, "p.value")   # return every p-value
+  map(pluck, "p.value")   # her p değerini döndür
 ```
 
-As another alternative, `map()` offers a shorthand where you can write the element name in quotes, and it will pluck it out. If you use `map()` the output will be a list, whereas if you use `map_chr()` it will be a named character vector and if you use `map_dbl()` it will be a named numeric vector.  
+Başka bir alternatif olarak, `map()`, eleman adını tırnak içinde yazabileceğiniz bir kestirme yol sunar ve onu çıkarır.  `map()` kullanırsanız çıktı bir liste olur, `map_chr()` kullanırsanız bu adlandırılmış bir karakter vektörü olur ve `map_dbl()` kullanırsanız bu adlandırılmış bir sayısal vektör olur.
 
 ```{r}
 t.test_results %>% 
-  map_dbl("p.value")   # return p-values as a named numeric vector
+  map_dbl("p.value")   # p-değerlerini adlandırılmış bir sayısal vektör olarak döndür
 ```
 
-You can read more about `pluck()` in it's **purrr** [documentation](https://purrr.tidyverse.org/reference/pluck.html). It has a sibling function `chuck()` that will return an error instead of NULL if an element does not exist.  
+**purrr** [belgelerinde](https://purrr.tidyverse.org/reference/pluck.html) `pluck()` hakkında daha fazla bilgi edinebilirsiniz. Bir öğe yoksa NULL yerine bir hata döndüren `chuck()` kardeş işlevine sahiptir.  
 
 
 
-### Convert list to data frame {.unnumbered}  
+### Listeyi veri çerçevesine dönüştür {.unnumbered}  
 
-This is a complex topic - see the Resources section for more complete tutorials. Nevertheless, we will demonstrate converting the list of t-test results into a data frame. We will create a data frame with columns for the variable, its p-value, and the means from the two groups (male and female).  
+Bu karmaşık bir konudur - daha eksiksiz öğreticiler için Kaynaklar bölümüne bakın. Yine de, t-testi sonuçlarının listesini bir veri çerçevesine dönüştürmeyi göstereceğiz. Değişken, p değeri ve iki gruptan (erkek ve kadın) ortalamalar için sütunlar içeren bir veri çerçevesi oluşturacağız.
 
-Here are some of the new approaches and functions that will be used:  
+Kullanılacak bazı yeni yaklaşımlar ve işlevler şunlardır:  
 
-* The function `tibble()` will be used to create a tibble (like a data frame)  
-  * We surround the `tibble()` function with curly brackets `{ }` to prevent the entire `t.test_results` from being stored as the first tibble column  
-* Within `tibble()`, each column is created explicitly, similar to the syntax of `mutate()`:  
-  * The `.` represents `t.test_results`
-  * To create a column with the t-test variable names (the names of each list element) we use `names()` as described above  
-  * To create a column with the p-values we use `map_dbl()` as described above to pull the `p.value` elements and convert them to a numeric vector  
+* `tibble()` fonksiyonu, bir tibble (veri çerçevesi gibi) oluşturmak için kullanılacaktır
+  * Tüm `t.test_results`'un ilk tibble sütunu olarak depolanmasını önlemek için `tibble()` fonksiyonunu küme parantezleri `{ }` ile çevreliyoruz
+* `tibble()` içinde her sütun, `mutate()` sözdizimine benzer şekilde açıkça oluşturulur:
+  * `.`, `t.test_results`'u temsil eder
+  * t-test değişken adlarıyla (her liste öğesinin adı) bir sütun oluşturmak için yukarıda açıklandığı gibi `names()`i kullanırız
+  * p değerleriyle bir sütun oluşturmak için, `p.value` öğelerini çekmek ve bunları sayısal bir vektöre dönüştürmek için yukarıda açıklandığı gibi `map_dbl()` kullanırız
 
 ```{r}
 t.test_results %>% {
@@ -803,9 +801,9 @@ t.test_results %>% {
   }
 ```
 
-But now let's add columns containing the means for each group (males and females).  
+Ama şimdi her grup için (erkekler ve kadınlar) ortalamaları içeren sütunlar ekleyelim.
 
-We would need to extract the element `estimate`, but this actually contains *two* elements within it (`mean in group f` and `mean in group m`). So, it cannot be simplified into a vector with `map_chr()` or `map_dbl()`. Instead, we use `map()`, which used within `tibble()` will create *a column of class list within the tibble*! Yes, this is possible!  
+Öğe tahminini/estimate çıkarmamız gerekir, ancak bu aslında içinde *iki* öğe içerir (`f grubunda ortalama` ve `m grubunda ortalama`). Bu nedenle, `map_chr()` veya `map_dbl()` ile bir vektöre basitleştirilemez. Bunun yerine, `tibble()` içinde kullanılan `map()` fonksiyonunu kullanıyoruz, bu *tibble içinde bir sınıf listesi sütunu yaratacaktır*! Evet, bu mümkün!
 
 ```{r}
 t.test_results %>% 
@@ -815,13 +813,13 @@ t.test_results %>%
     means = map(., "estimate"))}
 ```
 
-Once you have this list column, there are several **tidyr** functions (part of **tidyverse**) that help you "rectangle" or "un-nest" these "nested list" columns. Read more about them [here](), or by running `vignette("rectangle")`. In brief:  
+Bu liste sütununa sahip olduğunuzda, bu "iç içe liste" sütunlarını "dikdörtgenleştirmenize" veya "iç içeden çıkarmanıza" yardımcı olan birkaç **tidyr** fonksiyonu (**tidyverse**'nin bir parçası) vardır. Onlar hakkında daha fazla bilgiyi buradan veya `vignette("rectangle")` çalıştırarak okuyun. Kısaca: 
 
-* `unnest_wider()` - gives each element of a list-column its own column  
-* `unnest_longer()` - gives each element of a list-column its own row
-* `hoist()` - acts like `unnest_wider()` but you specify which elements to unnest  
+* `unnest_wider()` - bir liste sütununun her elemanına kendi sütununu verir
+* `unnest_longer()` - bir liste sütununun her elemanına kendi satırını verir
+* `hoist()` - `unnest_wider()` gibi davranır, ancak hangi öğelerin yuvalanacağını siz belirlersiniz
 
-Below, we pass the tibble to `unnest_wider()` specifying the tibble's `means` column (which is a nested list). The result is that `means` is replaced by two new columns, each reflecting the two elements that were previously in each `means` cell.  
+Aşağıda, tibble'ın ortalama - `means` sütununu (iç içe bir liste olan) belirterek tibble'ı `unnest_wider()` öğesine iletiyoruz. Sonuç, `ortalamaların` her biri daha önce her bir `means` hücresinde bulunan iki öğeyi yansıtan iki yeni sütunla değiştirilmesidir.  
 
 ```{r}
 t.test_results %>% 
@@ -835,52 +833,52 @@ t.test_results %>%
 
 
 
-### Discard, keep, and compact lists {.unnumbered}  
+### Listeleri atma, saklama ve sıkıştırma {.unnumbered}  
 
-Because working with **purrr** so often involves lists, we will briefly explore some **purrr** functions to modify lists. See the Resources section for more complete tutorials on **purrr** functions.    
+**purrr** ile çalışmak genellikle listeler içerdiğinden, listeleri değiştirmek için bazı **purrr** fonksiyonlarını kısaca inceleyeceğiz. **purrr** fonksiyonlarıyla ilgili daha eksiksiz eğitimler için Kaynaklar bölümüne bakın.
 
-* `list_modify()` has many uses, one of which can be to remove a list element  
-* `keep()` retains the elements specified to `.p = `, or where a function supplied to `.p = ` evaluates to TRUE  
-* `discard()` removes the elements specified to `.p`, or where a function supplied to `.p = ` evaluates to TRUE  
-* `compact()` removes all empty elements  
+* `list_modify()` birçok kullanıma sahiptir, bunlardan biri bir liste öğesini kaldırmak olabilir
+* `keep()`,  `.p =` için belirtilen öğeleri veya `.p =` için sağlanan bir işlevin DOĞRU olarak değerlendirildiği yerde tutar
+* `discard()`, `.p` için belirtilen öğeleri veya `.p =` için sağlanan bir işlevin DOĞRU olarak değerlendirildiği yerde  kaldırır 
+* `compact()` tüm boş öğeleri kaldırır
 
-Here are some examples using the `combined` list created in the section above on [using map() to import and combine multiple files](#iter_combined) (it contains 6 case linelist data frames):    
+[Birden çok dosyayı içe aktarmak ve birleştirmek](#iter_combined) için `map()` kullanımıyla ilgili yukarıdaki bölümde oluşturulan birleşik listeyi kullanan bazı örnekler (6 vaka sıra listesi veri çerçevesi içerir):
 
-Elements can be removed by name with `list_modify()` and setting the name equal to `NULL`.  
+Öğeler, `list_modify()` ile adlarına göre ve adı `NULL`'a eşitlenerek kaldırılabilir.
 
 ```{r, eval=F}
 combined %>% 
-  list_modify("Central Hospital" = NULL)   # remove list element by name
+  list_modify("Central Hospital" = NULL)   # liste öğesini isme göre kaldır
 ```
 
-You can also remove elements by criteria, by providing a "predicate" equation to `.p = ` (an equation that evaluates to either TRUE or FALSE). Place a tilde `~` before the function and use `.x` to represent the list element. Using `keep()` the list elements that evaluate to TRUE will be kept. Inversely, if using `discard()` the list elements that evaluate to TRUE will be removed.  
+Ayrıca, `.p =` (DOĞRU veya YANLIŞ olarak değerlendirilen bir denklem) için bir "yüklem" denklemi sağlayarak, ölçütlere göre öğeleri kaldırabilirsiniz. Fonksiyonun önüne bir tilde `~` yerleştirin ve liste öğesini temsil etmek için `.x` kullanın. `keep()` kullanılarak DOĞRU olarak değerlendirilen liste öğeleri tutulacaktır. Tersine, eğer `discard()` kullanılıyorsa, DOĞRU olarak değerlendirilen liste elemanları kaldırılacaktır.
 
 ```{r, eval=F}
-# keep only list elements with more than 500 rows
+# yalnızca 500'den fazla satır içeren liste öğelerini tut
 combined %>% 
   keep(.p = ~nrow(.x) > 500)  
 ```
 
-In the below example, list elements are discarded if their class are not data frames.  
+Aşağıdaki örnekte, sınıfları veri çerçeveleri değilse liste öğeleri atılır.
 
 ```{r, eval=F}
-# Discard list elements that are not data frames
+# Veri çerçevesi olmayan liste öğelerini at
 combined %>% 
   discard(.p = ~class(.x) != "data.frame")
 ```
 
-Your predicate function can also reference elements/columns within each list item. For example, below, list elements where the mean of column `ct_blood` is over 25 are discarded.  
+Yüklem işleviniz ayrıca her liste öğesindeki öğelere/sütunlara başvurabilir. Örneğin, aşağıda, `ct_blood` sütununun ortalamasının 25'in üzerinde olduğu liste öğeleri atılır.
 
 ```{r, eval=F}
-# keep only list elements where ct_blood column mean is over 25
+# yalnızca ct_blood sütun ortalamasının 25'in üzerinde olduğu liste öğelerini tut
 combined %>% 
   discard(.p = ~mean(.x$ct_blood) > 25)  
 ```
 
-This command would remove all empty list elements:  
+Bu komut, tüm boş liste öğelerini kaldırır:
 
 ```{r, eval=F}
-# Remove all empty list elements
+# Tüm boş liste öğelerini kaldırın
 combined %>% 
   compact()
 ```
@@ -889,37 +887,36 @@ combined %>%
 
 ### `pmap()` {.unnumbered}
 
-THIS SECTION IS UNDER CONSTRUCTION  
+BU BÖLÜM YAPIM AŞAMASINDADIR.
 
 
 
-## Apply functions  
+## Fonksiyonları uygulama  
 
-The "apply" family of functions is a **base** R alternative to **purrr** for iterative operations. You can read more about them [here](https://www.datacamp.com/community/tutorials/r-tutorial-apply-family).  
-
+“Uygula” fonksiyon ailesi, yinelemeli işlemler için **purrr**'a R tabanı alternatifidir. Onlar hakkında daha fazlasını [buradan](https://www.datacamp.com/community/tutorials/r-tutorial-apply-family) okuyabilirsiniz.
 
 
 
 
 
 <!-- ======================================================= -->
-## Resources { }
+## Kaynaklar { }
 
-[for loops with Data Carpentry](https://datacarpentry.org/semester-biology/materials/for-loops-R/)  
+[Data Carpentry ile  for döngüleri](https://datacarpentry.org/semester-biology/materials/for-loops-R/)  
 
-The [R for Data Science page on iteration](https://r4ds.had.co.nz/iteration.html#iteration)  
+[Yinelemede Veri Bilimi için R sayfası](https://r4ds.had.co.nz/iteration.html#iteration)  
 
-[Vignette on write/read Excel files](https://martinctc.github.io/blog/vignette-write-and-read-multiple-excel-files-with-purrr/)  
+[Excel dosyaları yazma/okuma üzerine skeç](https://martinctc.github.io/blog/vignette-write-and-read-multiple-excel-files-with-purrr/)  
 
-A purrr [tutorial](https://jennybc.github.io/purrr-tutorial/index.html) by jennybc 
+[jennybc tarafından bir purrr dersi](https://jennybc.github.io/purrr-tutorial/index.html) by jennybc 
 
-Another purrr [tutorial](http://www.rebeccabarter.com/blog/2019-08-19_purrr/) by Rebecca Barter  
+[Rebecca Barter'dan bir başka purrr dersi](http://www.rebeccabarter.com/blog/2019-08-19_purrr/) by Rebecca Barter  
 
-A purrr [tutorial](http://zevross.com/blog/2019/06/11/the-power-of-three-purrr-poseful-iteration-in-r-with-map-pmap-and-imap/) on map, pmap, and imap  
+[map, pmap ve imap hakkında bir purrr eğitimi](http://zevross.com/blog/2019/06/11/the-power-of-three-purrr-poseful-iteration-in-r-with-map-pmap-and-imap/) on map, pmap, and imap  
 
-[purrr cheatsheet](https://raw.githubusercontent.com/rstudio/cheatsheets/master/pngs/thumbnails/purrr-cheatsheet-thumbs.png)
+[purrr hile sayfası](https://raw.githubusercontent.com/rstudio/cheatsheets/master/pngs/thumbnails/purrr-cheatsheet-thumbs.png)
 
-[purrr tips and tricks](https://www.hvitfeldt.me/blog/purrr-tips-and-tricks/)
+[purrr ipuçları ve püf noktaları](https://www.hvitfeldt.me/blog/purrr-tips-and-tricks/)
 
-[keep and discard](https://hookedondata.org/going-off-the-map/#keep-and-discard)
+[sakla ve at](https://hookedondata.org/going-off-the-map/#keep-and-discard)
 

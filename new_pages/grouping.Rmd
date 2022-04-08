@@ -1,54 +1,49 @@
 
-# Grouping data { }  
+# Verileri Gruplama { }  
 
 
 ```{r, out.width=c('100%'), echo=F, message=F}
 knitr::include_graphics(here::here("images", "Grouping_1500x500.png"))
 ```
 
-
-This page covers how to group and aggregate data for descriptive analysis. It makes use of the **tidyverse** family of packages for common and easy-to-use functions. 
-
-
-Grouping data is a core component of data management and analysis. Grouped data statistically summarised by group, and can be plotted by group. Functions from the **dplyr** package (part of the **tidyverse**) make grouping and subsequent operations quite easy.  
-
-This page will address the following topics:  
-
-* Group data with the `group_by()` function  
-* Un-group data  
-* `summarise()` grouped data with statistics  
-* The difference between `count()` and `tally()`  
-* `arrange()` applied to grouped data  
-* `filter()` applied to grouped data  
-* `mutate()` applied to grouped data  
-* `select()` applied to grouped data  
-* The **base** R `aggregate()` command as an alternative  
+Bu sayfa, tanımlayıcı analiz için verilerin nasıl gruplandırılacağını ve toplanacağını kapsar. Ortak ve kullanımı kolay fonksiyonlar için **tidyverse** paket ailesini kullanır.
 
 
+Verileri gruplamak, veri yönetimi ve analizinin temel bir bileşenidir. Gruplandırılmış veriler istatistiksel olarak grup tarafından özetlenir ve grup tarafından çizilebilir. **dplyr** paketindeki fonksiyonlar (**tidyverse**'in bir parçası) gruplandırmayı ve sonraki işlemleri oldukça kolaylaştırır.
 
+Bu sayfa aşağıdaki konuları ele alacaktır:
 
-<!-- ======================================================= -->
-## Preparation {  }
+* `group_by()` fonksiyonuyla verileri gruplayın
+* Grubun verilerini kaldırma
+* `summarise()` istatistiklerle gruplandırılmış veriler
+* `count()` ve `tally()` arasındaki fark
+* gruplandırılmış verilere uygulanan `arrange()`
+* gruplandırılmış verilere uygulanan `filter()`
+* gruplandırılmış verilere uygulanan `mutate()`
+* gruplandırılmış verilere uygulanan `select()`
+* Alternatif olarak  R **tabanı** `aggregate()` komutu
+
+## Hazırlık {  }
      
-### Load packages {.unnumbered}  
+### Paketleri yükleyin {.unnumbered}
      
-This code chunk shows the loading of packages required for the analyses. In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Bu kod parçası, analizler için gereken paketlerin yüklenmesini gösterir. Bu el kitabında, gerekirse paketi kuran *ve* kullanım için yükleyen **pacman**'dan `p_load()` vurgusunu yapıyoruz.  R **tabanı**ndan `library()` ile kurulu paketleri de yükleyebilirsiniz. R paketleri hakkında daha fazla bilgi için [R basics] sayfasına bakabilirsiniz.
 
 
 ```{r}
 pacman::p_load(
-  rio,       # to import data
-  here,      # to locate files
-  tidyverse, # to clean, handle, and plot the data (includes dplyr)
-  janitor)   # adding total rows and columns
+  rio,       # verileri içe aktarma
+  here,      # dosyaları konumlama
+  tidyverse, # veriyi temizleme, işleme ve grafikleştirme (dplyr dahil)
+  janitor)   # toplam satır ve süruna ekleme yapma
 ```
 
 
 
 
-### Import data {.unnumbered}
+### Verileri içe aktar {.unnumbered}
 
-We import the dataset of cases from a simulated Ebola epidemic. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file). The dataset is imported using the `import()` function from the **rio** package. See the page on [Import and export] for various ways to import data.
+Simüle edilmiş bir Ebola salgınından vakaların veri setini içe aktarıyoruz. Takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" dosyasını indirmek için tıklayın</a> (.rds dosyası olarak). Veri kümesi, **rio** paketinden `import()` fonksiyonu kullanılarak içe aktarılır. Verileri içe aktarmanın çeşitli yolları için [İçe ve dışa aktar] hakkındaki sayfaya bakın.
 
 ```{r, echo=F}
 linelist <- rio::import(here("data", "case_linelists", "linelist_cleaned.rds"))
@@ -59,43 +54,42 @@ linelist <- import("linelist_cleaned.rds")
 ```
 
 
-The first 50 rows of `linelist`:  
+"linelist"in ilk 50 satırı:
 
 ```{r message=FALSE, echo=F}
 DT::datatable(head(linelist,50), rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
 
-
-<!-- ======================================================= -->
-## Grouping {  }
+## Gruplandırma { }
      
-The function `group_by()` from **dplyr** groups the rows by the unique values in the column specified to it. If multiple columns are specified, rows are grouped by the unique combinations of values across the columns. Each unique value (or combination of values) constitutes a group. Subsequent changes to the dataset or calculations can then be performed within the context of each group.  
+**dplyr**'den `group_by()` fonsiyonu, satırları kendisine belirtilen sütundaki benzersiz değerlere göre gruplandırır. Birden çok sütun belirtilirse, satırlar sütunlar boyunca benzersiz değer kombinasyonlarına göre gruplanır. Her benzersiz değer (veya değer kombinasyonu) bir grup oluşturur. Veri kümesinde veya hesaplamalarda sonraki değişiklikler daha sonra her grup bağlamında gerçekleştirilebilir.
 
-For example, the command below takes the `linelist` and groups the rows by unique values in the column `outcome`, saving the output as a new data frame `ll_by_outcome`. The grouping column(s) are placed inside the parentheses of the function `group_by()`.  
+Örneğin, aşağıdaki komut "linelist"i alır ve satırları "outcome" sütunundaki benzersiz değerlere göre gruplayarak çıktıyı yeni bir "ll_by_outcome" veri çerçevesi olarak kaydeder. Gruplandırma sütunu/sütunları, 'group_by()' fonksiyonunun parantezlerin içine yerleştirilir.
 
 ```{r}
 ll_by_outcome <- linelist %>% 
   group_by(outcome)
 ```
 
-**Note that there is no perceptible change to the dataset** after running `group_by()`, *until* another **dplyr** verb such as `mutate()`, `summarise()`, or `arrange()` is applied on the "grouped" data frame.  
+**Veri kümesinde algılanabilir bir değişiklik olmadığını unutmayın**
+`group_by()` çalıştırıldıktan sonra, `mutate()`, `summarise()` veya `arrange()` gibi başka bir **dplyr** fiili "gruplandırılmış" veri çerçevesine *kadar* uygulanır.
 
-You can however "see" the groupings by printing the data frame. When you print a grouped data frame, you will see it has been transformed into a [`tibble` class object](https://tibble.tidyverse.org/) which, when printed, displays which groupings have been applied and how many groups there are - written just above the header row.  
+Bununla birlikte, veri çerçevesini yazdırarak gruplamaları "görebilirsiniz". Gruplandırılmış bir veri çerçevesi yazdırdığınızda, bunun yazdırıldığında hangi gruplamaların uygulandığını ve kaç tane olduğunu gösteren bir  [`tibble` sınıf nesnesine](https://tibble.tidyverse.org/) dönüştürüldüğünü göreceksiniz - başlık satırının hemen üstüne yazılır.
 
 ```{r}
-# print to see which groups are active
+# hangi grupların aktif olduğunu görmek için yazdır
 ll_by_outcome
 ```
 
 
-### Unique groups {.unnumbered}  
+### Benzersiz gruplar {.unnumbered}
 
-**The groups created reflect each unique combination of values across the grouping columns.** 
+**Oluşturulan gruplar, gruplandırma sütunlarında her benzersiz değer kombinasyonunu yansıtır.**
 
-To see the groups *and the number of rows in each group*, pass the grouped data to `tally()`. To see just the unique groups without counts you can pass to `group_keys()`.  
+Grupları *ve her gruptaki* satır sayısını görmek için gruplanmış verileri 'tally()' öğesine iletin. Sadece benzersiz, sayısız grupları görmek için `group_keys()` öğesine geçebilirsiniz.
 
-See below that there are **three** unique values in the grouping column `outcome`: "Death", "Recover", and `NA`. See that there were ` nrow(linelist %>% filter(outcome == "Death"))` deaths, ` nrow(linelist %>% filter(outcome == "Recover"))` recoveries, and ` nrow(linelist %>% filter(is.na(outcome)))` with no outcome recorded.
+Aşağıda, "sonuç" gruplandırma sütununda **üç** benzersiz değer olduğunu görün: "Ölüm", "İyileşme" ve "NA". ` nrow(linelist %>% filter(outcome == "Death"))` ölümler, ` nrow(linelist %>% filter(outcome == "Recover"))` ve ` nrow(linelist %)` olduğunu görün >% filter(is.na(outcome)))` hiçbir sonuç kaydedilmedi.
 
 ```{r}
 linelist %>% 
@@ -103,8 +97,7 @@ linelist %>%
   tally()
 ```
 
-
-You can group by more than one column. Below, the data frame is grouped by `outcome` and `gender`, and then tallied. Note how each unique combination of `outcome` and `gender` is registered as its own group - including missing values for either column.   
+Birden fazla sütuna göre gruplandırabilirsiniz. Aşağıda, veri çerçevesi "sonuç" ve "cinsiyet"e göre gruplandırılır ve ardından hesaplanır. "Sonuç" ve "cinsiyet"in her benzersiz kombinasyonunun kendi grubu olarak nasıl kaydedildiğine dikkat edin - her iki sütun için de eksik değerler dahil edilmektedir.
 
 ```{r}
 linelist %>% 
@@ -112,41 +105,40 @@ linelist %>%
   tally()
 ```
 
-### New columns {.unnumbered} 
+### Yeni sütunlar {.unnumbered}
 
-You can also create a new grouping column *within* the `group_by()` statement. This is equivalent to calling `mutate()` before the `group_by()`. For a quick tabulation this style can be handy, but for more clarity in your code consider creating this column in its own `mutate()` step and then piping to `group_by()`.
+Ayrıca, "group_by()" ifadesinin *içinde* yeni bir gruplandırma sütunu da oluşturabilirsiniz. Bu, 'group_by()'dan önce 'mutate()' çağrısına eşdeğerdir. Hızlı bir tablolama için bu stil kullanışlı olabilir, ancak kodunuzda daha fazla netlik için bu sütunu kendi `mutate()` adımında oluşturmayı ve ardından `group_by()` ile bağlantı kurmayı düşünün.
 
 ```{r}
-# group dat based on a binary column created *within* the group_by() command
-linelist %>% 
+# group_by() komut satırı listesi %>% *içinde* oluşturulan bir ikili sütuna dayalı grup verileri
   group_by(
     age_class = ifelse(age >= 18, "adult", "child")) %>% 
   tally(sort = T)
 ```
 
-### Add/drop grouping columns {.unnumbered}  
+### Gruplandırma sütunlarını ekle/bırak {.unnumbered}
 
-By default, if you run `group_by()` on data that are already grouped, the old groups will be removed and the new one(s) will apply. If you want to add new groups to the existing ones, include the argument `.add = TRUE`.  
+Varsayılan olarak, zaten gruplanmış veriler üzerinde `group_by()` çalıştırırsanız, eski gruplar kaldırılacak ve yenileri uygulanacaktır. Mevcut gruplara yeni gruplar eklemek istiyorsanız, `.add = TRUE` değişkenini ekleyin.
 
 ````{r, eval=F}
-# Grouped by outcome
+# Çıktıya göre gruplama
 by_outcome <- linelist %>% 
   group_by(outcome)
 
-# Add grouping by gender in addition
+# İlave olarak cinsiyet olarak gruplama eklemesi
 by_outcome_gender <- by_outcome %>% 
   group_by(gender, .add = TRUE)
 ```
 
 
-** Keep all groups**  
+** Tüm grupları tut**
 
-If you group on a column of class factor there may be levels of the factor that are not currently present in the data. If you group on this column, by default those non-present levels are dropped and not included as groups. To change this so that all levels appear as groups (even if not present in the data), set `.drop = FALSE` in your `group_by()` command.  
+Bir sınıf faktörü sütununda gruplandırırsanız, şu anda verilerde mevcut olmayan faktör seviyeleri olabilir. Bu sütunda gruplandırırsanız, varsayılan olarak mevcut olmayan seviyeler bırakılır ve grup olarak dahil edilmez. Bunu, tüm seviyelerin gruplar halinde görüneceği şekilde değiştirmek için (verilerde mevcut olmasa bile), `group_by()` komutunuzda `.drop = FALSE` değerini ayarlayın.
 
 
-## Un-group  
+## Grubu kaldır
 
-Data that have been grouped will remain grouped until specifically ungrouped via `ungroup()`. If you forget to ungroup, it can lead to incorrect calculations! Below is an example of removing all groupings:  
+Gruplandırılmış veriler, 'ungroup()' aracılığıyla özellikle işlenene kadar gruplanmış olarak kalacaktır. Grubu çözmeyi unutursanız, yanlış hesaplamalara yol açabilir! Aşağıda tüm gruplamaların kaldırılmasına ilişkin bir örnek verilmiştir:
 
 ```{r, eval=F}
 linelist %>% 
@@ -155,32 +147,32 @@ linelist %>%
   ungroup()
 ```
 
-You can also remove grouping for only specific columns, by placing the column name inside `ungroup()`.  
+Ayrıca, sütun adını "ungroup()" içine yerleştirerek yalnızca belirli sütunlar için gruplamayı kaldırabilirsiniz.
 
 ```{r, eval=F}
 linelist %>% 
   group_by(outcome, gender) %>% 
   tally() %>% 
-  ungroup(gender) # remove the grouping by gender, leave grouping by outcome
+  ungroup(gender) # cinsiyete göre gruplamayı kaldır, sonuca göre gruplamayı bırak
 ```
 
 
-<span style="color: black;">**_NOTE:_** The verb `count()` automatically ungroups the data after counting.</span>
+<span style="color: black;">**_NOT:_** `count()` fiili saydıktan sonra verilerin grubunu otomatik olarak çözer.</span>
 
 
 
-## Summarise {#group_summarise} 
+## Özetleme {#group_summarise}
 
-See the **dplyr** section of the [Descriptive tables] page for a detailed description of how to produce summary tables with `summarise()`. Here we briefly address how its behavior changes when applied to grouped data.  
+Özet tablolarının "summarise()" ile nasıl oluşturulacağına ilişkin ayrıntılı bir açıklama için [Tanımlayıcı tablolar] sayfasının **dplyr** bölümüne bakın. Burada, gruplandırılmış verilere uygulandığında davranışının nasıl değiştiğini kısaca ele alıyoruz.
 
-The **dplyr** function `summarise()` (or `summarize()`) takes a data frame and converts it into a *new* summary data frame, with columns containing summary statistics that you define. On an ungrouped data frame, the summary statistics will be calculated from all rows. Applying `summarise()` to grouped data produces those summary statistics *for each group*.  
+**dplyr** fonksiyonu`summarise()` (veya `summarize()`) bir veri çerçevesi alır ve onu tanımladığınız özet istatistikleri içeren sütunlarla birlikte *yeni* bir özet veri çerçevesine dönüştürür. Gruplandırılmamış bir veri çerçevesinde, tüm satırlardan özet istatistikler hesaplanacaktır. Gruplandırılmış verilere 'summarise()' uygulamak, *her grup için* bu özet istatistikleri üretir.
 
-The syntax of `summarise()` is such that you provide the name(s) of the **new** summary column(s), an equals sign, and then a statistical function to apply to the data, as shown below. For example, `min()`, `max()`, `median()`, or `sd()`. Within the statistical function, list the column to be operated on and any relevant argument (e.g. `na.rm = TRUE`). You can use `sum()` to count the number of rows that meet a logical criteria (with double equals `==`).   
+`summarise()` sözdizimi, **yeni** özet sütun(lar)ının adlarını, bir eşittir işaretini ve ardından aşağıda gösterildiği gibi verilere uygulanacak istatistiksel bir fonksiyon sağlayacak şekildedir. Örneğin, "min()", "max()", "median()" veya "sd()". İstatistiksel fonksiyon içinde, üzerinde çalışılacak sütunu ve ilgili herhangi bir değişkeni listeleyebilir (ör. "na.rm = TRUE"). Mantıksal bir ölçütü karşılayan satırların sayısını saymak için `sum()` kullanabilirsiniz (çift eşittir `==` ile).
 
-Below is an example of `summarise()` applied *without grouped data*. The statistics returned are produced from the entire dataset.     
+Aşağıda, *gruplandırılmış veriler olmadan* uygulanan bir `summarise()` örneği verilmiştir. Döndürülen istatistikler, tüm veri kümesinden üretilir.    
 
 ```{r}
-# summary statistics on ungrouped linelist
+# gruplandırılmamış satır listesindeki özet istatistikler
 linelist %>% 
   summarise(
     n_cases  = n(),
@@ -190,10 +182,10 @@ linelist %>%
     n_males  = sum(gender == "m", na.rm=T))
 ```
 
-In contrast, below is the same `summarise()` statement applied to grouped data. The statistics are calculated for each `outcome` group. Note how grouping columns will carry over into the new data frame.    
+Buna karşılık, aşağıda gruplanmış verilere uygulanan aynı "summarise()" ifadesi yer almaktadır. İstatistikler, her bir "sonuç" grubu için hesaplanır. Gruplandırma sütunlarının yeni veri çerçevesine nasıl taşınacağına dikkat edin.    
 
 ```{r}
-# summary statistics on grouped linelist
+# gruplandırılmış satır listesindeki özet istatistikler
 linelist %>% 
   group_by(outcome) %>% 
   summarise(
@@ -204,18 +196,18 @@ linelist %>%
     n_males    = sum(gender == "m", na.rm=T))
 ```
 
-<span style="color: darkgreen;">**_TIP:_** The summarise function works with both UK and US spelling - `summarise()` and `summarize()` call the same function.</span>
+<span style="color: darkgreen;">**_İPUCU:_** TÖzetleme işlevi hem Birleşik Krallık hem de ABD yazımıyla çalışır - `summarise()` ve `summarize()` aynı fonksiyonu çağırır.</span>
 
 
 
 
-## Counts and tallies  
+## Sayımlar ve seriler
 
-`count()` and `tally()` provide similar functionality but are different. Read more about the distinction between `tally()` and `count()` [here](https://dplyr.tidyverse.org/reference/tally.html)    
+`count()` ve `tally()` benzer işlevsellik sağlar ancak farklıdır. "tally()" ve "count()" arasındaki fark hakkında daha fazla bilgiyi [buradan](https://dplyr.tidyverse.org/reference/tally.html) okuyabilirsiniz.
 
-### `tally()` {.unnumbered}  
+### `tally()` {.unnumbered}
 
-`tally()` is shorthand for `summarise(n = n())`, and *does not* group data. Thus, to achieve grouped tallys it must follow a `group_by()` command. You can add `sort = TRUE` to see the largest groups first.    
+"tally()", "summarise(n = n())" ifadesinin kısaltmasıdır ve verileri *gruplandırmaz*. Bu nedenle, gruplandırılmış çetelelere ulaşmak için bir 'group_by()' komutunu izlemesi gerekir. Önce en büyük grupları görmek için `sort = TRUE` ekleyebilirsiniz.  
 
 ```{r}
 linelist %>% 
@@ -230,20 +222,20 @@ linelist %>%
 ```
 
 
-### `count()`  {.unnumbered}  
+### `count()` {.unnumbered}
 
-In contrast, `count()` does the following:  
+Buna karşılık, "count()" şunları yapar:
 
-1) applies `group_by()` on the specified column(s)  
-2) applies `summarise()` and returns column `n` with the number of rows per group  
-3) applies `ungroup()`  
+1) belirtilen sütun(lar)a `group_by()` uygular
+2) "summarise()" uygular ve grup başına satır sayısıyla "n" sütununu döndürür
+3) `ungroup()` uygular
 
 ```{r}
 linelist %>% 
   count(outcome)
 ```
 
-Just like with `group_by()` you can create a new column within the `count()` command:  
+Tıpkı 'group_by()' ile olduğu gibi, 'count()' komutu için de yeni bir sütun oluşturabilirsiniz:
 
 ```{r}
 linelist %>% 
@@ -251,135 +243,134 @@ linelist %>%
 ```
 
 
-`count()` can be called multiple times, with the functionality "rolling up". For example, to summarise the number of hospitals present for each gender, run the following. Note, the name of the final column is changed from default "n" for clarity (with `name  = `).  
+`count()`, "yuvarlama"nın kullanışlılığı ile birden çok kez çağrılabilir. Örneğin, her bir cinsiyet için mevcut hastanelerin sayısını özetlemek için aşağıdakileri çalıştırın. Son sütunun adının, netlik için varsayılan "n" yerine değiştirildiğini unutmayın (`name = ` ile).
 
 ```{r}
 linelist %>% 
-  # produce counts by unique outcome-gender groups
+  # benzersiz sonuç-cinsiyet gruplarına göre sayımlar üretmek
   count(gender, hospital) %>% 
-  # gather rows by gender (3) and count number of hospitals per gender (6)
+  #cinsiyete göre satırları toplayın (3) ve cinsiyete göre hastane sayısını sayın (6)
   count(gender, name = "hospitals per gender" ) 
 ```
 
 
-### Add counts {.unnumbered}  
+### Sayıları ekle {.unnumbered}
 
-In contrast to `count()` and `summarise()`, you can use `add_count()` to *add* a new column `n` with the counts of rows per group *while retaining all the other data frame columns*.   
+'count()' ve 'summarise()'in aksine, diğer tüm veri çerçevesi sütunlarını korurken grup başına satır sayısıyla yeni bir 'n' sütunu eklemek için 'add_count()' kullanabilirsiniz.
 
-This means that a group's count number, in the new column `n`, will be printed in each row of the group. For demonstration purposes, we add this column and then re-arrange the columns for easier viewing. See the section below on [filter on group size](#group_filter_grp_size) for another example.  
+Bu, yeni `n` sütunundaki bir grubun sayım numarasının grubun her satırına yazdırılacağı anlamına gelir. Gösteri amacıyla, bu sütunu ekliyoruz ve daha sonra daha kolay görüntüleme için sütunları yeniden düzenliyoruz. Başka bir örnek için aşağıdaki [grup boyutuna göre filtrele](#group_filter_grp_size) bölümüne bakabilirsiniz.
 
 
 ```{r}
 linelist %>% 
-  as_tibble() %>%                   # convert to tibble for nicer printing 
-  add_count(hospital) %>%           # add column n with counts by hospital
-  select(hospital, n, everything()) # re-arrange for demo purposes
+  as_tibble() %>%                   # daha güzel baskı için tibble'a dönüştürün
+  add_count(hospital) %>%           # hastaneye göre sayılarla n sütunu ekle
+  select(hospital, n, everything()) # demo amaçlı yeniden düzenlemek
 ```
 
 
 
-### Add totals {.unnumbered} 
+### Toplamları ekle {.unnumbered}
 
-To easily add total *sum* rows or columns after using `tally()` or `count()`, see the **janitor** section of the [Descriptive tables](#tbl_janitor) page. This package offers functions like `adorn_totals()` and `adorn_percentages()` to add totals and convert to show percentages. Below is a brief example:  
+"tally()" veya "count()" kullandıktan sonra toplam *sum* satırlarını veya sütunlarını kolayca eklemek için [Tanımlayıcı tablolar](#tbl_janitor) sayfasının **janitor** bölümüne bakın. Bu paket, toplamları eklemek ve yüzdeleri göstermek için dönüştürmek için 'adorn_totals()' ve 'adorn_percentages()' gibi fonksiyonlar sunar. Aşağıda kısa bir örnek verilmiştir:  
 
 ```{r}
-linelist %>%                                  # case linelist
-  tabyl(age_cat, gender) %>%                  # cross-tabulate counts of two columns
-  adorn_totals(where = "row") %>%             # add a total row
-  adorn_percentages(denominator = "col") %>%  # convert to proportions with column denominator
-  adorn_pct_formatting() %>%                  # convert proportions to percents
-  adorn_ns(position = "front") %>%            # display as: "count (percent)"
-  adorn_title(                                # adjust titles
+linelist %>%                                  # vaka satır listesi 
+  tabyl(age_cat, gender) %>%                  # iki sütunun çapraz tablo sayımları
+  adorn_totals(where = "row") %>%             # toplam satır ekle
+  adorn_percentages(denominator = "col") %>%  # sütun paydası ile oranlara dönüştürme
+  adorn_pct_formatting() %>%                  # oranları yüzdelere çevir
+  adorn_ns(position = "front") %>%            # "count (percent)" olarak göster
+  adorn_title(                                # başlıkları ayarla
     row_name = "Age Category",
     col_name = "Gender")
 ```
 
 
-To add more complex totals rows that involve summary statistics other than *sums*, see [this section of the Descriptive Tables page](#tbl_dplyr_totals).  
+*Toplamlar* dışında özet istatistikleri içeren daha karmaşık 'sums' satırları eklemek için [Tanımlayıcı Tablolar sayfasının bu bölümüne](#tbl_dplyr_totals) bakabilirsiniz.
+
+
+## Tarihe göre gruplama
+
+Verileri tarihe göre gruplarken, ilgilenilen tarih birimi için bir sütuna sahip olmalısınız (veya oluşturmalısınız) (örneğin "gün", "epiweek", "ay", vb.) **lubridate**'den 'floor_date()' kullanarak bu sütunu oluşturabilirsiniz. [Tarihlerle çalışma] sayfasının [Epidemiyolojik haftalar bölümünde](#dates_epi_wks) açıklandığı gibi. Bu sütuna sahip olduğunuzda, satırları bu benzersiz tarih değerlerine göre gruplandırmak ve toplam sayıları elde etmek için **dplyr**'den `count()` kullanabilirsiniz.
+
+Tarih durumları için ortak bir ek adım, dizide verilerde mevcut olmayan tüm tarihleri ​​"doldurmaktır". **tidyr**'den 'complete()' kullanın, böylece aralık içindeki *tüm olası tarih birimleri* dahil olmak üzere toplu tarih serisi tamamlanır. Bu adım olmadan, hiçbir vakanın bildirilmediği bir hafta verilerinizde görünmeyebilir!
+
+'complete()' içinde, tarih sütununuzu minimumdan maksimuma 'seq.Date()' tarihlerinin bir *dizisi* olarak *yeniden tanımlarsınız*. Böylece tarihler genişletilir. Varsayılan olarak, herhangi bir yeni "genişletilmiş" satırdaki büyük/küçük harf sayısı değerleri "NA" olacaktır. Adlandırılmış bir liste bekleyen 'complete()' öğesinin 'fill = ' değişkenini kullanarak bunları 0'a ayarlayabilirsiniz (sayımlar sütununuz 'n' olarak adlandırılmışsa, 'fill = list(n = 0)' sağlayın. Ayrıntılar için ?complete' komutuna ve örnek için [Tarihlerle çalışma](#dates_epi_wks) sayfasına bakabilirsiniz.
 
 
 
-## Grouping by date  
+###  Günlere göre satır listesi vakaları {.unnumbered}
 
-When grouping data by date, you must have (or create) a column for the date unit of interest - for example "day", "epiweek", "month", etc. You can make this column using `floor_date()` from **lubridate**, as explained in the [Epidemiological weeks section](#dates_epi_wks) of the [Working with dates] page. Once you have this column, you can use `count()` from **dplyr** to group the rows by those unique date values and achieve aggregate counts. 
-
-One additional step common for date situations, is to "fill-in" any dates in the sequence that are not present in the data. Use `complete()` from **tidyr** so that the aggregated date series is *complete* including *all possible date units* within the range. Without this step, a week with no cases reported might not appear in your data!  
-
-Within `complete()` you *re-define* your date column as a *sequence* of dates `seq.Date()` from the minimum to the maximum  - thus the dates are expanded. By default, the case count values in any new "expanded" rows will be `NA`. You can set them to 0 using the `fill = ` argument of `complete()`, which expects a named list (if your counts column is named `n`, provide `fill = list(n = 0)`. See `?complete` for details and the [Working with dates](#dates_epi_wks) page for an example.  
-
-
-
-### Linelist cases into days  {.unnumbered}  
-
-Here is an example of grouping cases into days *without* using `complete()`. Note the first rows skip over dates with no cases.  
+Burada, "complete()" kullanılmadan ​günlere göre gruplandırma örneği verilmiştir. İlk satırların hiçbir durum olmadan tarihleri atladığını unutmayın.
 
 ```{r}
 daily_counts <- linelist %>% 
-  drop_na(date_onset) %>%        # remove that were missing date_onset
-  count(date_onset)              # count number of rows per unique date
+  drop_na(date_onset) %>%        # date_onset eksik olanları kaldırın
+  count(date_onset)              # benzersiz tarih başına satır sayısını say
 ```
 
 ```{r message=FALSE, echo=F}
 DT::datatable(daily_counts, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-Below we add the `complete()` command to ensure every day in the range is represented.
+Aşağıda, aralıktaki her günün temsil edilmesini sağlamak için `complete()` komutunu ekliyoruz.
 
 ```{r, eval=F}
 daily_counts <- linelist %>% 
-  drop_na(date_onset) %>%                 # remove case missing date_onset
-  count(date_onset) %>%                   # count number of rows per unique date
-  complete(                               # ensure all days appear even if no cases
-    date_onset = seq.Date(                # re-define date colume as daily sequence of dates
+  drop_na(date_onset) %>%                 # date_onset eksik vakayı kaldır
+  count(date_onset) %>%                   # benzersiz tarih başına satır sayısını say
+  complete(                               # hiçbir vaka olmasa bile tüm günlerin görünmesini sağlayın
+    date_onset = seq.Date(                # tarih sütununu günlük tarih dizisi olarak yeniden tanımlayın
       from = min(date_onset, na.rm=T), 
       to = max(date_onset, na.rm=T),
       by = "day"),
-    fill = list(n = 0))                   # set new filled-in rows to display 0 in column n (not NA as default) 
+    fill = list(n = 0))                   # yeni doldurulmuş satırları n sütununda 0 gösterecek şekilde ayarla (varsayılan olarak NA değil) 
 ```
 
 ```{r message=FALSE, echo=F}
 DT::datatable(daily_counts, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-### Linelist cases into weeks {.unnumbered}  
+###  Haftalara bölünmüş satır listesi vakaları {.unnumbered}
 
 
-The same principle can be applied for weeks. First create a new column that is the week of the case using `floor_date()` with `unit = "week"`. Then, use `count()` as above to achieve weekly case counts. Finish with `complete()` to ensure that all weeks are represented, even if they contain no cases.
+Aynı prensip haftalarca uygulanabilir. İlk önce, `unit = "hafta"` ile `floor_date()` kullanarak vakanın haftası olan yeni bir sütun oluşturun. Ardından, haftalık vaka sayılarına ulaşmak için yukarıdaki gibi `count()` kullanın. Hiçbir vaka içermeseler bile tüm haftaların temsil edildiğinden emin olmak için "complete()" ile bitirin.
 
 ```{r}
-# Make dataset of weekly case counts
+# Haftalık vaka sayımlarının veri setini yapın
 weekly_counts <- linelist %>% 
-  drop_na(date_onset) %>%                 # remove cases missing date_onset
-  mutate(week = lubridate::floor_date(date_onset, unit = "week")) %>%  # new column of week of onset
-  count(week) %>%                         # group data by week and count rows per group
-  complete(                               # ensure all days appear even if no cases
-    week = seq.Date(                      # re-define date colume as daily sequence of dates
+  drop_na(date_onset) %>%                 # date_onset eksik vakaları kaldırın
+  mutate(week = lubridate::floor_date(date_onset, unit = "week")) %>%  # başlangıç haftasının yeni sütunu
+  count(week) %>%                         # verileri haftaya göre gruplandır ve grup başına satırları say
+  complete(                               # hiçbir vaka olmasa bile tüm günlerin görünmesini sağlayın
+    week = seq.Date(                      # tarih sütununu günlük tarih dizisi olarak yeniden tanımlayın
       from = min(week, na.rm=T), 
       to = max(week, na.rm=T),
       by = "week"),
-    fill = list(n = 0))                   # set new filled-in rows to display 0 in column n (not NA as default) 
+    fill = list(n = 0))                   # yeni doldurulmuş satırları n sütununda 0 gösterecek şekilde ayarla (varsayılan olarak NA değil)
 ```
 
-Here are the first 50 rows of the resulting data frame:  
+Ortaya çıkan veri çerçevesinin ilk 50 satırı:
 
 ```{r message=FALSE, echo=F}
 DT::datatable(weekly_counts, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-### Linelist cases into months {.unnumbered}
+###  Aylara ayrılmış satır listesi vakaları {.unnumbered}
 
-To aggregate cases into months, again use `floor_date()` from the **lubridate** package, but with the argument `unit = "months"`. This rounds each date down to the 1st of its month. The output will be class Date. Note that in the `complete()` step we also use `by = "months"`.  
+Vakaları aylara toplamak için, yine **lubridate** paketinden 'floor_date()' kullanın, ancak 'unit= "months"' bağımsız değişkeni ile. Bu, her tarihi ayın 1'ine yuvarlar. Çıktı, Date sınıfı olacaktır. `complete()` adımında `by = "aylar"` ifadesini de kullandığımızı unutmayın.
 
 
 ```{r}
-# Make dataset of monthly case counts
+# Aylık vaka sayımlarının veri setini yapın
 monthly_counts <- linelist %>% 
   drop_na(date_onset) %>% 
-  mutate(month = lubridate::floor_date(date_onset, unit = "months")) %>%  # new column, 1st of month of onset
-  count(month) %>%                          # count cases by month
+  mutate(month = lubridate::floor_date(date_onset, unit = "months")) %>%  # yeni sütun, başlangıcın 1. ayı
+  count(month) %>%                          # vakaları aya göre saymak
   complete(
     month = seq.Date(
-      min(month, na.rm=T),     # include all months with no cases reported
+      min(month, na.rm=T),     # hiçbir vakanın bildirilmediği tüm ayları dahil et
       max(month, na.rm=T),
       by="month"),
     fill = list(n = 0))
@@ -390,79 +381,72 @@ DT::datatable(monthly_counts, rownames = FALSE, options = list(pageLength = 5, s
 ```
 
 
-### Daily counts into weeks {.unnumbered}
+### Haftalara göre günlük sayım {.unnumbered}
 
-To aggregate daily counts into weekly counts, use `floor_date()` as above. However, use `group_by()` and `summarize()` instead of `count()` because you need to `sum()` daily case counts instead of just counting the number of rows per week.
-
-
-
-#### Daily counts into months {.unnumbered}
-
-To aggregate daily counts into months counts, use `floor_date()` with `unit = "month"` as above. However, use `group_by()` and `summarize()` instead of `count()` because you need to `sum()` daily case counts instead of just counting the number of rows per month.  
+Günlük sayıları haftalık sayımlarda toplamak için yukarıdaki gibi `floor_date()` kullanın. Ancak, "count()" yerine "group_by()" ve "summarize()" kullanın, çünkü yalnızca haftalık satır sayısını saymak yerine günlük vaka sayılarını "sum()" yapmanız gerekir.
 
 
+#### Aylara göre günlük sayımlar {.unnumbered}
+
+Günlük sayıları ay sayılarına toplamak için, yukarıdaki gibi "unit = "month"" ile "floor_date()" kullanın. Ancak, 'count()' yerine 'group_by()' ve 'summarize()' kullanın çünkü sadece aylık satır sayısını saymak yerine günlük vaka sayılarını 'sum()' yapmanız gerekir.
 
 
-## Arranging grouped data
+## Gruplandırılmış verileri düzenleme
 
-Using the **dplyr** verb `arrange()` to order the rows in a data frame behaves the same when the data are grouped, *unless* you set the argument `.by_group =TRUE`. In this case the rows are ordered first by the grouping columns and then by any other columns you specify to `arrange()`.   
+Bir veri çerçevesindeki satırları sıralamak için **dplyr** fiilinin "arrange()" kullanılması, ".by_group =TRUE" bağımsız değişkenini ayarlamadığınız sürece, veriler gruplandığında aynı şekilde davranır. Bu durumda, satırlar önce gruplandırma sütunlarına ve ardından 'arrange()' için belirttiğiniz diğer sütunlara göre sıralanır.
 
 
+## Gruplandırılmış verilere filtre uygula
 
-## Filter on grouped data
+### `filtre()` {.unnumbered}
 
-### `filter()` {.unnumbered}
-
-When applied in conjunction with functions that evaluate the data frame (like `max()`, `min()`, `mean()`), these functions will now be applied to the groups. For example, if you want to filter and keep rows where patients are above the median age, this will now apply per group - filtering to keep rows above the *group's* median age. 
+Veri çerçevesini değerlendiren işlevlerle birlikte uygulandığında ('max()', 'min()', 'mean()' gibi), bu fonksiyonlar artık gruplara uygulanacaktır. Örneğin, hastaların medyan yaşın üzerinde olduğu satırları filtrelemek ve tutmak istiyorsanız, bu artık her grup için geçerli olacaktır - satırları *grubun* medyan yaşının üzerinde tutmak için filtreleyin.
 
 
 
+### Grup başına satırları dilimleyin {.unnumbered}
 
-### Slice rows per group {.unnumbered} 
+Verilerdeki [satırları konumlarına göre filtreleyen](https://dplyr.tidyverse.org/reference/slice.html) **dplyr** `slice()` fonksiyonu da grup başına uygulanabilir. İstenilen "dilimi" elde etmek için her grup içindeki verileri sıralamayı unutmayın.
 
-The **dplyr** function `slice()`, which [filters rows based on their position](https://dplyr.tidyverse.org/reference/slice.html) in the data, can also be applied per group. Remember to account for sorting the data within each group to get the desired "slice".  
+Örneğin, her hastaneden yalnızca en son 5 başvuruyu almak için:
 
-For example, to retrieve only the latest 5 admissions from each hospital:  
-
-1) Group the linelist by column `hospital`  
-2) Arrange the records from latest to earliest `date_hospitalisation` *within each hospital group*  
-3) Slice to retrieve the first 5 rows from each hospital  
+1) Satır listesini "hastane" sütununa göre gruplandırın
+2) Kayıtları en geçten en erken 'hastaneye yatış tarihi'ne *her hastane grubu içinde* düzenleyin
+3) Her hastaneden ilk 5 sırayı almak için dilimleyin
 
 ```{r,}
 linelist %>%
   group_by(hospital) %>%
   arrange(hospital, date_hospitalisation) %>%
   slice_head(n = 5) %>% 
-  arrange(hospital) %>%                            # for display
-  select(case_id, hospital, date_hospitalisation)  # for display
+  arrange(hospital) %>%                            
+  select(case_id, hospital, date_hospitalisation)  # görüntülemek için
 ```
 
-`slice_head()` - selects n rows from the top  
-`slice_tail()` - selects n rows from the end  
-`slice_sample()` - randomly selects n rows  
-`slice_min()` - selects n rows with highest values in `order_by = ` column, use `with_ties = TRUE` to keep ties  
-`slice_max()` - selects n rows with lowest values in `order_by = ` column, use `with_ties = TRUE` to keep ties  
+`slice_head()` - üstten n satır seçer
+`slice_tail()` - sondan n satır seçer
+`slice_sample()` - n satırı rastgele seçer
+`slice_min()` - `order_by =` sütununda en yüksek değerlere sahip n satırı seçer, bağları korumak için `with_ties = TRUE` kullanın
+'slice_max()' - 'order_by = ' sütununda en düşük değerlere sahip n satırı seçer, bağları korumak için 'with_ties = TRUE'yu kullanın
 
-See the [De-duplication] page for more examples and detail on `slice()`.  
-
-
+`slice()` hakkında daha fazla örnek ve ayrıntı için [Tekilleştirme] sayfasına bakabilirsiniz.
 
 
-### Filter on group size {#group_filter_grp_size .unnumbered} 
+### Grup boyutuna göre filtreleyin {#group_filter_grp_size .unnumbered}
 
-The function `add_count()` adds a column `n` to the original data giving the number of rows in that row's group. 
+'add_count()' fonksiyonu, o satırın grubundaki satır sayısını veren orijinal verilere bir 'n' sütunu ekler.
 
-Shown below, `add_count()` is applied to the column `hospital`, so the values in the new column `n` reflect the number of rows in that row's hospital group. Note how values in column `n` are repeated. In the example below, the column name `n` could be changed using `name = ` within `add_count()`. For demonstration purposes we re-arrange the columns with `select()`.  
-
+Aşağıda gösterildiği gibi, "hastane" sütununa "add_count()" uygulanır, bu nedenle yeni "n" sütunundaki değerler, o satırın hastane grubundaki satır sayısını yansıtır. 'n' sütunundaki değerlerin nasıl tekrarlandığına dikkat edin. Aşağıdaki örnekte, 'n' sütun adı 'add_count()' içindeki 'name = ' kullanılarak değiştirilebilir. Gösteri amacıyla sütunları `select()` ile yeniden düzenliyoruz.
 
 ```{r}
 linelist %>% 
   as_tibble() %>% 
-  add_count(hospital) %>%          # add "number of rows admitted to same hospital as this row" 
+  add_count(hospital) %>%          # "bu sıra ile aynı hastaneye kabul edilen sıra sayısı" ekle
   select(hospital, n, everything())
 ```
 
-It then becomes easy to filter for case rows who were hospitalized at a "small" hospital, say, a hospital that admitted fewer than 500 patients:  
+Ardından "küçük" bir hastanede, örneğin 500'den az hastayı kabul eden bir hastanede yatan vaka sıralarını filtrelemek kolaylaşıyor:
+
 
 ```{r, eval=F}
 linelist %>% 
@@ -474,68 +458,57 @@ linelist %>%
 
 
 
-## Mutate on grouped data  
+## Gruplandırılmış verileri dönüştürün
 
-To retain all columns and rows (not summarise) and *add a new column containing group statistics*, use `mutate()` after `group_by()` instead of `summarise()`. 
+Tüm sütunları ve satırları (özetleme değil) korumak ve *grup istatistiklerini* içeren yeni bir sütun eklemek için, 'özet()' yerine 'group_by()'dan sonra 'mutate()' kullanın.
 
-This is useful if you want group statistics in the original dataset *with all other columns present* - e.g. for calculations that compare one row to its group.  
+Bu, orijinal veri kümesinde diğer tüm sütunların mevcut olduğu grup istatistiklerini istiyorsanız yararlıdır - ör. bir satırı kendi grubuyla karşılaştıran hesaplamalar için.
 
-For example, this code below calculates the difference between a row's delay-to-admission and the median delay for their hospital. The steps are:  
+Örneğin, aşağıdaki kod, bir satırın kabul gecikmesi ile hastaneleri için medyan gecikme arasındaki farkı hesaplar. Adımlar:
 
-1) Group the data by hospital  
-2) Use the column `days_onset_hosp` (delay to hospitalisation) to create a new column containing the mean delay at the hospital of *that row*  
-3) Calculate the difference between the two columns  
+1) Verileri hastaneye göre gruplandırın
+2) *o satırın* hastanede ortalama gecikmesini içeren yeni bir sütun oluşturmak için "days_onset_hosp" (hastaneye yatış gecikmesi) sütununu kullanın
+3) İki sütun arasındaki farkı hesaplayın
 
-We `select()` only certain columns to display, for demonstration purposes.  
+Gösteri amacıyla yalnızca belirli sütunları "select()" olarak seçiyoruz.
 
 ```{r}
 linelist %>% 
-  # group data by hospital (no change to linelist yet)
+  # hastaneye göre grup verileri (henüz satır listesinde değişiklik yok)
   group_by(hospital) %>% 
   
-  # new columns
+  # Yeni sütunlar
   mutate(
-    # mean days to admission per hospital (rounded to 1 decimal)
+    # hastaneye kabule kadar geçen ortalama gün sayısı (1 ondalık sayıya yuvarlanır)
     group_delay_admit = round(mean(days_onset_hosp, na.rm=T), 1),
     
-    # difference between row's delay and mean delay at their hospital (rounded to 1 decimal)
+    # sıra gecikmesi ile hastanelerindeki ortalama gecikme arasındaki fark (1 ondalık basamağa yuvarlanır)
     diff_to_group     = round(days_onset_hosp - group_delay_admit, 1)) %>%
   
-  # select certain rows only - for demonstration/viewing purposes
+  # yalnızca belirli satırları seçin - gösterim/görüntüleme amaçlı
   select(case_id, hospital, days_onset_hosp, group_delay_admit, diff_to_group)
 ```
 
 
 
-## Select on grouped data  
+## Gruplandırılmış verileri seçin
 
-The verb `select()` works on grouped data, but the grouping columns are always included (even if not mentioned in `select()`). If you do not want these grouping columns, use `ungroup()` first.  
-
-
-
-
-
-
-
-
+'select()' fiili gruplandırılmış veriler üzerinde çalışır, ancak gruplandırma sütunları her zaman dahil edilir ('select()' içinde belirtilmemiş olsa bile). Bu gruplama sütunlarını istemiyorsanız, önce `ungroup()` kullanın.
 
 
 <!-- ======================================================= -->
-## Resources {  }
+## Kaynaklar {  }
 
-Here are some useful resources for more information:  
+Daha fazla bilgi için bazı yararlı kaynaklar şunlardır: 
 
-You can perform any summary function on grouped data; see the [RStudio data transformation cheat sheet](https://github.com/rstudio/cheatsheets/blob/master/data-transformation.pdf)  
+Gruplandırılmış veriler üzerinde herhangi bir özet fonksiyonu gerçekleştirebilirsiniz; [RStudio veri dönüştürme bilgi sayfasına](https://github.com/rstudio/cheatsheets/blob/master/data-transformation.pdf) bakabilirsiniz.
 
-The Data Carpentry page on [**dplyr**](https://datacarpentry.org/R-genomics/04-dplyr.html)  
-The **tidyverse** reference pages on [group_by()](https://dplyr.tidyverse.org/reference/group_by.html) and [grouping](https://dplyr.tidyverse.org/articles/grouping.html)  
+[**dplyr**](https://datacarpentry.org/R-genomics/04-dplyr.html) adresindeki Veri Marangozluğu sayfası
+[group_by()](https://dplyr.tidyverse.org/reference/group_by.html) ve [grouping](https://dplyr.tidyverse.org/articles/grouping.html) üzerindeki **tidyverse** referans sayfaları.
 
-This page on [Data manipulation](https://itsalocke.com/files/DataManipulationinR.pdf)  
+Bu sayfa [Veri manipülasyonu](https://itsalocke.com/files/DataManipulationinR.pdf)
 
-[Summarize with conditions in dplyr](https://stackoverflow.com/questions/23528862/summarize-with-conditions-in-dplyr)  
-
-
-
+[dplyr'deki koşullarla özetleyin](https://stackoverflow.com/questions/23528862/summarize-with-conditions-in-dplyr)
 
 
 

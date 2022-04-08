@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>1 Önyazı ve teknik notlar | The Epidemiologist R Handbook</title>
+
+    <meta name="author" content="the handbook team" />
+  
+  <!-- JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script>
+  <script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script>
+    <script src="libs/header-attrs-2.9/header-attrs.js"></script>
+    <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet" />
+    <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script>
+    <script src="libs/bs3compat-0.2.5.1/tabs.js"></script>
+    <script src="libs/bs3compat-0.2.5.1/bs3compat.js"></script>
+    <link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet" />
+    <script src="libs/bs4_book-1.0.0/bs4_book.js"></script>
+    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/mark.min.js"></script>
+
+  <!-- CSS -->
+    <link rel="stylesheet" href="style_bs4.css" />
+    
+</head>
+
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book">
+    <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">The Epidemiologist R Handbook</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+      </form>
+
+      <nav aria-label="Table of contents">
+        <h2>Table of contents</h2>
+        <div id="book-toc"></div>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="#">View book source <i class="fab fa-github"></i></a></li></p>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="col-sm-12 col-md-9 col-lg-7" id="content">
+<div id="önyazı-ve-teknik-notlar" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Önyazı ve teknik notlar</h1>
+<p>Bu sayfada, el kitabının hazırlanması sırasında belirlediğimiz felsefi yaklaşımı, stili ve belirli editoryal kararlara değineceğiz.</p>
+<div id="yaklaşım-ve-stil" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Yaklaşım ve stil</h2>
+<p>Bu kitabın potansiyel hedef kitlesini geniş olarak belirledik. Hem R’a yeni olan kişiler tarafından hem de R “iyi uygulamalarını” ve “ipuçlarını” öğrenmek isteyen deneyimli R kullanıcılarının bu kitaptan faydalanabilmesini istedik. Kitap hem kolayca erişilebilir hem de az ve öz olmalıydı. Bu nedenle yaklaşımımızı, R’de çok yeni olan birinin kodu uygulayabileceği ve kodun ne yaptığını takip edebileceği <em>yeterli</em> metin açıklaması sağlamak olarak belirledik.</p>
+<p>Bir kaç nokta daha:</p>
+<ul>
+<li>Nispeten kısa örneklerin eşlik ettiği bir kod referans kitabı olarak tasarlanmıştır - R veya veri bilimi üzerine kapsamlı bir ders kitabı <em>değildir</em>.</li>
+<li>Uygulamalı epidemiyolojide kullanmanız için <em>R el kitabı</em> olarak kapsamı sınırlandırılmıştır - uygulamalı epidemiyoloji yöntemleri veya bilimi hakkında bir kılavuz değil.</li>
+<li>Bu el kitabının yaşayan bir belge olması amaçlanmıştır - belirli bir görevler için hazırlanan R paketleri sıklıkla güncellenir ve değişir. Bu kitapta hangilerine yer vermemiz gerektiğine dair öneri ve eleştirilerinizi memnuniyetle öğrenmek isteriz.</li>
+</ul>
+<div id="r-paketleri" class="section level3 unnumbered">
+<h3>R paketleri</h3>
+<p><strong>Çok fazla seçenek</strong></p>
+<p>R öğrenmenin en zorlu yönlerinden biri de hangi R paketinin kullanılacağını bilmektir. Bir işi çözmeye çalışırken “Hey, bunların hepsini tek bir komut satırında yapan bir R paketi var!” demeniz nadir bir durum olmayacaktır.</p>
+<p>Bu el kitabında, her görevi tamamlamanız için size en az iki yol sunmaya çalıştık: ilki denenmiş ve doğrulanmış bir yöntem (muhtemelen <strong>base</strong> R veya <strong>tidyverse</strong> içinde) ve ikincisi o iş için özel olarak tasarlanmış R paketi ile. Belirli bir pakette sorun yaşamanız halinde birden fazla seçeneğe sahip olmanızı istiyoruz.</p>
+<p>Paketleri belirlerken, R topluluğu tarafından test edilmiş ve onaylanmış paketlere ve yaklaşımlarına öncelik verdik. Rutin bir çalışma oturumunda işinize yarayacak, stabil (çok sık değişmeyen) ve görevi basit ve temiz bir şekilde yerine getirebilecek minimal sayıda paket kullandık.</p>
+<p>Bu el kitabı <strong>tidyverse</strong>’de bulunan R paket ve işlevlerine öncelik verir. Tidyverse, temel dilbilgisi ve veri yapılarını paylaşan veri bilimi için tasarlanmış bir R paketi koleksiyonudur. Tüm tidyverse paketleri, <strong>tidyverse</strong> paketi aracılığıyla kurulabilir veya yüklenebilir. <a href="https://www.tidyverse.org/">Tidyverse’n web sitesinde</a> daha fazlasını okuyabilirsiniz.</p>
+<p>Uygun yerlerde, kurulum sırasında R ile birlikte yüklenen <strong>base</strong> paket ve fonksiyonlarıyla ilişkili kod seçeneklerini de ekledik. Bunu, bu kitabın okuyucularından bazılarının ekstra paketleri indirmek için güvenilir bir internete sahip olmama ihtimaline karşılık yaptık.</p>
+<p><strong>Fonksiyonları paketlerle ilişkilendirme =</strong></p>
+<p>R eğitim ve rehberlerinde bir fonksiyona ilişkin kodun anlatılıp kullanılan paketin hiç değinilmemesine şahit olmuşsunuzdur. Bu durum sinir bozucudur! İşte biz bunu size yaşatmaktan kaçınmaya çalıştık.</p>
+<p>Açıklama metinlerinde paket adları kalın harflerle (örn. <strong>dplyr</strong>) ve fonksiyonları <code>mutate()</code> şeklinde yazılır. Bir fonksiyonun hangi paketten geldiğini, ya en yakındaki metinde referanslayarak ya da kodu <code>dplyr::mutate()</code> şeklinde yazarak size açıklamaya çalıştık. Başta gereksiz görünebilir ancak bunu yukarıda bahsettiğimiz amaç uğruna, bilerek yapıyoruz.</p>
+<p>Paketler ve fonksiyonları hakkında daha fazla bilgi edinmek için [R basics] sayfasına bakabilirsiniz.</p>
+</div>
+<div id="kodlama-stili" class="section level3 unnumbered">
+<h3>Kodlama stili</h3>
+<p>El kitabında sık sık “yeni satırlar” kullanıyoruz, bu da kodumuzun “uzun” görünmesine neden olabiliyor. Bunun birkaç sebebi var:</p>
+<ul>
+<li>Kodun her küçük parçasına bitişik <code>#</code> ile açıklayıcı yorumlar yazabiliriz.</li>
+<li>Genellikle daha uzun (dikey) kodun okunması daha kolaydır.</li>
+<li>Kodların dar bir ekranda okunması daha kolaydır (ekranı yana kaydırmanıza gerek kalmaz).</li>
+<li>Girintiler sayesinde hangi argümanların hangi fonksiyona ait olduğunu daha kolay anlayabilirsiniz.</li>
+</ul>
+<p>Sonuç olarak, <em>aşağıdaki gibi</em> yazılabilecek kod:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="önyaz-ve-teknik-notlar.html#cb1-1" aria-hidden="true" tabindex="-1"></a>linelist <span class="sc">%&gt;%</span> </span>
+<span id="cb1-2"><a href="önyaz-ve-teknik-notlar.html#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(hospital) <span class="sc">%&gt;%</span>  <span class="co"># satırları hastane (hospital) olarak gruplandır</span></span>
+<span id="cb1-3"><a href="önyaz-ve-teknik-notlar.html#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(date, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> F) <span class="co"># eğer tarih (date) ile eşleşirse ilk satırı al</span></span></code></pre></div>
+<p>…şu şekilde yazılır:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="önyaz-ve-teknik-notlar.html#cb2-1" aria-hidden="true" tabindex="-1"></a>linelist <span class="sc">%&gt;%</span> </span>
+<span id="cb2-2"><a href="önyaz-ve-teknik-notlar.html#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(hospital) <span class="sc">%&gt;%</span> <span class="co"># satırları hastane (hospital) olarak gruplandır</span></span>
+<span id="cb2-3"><a href="önyaz-ve-teknik-notlar.html#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(</span>
+<span id="cb2-4"><a href="önyaz-ve-teknik-notlar.html#cb2-4" aria-hidden="true" tabindex="-1"></a>    date,                <span class="co"># maksimum tarih değerine grubu sırala</span></span>
+<span id="cb2-5"><a href="önyaz-ve-teknik-notlar.html#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="dv">1</span>,               <span class="co"># gruptaki satırlardan sadece ilkini al </span></span>
+<span id="cb2-6"><a href="önyaz-ve-teknik-notlar.html#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">with_ties =</span> F)       <span class="co"># eğer tarih (date) ile eşleşirse ilk satırı al</span></span></code></pre></div>
+<p>R kodu genel olarak yeni satır veya girintilerden etkilenmez. Kodu yazarken, virgülden sonra yeni bir satır başlatırsanız, program yeni satıra otomatik girinti uygular.</p>
+<p>Ayrıca, okunması daha kolay olduğu için kodu yazarken birçok boşluk kullandık (örneğin, ‘n=1’ yerine ‘n = 1’). Siz de kodunuzu yazarken onu okuyabilecek insanları düşünerek yazmalısınız!</p>
+</div>
+<div id="terminoloji" class="section level3 unnumbered">
+<h3>Terminoloji</h3>
+<p>Bu el kitabında, genellikle “değişkenler” ve “gözlemler” yerine “sütunlar” ve “satırlar”a atıfta bulunuyoruz. <a href="https://tidyr.tidyverse.org/articles/tidy-data.html">“Tidy verileri”</a> ile ilgili bu makalede açıklandığı gibi, epidemiyolojik istatistiksel veri setlerinin çoğu yapısal olarak satır, sütun ve değerlerden oluşur.</p>
+<p><em>Değişkenler</em> aynı temel özelliği ölçen değerleri içerir (yaş grubu, çıktı veya başlangıç tarihi gibi). <em>Gözlemler</em> aynı birimde ölçülen tüm değerleri içerir (örneğin bir kişi, alan veya laboratuvar numunesi vb.). Dolayısıyla bu yönleri somut olarak tanımlamak daha zor olabilmektedir.</p>
+<p>“Tidy” veri kümelerinde her sütun bir değişken, her satır bir gözlem ve her hücre de tek bir değeri ifade etmektedir. Ancak karşılaştığınız bazı veri kümeleri bu kalıba sığmaz - “geniş” biçimli bir veri kümesinin birkaç sütuna bölünebilen değişkenleri olabilir ([Pivoting data] sayfasındaki bir örneğe bakın). Benzer şekilde, gözlemler de birkaç satıra bölünebilir.</p>
+<p>Bu el kitabı çoğunlukla, verileri yönetmek ve işlemek üzerine odaklanmıştır. O nedenle satır ve sütunlarda somut verilere atıfta bulunmayı, daha soyut gözlem ve değişkenlere tercih ettik. Bu yaklaşımımızın istisnası, daha fazla değişken ve gözlem referansıyla karşılaşacağınız veri analizi sayfalarıdır.</p>
+</div>
+<div id="notlar" class="section level3 unnumbered">
+<h3>Notlar</h3>
+<p>El kitabında karşılaşabileceğiniz not türleri şunlardır:</p>
+<p><span style="color: black;"><strong><em>NOT:</em></strong> Bu bir nottur.</span><br />
+<span style="color: darkgreen;"><strong><em>İPUCU:</em></strong> Bu bir ipucudur.</span><br />
+<span style="color: orange;"><strong><em>DİKKAT:</em></strong> Bu dikkatli yaklaşmanızı tavsiye eden bir nottur.</span><br />
+<span style="color: red;"><strong><em>TEHLİKE:</em></strong> Bu bir uyarıdır.</span></p>
+</div>
+</div>
+<div id="editöryal-kararlar" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Editöryal Kararlar</h2>
+<p>Aşağıda, paket ve işlev seçimiyle ilgili önemli editoryal kararları sizinle paylaşıyoruz. Bizimle aynı fikirde değilseniz veya değerlendirilmesi için yeni bir araç önermek isterseniz, lütfen <a href="https://github.com/epirhandbook/Epi_R_handbook">Github sayfamıza</a> katılın ve yeni bir sohbet başlatın.</p>
+<p><strong>Paket, fonksiyon ve diğer editoryal kararlar tablosu</strong></p>
+<table>
+<colgroup>
+<col width="15%" />
+<col width="18%" />
+<col width="22%" />
+<col width="43%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Konu</th>
+<th>Paket</th>
+<th>Çıktı</th>
+<th>Rasyoneli</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Genel kodlama yaklaşımı</td>
+<td><strong>tidyverse</strong>, <strong>data.table</strong>, <strong>base</strong></td>
+<td><strong>tidyverse</strong>, <strong>data.table</strong> üzerinde bir sayfa ve interneti olmayan okuyucular için <strong>base</strong> alternatifleri</td>
+<td><strong>tidyverse</strong> okunabilir, evrensel, en çok öğretilen pakettir</td>
+</tr>
+<tr class="even">
+<td>Paket yükleme</td>
+<td><code>library()</code>,<code>install.packages()</code>, <code>require()</code>, <strong>pacman</strong></td>
+<td><strong>pacman</strong></td>
+<td>Çoklu paket indirme/yükleme süreçlerini kısaltır ve basitleştirir</td>
+</tr>
+<tr class="odd">
+<td>İçe ve dışa aktarma</td>
+<td><strong>rio</strong>, ve diğer pek çok paketler</td>
+<td><strong>rio</strong></td>
+<td>Birçok dosya türü için kolaylık sağlar</td>
+</tr>
+<tr class="even">
+<td>İstatistik özetleri için gruplandırma</td>
+<td><strong>dplyr</strong> <code>group_by()</code>, <strong>stats</strong> <code>aggregate()</code></td>
+<td><strong>dplyr</strong> <code>group_by()</code></td>
+<td><strong>tidyverse</strong> vurgusu ile tutarlıdır</td>
+</tr>
+<tr class="odd">
+<td>Pivotlama</td>
+<td><strong>tidyr</strong> (pivot fonksiyonları), <strong>reshape2</strong> (melt/cast), <strong>tidyr</strong> (spread/gather)</td>
+<td><strong>tidyr</strong> (pivot fonksiyonları)</td>
+<td><strong>reshape2</strong> artık kullanımda değil, <strong>tidyr</strong> v1.0.0 itibariyle pivot fonksiyonlarını kullanmaktadır</td>
+</tr>
+<tr class="even">
+<td>Sütun adlarını temizleme</td>
+<td><strong>linelist</strong>, <strong>janitor</strong></td>
+<td><strong>janitor</strong></td>
+<td>Paketlerin birlikte kullanımı vurgulanmaktadır</td>
+</tr>
+<tr class="odd">
+<td>Epiweeks</td>
+<td><strong>lubridate</strong>, <strong>aweek</strong>, <strong>tsibble</strong>, <strong>zoo</strong></td>
+<td>genelde <strong>lubridate</strong>, özel durumlarda diğer paketler</td>
+<td><strong>lubridate</strong> esnek, tutarlı ve diğer paketleri koruyan bir seçenektir</td>
+</tr>
+<tr class="even">
+<td>ggplot etiketleri</td>
+<td><code>labs()</code>, <code>ggtitle()</code>/<code>ylab()</code>/<code>xlab()</code></td>
+<td><code>labs()</code></td>
+<td>tüm etiketler tek bir yerde, kullanımı basittir</td>
+</tr>
+<tr class="odd">
+<td>Faktöre çevir</td>
+<td><code>factor()</code>, <strong>forcats</strong></td>
+<td><strong>forcats</strong></td>
+<td>çeşitli fonksiyonları da aynı komutta faktöre dönüşür</td>
+</tr>
+<tr class="even">
+<td>Epidemi eğrileri</td>
+<td><strong>incidence</strong>, <strong>ggplot2</strong>, <strong>EpiCurve</strong></td>
+<td><strong>incidence2</strong> hızlıdır, <strong>ggplot2</strong> ise detaylı ve güvenilirdir</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Birleştirme</td>
+<td><code>paste()</code>, <code>paste0()</code>, <code>str_glue()</code>, <code>glue()</code></td>
+<td><code>str_glue()</code></td>
+<td><strong>stringr</strong> fonksiyonlarını içerir, yapıştır fonksiyonlarından daha basit bir sentaks (sözdizimi) vardır</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="büyük-güncellemeler" class="section level2" number="1.3">
+<h2><span class="header-section-number">1.3</span> Büyük güncellemeler</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Tarih</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>10 May 2021</td>
+<td>Versiyon 1.0.0’ın yayınlanması</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="oturum-bilgisi-r-rstudio-packages" class="section level2" number="1.4">
+<h2><span class="header-section-number">1.4</span> Oturum bilgisi (R, RStudio, packages)</h2>
+<p>Aşağıda, bu el Kitabının hazırlanması sırasında kullanılan R, RStudio ve R paketleri ve sürümlerine ilişkin bilgiler yer almaktadır.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="önyaz-ve-teknik-notlar.html#cb3-1" aria-hidden="true" tabindex="-1"></a>sessioninfo<span class="sc">::</span><span class="fu">session_info</span>()</span></code></pre></div>
+<pre><code>## - Session info --------------------------------------------------------------------------------------------------------
+##  setting  value                       
+##  version  R version 4.1.0 (2021-05-18)
+##  os       Windows 10 x64              
+##  system   x86_64, mingw32             
+##  ui       RStudio                     
+##  language (EN)                        
+##  collate  Turkish_Turkey.1254         
+##  ctype    Turkish_Turkey.1254         
+##  tz       Europe/Istanbul             
+##  date     2021-07-06                  
+## 
+## - Packages ------------------------------------------------------------------------------------------------------------
+##  package      * version date       lib source        
+##  apyramid     * 0.1.2   2020-05-08 [1] CRAN (R 4.1.0)
+##  assertthat     0.2.1   2019-03-21 [1] CRAN (R 4.1.0)
+##  backports      1.2.1   2020-12-09 [1] CRAN (R 4.1.0)
+##  bookdown       0.22    2021-04-22 [1] CRAN (R 4.1.0)
+##  broom          0.7.8   2021-06-24 [1] CRAN (R 4.1.0)
+##  bslib          0.2.5.1 2021-05-18 [1] CRAN (R 4.1.0)
+##  cellranger     1.1.0   2016-07-27 [1] CRAN (R 4.1.0)
+##  cli            3.0.0   2021-06-30 [1] CRAN (R 4.1.0)
+##  colorspace     2.0-2   2021-06-24 [1] CRAN (R 4.1.0)
+##  crayon         1.4.1   2021-02-08 [1] CRAN (R 4.1.0)
+##  curl           4.3.2   2021-06-23 [1] CRAN (R 4.1.0)
+##  data.table     1.14.0  2021-02-21 [1] CRAN (R 4.1.0)
+##  DBI            1.1.1   2021-01-15 [1] CRAN (R 4.1.0)
+##  dbplyr         2.1.1   2021-04-06 [1] CRAN (R 4.1.0)
+##  digest         0.6.27  2020-10-24 [1] CRAN (R 4.1.0)
+##  downlit        0.2.1   2020-11-04 [1] CRAN (R 4.1.0)
+##  dplyr        * 1.0.7   2021-06-18 [1] CRAN (R 4.1.0)
+##  DT           * 0.18    2021-04-14 [1] CRAN (R 4.1.0)
+##  ellipsis       0.3.2   2021-04-29 [1] CRAN (R 4.1.0)
+##  evaluate       0.14    2019-05-28 [1] CRAN (R 4.1.0)
+##  fansi          0.5.0   2021-05-25 [1] CRAN (R 4.1.0)
+##  farver         2.1.0   2021-02-28 [1] CRAN (R 4.1.0)
+##  forcats      * 0.5.1   2021-01-27 [1] CRAN (R 4.1.0)
+##  foreign        0.8-81  2020-12-22 [2] CRAN (R 4.1.0)
+##  fs             1.5.0   2020-07-31 [1] CRAN (R 4.1.0)
+##  generics       0.1.0   2020-10-31 [1] CRAN (R 4.1.0)
+##  ggplot2      * 3.3.5   2021-06-25 [1] CRAN (R 4.1.0)
+##  glue           1.4.2   2020-08-27 [1] CRAN (R 4.1.0)
+##  gtable         0.3.0   2019-03-25 [1] CRAN (R 4.1.0)
+##  haven          2.4.1   2021-04-23 [1] CRAN (R 4.1.0)
+##  here         * 1.0.1   2020-12-13 [1] CRAN (R 4.1.0)
+##  highr          0.9     2021-04-16 [1] CRAN (R 4.1.0)
+##  hms            1.1.0   2021-05-17 [1] CRAN (R 4.1.0)
+##  htmltools      0.5.1.1 2021-01-22 [1] CRAN (R 4.1.0)
+##  htmlwidgets    1.5.3   2020-12-10 [1] CRAN (R 4.1.0)
+##  httr           1.4.2   2020-07-20 [1] CRAN (R 4.1.0)
+##  incidence2     1.1     2021-05-29 [1] CRAN (R 4.1.0)
+##  jquerylib      0.1.4   2021-04-26 [1] CRAN (R 4.1.0)
+##  jsonlite       1.7.2   2020-12-09 [1] CRAN (R 4.1.0)
+##  knitr          1.33    2021-04-24 [1] CRAN (R 4.1.0)
+##  lifecycle      1.0.0   2021-02-15 [1] CRAN (R 4.1.0)
+##  lubridate    * 1.7.10  2021-02-26 [1] CRAN (R 4.1.0)
+##  magrittr       2.0.1   2020-11-17 [1] CRAN (R 4.1.0)
+##  modelr         0.1.8   2020-05-19 [1] CRAN (R 4.1.0)
+##  munsell        0.5.0   2018-06-12 [1] CRAN (R 4.1.0)
+##  openxlsx       4.2.4   2021-06-16 [1] CRAN (R 4.1.0)
+##  pacman         0.5.1   2019-03-11 [1] CRAN (R 4.1.0)
+##  pillar         1.6.1   2021-05-16 [1] CRAN (R 4.1.0)
+##  pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.1.0)
+##  purrr        * 0.3.4   2020-04-17 [1] CRAN (R 4.1.0)
+##  R6             2.5.0   2020-10-28 [1] CRAN (R 4.1.0)
+##  RColorBrewer   1.1-2   2014-12-07 [1] CRAN (R 4.1.0)
+##  Rcpp           1.0.6   2021-01-15 [1] CRAN (R 4.1.0)
+##  readr        * 1.4.0   2020-10-05 [1] CRAN (R 4.1.0)
+##  readxl         1.3.1   2019-03-13 [1] CRAN (R 4.1.0)
+##  reprex         2.0.0   2021-04-02 [1] CRAN (R 4.1.0)
+##  rio          * 0.5.27  2021-06-21 [1] CRAN (R 4.1.0)
+##  rlang          0.4.11  2021-04-30 [1] CRAN (R 4.1.0)
+##  rmarkdown      2.9     2021-06-15 [1] CRAN (R 4.1.0)
+##  rprojroot      2.0.2   2020-11-15 [1] CRAN (R 4.1.0)
+##  rstudioapi     0.13    2020-11-12 [1] CRAN (R 4.1.0)
+##  rvest          1.0.0   2021-03-09 [1] CRAN (R 4.1.0)
+##  sass           0.4.0   2021-05-12 [1] CRAN (R 4.1.0)
+##  scales         1.1.1   2020-05-11 [1] CRAN (R 4.1.0)
+##  sessioninfo    1.1.1   2018-11-05 [1] CRAN (R 4.1.0)
+##  stringi        1.6.2   2021-05-17 [1] CRAN (R 4.1.0)
+##  stringr      * 1.4.0   2019-02-10 [1] CRAN (R 4.1.0)
+##  tibble       * 3.1.2   2021-05-16 [1] CRAN (R 4.1.0)
+##  tidyr        * 1.1.3   2021-03-03 [1] CRAN (R 4.1.0)
+##  tidyselect     1.1.1   2021-04-30 [1] CRAN (R 4.1.0)
+##  tidyverse    * 1.3.1   2021-04-15 [1] CRAN (R 4.1.0)
+##  utf8           1.2.1   2021-03-12 [1] CRAN (R 4.1.0)
+##  vctrs          0.3.8   2021-04-29 [1] CRAN (R 4.1.0)
+##  withr          2.4.2   2021-04-18 [1] CRAN (R 4.1.0)
+##  xfun           0.24    2021-06-15 [1] CRAN (R 4.1.0)
+##  xml2           1.3.2   2020-04-23 [1] CRAN (R 4.1.0)
+##  yaml           2.2.1   2020-02-01 [1] CRAN (R 4.1.0)
+##  zip            2.2.0   2021-05-31 [1] CRAN (R 4.1.0)
+## 
+## [1] C:/Users/lenovo/Documents/R/win-library/4.1
+## [2] C:/Program Files/R/R-4.1.0/library</code></pre>
+
+</div>
+</div>
+  </main>
+
+  <div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page">
+      <h2>On this page</h2>
+      <div id="book-on-this-page"></div>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          <li><a id="book-source" href="#">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="#">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5">
+  <div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>The Epidemiologist R Handbook</strong>" was written by the handbook team. It was last built on 2021-07-06.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer>
+
+
+</body>
+
+</html>

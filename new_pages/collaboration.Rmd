@@ -1,760 +1,504 @@
-# Version control and collaboration with Git and Github
 
-This chapter presents an overview of using Git to collaborate with others.
-More extensive tutorials can be
-found at the bottom in the Resources section.
+# Git ve Github ile sürüm kontrolü ve işbirliği
 
-## What is Git?
+Bu bölüm, Git'i başkalarıyla işbirliği yapmak için kullanmaya genel bir bakış sunar. Daha kapsamlı öğreticiler, Kaynaklar bölümünün alt kısmında bulunabilir.
 
-Git is a **version control** software that allows tracking changes in a
-folder. It can be used like the "track change" option in Word, LibreOffice or
-Google docs, but for all types of files. It is one of the most powerful
-and most used options for version control.
+## Git nedir?
 
-**Why have I never heard of it? -** While people with a developer
-background routinely learn to use version control software (Git,
-Mercurial, Subversion or others), few of us from
-quantitative disciplines are taught these skills. Consequently, most epidemiologists never
-hear of it during their studies, and have to learn it on the fly.
+Git, bir klasördeki değişiklikleri izlemeye izin veren bir **sürüm kontrol** yazılımıdır. Word, LibreOffice veya Google belgelerindeki "değişikliği izle" seçeneği gibi kullanılabilir. Sürüm kontrolü için en güçlü ve en çok kullanılan seçeneklerden biridir.
 
-**Wait, I heard of Github, is it the same?** - Not exactly, but you
-often use them together, and we will show you how to. In short:
+**Neden hiç duymadım? ** 
+Geliştirici geçmişine sahip kişiler rutin olarak sürüm kontrol yazılımlarını (Git, Mercurial, Subversion veya diğerleri) kullanmayı öğrenirken, nicel disiplinlerden pek azımıza bu beceriler öğretilir. Sonuç olarak, çoğu epidemiyolog, çalışmaları sırasında bunu asla duymaz ve iş sırasında öğrenmek zorundadır.
 
--   **Git** is the version control system, a piece of software. You can use it
-    locally on your computer or to synchronize a folder with a
-    host **website**. By default, one uses a terminal to give Git
-    instructions in command-line.
+**Bekle, Github'ı duydum, aynı mı?** 
+Tam olarak değil, ancak bunları sıklıkla birlikte kullanıyorsunuz ve size nasıl yapılacağını göstereceğiz. Kısacası:
+**Git**, bir yazılım parçası olan sürüm kontrol sistemidir. Bilgisayarınızda yerel olarak veya bir klasörü ana bilgisayar **web sitesi** ile senkronize etmek için kullanabilirsiniz. Varsayılan olarak, komut satırında Git talimatlarını vermek için bir terminal kullanılır.
 
--   You can use a **Git client/interface** to avoid the command-line and
-    perform the same actions (at least for the simple, super common
-    ones).
+Komut satırından kaçınmak ve aynı eylemleri gerçekleştirmek için bir **Git istemcisi/arayüz** kullanabilirsiniz (en azından basit, çok yaygın olanlar için).
 
--   If you want to store your folder in a **host website** to
-    collaborate with others, you may create an account at Github,
-    Gitlab, Bitbucket or others.
+Klasörünüzü başkalarıyla işbirliği yapmak için bir **ana web sitesinde** depolamak istiyorsanız, Github, Gitlab, Bitbucket veya diğerlerinde bir hesap oluşturabilirsiniz.
 
-So you could use the client/interface **Github Desktop**, which uses
-**Git** in the background to manage your files, both locally on your
-computer, and remotely on a **Github** server.
+Böylece, dosyalarınızı hem yerel olarak bilgisayarınızda hem de bir **Github** sunucusunda uzaktan yönetmek için arka planda **Git** kullanan **Github Desktop** istemcisini/arayüzünü kullanabilirsiniz.
 
-## Why use the combo Git and Github?
+## Neden Git ve Github kombinasyonunu kullanmalısınız?
 
-Using **Git** facilitates:
+**Git** kullanımı şunları kolaylaştırır:
 
-1)  Archiving documented versions with incremental changes so that you
-    can easily revert backwards to any previous state
-2)  Having parallel *branches*, i.e. developing/"working" versions with
-    structured ways to integrate the changes after review
+1) Herhangi bir önceki duruma kolayca geri dönebilmeniz için belgelenmiş sürümleri artımlı değişikliklerle arşivleme
+2) Paralel *dallara* sahip olmak, yani gözden geçirmeden sonra değişiklikleri entegre etmek için yapılandırılmış yollarla geliştirilen/"çalışan" sürümler
 
-This can be done locally on your computer, even if you don't collaborate
-with other people. Have you ever:
+Bu, başkalarıyla işbirliği yapmasanız bile bilgisayarınızda yerel olarak yapılabilir. Sen hiç:
 
--   regretted having deleted a section of code, only to realize two
-    months later that you actually needed it?
+- bir kod bölümünü sildiğiniz için pişmanlık duydunuz, ancak iki ay sonra gerçekten ihtiyacınız olduğunu fark ettiniz mi?
 
 
--   come back on a project that had been on pause and attempted to
-    remember whether you had made that tricky modification in one of the
-    models?
+- duraklatılmış bir projeye geri dönün ve modellerden birinde bu zor değişikliği yapıp yapmadığınızı hatırlamaya çalıştınız mı?
 
--   had a *file model_1.R* and another file *model_1\_test.R* and a file
-    *model_1\_not_working.R* to try things out?
+- denemek için bir *model_1.R* dosyası ve başka bir *model_1\_test.R* dosyası ve bir *model_1\_not_working.R* dosyası mı vardı?
 
--   had a file *report.Rmd*, a file *report_full.Rmd*, a file
-    *report_true_final.Rmd*, a file *report_final_20210304.Rmd*, a file
-    *report_final_20210402.Rmd* and cursed your archiving skills?
+- bir *report.Rmd* dosyası, bir *report_full.Rmd* dosyası, bir *report_true_final.Rmd* dosyası, bir *report_final_20210304.Rmd* dosyası, bir *report_final_20210402.Rmd* dosyası vardı ve arşivleme becerilerinize lanet mi okudunuz?
 
-Git will help with all that, and is worth to learn for that alone.
+Git tüm bunlara yardımcı olacak ve sadece bunun için öğrenmeye değer.
 
+Ancak, **işbirlikçi projeleri** desteklemek için Github gibi bir çevrimiçi depo ile kullanıldığında daha da güçlü hale gelir. Bu şunları kolaylaştırır:
 
-However, it becomes even more powerful when used with a online repository
-such as Github to support **collaborative projects**. This facilitates:
+- İşbirliği: diğerleri değişiklikleri inceleyebilir, yorumlayabilir ve değişiklikleri kabul edebilir/reddetebilir
 
--   Collaboration: others can review, comment on, and
-    accept/decline changes
+- Kodunuzu, verilerinizi ve çıktılarınızı paylaşmak ve halktan (veya ekibinizle özel olarak) geri bildirim davet etmek ve şunlardan kaçınmak:
 
--   Sharing your code, data, and outputs, and invite feedback
-    from the public (or privately, with your team)
+- "Hata, son sürümü göndermeyi unuttum ve şimdi bu yeni dosya üzerinde iki günlük çalışmayı yeniden yapmanız gerekiyor"
 
-and avoids:
+- Mina, Henry ve Oumar aynı anda tek bir komut dosyası üzerinde çalıştı ve değişikliklerini manuel olarak birleştirmeleri gerekiyor
 
--   "Oops, I forgot to send the last version and now you need to
-    redo two days worth of work on this new file"
+- Dropbox ve Sharepoint üzerinde iki kişi aynı dosyayı değiştirmeye çalışıyor ve bu bir senkronizasyon hatası yaratıyor.
 
--   Mina, Henry and Oumar all worked at the same time on one script and
-    need to manually merge their changes
+### Kulağa karmaşık geliyor, ben programcı değilim {-}
 
--   Two people try to modify the same file on Dropbox and Sharepoint 
-    and this creates a synchronization error.
+Olabilir. Gelişmiş kullanım örnekleri oldukça korkutucu olabilir. Ancak, R'ye ve hatta Excel'e çok benzer şekilde, aracın avantajlarından yararlanmak için uzman olmanıza gerek yoktur. *Az sayıda işlev ve kavram* öğrenmek, değişikliklerinizi izlemenize, dosyalarınızı çevrimiçi bir havuzda senkronize etmenize ve çok kısa bir süre içinde iş arkadaşlarınızla işbirliği yapmanıza olanak tanır.
 
-### This sounds complicated, I am not a programmer {-}
+Öğrenme eğrisi nedeniyle, acil durum bağlamı bu araçları öğrenmek için en iyi zaman olmayabilir. Ancak öğrenme adım adım gerçekleştirilebilir. Birkaç kavram edindikten sonra, iş akışınız oldukça verimli ve hızlı olabilir.
 
-It can be. Examples of advanced uses can be quite scary. However, much
-like R, or even Excel, you don't need to become an expert to reap the
-benefits of the tool. Learning a *small number of functions and notions*
-lets you track your changes, synchronize your files on a online
-repository and collaborate with your colleagues in a very short amount
-of time.
+Git aracılığıyla insanlarla işbirliği yapmanın bir zorunluluk olduğu bir proje üzerinde çalışmıyorsanız, ortak çalışmaya dalmadan önce **onu solo olarak kullanmaktan emin olmak için iyi bir zamandır**.
 
-Due to the learning curve, emergency context may not be the best of time
-to learn these tools. But learning can be achieved by steps. Once you acquire 
-a couple of notions, your workflow can be quite efficient and fast.
-If you are not working on a project where collaborating with people
-through Git is a necessity, **it is actually a good time to get
-confident using it** in solo before diving in collaboration.
+## Kurmak
 
-## Setup
+### Git'i yükleyin {.unnumbered}
 
-### Install Git {.unnumbered}
+*Git*, bilgisayarınızda değişiklikleri, dalları (sürümleri), birleştirmeleri ve geri dönmeyi izleyen perde arkasındaki motordur. **Önce yapmanız gerekir
+<https://git-scm.com/downloads> adresinden *Git*'i yükleyin.**
 
-*Git* is the engine behind the scenes on your computer, which tracks
-changes, branches (versions), merges, and reverting. **You must first
-install *Git* from <https://git-scm.com/downloads>.**
+### Bir arayüz kurun (isteğe bağlı ancak önerilir) {.unnumbered}
 
-### Install an interface (optional but recommended) {.unnumbered}
+Git'in komut satırı terminaline yazılabilen kendi komut dili vardır. Bununla birlikte, birçok istemci/arayüz vardır ve geliştirici olmayanlar olarak, günlük kullanımınızda Git ile doğrudan etkileşime nadiren _ihtiyacınız olur ve arayüz genellikle dosya değişiklikleri veya dalları için güzel görselleştirme araçları sağlar.
 
-Git has its own language of commands, which can be typed into a command
-line terminal. However, there are many clients/interfaces and as non-developpers, in your
-day-to-day use, you will rarely _need_ to interact with Git directly and 
-interface usually provide nice visualisation tools for file modifications or branches. 
+Yeni başlayanlardan daha karmaşık olanlara kadar tüm işletim sistemlerinde birçok seçenek mevcuttur. Yeni başlayanlar için iyi seçenekler arasında RStudio Git bölmesi ve
+[Github Desktop](https://desktop.github.com/), ki bu bölümde durum nasıl olacak.
 
-Many options exist, on all OS, from beginner friendly to more complex ones. 
-Good options for beginners include the RStudio Git pane and 
-[Github Desktop](https://desktop.github.com/), which we will showcase in 
-this chapter.
-Intermediate (more powerfull, but more complex) options include Source Tree, 
-Gitkracken, Smart Git and others.
+Orta (daha güçlü, ancak daha karmaşık) seçenekler arasında Source Tree, Gitkracken, Smart Git ve diğerleri bulunur.
 
-Quick explanation on [Git clients](-%09https:/happygitwithr.com/git-client.html#git-client).
+[Git istemcileri](-%09https:/happygitwithr.com/git-client.html#git-client) hakkında hızlı açıklama.
 
-*Note: since interfaces actually all use Git internally, you can try several of
-them, switch from one to another on a given project, use the console punctually 
-for an action your interface does not support, or even perform any number of 
-actions online on Github.*
+*Not: Arabirimlerin tümü Git'i dahili olarak kullandığından, bunlardan birkaçını deneyebilir, belirli bir projede birinden diğerine geçebilir, konsolu arabiriminizin desteklemediği bir eylem için zamanında kullanabilir ve hatta üzerinde herhangi bir sayıda çevrimiçi eylem gerçekleştirebilirsiniz. Github.*
 
-As noted below, you may occasionally have to write Git commands into a
-terminal such as the RStudio terminal pane (a tab adjacent to the R
-Console) or the Git Bash terminal.
+Aşağıda belirtildiği gibi, zaman zaman Git komutlarını RStudio terminal bölmesi (R Konsoluna bitişik bir sekme) veya Git Bash terminali gibi bir terminale yazmanız gerekebilir.
 
+### Github hesabı {.unnumbered}
 
-### Github account {.unnumbered}
+[github.com](github.com) adresinde ücretsiz bir hesap için kaydolun.
 
-Sign-up for a free account at [github.com](github.com).
+Bir uygulama ile iki faktörlü kimlik doğrulamayı ayarlamanız istenebilir.
+Telefonunuz. Github [yardım belgelerinde](https://docs.github.com/en/github/authenticating-to-github/securing-your-account-with-two-factor-authentication-2fa) daha fazlasını okuyun.
 
-You may be offered to set-up two-factor authentication with an app on
-your phone. Read more in the Github [help
-documents](https://docs.github.com/en/github/authenticating-to-github/securing-your-account-with-two-factor-authentication-2fa).
+Github Desktop kullanıyorsanız, kurulumdan sonra bu [adımları](https://docs.github.com/en/desktop/installing-and-configuring-github-desktop/authenticating-to-github) izleyerek Gitub kimlik bilgilerinizi girebilirsiniz. .
+Bunu bilmiyorsanız, daha sonra yapmaya çalıştığınızda kimlik bilgileri sorulacaktır.
+Github'dan bir projeyi klonlayın.
 
-If you use Github Desktop, you can enter your Gitub credentials after
-installation following these
-[steps](https://docs.github.com/en/desktop/installing-and-configuring-github-desktop/authenticating-to-github).
-If you don't do it know, credentials will be asked later when you try to
-clone a project from Github.
+## Kelime bilgisi, kavramlar ve temel işlevler
 
-## Vocabulary, concepts and basic functions
+R öğrenirken olduğu gibi Git'i anlamak için hatırlamanız gereken biraz kelime hazinesi vardır. İşte [başlamanıza yardımcı olacak temel bilgiler](https://www.freecodecamp.org/news/an-introduction-to-git-for-absolute-beginners-86fa1d32ff71/)/ [etkileşimli öğretici](learngitbranching.js. kuruluş). Sonraki bölümlerde, arayüzlerin nasıl kullanılacağını göstereceğiz, ancak zihinsel modelinizi oluşturmak için kelime dağarcığı ve kavramları aklınızda bulundurmak iyidir ve arayüzleri kullanırken bunlara ihtiyacınız olacaktır.
 
-As when learning R, there is a bit of vocabulary to remember to
-understand Git. Here are the [basics to get you
-going](https://www.freecodecamp.org/news/an-introduction-to-git-for-absolute-beginners-86fa1d32ff71/)
-/ [interactive tutorial](learngitbranching.js.org). In the next
-sections, we will show how to use interfaces, but it is good
-to have the vocabulary and concepts in mind, to build your mental model,
-and as you'll need them when using interfaces anyway.
+### Depo {.unnumbered}
 
-### Repository {.unnumbered}
+Git *repo* ("*repo*"), projeniz için tüm alt klasörleri ve dosyaları (veriler, kodlar, resimler vb.) ve bunların revizyon geçmişlerini içeren bir klasördür. Depodaki değişiklikleri onunla izlemeye başladığınızda Git, tüm izleme bilgilerini içeren gizli bir klasör oluşturacaktır. Tipik bir Git deposu, *R Project* klasörünüzdür ([R projeleri] hakkındaki el kitabı sayfasına bakın).
 
-A Git *repository* ("*repo*") is a folder that contains all the
-sub-folders and files for your project (data, code, images, etc.) and
-their revision histories. When you begin tracking changes in the
-repository with it, Git will create a hidden folder that contains
-all tracking information. A typical Git repository is
-your *R Project* folder (see handbook page on [R projects]).
+Github, Github Desktop veya Rstudio'dan bir Git deposunun nasıl oluşturulacağını (_initialize_) sonraki bölümlerde göstereceğiz.
 
-We will show how to create (_initialize_) a Git repository 
-from Github, Github Desktop or Rstudio in the next
-sections.
+### Taahhütler {.unnumbered}
 
-### Commits {.unnumbered}
+*taahhüt*, projenin belirli bir zamanda **anlık görüntüsüdür**. Projede bir değişiklik yaptığınızda, dosyalarınızda yapılan değişiklikleri (delta) izlemek için yeni bir taahhütte bulunacaksınız. Örneğin, bazı kod satırlarını düzenlemiş ve ilgili bir veri kümesini güncellemiş olabilirsiniz. Değişiklikleriniz kaydedildikten sonra, bu değişiklikleri tek bir "taahhüt" altında toplayabilirsiniz.
+Her işlemin benzersiz bir kimliği vardır (bir *karma*). Sürüm kontrolü amacıyla, taahhütlere dayalı olarak projenizi zamanında geri alabilirsiniz, bu nedenle onları nispeten küçük ve tutarlı tutmak en iyisidir. Ayrıca, "taahhüt mesajı" adı verilen değişikliklerin kısa bir açıklamasını da ekleyeceksiniz.
 
-A *commit* is a **snapshot** of the project at a given time. 
-When you make a change to the project, you will make a new commit
-to track the changes (the delta) made to your
-files. For example, perhaps you edited some lines of code and updated a
-related dataset. Once your changes are saved, you can bundle these
-changes together into one "commit".
+*Aşamalı değişiklikler*? Değişiklikleri aşamaya geçirmek, bir sonraki işleme hazırlanmak için bunları *hazırlama alanına* eklemektir. Buradaki fikir, belirli bir taahhütte hangi değişikliklerin dahil edileceğine ince bir şekilde karar verebilmenizdir. Örneğin, bir komut dosyasında model belirtimi üzerinde çalıştıysanız ve daha sonra başka bir komut dosyasındaki bir şekil üzerinde çalıştıysanız, iki farklı kesinliğe sahip olmak mantıklı olacaktır (şekildeki değişiklikleri geri almak isteyip modeli).
 
-Each commit has a unique ID (a *hash*). For version control purposes,
-you can revert your project back in time based on commits, so it is best
-to keep them relatively small and coherent. You will also attach a brief
-description of the changes called the "commit message".
+### Şubeler {.unnumbered}
 
-*Staged changes*? To stage changes is to add them to the *staging area*
-in preparation for the next commit. The idea is that you can finely
-decide which changes to include in a given commit. For example, if you
-worked on model specification in one script, and later on a figure in
-another script, it would make sense to have two different commits (it would be easier
-in case you wanted to revert the changes on the figure but not the model).
+Dal, deponuzdaki *bağımsız bir değişiklik satırını*, proje dosyalarınızın paralel, alternatif bir sürümünü temsil eder.
 
+Dallar, değişiklikleri genellikle projenizin birincil/son/"canlı" versiyonu olan *ana* dalına dahil edilmeden önce test etmek için kullanışlıdır. Bir dal üzerinde denemeyi bitirdiğinizde, değişiklikleri *birleştirerek* *ana* dalınıza getirebilir veya değişiklikler o kadar başarılı olmazsa silebilirsiniz.
 
-### Branches {.unnumbered}
+*Not: Şubeleri kullanmak için başka kişilerle işbirliği yapmanız veya uzak bir çevrimiçi veri havuzuna sahip olmanız gerekmez.*
 
-A branch represents an *independent line* of changes in your repo, a
-parallel, alternate version of your project files. 
 
+### Yerel ve uzak depolar {.unnumbered}
 
-Branches are useful to test changes before they are incorporated into
-the *main* branch, which is usually the primary/final/"live" version of
-your project. When you are done experimenting on a branch, you can bring
-the changes into your *main* branch, by *merging* it, or delete it, if
-the changes were not so successful.
+*Klonlamak*, Git deposunun bir kopyasını başka bir yerde oluşturmaktır.
 
-*Note: you do not have to collaborate with other people to use branches,
-nor need to have a remote online repository.*
+Örneğin, Github'dan bilgisayarınızda yerel olarak bir çevrimiçi depoyu *klonlayabilirsiniz* veya yerel bir depoyla başlayabilir ve onu çevrimiçi olarak Github'a kopyalayabilirsiniz.
 
+Bir havuzu klonladığınızda, proje dosyaları iki yerde bulunur:
 
+- fiziksel bilgisayarınızdaki *YEREL* veri havuzu. Dosyalarda/kodda asıl değişiklikleri yaptığınız yer burasıdır.
 
-### Local and remote repositories {.unnumbered}
+- *UZAK*, çevrimiçi depo: Github deposundaki (veya başka herhangi bir web barındırıcısındaki) proje dosyalarınızın sürümleri.
 
-To *clone* is to create a copy of a Git repository in another place.
+Bu depoları senkronize etmek için daha fazla fonksiyon kullanacağız. Gerçekten de, Sharepoint, Dropbox veya diğer senkronizasyon yazılımlarından farklı olarak Git, yerel deponuzu veya çevrimiçi olanı temel alarak veya tam tersi şekilde otomatik olarak güncellemez. Ne zaman ve nasıl senkronize edeceğinizi siz seçersiniz.
 
-For example, you can *clone* a online repository _from_ Github locally on
-your computer, or begin with a local repository and clone
-it online _to_ Github.
+- `git fetch` uzak depodaki yeni değişiklikleri indirir ancak yerel deponuzu değiştirmez. Bunu uzak deponun durumunu kontrol etmek olarak düşünün.
 
-When you have cloned a repository, the project files exist in
-two places:
+- `git pull` uzak depolardaki yeni değişiklikleri indirir ve yerel deponuzu günceller.
 
--   the *LOCAL* repository on your physical computer. This
-    is where you make the actual changes to the files/code.
+- Yerel olarak bir veya birkaç taahhütte bulunduğunuzda, taahhütleri uzak depoya `git push` edebilirsiniz. Bu, değişikliklerinizi Github'a gönderir, böylece diğer insanlar isterlerse onları görebilir ve çekebilir.
 
--   the *REMOTE*, online repository: the versions of your project files
-    in the Github repository (or on any other web
-    host).
 
-To synchronize these repositories, we will use more functions. Indeed,
-unlike Sharepoint, Dropbox or other synchronizing software, Git does
-not automatically update your local repository based or what's online,
-or vice-versa. You get to choose when and how to synchronize.
+## Başlayın: yeni bir depo oluşturun
 
--   `git fetch` downloads the new changes from the remote repository but does not 
-change your local repository. Think of it as checking the state of the remote repository.
+Yeni depolar oluşturmanın birçok yolu vardır. Bunu konsoldan, Github'dan bir arayüzden yapabilirsiniz.
 
--   `git pull` downloads the new changes from the remote repositories
-    and update your local repository.
+Kurulum için iki genel yaklaşım şunlardır:
 
--   When you have made one or several commits locally, you can
-    `git push` the commits to the remote repository. This sends your
-    changes on Github so that other people can see and pull them if
-    they want to.
 
+- Mevcut veya yeni bir Github deposundan yeni bir R Projesi oluşturun (*yeni başlayanlar için tercih edilir*) veya
+- Mevcut bir R projesi için bir Github deposu oluşturun
 
-## Get started: create a new repository
 
-There are many ways to create new repositories. You can do it from the
-console, from Github, from an interface.
+### Başlangıç dosyaları {.unnumbered}
 
-Two general approaches to set-up are:
+Yeni bir havuz oluşturduğunuzda, isteğe bağlı olarak aşağıdaki dosyaların tümünü oluşturabilir veya daha sonraki bir aşamada havuzunuza ekleyebilirsiniz. Genellikle havuzun "kök" klasöründe yaşarlar.
 
+- *README* dosyası, projenizin neden var olduğunu ve onu kullanmak için başka neleri bilmeleri gerektiğini anlamak için birinin okuyabileceği bir dosyadır. İlk başta boş olacak, ancak daha sonra tamamlamanız gerekir.
 
--   Create a new R Project from an existing or new Github repository
-    (*preferred for beginners*), or
--   Create a Github repository for an existing R project
+- Bir *.gitignore* dosyası, her satırın Git'in yok sayması gereken (değişiklikleri izlememesi) klasörleri veya dosyaları içerdiği bir metin dosyasıdır. Bununla ilgili daha fazla bilgi edinin ve örneklere bakın[buradan](https://www.freecodecamp.org/news/gitignore-what-is-it-and-how-to-add-to-repo/).
 
+- Çalışmanız için bir *lisans* seçebilirsiniz, böylece diğer insanlar çalışmanızı hangi koşullar altında kullanabileceklerini veya çoğaltabileceklerini bilsinler. Daha fazla bilgi için bkz. [Creative Commons lisansları] https://creativecommons.org/licenses/).
 
-### Start-up files {.unnumbered}
+### Github'da yeni bir depo oluşturun {.unnumbered}
 
-When you create a new repository, you can optionally create 
-all of the below files, or you can add them to your repository at a later stage.
-They would typically live in the "root" folder of the repository.
-
--   A *README* file is a file that someone can read to understand why
-    your project exists and what else they should know to use it. It
-    will be empty at first, but you should complete it later.
-
--   A *.gitignore* file is a text file where each line would contain
-    folders or files that Git should ignore (not track changes). Read
-    more about it and see examples
-    [here](https://www.freecodecamp.org/news/gitignore-what-is-it-and-how-to-add-to-repo/).
-
--   You can choose a *license* for your work, so that other people
-    know under which conditions they can use or reproduce your work. For more
-    information, see the [Creative Commons
-    licenses](https://creativecommons.org/licenses/).
-
-### Create a new repository in Github {.unnumbered}
-
-To create a new repository, log into Github and look for the green
-button to create a new repository. This now empty repository can be
-cloned locally to your computer (see next section).
+Yeni bir depo oluşturmak için Github'da oturum açın ve yeni bir depo oluşturmak için yeşil düğmeyi arayın. Artık boş olan bu depo bilgisayarınıza yerel olarak klonlanabilir (bir sonraki bölüme bakın).
 
 ```{r echo=F, fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_new.png"))
 ```
 
-You must choose if you want your repository to be **public** (visible to
-everyone on the internet) or **private** (only visible to those with
-permission). This has important implications if your data are sensitive.
-If your repository is private you will encounter some quotas in advanced
-special circumstances, such as if you are using Github *actions* to
-automatically run your code in the cloud.
+Deponuzun **genel** (internetteki herkes tarafından görülebilir) veya **özel** (yalnızca izne sahip olanlar tarafından görülebilir) olmasını seçmelisiniz. Verileriniz hassassa, bunun önemli etkileri vardır. Deponuz özelse, kodunuzu bulutta otomatik olarak çalıştırmak için Github *actions* kullanıyorsanız, örneğin gelişmiş özel durumlarda bazı kotalarla karşılaşırsınız.
  
-### Clone from a Github repository {.unnumbered}
+### Github deposundan klonlama {.unnumbered}
 
-You can *clone* an existing Github repository to create
-a new local R project on your computer.
+Bilgisayarınızda yeni bir yerel R projesi oluşturmak için mevcut bir Github deposunu *klonlayabilirsiniz*.
 
-The Github repository could be one that already exists and contains
-content, or could be an empty repository that you just created. In this
-latter case you are essentially creating the Github repo and local R
-project at the same time (see instructions above).
+Github deposu, zaten var olan ve içerik içeren bir depo olabilir veya az önce oluşturduğunuz boş bir depo olabilir. Bu ikinci durumda, esasen Github deposunu ve yerel R projesini aynı anda yaratıyorsunuz (yukarıdaki talimatlara bakın).
 
-_Note_: if you do not have contributing rights on a Github repository, 
-it is possible to first _fork_ the repository to your profile, and then
-proceed with the other actions. Forking is explained at the end of this 
-chapter, but we recommend that you read the other sections first.
+_Not_: Bir Github deposunda katkıda bulunma hakkınız yoksa, önce depoyu profilinize _fork_ yapmak ve ardından diğer işlemlere geçmek mümkündür. Çatallanma bu bölümün sonunda açıklanmıştır, ancak önce diğer bölümleri okumanızı öneririz.
 
-Step 1: Navigate in Github to the repository, click on the green "**Code**"
-button and copy the **HTTPS clone URL** (see image below)
+Adım 1: Github'da depoya gidin, yeşil "**Kod**" düğmesine tıklayın ve **HTTPS klon URL'sini** kopyalayın (aşağıdaki resme bakın)
 
 ```{r echo=F, out.width = '100%', out.height='100%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_clone.png"))
 ```
 
-The next step can be performed in any interface. We will illustrate with
-Rstudio and Github desktop.
+Bir sonraki adım herhangi bir arayüzde gerçekleştirilebilir. Rstudio ve Github masaüstü ile örneklendireceğiz.
 
-#### In Rstudio {.unnumbered}
+#### Rstudio'da {.unnumbered}
 
-In RStudio, start a new R project by clicking *File \> New Project \>
-Version Control \> Git*
+RStudio'da *Dosya \> Yeni Proje \>Sürüm Kontrolü \> Git*'e tıklayarak yeni bir R projesi başlatın.
 
--   When prompted for the "Repository URL", paste the HTTPS URL from
-    Github\
--   Assign the R project a short, informative name\
--   Choose where the new R Project will be saved locally\
--   Check "Open in new session" and click "Create project"
+- "Depo URL'si" istendiğinde, HTTPS URL'sini Github\'dan yapıştırın
+- R projesine kısa, bilgilendirici bir ad verin\
+- Yeni R Projesinin yerel olarak nereye kaydedileceğini seçin\
+- "Yeni oturumda aç" seçeneğini işaretleyin ve "Proje oluştur" u tıklayın
 
 
-You are now in a new, local, RStudio project that is a clone of the
-Github repository. This local project and the Github repository are now
-linked.
+Artık Github deposunun bir klonu olan yeni, yerel bir RStudio projesindesiniz. Bu yerel proje ve Github deposu artık
+bağlantılı.
 
-#### In Github Desktop {.unnumbered}
+#### Github Desktop'ta {.unnumbered}
 
--   Click on *File \> Clone a repository*
+- *Dosya \> Bir depoyu klonla* üzerine tıklayın
 
--   Select the URL tab
+- URL sekmesini seçin
 
--   Paste the HTTPS URL from Github in the first box
+- Github'dan HTTPS URL'sini ilk kutuya yapıştırın
 
--   Select the folder in which you want to have your local repository
+- Yerel deponuzun olmasını istediğiniz klasörü seçin
 
--   Click "CLONE"
+- "KLON" u tıklayın
 
 ```{r echo=F, out.width = '100%', out.height='100%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_clone_desktop.png"))
 ```
 
-### New Github repo from existing R project {.unnumbered}
+### Mevcut R projesinden yeni Github deposu {.unnumbered}
 
-An alternative setup scenario is that you have an existing R project
-with content, and you want to create a Github repository for it.
+Alternatif bir kurulum senaryosu, içeriği olan mevcut bir R projeniz olması ve bunun için bir Github deposu oluşturmak istemenizdir.
 
-1)  Create a new, empty Github repository for the project (see
-    instructions above)\
-2)  Clone this repository locally (see HTTPS instructions above)\
-3)  Copy all the content from your pre-existing R
-    project (codes, data, etc.) into this new empty, local, repository (e.g. use copy and paste).\
-4)  Open your new project in RStudio, and go to the Git pane. The new files should
-    register as file changes, now tracked by Git. Therefore, you can
-    bundle these changes as a *commit* and *push* them up to Github.
-    Once *pushed*, the repository on Github will reflect all the files.
-    
-See the Github workflow section below for details on this process.
+1) Proje için yeni, boş bir Github deposu oluşturun (yukarıdaki talimatlara bakın)\
+2) Bu depoyu yerel olarak klonlayın (yukarıdaki HTTPS talimatlarına bakın)\
+3) Önceden var olan R projenizdeki tüm içeriği (kodlar, veriler, vb.) bu yeni boş, yerel depoya kopyalayın (örn. kopyala ve yapıştır kullanın).\
+4) Yeni projenizi RStudio'da açın ve Git bölmesine gidin. Yeni dosyalar, artık Git tarafından izlenen dosya değişiklikleri olarak kaydedilmelidir. Bu nedenle, bu değişiklikleri bir *taahhüt* olarak paketleyebilir ve Github'a *gönderebilirsiniz*. Bir kez *basıldığında*, Github'daki depo tüm dosyaları yansıtacaktır.
+   
+Bu işlemle ilgili ayrıntılar için aşağıdaki Github iş akışı bölümüne bakın.
 
-### What does it look like now? {.unnumbered}
+### Şimdi nasıl görünüyor? {.unnumbered}
 
-#### In RStudio {-}
+#### RStudio'da {-}
 
-Once you have cloned a Github repository to a new R project, 
-you now see in RStudio a "Git" tab. This tab appears in the same RStudio pane
-as your R Environment:
+Bir Github deposunu yeni bir R projesine klonladığınızda, artık RStudio'da bir "Git" sekmesi görürsünüz. Bu sekme, R Ortamınız ile aynı RStudio bölmesinde görünür:
 
 ```{r echo=F, out.width = "75%", out.height="75%", fig.align = "center"}
 knitr::include_graphics(here::here("images", "Git_console.png"))
 ```
 
-Please note the buttons circled in the image above, as they will be
-referenced later (from left to right):
+Lütfen yukarıdaki resimde daire içine alınmış butonlara dikkat edin, çünkü bunlar
+daha sonra atıfta bulunuldu (soldan sağa):
 
--   Button to *commit* the saved file changes to the local
-    branch (this will open a new window)
--   Blue arrow to *pull* (update your local version of the branch with
-    any changes made on the remote/Github version of that branch)
--   Green arrow to *push* (send any commits/changes for your local
-    version of the branch to the remote/Github version of that branch)
--   The Git tab in RStudio
--   Button to create a NEW branch using whichever local branch is shown
-    to the right as the base. *You almost always want to branch off from
-    the main branch (after you first pull to update the main branch)*
--   The branch you are currently working in
--   Changes you made to code or other files will appear below
+- Kaydedilen dosya değişikliklerini yerel şubede *kabul etme* düğmesi (bu, yeni bir pencere açar)
+- *Çekmek* için mavi ok (dalın uzak/Github sürümünde yapılan değişikliklerle şubenin yerel sürümünüzü güncelleyin)
+- *Push* için yeşil ok (dalın yerel sürümünüz için tüm taahhütleri/değişiklikleri o dalın uzak/Github sürümüne gönderin)
+- RStudio'daki Git sekmesi
+- Sağda taban olarak gösterilen yerel şubeyi kullanarak YENİ bir şube oluşturma düğmesi. *Neredeyse her zaman ana daldan ayrılmak istersiniz (ana dalı güncellemek için ilk kez çektikten sonra)*
+- Şu anda çalıştığınız şube
+- Kodda veya diğer dosyalarda yaptığınız değişiklikler aşağıda görünecektir
 
-#### In Github Desktop {-}
+#### Github Masaüstünde {-}
 
-Github Desktop is an independent application that allows you to manage
-all your repositories. When you open it, the interface allows you to
-choose the repository you want to work on, and then to perform basic Git
-actions from there.
+Github Desktop, tüm depolarınızı yönetmenize izin veren bağımsız bir uygulamadır. Açtığınızda, arayüz üzerinde çalışmak istediğiniz depoyu seçmenize ve ardından oradan temel Git eylemlerini gerçekleştirmenize olanak tanır.
 
 ```{r echo=F, out.width = "75%", out.height="75%", fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_desktop_interface.png"))
 ```
 
 
-## Git + Github workflow
+## Git + Github iş akışı
 
-### Process overview {.unnumbered}
+### Sürece genel bakış {.unnumbered}
 
-Once you have completed the setup (described above), you will have a
-Github repo that is connected (*cloned*) to a local R project. The
-*main* branch (created by default) is the so-called "live" version of
-*all* the files. When you want to make modifications, it is a good
-practice to create a *new branch* from the *main* branch (like "Make a
-Copy"). This is a typical workflow in Git because creating a branch is
-easy and fast.
+Kurulumu tamamladığınızda (yukarıda açıklanmıştır), yerel bir R projesine bağlı (*klonlanmış*) bir Github deposuna sahip olacaksınız. *main* dalı (varsayılan olarak oluşturulur), *tüm* dosyaların sözde "canlı" versiyonudur. Değişiklik yapmak istediğinizde, *ana* daldan *yeni bir dal* oluşturmak ("Kopya Oluştur" gibi) iyi bir uygulamadır. Dal oluşturmak kolay ve hızlı olduğu için bu Git'teki tipik bir iş akışıdır.
 
 
-A typical workflow is as follow:
+Tipik bir iş akışı aşağıdaki gibidir:
 
-1.  Make sure that your local repository is up-to-date, update it if
-    not
+1. Yerel deponuzun güncel olduğundan emin olun, değilse güncelleyin
 
-2.  Go to the branch you were working on previously, or create a new
-    branch to try out some things
+2. Daha önce çalıştığınız şubeye gidin veya bazı şeyleri denemek için yeni bir şube oluşturun.
 
+3. Bilgisayarınızda yerel olarak dosyalar üzerinde çalışın, bu şubeye bir veya birkaç taahhütte bulunun
 
-3.  Work on the files locally on your computer, make one or several
-    commits to this branch
+4. Şubenin uzak sürümünü değişikliklerinizle güncelleyin (push)
 
-4.  Update the remote version of the branch with your changes (push)
+5. Şubenizden memnun kaldığınızda, değişiklikleri aktarmak için çalışan şubenin çevrimiçi sürümünü çevrimiçi "ana" şubeye birleştirebilirsiniz.
 
-5.  When you are satisfied with your branch, you can merge the online
-    version of the working branch into the online "main" branch to
-    transfer the changes
+Diğer ekip üyeleri de aynı şeyi kendi şubeleriyle yapıyor olabilir veya belki de sizin çalışma şubenize taahhütlere katkıda bulunuyor olabilir.
 
-Other team members may be doing the same thing with their own branches,
-or perhaps contributing commits into your working branch as well. 
-
-We go through the above process step-by-step in more detail below.
-Here is a schematic we've developed - it's in the format of a two-way
-table so it should help epidemiologists understand.
+Yukarıdaki süreci aşağıda daha ayrıntılı olarak adım adım inceliyoruz. İşte geliştirdiğimiz bir şema - iki yönlü bir tablo biçiminde olduğundan epidemiyologların anlamasına yardımcı olmalıdır.
 
 ```{r echo=F, out.height='150%', out.width='100%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_table.png"))
 ```
 
-Here's [another diagram](https://build5nines.com/introduction-to-git-version-control-workflow/).
+İşte [başka bir şema](https://build5nines.com/introduction-to-git-version-control-workflow/).
 
-*Note: until recently, the term "master" branch was used, but it is now
-referred to as "main" branch.*
+*Not: Yakın zamana kadar "master" dal terimi kullanılıyordu, ancak şimdi "main" dal olarak anılıyor.*
 
 ```{r echo=F, out.width = '100%', out.height='100%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "GitHub-Flow.png"))
 ```
 
-Image
-[source](https://build5nines.com/introduction-to-git-version-control-workflow/)
+Görüntü [source](https://build5nines.com/introduction-to-git-version-control-workflow/)
 
-## Create a new branch
+## Yeni bir dal oluştur
 
-When you select a branch to work on, **Git resets your working directory
-the way it was the last time you were on this branch**.
+Üzerinde çalışmak için bir dal seçtiğinizde **Git, çalışma dizininizi bu dalda en son bulunduğunuz zamanki gibi sıfırlar**.
 
-### In Rstudio Git pane {.unnumbered}
+### Rstudio Git bölmesinde {.unnumbered}
 
-Ensure you are in the "main" branch, and then click on the purple icon to
-create a new branch (see image above).
+"Ana" dalda olduğunuzdan emin olun ve ardından yeni bir dal oluşturmak için mor simgeye tıklayın (yukarıdaki resme bakın).
 
--   You will be prompted to name your branch with a one-word descriptive
-    name (can use underscores if needed).
--   You will see that locally, you are still in the same R project, but
-    you are no longer working on the "main" branch.
--   Once created, the new branch will also appear in the Github website
-    as a branch.
+- Şubenize tek kelimelik açıklayıcı bir ad vermeniz istenecektir (gerekirse alt çizgi kullanabilirsiniz).
+- Yerel olarak hala aynı R projesinde olduğunuzu ancak artık "ana" dal üzerinde çalışmadığınızı göreceksiniz.
+- Yeni şube oluşturulduktan sonra Github web sitesinde şube olarak da görünecektir.
     
-You can visualize branches in the Git Pane in Rstudio after clicking on "History"
+"Geçmiş" e tıkladıktan sonra Rstudio'daki Git Bölmesi'ndeki dalları görselleştirebilirsiniz.
 
 ```{r echo=F, out.width = '100%', out.height='100%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_rstudio_branchs.png"))
 ```
 
+### Masaüstünde Github {.unnumbered}
 
-### In Github Desktop {.unnumbered}
-
-The process is very much similar, you are prompted to give your branch
-a name. After, you will be prompted to "Publish you branch to Github" to
-make the new branch appear in the remote repo as well.
+İşlem çok benzer, dalınıza bir isim vermeniz isteniyor. Ardından, yeni şubenin uzak depoda da görünmesini sağlamak için "Dalınızı Github'da yayınla" denilmelidir.
 
 
 ```{r echo=F, out.width = '100%', out.height='100%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_desktop_new_branch.png"))
 ```
 
-### In console {.unnumbered}
+### Konsol Kullanırken {.unnumbered}
 
-What is actually happening behind the scenes is that you create a new
-branch with `git branch`, then go to the branch with
-`git checkout` (_i.e._ tell Git that your next commits will occur there). 
-From your git repository:
+Perde arkasında gerçekte olan şey, "git dalı" ile yeni bir şube oluşturmanız ve ardından "git checkout" ile dala gitmenizdir (_Örneğin_ Git'e sonraki taahhütlerinizin orada gerçekleşeceğini söyleyin).
+Git deponuzdan:
 
 ```{bash, eval = FALSE}
-git branch my-new-branch  # Create the new branch branch
-git checkout my-new-branch # Go to the branch
-git checkout -b my-new-branch # Both at once (shortcut)
+git branch my-new-branch  # Yeni bir dal oluşturun
+git checkout my-new-branch # Oluşturulan dala gidin
+git checkout -b my-new-branch # İkisi aynı anda (Kısayol)
 ```
 
 
-For more information about using the console, see the section on
-Git commands at the end.
+Konsolu kullanma hakkında daha fazla bilgi için sondaki Git komutlarına bakınız.
 
-## Commit changes
+## Değişiklikleri Uygula (Commit Changes)
 
-Now you can edit code, add new files, update datasets, etc.
+Artık kodu düzenleyebilir, yeni dosyalar ekleyebilir, veri kümelerini güncelleyebilirsiniz.
 
+Değişikliklerinizin her biri *ilgili dosya kaydedildikten sonra* izlenir. Değiştirilen dosyalar RStudio Git sekmesinde, Github Desktop'ta veya terminalde 'git status' komutu kullanılarak görünecektir (aşağıya bakın).
 
-Every one of your changes is tracked, *once the respective file is
-saved*. Changed files will appear in the RStudio Git tab, in Github
-Desktop, or using the command `git status` in the terminal (see below).
+Önemli değişiklikler yaptığınızda (örneğin, bir kod bölümü ekleme veya güncelleme), bu değişiklikleri duraklatın ve *kabul edin*. Bir taahhüdü, ortak bir amaçla ilgili değişikliklerin bir "topluluğu" olarak düşünün. Üzerinde değişiklik yaptıktan sonra bir dosyayı her zaman revize etmeye devam edebilirsiniz.
 
-Whenever you make substantial changes (e.g. adding or updating a section of
-code), pause and *commit* those changes. Think of a commit as a "batch"
-of changes related to a common purpose. You can always continue to
-revise a file after having committed changes on it.
+*Uygulamayla ilgili tavsiye*: genel olarak, bir sorun ortaya çıktığında kolayca geri alınabilecek küçük uygulamalar yapmak, ortak bir amaç ile ilgili değişiklikleri birlikte yapmak daha iyidir. Bunu başarmak için *sık sık uygulamalarda bulunmanız gerektiğini* göreceksiniz. Başlangıçta, muhtemelen sık sık uygulamada bulunmayı unutacaksınız, ancak daha sonra alışkanlık halini almaktadır.
 
-*Advice on commits*: generally, it is better to make small commits, that
-can be easily reverted if a problem arises, to commit together
-modifications related to a common purpose. To achieve this, you will
-find that *you should commit often*. At the beginning, you'll probably
-forget to commit often, but then the habit kicks in.
+### Rstudio'da {.unnumbered}
 
-### In Rstudio {.unnumbered}
-
-The example below shows that, since the last commit, the R Markdown script "collaboration.Rmd" has changed, 
-and several PNG images were added.
+Aşağıdaki örnek, son işlemden bu yana, "collaboration.Rmd" R Markdown komut dosyasının değiştiğini ve birkaç PNG görüntüsünün eklendiğini göstermektedir.
 
 ```{r echo=F, fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_tracking2.png"))
 ```
 
-You might be wondering what the yellow, blue, green, and red squares next to
-the file names represent. Here is a snapshot from the [RStudio
-cheatsheet](https://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf)
-that explains their meaning. Note that changes with yellow "?" can still
-be staged, committed, and pushed.
+Dosya adlarının yanındaki sarı, mavi, yeşil ve kırmızı karelerin neyi temsil ettiğini merak ediyor olabilirsiniz. İşte [RStudio kolay kullanım sayfasından](https://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf) anlamlarını açıklayan bir anlık görüntü. Değişikliklerin sarı "?" ile işaretlendiğine, halen görüntülenebilir, işlenebilir ve gönderilebilir(push) olduğuna dikkat edin.
 
 ```{r echo=F, fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_tracking.png"))
 ```
+- Git sekmesindeki "Commit" düğmesine basın, yeni bir
+     pencere açılacaktır(aşağıda gösterilmiştir)
 
--   Press the "Commit" button in the Git tab, which will open a new
-    window (shown below)
+- Sol üstteki kutuda bir dosya adına tıklayın
 
--   Click on a file name in the upper-left box
+- Bu dosyada yaptığınız değişiklikleri gözden geçirin (aşağıda yeşil veya kırmızı renkle vurgulanmıştır)
 
--   Review the changes you made to that file (highlighted below in green
-    or red)
+- Gönderirken bu değişiklikleri içerecek olan dosyayı "stage" yapın. Bunu dosya adının yanındaki kutuyu işaretleyerek yapabilirsiniz. Alternatif olarak, birden fazla dosya adını vurgulayabilir ve ardından "Stage(Aşama)" yı tıklayabilir.
 
--   "Stage" the file, which will include those changes in the commit. Do
-    this by checking the box next to the file name. Alternatively, you
-    can highlight multiple file names and then click "Stage"
+- Kısa ama açıklayıcı bir Commit mesajı yazın (gereklidir)
 
--   Write a commit message that is short but descriptive (required)
+- "Commit" düğmesine basın. Başarıyı gösteren bir açılır kutu veya bir hata mesajı görünecektir.
 
--   Press the "Commit" button. A pop-up box will appear showing success
-    or an error message.
-
-
-Now you can make more changes and more commits, as many times as you would like
+Artık istediğiniz kadar değişiklikte bulunabilir ve commit edebilirsiniz.
 
 ```{r echo=F, out.width = '100%', out.height='200%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_commit.png"))
 ```
 
-### In Github Desktop {.unnumbered}
+### Masaüstünde Github {.unnumbered}
 
-You can see the list of the files that were changed on the left. If
-you select a text file, you will see a summary of the modifications that were made
-in the right pane (the view will not work on more complex files like .docs or .xlsx).
+Solda değiştirilen dosyaların listesini görebilirsiniz. Eğer
+bir metin dosyası seçerseniz, yapılan değişikliklerin bir özetini görürsünüz.
+sağ bölmede (görünüm .docs veya .xlsx gibi daha karmaşık dosyalarda çalışmaz).
 
-To stage the changes, just tick the little box near file names. When you
-have selected the files you want to add to this commit, give the commit
-a name, optionally a description and then click on the **commit**
-button.
+Değişiklikleri düzenlemek için dosya adlarının yanındaki küçük kutuyu işaretlemeniz yeterlidir. Ne zaman bu uygulamaları eklemek istediğiniz dosyaları seçerseniz commit edebilirsiniz. Bir isim verip, isteğe bağlı olarak bir açıklama yazmanın ardından commit edilebilir.
 
 ```{r echo=F, fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_desktop_commit.png"))
 ```
 
-### In console {.unnumbered}
+### Konsolda {.unnumbered}
 
-The two functions used behind the scenes are `git add` to select/stage
-files and `git commit` to actually do the commit.
+Sahne arkasında kullanılan iki fonksiyon, seçme/sahneleme için "git add" fonksiyonudur.
+dosyalar ve 'git commit'  commit etmek içindir.
 
 ```{bash, eval = FALSE}
-git status # see the changes 
+git status # değişiklikleri izle 
 
-git add new_pages/collaboration.Rmd  # select files to commit (= stage the changes)
+git add new_pages/collaboration.Rmd  # commit edilecek dosyaları seçin (= değişiklikleri yapın)
 
-git commit -m "Describe commit from Github Desktop" # commit the changes with a message
+git commit -m "Describe commit from Github Desktop" # değişiklikleri bir mesajla commit et
 
-git log  # view information on past commits
+git log  # geçmiş commitlerle ilgili bilgileri görüntüle
 ```
 
 
-### Amend a previous commit {.unnumbered}
+### Önceki bir commit'i değiştirin {.unnumbered}
 
-What happens if you commit some changes, carry on working, and realize
-that you made changes that should "belong" to the past commit (in your opinion). 
-Fear not! You can append these changes to your previous commit.
+Bazı değişiklikler yaparsanız, çalışmaya devam ederseniz ve geçmiş commit'e "ait" olması gereken değişiklikler yaptığınızı fark ederseniz ne olur (sizce). Korkmayın! Bu değişiklikleri önceki gönderinize ekleyebilirsiniz.
 
-In Rstudio, it should be pretty obvious as there is a "Amend previous commit" 
-box on the same line as the COMMIT button. 
+Rstudio'da, COMMIT düğmesiyle aynı satırda bir "Önceki commit'i değiştir" kutusu olduğu için oldukça açıktır.
 
-For some unclear reason, the functionality has not been implemented 
-as such in Github Desktop, but there is a (conceptually awkward but easy)
-way around. If you have committed **but not pushed** your changes yet, 
-an "UNDO" button appears just under the COMMIT button. Click on it and 
-it will revert your commit (but keep your staged files and your commit message). 
-Save your changes, add new files to the commit if necessary and commit again.
+Belirsiz bir nedenle, işlevsellik Github Desktop'ta olduğu gibi uygulanmamıştır, ancak (kavramsal olarak garip ama kolay) bir yol vardır. Henüz değişikliklerinizi commit etmiş **ancak push etmediyseniz**, COMMIT düğmesinin hemen altında bir "GERİ AL" düğmesi görünür. Üzerine tıklayın geri alacaktır (ancak aşamalı dosyalarınızı ve commit mesajınızı saklayın). Değişikliklerinizi kaydedin, gerekirse commit'e yeni dosyalar ekleyin ve tekrar commit edin.
 
-In the console:  
+Konsolda:
 
 ```{bash, eval = FALSE}
-git add [YOUR FILES] # Stage your new changes
+git add [YOUR FILES] # Yeni değişikliklerinizi aşamalandırın
 
-git commit --amend  # Amend the previous commit
+git commit --amend  # Önceki commit'i değiştir
 
-git commit --amend -m "An updated commit message"  # Amend the previous commit AND update the commit message
+git commit --amend -m "An updated commit message"  # Önceki commitlerini değiştirin VE mesajını güncelleyin
 ```
 
 
-_Note: think before modifying commits that are already public and shared with your collaborators_.
+_Not: Zaten herkese açık olan ve ortak çalışanlarınızla paylaşılan commitleri değiştirmeden önce düşünün_.
 
+## Değişiklikleri Github'a kadar çekin ve iletin
 
-## Pull and push changes up to Github
+"Önce PULL (çekin), sonra PUSH(iletin)"
 
-"First PULL, then PUSH"
+Projeniz üzerinde çalışmaya başlamadan önce *fetch(getirmek)* ve *pull(çekmek)*, yerel bilgisayarınızdaki dalın sürümünü uzak/Github sürümünde yapılan değişikliklerle güncellemek iyi bir uygulamadır.
 
-It is good practice to *fetch* and *pull* before you begin working on
-your project, to update the branch version on your local computer with
-any changes that have been made to it in the remote/Github version.
+sık sık ÇEKİN. tereddüt etmeyin. *İtmeden önce daima çekin*. Değişiklikleriniz yapıldığında ve commit edildiğinde ve projenizin durumundan memnun olduğunuzda, gönderilerinizi dalınızın uzak/Github sürümüne *iletebilirsiniz*.
 
-PULL often. Don't hesitate. *Always pull before pushing*.
+Depo üzerinde çalışırken tekrarlayın.
 
-When your changes are made and committed and you are happy with the 
-state of your project, you can *push* your commits up
-to the remote/Github version of your branch.
+**Not:** Commit edilen ancak gönderilmeyen (yani hala yerel olan) değişiklikleri geri almak, uzak depoya gönderilen (ve belki de zaten başka biri tarafından çekilmiş) değişiklikleri geri almaktan çok daha kolaydır, bu nedenle üzerinde çalıştığınız görevde değişiklik yapmayı bitirdiğinizde commit etmek daha iyidir.
 
+#### Rstudio'da {.unnumbered}
 
-Rince and repeat while you are working on the repository.
+*PULL* - İlk olarak, "Çek" simgesine (aşağı ok) tıklayın.
 
-**Note:** it is much easier to revert changes that were committed but not 
-pushed (i.e. are still local) than to revert changes that were pushed to the
-remote repository (and perhaps already pulled by someone else), so it is better 
-to push when you are done with introducing changes on the task that 
-you were working on.
+*PUSH* - Yeşil "Çek" simgesine (yukarı ok) tıklayın. Github kullanıcı adınızı ve şifrenizi girmeniz istenebilir. İlk sorulduğunda, *Terminal*'e Git komut satırını girmeniz gerekebilir:
 
+- **git config --global user.email "[siz\@example.com (mailto:siz@example.com){.email}"** (Github e-posta adresiniz) ve\
+- **git config --global user.name "Github kullanıcı adınız"**
 
-#### In Rstudio {.unnumbered}
+Bu komutların nasıl girileceği hakkında daha fazla bilgi edinmek için aşağıdaki Git komutları bölümüne bakın.
 
-*PULL* - First, click the "Pull" icon (downward arrow) which fetches and
-pulls at the same time.
+***İPUCU:*** Parolanızı çok sık mı istedi? Havuza bağlanmak için bu [eğiticinin (https://happygitwithr.com/credential-caching.html#credential-caching) 10. ve 11. bölümlerine bakın.
 
-*PUSH* - Clicking the green "Pull" icon (upward arrow). You may be asked
-to enter your Github username and password. The first time you are
-asked, you may need to enter two Git command lines into the *Terminal*:
+#### Github Desktop'ta {.unnumbered}
 
--   **git config --global user.email
-    "[you\@example.com](mailto:you@example.com){.email}"** (your Github
-    email address), and\
--   **git config --global user.name "Your Github username"**
-
-To learn more about how to enter these commands, see the section below
-on Git commands.
-
-***TIP:*** Asked to provide your password too often? See these chapters
-10 & 11 of this
-[tutorial](https://happygitwithr.com/credential-caching.html#credential-caching)
-to connect to a repository using a SSH key (more
-complicated)  
-
-
-#### In Github Desktop {.unnumbered}
-
-Click on the "Fetch origin" button to check if there are new commits on
-the remote repository.
+Uzak depoda yeni commitler olup olmadığını kontrol etmek için "Fetch Origin" düğmesine tıklayın.
 
 ```{r echo=F, fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_desktop_fetch_button.png"))
 ```
 
-If Git finds new commits on the remote repository, the button will
-change into a "Pull" button. Because the same button is used to push and
-pull, you cannot push your changes if you don't pull before.
+Git, uzak depoda yeni taahhütler bulursa, düğme bir "Çek" düğmesine dönüşür. İtme ve çekme için aynı düğme kullanıldığından, daha önce çekmediyseniz değişikliklerinizi itemezsiniz.
 
 ```{r echo=F, fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_desktop_pull_button.png"))
 ```
 
-You can go to the "History" tab (near the "Changes" tab) to see all
-commits (yours and others). This is a nice way of acquainting yourself
-with what your collaborators did. You can read the commit message, the
-description if there is one, and compare the code of the two files using
-the *diff* pane.
+Tüm commitleri (sizin ve diğerleri) görmek için "Geçmiş" sekmesine ("Değişiklikler" sekmesinin yanında) gidebilirsiniz. Bu, işbirlikçilerinizin yaptıkları hakkında bilgi edinmenin güzel bir yoludur. Commit mesajını, varsa açıklamasını okuyabilir ve *diff* bölmesini kullanarak iki dosyanın kodunu karşılaştırabilirsiniz.
 
 ```{r echo=F, fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_desktop_history.png"))
 ```
 
-Once all remote changes have been pulled, and at least one local change
-has been committed, you can push by clicking on the same button.
+Tüm uzaktan değişiklikler çekildikten ve en az bir yerel değişiklik yapıldıktan sonra, aynı düğmeye tıklayarak basabilirsiniz.
 
 ```{r echo=F, fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_desktop_push_button.png"))
 ```
 
-#### Console {.unnumbered}
+#### Konsol {.unnumbered}
 
-Without surprise, the commands are *fetch*, *pull* and *push*.
+Şaşırtıcı olmayan bir şekilde, komutlar *getir(fetch)*, *çek(pull)* ve *ittir(push)* şeklindedir.
 
 ```{bash, eval = FALSE}
-git fetch  # are there new commits in the remote directory?
-git pull   # Bring remote commits into your local branch
-git push   # Puch local commits of this branch to the remote branch
+git fetch  # uzak dizinde yeni commitler var mı?
+git pull   # Uzak commitleri yerel dalınıza getirin
+git push   # Bu dalın yerel commitlerini uzak dala aktarın
 ```
 
 
-### I want to pull but I have local work {.unnumbered}
+### Çekmek istiyorum ama yerel işim var {.unnumbered}
 
-This can happen sometimes: 
-you made some changes on your local repository, but the remote
-repository has commits that you didn't pull. 
+Bu bazen olabilir: yerel deponuzda bazı değişiklikler yaptınız, ancak uzak depo sizin çekmediğinizi commit etti.
 
+Git, değişikliklerinizin üzerine yazabileceği için çekmeyi reddedecek. Değişikliklerinizi korumak için [Happy Git with R (https://happygitwithr.com/pull-tricky.html) bölümünde iyi açıklanan birkaç strateji vardır.
+- değişikliklerinizi gerçekleştirin, uzaktan değişiklikleri alın, bunları çekin, gerekirse çakışmaları çözün (aşağıdaki bölüme bakın) ve her şeyi çevrimiçine gönderin
+- Değişikliklerinizi 'saklayın', bu tür onları bir kenara depolar, çeker, geri yükler ve ardından commit eder, herhangi bir çakışmayı çözer ve iter.
 
-Git will refuse to pull because it might overwrite your changes. 
-There are several strategies to keep your changes, 
-well described in [Happy Git with R](https://happygitwithr.com/pull-tricky.html), 
-among which the two main ones are:
-- commit your changes, fetch remote changes, pull them in, resolve conflicts 
-if needed (see section below), and push everything online
-- `stash` your changes, which sort of stores them aside, pull, unstash 
-(restore), and then commit, solve any conflicts, and push. 
+Uzak değişikliklerle ilgili dosyalar ve yerel değişikliklerinizle ilgili dosyalar çakışmıyorsa Git, çakışmaları otomatik olarak çözebilir.
 
-If the files concerned by the remote changes and the files concerned 
-by your local changes do not overlap, Git may solve conflicts automatically.
-
-In Github Desktop, this can be done with buttons. To stash, go to _Branch > Stash all changes_.
+Github Desktop'ta bu, düğmelerle yapılabilir. Saklamak için _Branch>Tüm değişiklikleri sakla_ seçeneğine gidin.
 
 ```{r echo=F, fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_desktop_stash.png"))
@@ -762,253 +506,177 @@ knitr::include_graphics(here::here("images", "github_desktop_stash.png"))
 
 
 
-## Merge branch into Main 
+## Dalını Ana Gövde ile birleştir
 
-If you have finished making changes, you can begin the process of
-merging those changes into the main branch. Depending on your situation,
-this may be fast, or you may have deliberate review and approval
-steps involving teammates.
+Değişiklik yapmayı bitirdiyseniz, bu değişiklikleri ana dalda birleştirme işlemine başlayabilirsiniz. Durumunuza bağlı olarak bu hızlı olabilir veya ekip arkadaşlarınızı içeren kasıtlı inceleme ve onay adımlarını atmış olabilirsiniz.
 
-### Locally in Github Desktop {.unnumbered}
+### Yerel olarak Github Desktop'ta {.unnumbered}
 
-One can merge branches locally using Github Desktop. First, go to
-(checkout) the branch that will be the recipient of the commits, in other words, the
-branch you want to update. Then go to the menu *Branch \> Merge into
-current branch* and click. A box will allow you to select the branch you
-want to import from.
+Github Desktop kullanarak dalları yerel olarak birleştirebilirsiniz. İlk olarak, commitlerin alıcısı olacak dallara, yani güncellemek istediğiniz dala gidin. Ardından *Dal\> Geçerli gövdeye birleştir* menüsüne gidin ve tıklayın. Bir kutu, içe aktarmak istediğiniz dalı seçmenize olanak tanır.
 
 ```{r echo=F, fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_desktop_merge.png"))
 ```
 
-### In console {.unnumbered}
+### Konsolda {.unnumbered}
 
-First move back to the branch that will be the recipient of the changes.
-This is usually *master*, but it could be another branch. Then merge your
-working branch into master.
+İlk önce değişikliklerin alıcısı olacak dala geri dönün.
+Bu genellikle *master* şeklindedir, ancak başka bir dal da olabilir. Sonra master içine çalışma dalınızı birleştirin.
 
 ```{bash, eval = FALSE}
-git checkout master  # Go back to master (or to the branch you want to move your )
+git checkout master  # Master'a (veya taşımak istediğiniz dala) geri dönün
 git merge this_fancy_new_branch
 ```
 
-[This
-page](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging)
-shows a more advanced example of branching and explains a bit what is
-happening behind the scenes.
+[Bu sayfa](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging) daha gelişmiş bir dallanma örneği gösterir ve perde arkasında neler olduğunu biraz açıklar .
 
-### In Github: submitting pull requests {.unnumbered}
+### Github'da: çekme istekleri gönderme {.unnumbered}
 
+İki dalı yerel olarak veya kimseye haber vermeden birleştirmek tamamen mümkün olmakla birlikte, bir birleşme ana gövdeye entegre edilmeden önce birkaç kişi tarafından tartışılabilir veya araştırılabilir. Sürece yardımcı olmak için Github, birleştirme ile ilgili bazı tartışma özellikleri sunar: **çekme isteği**.
 
-While it is totally possible to merge two branches locally, or without
-informing anybody, a merge may be discussed or investigated by several
-people before being integrated to the master branch. To help with the
-process, Github offers some discussion features around the merge: the
-**pull request**.
+Bir çekme isteği (bir "PR"), bir dalı diğeriyle birleştirme isteğidir (başka bir deyişle, _çalışan dalınızın "ana" dala çekilmesine yönelik bir istek_).
 
-A pull request (a "PR") is a request to merge one branch into another 
-(in other words, a request that _your working branch be pulled into the "main" branch_). 
-A pull request typically involves multiple commits. A pull request usually begins a conversation and review 
-process before it is accepted and the branch is merged. For example, 
-you can read pull request discussions on [dplyr's
-github](https://github.com/tidyverse/dplyr/pulls).
+Bir çekme isteği, genellikle birden çok commit içerir. Bir çekme isteği, genellikle kabul edilmeden ve dal birleştirilmeden önce bir konuşma ve inceleme sürecini başlatır. Örneğin, [dplyr's github] (https://github.com/tidyverse/dplyr/pulls) üzerinden çekme isteği tartışmalarını okuyabilirsiniz.
 
+Doğrudan web sitesinden (aşağıda gösterildiği gibi) veya Github Desktop'tan bir çekme isteği (PR) gönderebilirsiniz.
 
-You can submit a pull request (PR) directly form the website (as
-illustrated bellow) or from Github Desktop.
+- Github deposuna gidin (çevrimiçi)
+- "Çekme İstekleri" sekmesini görüntüleyin ve "Yeni çekme isteği" düğmesini tıklayın
+- Dalınızı ana gövde ile birleştirmek için açılır menüden seçin
+- Ayrıntılı bir Çekme Talebi yorumu yazın ve "Çekme Talebi Oluştur" u tıklayın.
 
--   Go to Github repository (online)
--   View the tab "Pull Requests" and click the "New pull request" button
--   Select from the drop-down menu to merge your branch into main
--   Write a detailed Pull Request comment and click "Create Pull
-    Request".
-
-In the image below, the branch "forests" has been selected to be merged
-into "main":
+Aşağıdaki resimde, "ormanlar" dalı "ana" ile birleştirilmek üzere seçilmiştir:
 
 ```{r echo=F, out.width = '100%', out.height='150%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_pull_request2.png"))
 ```
 
-Now you should be able to see the pull request (example image below):
+Şimdi çekme isteğini görebilmelisiniz (aşağıdaki örnek resim):
 
--   Review the tab "Files changed" to see how the "main" branch would
-    change if the branch were merged.\
--   On the right, you can request a review from members of your team by
-    tagging their Github ID. If you like, you can set the repository
-    settings to require one approving review in order to merge into
-    main.\
--   Once the pull request is approved, a button to
-    "Merge pull request" will become active. Click this.\
--   Once completed, delete your branch as explained below.
+- Dal birleştirilirse "ana" dalın nasıl değişeceğini görmek için "Dosyalar değişti" sekmesini inceleyin.\
+- Sağ tarafta, Github ID'lerini etiketleyerek ekibinizin üyelerinden inceleme talep edebilirsiniz. İsterseniz, ana ile birleştirmek için havuz ayarlarını bir onay incelemesi gerektirecek şekilde ayarlayabilirsiniz.\
+- Çekme talebi onaylandıktan sonra,
+     "Birleştirme çekme isteği" aktif hale gelecektir. Buna tıklayın.\
+- Tamamlandıktan sonra dalınızı aşağıda açıklandığı gibi silin.
 
 ```{r echo=F, out.width = '100%', out.height='200%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_pull_request.png"))
 ```
 
-### Resolving conflicts {.unnumbered}
+### Çakışmaları çözme {.unnumbered}
 
-When two people modified the same line(s) at the same time, a
-merge conflict arises. Indeed, Git refuses to make a decision about
-which version to keep, but it helps you find where the
-conflict is. **DO NOT PANIC**. Most of the time, it is pretty straightforward
-to resolve.
+İki kişi aynı satırları aynı anda değiştirdiğinde, birleştirme çatışması ortaya çıkar. Aslında Git, hangi sürümün tutulacağına karar vermeyi reddeder, ancak çatışmanın nerede olduğunu bulmanıza yardımcı olur. **PANİK YAPMA**. Çoğu zaman, çözmek oldukça basittir.
 
-For example, on Github:
+Örneğin, Github'da:
 
 ```{r echo=F, out.width = '100%', out.height='200%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_conflict2.png"))
 ```
 
-
-After the merge raised a conflict, open the file in your favorite editor.
-The conflict will be indicated by series of characters:
+Birleştirme bir çakışma yarattıktan sonra, dosyayı favori düzenleyicinizde açın.
+Çatışma bir dizi karakterle belirtilecektir:
 
 ```{r echo=F, out.width = '100%', out.height='200%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_conflict3.png"))
 ```
 
-The text between *\<\<\<\<\<\<\< HEAD* and *=======* comes from your
-local repository, and the one between *=======* and *\>\>\>\>\>\>\>* from the
-the other branch (which may be origin, master or any branch of
-your choice).
+*\<\<\<\<\<\<\< HEAD* ve *=======* arasındaki metin yerel deponuzdan gelir ve *=======* ile arasındaki metin *\>\>\>\>\>\>\>* diğer daldan (orijin, master veya seçtiğiniz herhangi bir dal olabilir).
 
-You need to decide which version of the code you prefer (or even write a
-third, including changes from both sides if pertinent), delete the rest
-and remove all the marks that Git added *(\<\<\<\<\<\<\< HEAD, =======,
-\>\>\>\>\>\>\> origin/master/your_branch_name*). 
+Kodun hangi sürümünü tercih ettiğinize karar vermeniz (veya uygunsa her iki taraftaki değişiklikler de dahil olmak üzere üçüncü bir tane yazmanız), gerisini silmeniz ve Git'in eklediği tüm işaretleri kaldırmanız gerekir *(\<\<\<\<\< \<\< HEAD, =======,\>\>\>\>\>\>\> Origin/master/your_branch_name*).
 
-Then, save the file, stage it and commit it : this is the commit 
-that makes the merged version "official". Do not forget to push afterwards.
+Ardından, dosyayı kaydedin, düzenleyin ve commit edin: bu, birleştirilmiş sürümü "resmi" yapan committir. Daha sonra itmeyi unutmayın.
 
-The more often you and your collaborators pull and push, the smaller the
-conflicts will be.
+Siz ve işbirlikçileriniz ne kadar sık ​​​​çekip iterseniz, çatışmalar o kadar küçük olur.
 
+*Not: Konsolla kendinizi rahat hissediyorsanız, daha fazla [gelişmiş
+birleştirme seçenekleri](https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging) (ör. boşlukları yok sayma, ortak çalışana öncelik verme vb.).*
 
-*Note: If you feel at ease with the console, there are more [advanced
-merging
-options](https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging)
-(e.g. ignoring whitespace, giving a collaborator priority etc.).*
+### Dalınızı silin {.unnumbered}
 
-### Delete your branch {.unnumbered}
-
-Once a branch was merged into master and is no longer needed, you can
-delete it.
+Bir dal ana dalla birleştirildiğinde ve artık gerekli olmadığında, onu silebilirsiniz.
 
 #### Github + Rstudio
 
-Go to the repository on Github and click the button to view all the
-branches (next to the drop-down to select branches). Now find your
-branch and click the trash icon next to it. Read more detail on deleting
-a branch
-[here](https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-and-deleting-branches-within-your-repository#deleting-a-branch).
+Github'daki depoya gidin ve tüm dalları görüntülemek için düğmeye tıklayın (dalları seçmek için açılır menünün yanında). Şimdi dalınızı bulun ve yanındaki çöp kutusu simgesine tıklayın. Dal silmeyle ilgili daha fazla ayrıntıyı [buradan](https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-and-deleting) okuyun -deponuzdaki-dallar#dal silme).
 
-Be sure to also delete the branch locally on your computer. This will
-not happen automatically.
+Dalı bilgisayarınızdan yerel olarak da sildiğinizden emin olun. Bu otomatik olarak olmayacak.
 
--   From RStudio, make sure you are in the Main branch
--   Switch to typing Git commands in the RStudio "Terminal" (the tab
-    adjacent to the R console), and type: **git branch -d
-    branch_name**, where "branch_name" is the name of your branch to be
-    deleted
--   Refresh your Git tab and the branch should be gone
+- RStudio'dan Ana gövdede olduğunuzdan emin olun.
+- RStudio "Terminal"de (R konsolunun bitişiğindeki sekme) Git komutlarını yazmaya geçin ve şunu yazın: **git branch -d branch_name**, burada "branch_name" silinecek dalınızın adıdır
+- Git sekmenizi yenileyin, dal gitmiş olmalı
 
 
-#### In Github Desktop
+#### Github Masaüstünde
 
-Just checkout the branch you want to delete, and go to the menu
-*Branch \> Delete*.
+Silmek istediğiniz dalı kontrol edin ve menüye gidin
+*Dal\> Sil*.
 
 
-### Forking {.unnumbered}
+### Çatallama {.unnumbered}
 
-You can fork a project if you would like to contribute to it but 
-do not have the rights to do so, or if you just 
-want to modify it for your personal use. A 
-short description of forking can be found [here](https://guides.github.com/activities/forking/).
+Bir projeye katkıda bulunmak istiyorsanız, ancak bunu yapma hakkına sahip değilseniz veya sadece kişisel kullanımınız için değiştirmek istiyorsanız, bir projeyi çatallayabilirsiniz. Çatallamanın kısa bir açıklaması [burada](https://guides.github.com/activities/forking/) bulunabilir.
 
-On Github, click on the "Fork" button:  
+Github'da "Çatal" düğmesine tıklayın:
 
 ```{r echo=F, out.width = '100%', out.height='200%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_fork_1.png"))
 ```
 
-This will clone the original repository, but in your own profile. So now, 
-there are two versions of the repository **on Github**: the original one,
-that you cannot modify, and the cloned version in your profile.
+Bu, orijinal depoyu klonlayacaktır, ancak kendi profilinizde. Şimdi, Github'da deponun iki sürümü var: değiştiremeyeceğiniz orijinal sürüm ve profilinizdeki klonlanmış sürüm.
 
-Then, you can proceed to clone your version of the online repository locally 
-on your computer, using any of the methods described in previous sections. 
-Then, you can create a new branch, make changes, commit and push them 
-_to your remote repository_.
+Ardından, önceki bölümlerde açıklanan yöntemlerden herhangi birini kullanarak çevrimiçi depo sürümünüzü yerel olarak bilgisayarınızda klonlamaya devam edebilirsiniz. Ardından, yeni bir dal oluşturabilir, değişiklik yapabilir, commit edebilir ve bunları _uzak deponuza_ gönderebilirsiniz.
 
-Once you are happy with the result you can create a Pull Request 
-from Github or Github Desktop to begin the conversation with the 
-owners/maintainers of the original repository.
+Sonuçtan memnun kaldığınızda, orijinal deponun sahipleri/koruyucuları ile konuşmaya başlamak için Github veya Github Desktop'tan bir Çekme Talebi oluşturabilirsiniz.
 
+**Ya resmi depodan bazı yeni commitlere ihtiyacınız olursa?**
 
-**What if you need some newer commits from the official repository?**
+Birinin, klonlanmış sürümünüze dahil etmek istediğiniz resmi depoda kritik bir değişiklik yaptığını hayal edin. Fork'unuzu resmi depo ile senkronize etmek mümkündür. Terminalin kullanılmasını içerir, ancak çok karmaşık değildir. Çoğunlukla şunu hatırlamanız gerekir:
+- _upstream_ = değiştiremeyeceğiniz resmi depo
+- _origin_ = Github profilinizdeki depo sürümünüz
 
-Imagine that someone makes a critical modification to the official repository,
-which you want to include to your cloned version.
-It is possible to synchronize your fork with the official repository. 
-It involves using the terminal, but it is not too complicated. 
-You mostly need to remember that:
-- _upstream_ = the official repository, the one that you could not modify
-- _origin_ = your version of the repository on your Github profile
+[Bu öğreticiyi (https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork) okuyabilir veya aşağıdakileri takip edebilirsiniz:
 
-
-You can read [this tutorial](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork) or follow along below: 
-
-
-First, type in your Git terminal (inside your repo):  
+İlk önce Git terminalinizi yazın (deponuzun içine):
 
 ```{bash, eval = FALSE}
 git remote -v
 ```
  
-If you have not yet configured the upstream repository you should 
-see two lines, beginning by _origin_. They show the remote repo 
-that `fetch` and `push` point to. Remember, _origin_ is the conventional
-nickname for your own version of the repository on Github. For example:  
+Yukarı akış deposunu henüz yapılandırmadıysanız, _Origin_ ile başlayan iki satır görmelisiniz. "fetch" ve "push"un işaret ettiği uzak depoyu gösterirler. Unutmayın, _Origin_, Github'daki deponun kendi sürümünüz için geleneksel takma addır. Örneğin:  
 
 ```{r echo=F, out.width = '100%', out.height='200%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_fork_2.png"))
 ```
 
-Now, add a new remote repository:  
+Şimdi yeni bir uzak depo ekleyin:
 
 ```{bash, eval = FALSE}
 git remote add upstream https://github.com/epirhandbook/Epi_R_handbook.git
 ```
  
-Here the address is the address that Github generates when you clone
-a repository (see section on cloning). Now you will have four remote pointers:
+Burada adres, bir depoyu klonladığınızda Github'un ürettiği adrestir (klonlama ile ilgili bölüme bakın). Şimdi dört uzak işaretçiniz olacak:
 
 ```{r echo=F, out.width = '100%', out.height='200%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_fork_3.png"))
 ```
 
-Now that the setup is done, whenever you want to get the changes from 
-the original (_upstream_) repository, you just have to go (_checkout_) to 
-the branch you want to update and type:
+Artık kurulum tamamlandığında, değişiklikleri orijinal (_upstream_) deposundan almak istediğinizde, güncellemek istediğiniz dala(_checkout_) gitmeniz ve şunu yazmanız yeterlidir:
 
 ```{bash, eval = FALSE}
-git fetch upstream # Get the new commits from the remote repository
+git fetch upstream # Uzak depodan yeni commitleri alın
 git checkout the_branch_you_want_to_update
-git merge upstream/the_branch_you_want_to_update  # Merge the upstream branch into your branch.
-git push # Update your own version of the remote repo
+git merge upstream/the_branch_you_want_to_update  # Yukarı akış dalını kendi dalınızla birleştirin.
+git push # Uzak deponun kendi sürümünüzü güncelleyin
 ```
 
-If there are conflicts, you will have to solve them, as explained 
-in the Resolving conflicts section. 
+Çakışmalar varsa, bunları Çakışmaları çözme bölümünde açıklandığı gibi çözmeniz gerekecektir.
 
 
-**Summary**: forking is cloning, but on the Github server side. 
-The rest of the actions are typical collaboration workflow actions 
-(clone, push, pull, commit, merge, submit pull requests...).
+**Özet**: çatallama klonlanıyor, ancak Github sunucu tarafında.
+Eylemlerin geri kalanı, tipik işbirliği iş akışı eylemleridir.
+(klonlama, itme, çekme, commit etme, birleştirme, çekme isteklerini gönderme...).
 
-_Note: while forking is a concept, not a Git command, it also exist on other Web hosts, like [Bitbucket](https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow)._
+_Not: forking bir Git komutu değildir bir kavram olsa da, [Bitbucket] https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow gibi diğer Web ana bilgisayarlarında da bulunur)._
 
 
 ```{r echo=F, out.width = '100%', out.height='200%', fig.align = "center"}
@@ -1016,136 +684,93 @@ knitr::include_graphics(here::here("images", "github_fork_4.png"))
 ```
 
 
-## What we learned
+## Öğrendiklerimiz
 
-You have learned how to:  
+Şunları nasıl yapacağınızı öğrendiniz:
 
-- setup Git to track modifications in your folders,  
-- connect your local repository to a remote online repository,  
-- commit changes,  
-- synchronize your local and remote repositories.  
+- Git'i klasörlerinizdeki değişiklikleri takip edecek şekilde ayarlayın,
+- yerel deponuzu uzak bir çevrimiçi depoya bağlayın,
+- değişiklikleri commit edin,
+- yerel ve uzak depolarınızı senkronize edin.
 
-All this should get you going and be enough for most of your needs as 
-epidemiologists. We usually do not have as advanced usage as developers. 
+Bütün bunlar sizi harekete geçirmeli ve epidemiyologlar olarak ihtiyaçlarınızın çoğu için yeterli olmalıdır. Genellikle geliştiriciler kadar gelişmiş kullanıma sahip değiliz.
 
-However, know that should you want (or need) to go further, Git offers more power to simplify 
-commit histories, revert one or several commits, cherry-pick commits, etc. 
-Some of it may sound like pure wizardry, but now that you have the basics, 
-it is easier to build on it.
+Ancak, daha ileri gitmek isterseniz (veya buna ihtiyaç duyarsanız) Git'in commit geçmişlerini basitleştirmek, bir veya birkaç işlemi geri almak, kesin bir işlem yapmak vb. için daha fazla güç sunduğunu bilin. Bazıları tam bir sihirbazlık gibi gelebilir, ancak şimdi temellere sahipseniz, üzerine inşa etmek daha kolaydır.
 
+Rstudio ve Github Desktop'taki Git bölmesi, çalışma alanımızda yeni başlayanlar / günlük kullanım için iyi olsa da, bazı orta / gelişmiş Git işlevleri için bir arayüz sunmadıklarını unutmayın. Bazı daha eksiksiz arayüzler, işaretle ve tıkla (genellikle daha karmaşık bir düzen pahasına) ile daha fazlasını yapmanıza olanak tanır.
 
-Note that while the Git pane in Rstudio and Github Desktop are good for 
-beginners / day-to-day usage in our line of work, they do not offer an 
-interface to some of the intermediate / advanced Git functions. 
-Some more complete interfaces allows you to do more with point-and-click 
-(usually at the cost of a more complex layout). 
-
-Remember that since you can use any tool at any point to track your repository, 
-you can very easily install an interface to try it out sometimes, 
-or to perform some less common complex task occasionally, 
-while preferring a simplified interface for the rest of time (e.g. using 
-Github Desktop most of the time, and switching to SourceTree or Gitbash for some specific tasks).
+Deponuzu izlemek için herhangi bir noktada herhangi bir aracı kullanabildiğiniz için, bazen denemek veya ara sıra daha az yaygın karmaşık görevleri gerçekleştirmek için bir arabirimi çok kolay bir şekilde kurabileceğinizi ve geri kalan zaman için basitleştirilmiş bir arabirimi tercih edebileceğinizi unutmayın ( örneğin çoğu zaman Github Desktop'ı kullanmak ve bazı özel görevler için SourceTree veya Gitbash'a geçmek).
 
 
-## Git commands {#git}
+## Git komutları {#git}
 
 
-### Recommended learning {.unnumbered}
+### Önerilen öğrenim {.unnumbered}
 
-To learn Git commands in an interactive tutorial, see [this
-website](https://learngitbranching.js.org/).
+Etkileşimli bir eğiticide Git komutlarını öğrenmek için [bu web sitesine](https://learngitbranching.js.org/) bakabilirsiniz.
 
-### Where to enter commands {.unnumbered}
+### Komutların girileceği yer {.unnumbered}
 
-You enter commands in a Git shell.
+Git kabuğuna komutlar girersiniz.
 
-*Option 1* You can open a new Terminal in RStudio. This tab is next to
-the R Console. If you cannot type any text in it, click on the
-drop-down menu below "Terminal" and select "New terminal". Type the
-commands at the blinking space in front of the dollar sign "\$".
+*Seçenek 1* RStudio'da yeni bir Terminal açabilirsiniz. Bu sekmenin yanında R Konsolu. İçine herhangi bir metin yazamıyorsanız, "Terminal"in altındaki açılır menüye tıklayın ve "Yeni terminal"i seçin. Komutları, dolar işareti "\$" önündeki yanıp sönen boşluğa yazın.
 
 ```{r echo=F, out.width = '100%', out.height='200%', fig.align = "center"}
 knitr::include_graphics(here::here("images", "github_terminal.png"))
 ```
 
-*Option 2* You can also open a *shell* (a terminal to enter commands) by
-clicking the blue "gears" icon in the Git tab (near the RStudio
-Environment). Select "Shell" from the drop-down menu. A new window will
-open where you can type the commands after the dollar sign "\$".
+*Seçenek 2* Git sekmesinde (RStudio Ortamı yakınında) mavi "dişliler" simgesine tıklayarak bir *kabuk* (komut girmek için bir terminal) de açabilirsiniz. Açılır menüden "Kabuk" öğesini seçin. "\$" dolar işaretinden sonra komutları yazabileceğiniz yeni bir pencere açılacaktır.
 
-*Option 3* Right click to open "Git Bash here" which will open the same
-sort of terminal, or open *Git Bash* form your application list.
-[More beginner-friendly informations on Git Bash](https://happygitwithr.com/shell.html), 
-how to find it and some bash commands you will need.
+*Seçenek 3* Aynı tür terminali açacak olan "Git Bash burada"yı açmak için sağ tıklayın veya uygulama listenizden *Git Bash*'i açın [Git Bash hakkında daha fazla başlangıç seviyesi bilgisi (https://happygitwithr.com/shell.html), nasıl bulunur ve ihtiyacınız olacak bazı bash komutları.
 
-### Sample commands {.unnumbered}
+### Örnek komutlar {.unnumbered}
 
-Below we present a few common git commands. When you use them, keep in mind
-which branch is active (checked-out), as that will change the action!
+Aşağıda birkaç yaygın git komutu sunuyoruz. Bunları kullandığınızda, eylemi değiştireceğinden, hangi dalın aktif olduğunu (check-out) aklınızda bulundurun!
 
-In the commands below, <name> represents a branch name. 
-<commit_hash> represents the hash ID of a specific
-commit. <num> represents a number. Do not type the
-\< or \> symbols.
+Aşağıdaki komutlarda, <name> bir dal adını temsil eder <commit_hash>, belirli bir commitin karma kimliğini temsil eder. <num> bir sayıyı temsil eder. \< veya \> sembollerini yazmayın.
 
-| Git command              | Action                                                                   |
+| Git komutları            | Eylem                                                                    |
 |--------------------------|--------------------------------------------------------------------------|
-| `git branch <name>`      | Create a new branch with the name <name>                                 |
-| `git checkout <name>`    | Switch current branch to <name>                                          |
-| `git checkout -b <name>` | Shortcut to create new branch *and* switch to it                         |
-| `git status`             | See untracked changes                                                    |
-| `git add <file>`         | Stage a file                                                             |
-| `git commit -m <message>`| Commit currently staged changes to current branch with message |
-| `git fetch`              | Fetch commits from remote repository                                     |
-| `git pull`               | Pull commits from remote repository in current branch                    |
-| `git push`               | Push local commits to remote directory                          |
-| `git switch`             | An alternative to `git checkout` that is being phased in to Git |
-| `git merge <name>`       | Merge <name> branch into current branch                         |
-| `git rebase <name>`      | Append commits from current branch on to <name> branch          |
+| `git branch <name>`      | <name> adıyla yeni bir dal oluşturun                                 |
+| `git checkout <name>`    | Geçerli dalı <name> olarak değiştir                                          |
+| `git checkout -b <name>` | Yeni dal oluşturmak için kısayol * ve * ona geçiş yapın                         |
+| `git status`             | İzlenmeyen değişiklikleri görün                                                    |
+| `git add <file>`         | Dosyayı aşamalandırma                                                            |
+| `git commit -m <message>`| Şu anda aşamalı değişiklikleri mevcut dalda mesajla commit et |
+| `git fetch`              | Uzak depodan değişiklikleri getir                                     |
+| `git pull`               | Geçerli daldaki uzak depodan değişiklikleri çekin                   |
+| `git push`               | Yerel değişiklikleri uzak dizine itin                          |
+| `git switch`             | Git'te aşamalı olarak kullanılan "git checkout"a bir alternatif |
+| `git merge <name>`       | <name> dalını geçerli dal ile birleştir                         |
+| `git rebase <name>`      | Geçerli daldan değişiklikleri <name> şubesine ekle          |
 
 
 
 <!-- ======================================================= -->
 
-## Resources
+## Kaynaklar
 
-Much of this page was informed by [this "Happy Git with R"
-website](https://happygitwithr.com/) by Jenny Bryan. There is a very helpful
-section of this website that helps you troubleshoot common Git and
-R-related errors.
+Bu sayfanın çoğu, Jenny Bryan'ın [bu "Happy Git with R" web sitesi](https://happygitwithr.com/) çalışmasından faydalanılarak hazırlanmıştır. Bu web sitesinin yaygın Git sorunlarını gidermenize yardımcı olan bölümü ve R ile ilgili hatalara çok yardımcı çözümleri mevcuttur.
 
-The [Github.com documentation and start
-guide](https://docs.github.com/en/github).
+[Github.com belgeleri ve başlangıç ​​kılavuzu](https://docs.github.com/en/github).
 
-The RStudio ["IDE"
-cheatsheet](https://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf)
-which includes tips on Git with RStudio.
+RStudio ile Git hakkında ipuçları içeren RStudio ["IDE" yardım sayfası](https://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf).
 
-<https://ohi-science.org/news/github-going-back-in-time>
+<https://ohi-science.org/news/github-coming-back-in-time>
 
-**Git commands for beginners**
+**Yeni başlayanlar için Git komutları**
 
-An [interactive
-tutorial](learngitbranching.js.org) to learn
-Git commands.
+Öğrenmek için bir [etkileşimli öğretici](learngitbranching.js.org)
 
-<https://www.freecodecamp.org/news/an-introduction-to-git-for-absolute-beginners-86fa1d32ff71/>:
-good for learning the absolute basics to track changes in one folder on
-you own computer.
+<https://www.freecodecamp.org/news/an-introduction-to-git-for-absolute-beginners-86fa1d32ff71/>: Kendi bilgisayarınızdaki bir klasördeki değişiklikleri izlemek için mutlak temel bilgileri öğrenmek için iyi.
 
-Nice schematics to understand branches:
-<https://speakerdeck.com/alicebartlett/git-for-humans>
+Dalları anlamak için güzel şemalar: https://speakerdeck.com/alicebartlett/git-for-humans>
 
 
-**Tutorials covering both basic and more advanced subjects**
+**Hem temel hem de ileri düzey konuları kapsayan eğitimler**
 
-<https://tutorialzine.com/2016/06/learn-git-in-30-minutes>
+<https://tutorialzine.com/2016/06/learn-git-in-30-dakika>
 
-<https://dzone.com/articles/git-tutorial-commands-and-operations-in-git>
-<https://swcarpentry.github.io/git-novice/> (short course)
-<https://rsjakob.gitbooks.io/git/content/chapter1.html>
+<https://dzone.com/articles/git-tutorial-commands-and-operations-in-git> <https://swcarpentry.github.io/git-novice/> (kısa kurs <https://rsjakob .gitbooks.io/git/content/chapter1.html>
 
-The [Pro Git book](https://git-scm.com/book/en/v2) is considered an official reference. 
-While some chapters are ok, it is usually a bit _technical_. It is probably a good resource 
-once you have used Git a bit and want to learn a bit more precisely 
-what happens and how to go further.
+[Pro Git kitabı](https://git-scm.com/book/en/v2) resmi bir referans olarak kabul edilir. Bazı bölümler iyi olsa da, genellikle biraz _teknik_. Git'i biraz kullandıktan ve ne olduğunu ve nasıl daha ileri gidileceğini biraz daha kesin olarak öğrenmek istediğinizde muhtemelen iyi bir kaynaktır.

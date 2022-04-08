@@ -2,7 +2,7 @@
 <!-- ======================================================= -->
 <!-- ======================================================= -->
 <!-- ======================================================= -->
-# Survival analysis { }  
+# Sağkalım Analizi { }  
 
 
 ```{r out.width = c('75%'), fig.align='center', fig.show='hold', echo=F}
@@ -10,19 +10,18 @@ knitr::include_graphics(here::here("images", "survival_analysis.png"))
 ```
 
 <!-- ======================================================= -->
-## Overview {}
+## Genel Bakış {}
 
 
-*Survival analysis* focuses on describing for a given individual or group of individuals, a defined point of event called **_the failure_** (occurrence of a disease, cure from a disease, death, relapse after response to treatment...) that occurs after a period of time called **_failure time_** (or  **_follow-up time_** in cohort/population-based studies) during which individuals are observed. To determine the failure time, it is then necessary to define a time of origin (that can be the inclusion date, the date of diagnosis...). 
+*Sağkalım analizi*, belirli bir birey veya birey grubu için, **_başarısızlık_** (bir hastalığın ortaya çıkması, bir hastalıktan iyileşme, ölüm, tedaviye yanıttan sonra nüks...) olarak adlandırılan  bir olay noktasını tanımlamaya odaklanır. Bu, bireylerin gözlemlendiği **_başarısızlık süresi_** (veya kohort/nüfus temelli çalışmalarda **_izleme süresi_**) olarak adlandırılan bir süreden sonra ortaya çıkar. Başarısızlık süresini belirlemek için, daha sonra bir başlangıç zamanı tanımlamak gerekir (bu, dahil etme tarihi, teşhis tarihi olabilir...). 
 
-The target of inference for survival analysis is then the time between an origin and an event.
-In current medical research, it is widely used in clinical studies to assess the effect of a treatment for instance, or in cancer epidemiology to assess a large variety of cancer survival measures. 
-
-
-It is usually expressed through the **_survival probability_** which is the probability that the event of interest has not occurred by a duration t.
+Sağkalım analizinin nihayi çıktısı, başlangıç noktası ile  olay arasındaki zamandır. Mevcut tıbbi araştırmalarda, örneğin klinik çalışmalarda bir tedavinin etkisini veya çeşitli kanser sağkalım ölçümlerini değerlendirmek için kanser epidemiyolojisinde yaygın olarak kullanılmaktadır.
 
 
-**_Censoring_**: Censoring occurs when at the end of follow-up, some of the individuals have not had the event of interest, and thus their true time to event is unknown. We will mostly focus on right censoring here but for more details on censoring and survival analysis in general, you can see references. 
+Genellikle **_sağkalım ihtimali_** ile ifade edilir;ki bu, ilgilenilen olayın t süresi boyunca gerçekleşmemiş olma olasılığıdır.
+
+
+**_Sansürleme_**: Sansür; izlem sonunda, bazı kişilerin ilgilendikleri olay olmadığında ve bu nedenle gerçek zamanlarının bilinmediği durumlarda meydana gelir. Burada çoğunlukla doğru sansürlemeye odaklanacağız, ancak genel olarak sansürleme ve sağkalım analizi hakkında daha fazla ayrıntı için referansları görebilirsiniz. 
 
 
 ```{r echo=F, eval=F, out.width = "80%", out.height="80%", fig.align = "center"}
@@ -34,13 +33,13 @@ It is usually expressed through the **_survival probability_** which is the prob
 ```  
 
 <!-- ======================================================= -->
-## Preparation {  }
+## Hazırlık {  }
 
-### Load packages {.unnumbered}  
+### Paketleri yükleyin {.unnumbered}
 
-To run survival analyses in R, one the most widely used package is the **survival** package. We first install it and then load it as well as the other packages that will be used in this section:
+R'da sağkalım analizlerini çalıştırmak için en yaygın kullanılan paketlerden biri **survival** paketidir. Önce o kurulur ve ardından bu bölümde kullanılacak diğer paketlerin yanı sıra o da yüklenir:
 
-In this handbook we emphasize `p_load()` from **pacman**, which installs the package if necessary *and* loads it for use. You can also load installed packages with  `library()` from **base** R. See the page on [R basics] for more information on R packages.  
+Bu el kitabında, gerekirse paketi kuran *ve* kullanım için yükleyen **pacman**'dan `p_load()` vurgusu yapılmaktadır. R tabanı'ndan `library()` ile kurulu paketler de yüklenebilir. R paketleri hakkında daha fazla bilgi için [R'ın temelleri] sayfasına bakabilirsiniz.  
 
 ```{r, echo=F, message=FALSE, warning=FALSE}
 
@@ -62,12 +61,12 @@ pacman::p_load(
 ```
 
 
-This page explores survival analyses using the linelist used in most of the previous pages and on which we apply some changes to have a proper survival data.
+Bu sayfa, önceki sayfaların çoğunda kullanılan ve uygun bir sağkalım verisine sahip olmak için bazı değişiklikler uyguladığımız satır listesini kullanarak sağkalım analizlerini araştırmaktadır.
 
 
-### Import dataset {.unnumbered}  
+### Veri kümesini içe aktar {.unnumbered}
 
-We import the dataset of cases from a simulated Ebola epidemic. If you want to follow along, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>click to download the "clean" linelist</a> (as .rds file). Import data with the `import()` function from the **rio** package (it handles many file types like .xlsx, .csv, .rds - see the [Import and export] page for details).  
+Simüle edilmiş bir Ebola salgınından vakaların veri seti içe aktarılmaktadır. Takip etmek için; <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz satır listesi" dosyasını indirmek için tıklayın.</a> (.rds dosyası olarak). **rio** paketinden `import()` işleviyle veriler içe aktarılabilir (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe ve dışa aktarma] sayfasına bakılabilir).  
 
 ```{r echo=F}
 # import linelist
@@ -79,28 +78,27 @@ linelist_case_data <- rio::import(here::here("data", "case_linelists", "linelist
 linelist_case_data <- rio::import("linelist_cleaned.rds")
 ```
 
-### Data management and transformation {.unnumbered}
+### Veri yönetimi ve dönüştürme {.unnumbered}
 
-In short, survival data can be described as having the following three characteristics:
+Kısacası, sağkalım verileri aşağıdaki üç özelliğe sahip olarak tanımlanabilir:
 
-1) the dependent variable or response is the waiting time until the occurrence of a well-defined event,
-2) observations are censored, in the sense that for some units the event of interest has not occurred at the time the data are analyzed, and 
-3) there are predictors or explanatory variables whose effect on the waiting time we wish to assess or control. 
+1) Bağımlı değişken veya sonuç, iyi tanımlanmış bir olayın meydana gelmesine kadar geçen bekleme süresidir.
+2) Gözlemler, bazı birimler için verilerin analiz edildiği sırada ilgili olayın meydana gelmediği anlamında sansürlenir.
+3) Bekleme süresi üzerindeki etkisini değerlendirmek veya kontrol etmek istediğimiz öngörüler veya açıklayıcı değişkenler vardır.
 
-Thus, we will create different variables needed to respect that structure and run the survival analysis.
+Böylece, bu yapıya uymak ve sağkalım analizini yürütmek için gereken farklı değişkenler ortaya çıkarılmaktadır.
 
-We define:
+- Bu analiz için yeni bir veri çerçevesini `linelist_surv` olarak;
+- İlgilendiğimiz olayı "ölüm" olarak; (dolayısıyla sağkalım olasılığımız, başlangıç zamanından belirli bir süre sonra sağkalım olasılığı olacaktır),
+- Başlangıç zamanı ile sonuç zamanı arasındaki izlem süresini (`futime`) *gün olarak*;
+- Sansürlenmiş hastalar iyileşen veya nihai sonucu bilinmeyen, yani "ölüm" olayının gözlemlenmediği hastalar olarak  (`event=0`);
+tanımlanmaktadır.
 
-- a new data frame `linelist_surv` for this analysis  
-- our event of interest as being "death" (hence our survival probability will be the probability of being alive after a certain time after the time of origin),
-- the follow-up time (`futime`) as the time between the time of onset and the time of outcome *in days*,
-- censored patients as those who recovered or for whom the final outcome is not known ie the event "death" was not observed (`event=0`).
+<span style="color: orange;">**_DİKKAT:_** Gerçek bir kohort çalışmasında, bireyler gözlendiğinde, başlangıç zamanı ve izlem sonu hakkındaki bilgiler bilindiği için, başlangıç tarihi veya sonuç tarihi bilinmiyorsa gözlemler kaldırılacaktır. Ayrıca başlangıç tarihinin sonuç tarihinden sonra olduğu durumlar da yanlış kabul edildiğinden kaldırılacaktır.</span>
 
-<span style="color: orange;">**_CAUTION:_** Since in a real cohort study, the information on the time of origin and the end of the follow-up is known given individuals are observed, we will remove observations where the date of onset or the date of outcome is unknown. Also the cases where the date of onset is later than the date of outcome will be removed since they are considered as wrong.</span>
+<span style="color: darkgreen;">**_İPUCU:_** Bir tarihe göre büyük (>) veya küçük (<) olarak filtrelemenin eksik değerlere sahip satırları kaldırabileceği göz önüne alındığında, filtreyi yanlış tarihlere uygulamak eksik tarihlere sahip satırları da kaldıracaktır.</span>
 
-<span style="color: darkgreen;">**_TIP:_** Given that filtering to greater than (>) or less than (<) a date can remove rows with missing values, applying the filter on the wrong dates will also remove the rows with missing dates.</span>
-
-We then use `case_when()` to create a column `age_cat_small` in which there are only 3 age categories.
+Ardından, içinde yalnızca 3 yaş kategorisi bulunan bir `age_cat_small` sütunu oluşturmak için `case_while()` kullanılmaktadır.
 
 ```{r }
 #create a new data called linelist_surv from the linelist_case_data
@@ -133,7 +131,7 @@ linelist_surv <-  linelist_case_data %>%
 ```
 
 
-<span style="color: darkgreen;">**_TIP:_** We can verify the new columns we have created by doing a summary on the `futime` and a cross-tabulation between `event` and `outcome` from which it was created. Besides this verification it is a good habit to communicate the median follow-up time when interpreting survival analysis results.</span>
+<span style="color: darkgreen;">**_İPUCU:_** Oluşturulan yeni sütunlar, `futime` hakkında bir özet ve oluşturulduğu `event` ve `outcome` arasında bir çapraz tablo yapılarak doğrulanabilir. Bu doğrulamanın yanı sıra, sağkalım analizi sonuçlarını yorumlarken medyan takip süresini iletmek iyi bir alışkanlıktır.</span>
 
 ```{r }
 
@@ -145,14 +143,14 @@ linelist_surv %>%
   tabyl(outcome, event)
 ```
 
-Now we cross-tabulate the new age_cat_small var and the old age_cat col to ensure correct assingments  
+Doğru atamaları sağlamak için yeni age_cat_small var ve eski age_cat sütunu çapraz tablo haline getirilmektedir.  
 
 ```{r}
 linelist_surv %>% 
   tabyl(age_cat_small, age_cat)
 ```
 
-Now we review the 10 first observations of the `linelist_surv` data looking at specific variables (including those newly created).  
+Şimdi, belirli değişkenlere (yeni oluşturulanlar dahil) bakarak `linelist_surv` verilerinin ilk 10 gözlemi gözden geçirilmektedir.
 
 
 ```{r}
@@ -161,7 +159,7 @@ linelist_surv %>%
   head(10)
 ```
 
-We can also cross-tabulate the columns `age_cat_small` and `gender` to have more details on the distribution of this new column by gender. We use `tabyl()` and the *adorn* functions from **janitor** as described in the [Descriptive tables] page. 
+Bu yeni sütunun cinsiyete göre dağılımı hakkında daha fazla ayrıntıya sahip olmak için `age_cat_small` ve `gender` sütunları da çapraz tablo haline getirilebilir. [Açıklayıcı tablolar] sayfasında açıklandığı gibi **janitor**'dan `tabyl()` ve *adorn* fonksiyonları kullanılmaktadır. 
 
 <!-- For this we use the `stat.table()` function of the **Epi** package. -->
 
@@ -200,14 +198,14 @@ linelist_surv %>%
 
 
 <!-- ======================================================= -->
-## Basics of survival analysis {}
+## Sağkalım analizinin temelleri {}
 
 
-### Building a surv-type object {.unnumbered}
+### Sağkalım analiz materyali oluşturma {.unnumbered}
 
-We will first use `Surv()` from **survival** to build a survival object from the follow-up time and event columns.  
+İzlem süresi ve olay sütunlarından bir hayatta kalma nesnesi oluşturmak için ilk olarak **survival**'den `Surv()` kısmını kullanılır.
 
-The result of such a step is to produce an object of type *Surv* that condenses the time information and whether the event of interest (death) was observed. This object will ultimately be used in the right-hand side of subsequent model formulae (see [documentation](https://cran.r-project.org/web/packages/survival/vignettes/survival.pdf)).  
+Böyle bir adımın sonucu, zaman bilgisini ve ilgilenilen olayın (ölüm) gözlemlenip gözlemlenmediğini özetleştiren *surv* türünde bir nesne üretmektir. Bu nesne nihai olarak sonraki model formüllerinin sağ tarafında kullanılacaktır (bkz. [belgeler](https://cran.r-project.org/web/packages/survival/vignettes/survival.pdf)).  
 
 
 ```{r survobj }
@@ -225,7 +223,7 @@ survobj <- Surv(time = linelist_surv$futime,
 <!-- ``` -->
 
 
-To review, here are the first 10 rows of the `linelist_surv` data, viewing only some important columns.  
+İncelemek için, burada yalnızca bazı önemli sütunları görüntüleyen `linelist_surv` verilerinin ilk 10 satırı verilmiştir.  
 
 ```{r}
 linelist_surv %>% 
@@ -233,7 +231,7 @@ linelist_surv %>%
   head(10)
 ```
 
-And here are the first 10 elements of `survobj`. It prints as essentially a vector of follow-up time, with "+" to represent if an observation was right-censored. See how the numbers align above and below.  
+Burada `survobj`un ilk 10 unsuru izlenmektedir. Esasen bir gözlemin doğru sansürlenip sansürlenmediğini göstermek için, "+" ile  birlikte izlem süresi vektörü olarak yazdırılır. Rakamların yukarıda ve aşağıda nasıl hizalandığını görülmektedir.  
 
 ```{r}
 #print the 50 first elements of the vector to see how it presents
@@ -241,20 +239,20 @@ head(survobj, 10)
 ```
 
 
-### Running initial analyses {.unnumbered}
+### İlk analizleri çalıştırma {.unnumbered}
 
-We then start our analysis using the `survfit()` function to produce a *survfit object*, which fits the default calculations for **_Kaplan Meier_** (KM) estimates of the overall (marginal) survival curve, which are in fact a step function with jumps at observed event times. The final *survfit object*  contains one or more survival curves and is created using the *Surv* object as a response variable in the model formula.  
+Gözlemlenen olay zamanlarında atlamalı bir adım fonksiyonu olan genel (marjinal) hayatta kalma eğrisinin **_Kaplan Meier_** (KM) tahminleri için varsayılan hesaplamalara uyan bir *survfit nesnesi* üretmek için `survfit()` işlevini kullanarak analize başlanır. Sonuçta *survfit nesnesi* bir veya daha fazla sağkalım eğrisi içerir ve model formülünde bir yanıt değişkeni olarak *Surv* nesnesi kullanılarak oluşturulur.  
 
-<span style="color: black;">**_NOTE:_** The Kaplan-Meier estimate is a nonparametric maximum likelihood estimate (MLE) of the survival function. . (see resources for more information).</span>
+<span style="color: black;">**_NOT:_** Kaplan-Meier tahmini, sağkalım fonksiyonunun parametrik olmayan maksimum olabilirlik tahminidir (MLE). . (daha fazla bilgi için kaynaklara bakın).</span>
 
-The summary of this *survfit object* will give what is called a *life table*. For each time step of the follow-up (`time`) where an event happened (in ascending order):  
+Bu *survfit nesnesinin* özeti, *yaşam tablosu*'nu verecektir. Gerçekleşen (artan şekilde) bir olayın takip edilen her bir zaman adımı için (`time`):  
 
-* the number of people who were at risk of developing the event (people who did not have the event yet nor were censored: `n.risk`)  
-* those who did develop the event  (`n.event`)  
-* and from the above: the probability of *not* developing the event (probability of not dying, or of surviving past that specific time)  
-* finally, the standard error and the confidence interval for that probability are derived and displayed  
+* Olayı geliştirme riski altında olan kişi sayısı (henüz olaya sahip olmayan veya sansürlenmemiş kişiler: `n.risk`),
+* Olayı geliştirenler: (`n.event`),
+* Yukarıdakilerin devamı olarak: Olayın *gelişmeme* olasılığı (ölmeme veya belirli bir zamandan sonra sağkalım olasılığı) bulunur;
+* Son olarak, bu olasılık için standart hata ve güven aralığı türetilir ve görüntülenir. 
 
-We fit the KM estimates using the formula where the previously Surv object "survobj" is the response variable. "~ 1" precises we run the model for the overall survival.  
+KM tahminleri, daha önce Surv nesnesi "survobj" un yanıt değişkeni olduğu formül kullanılarak oturtulur. Genel sağkalım için modeli çalıştırılan kesinlik "~ 1" 'dir.  
 
 ```{r fit}
 # fit the KM estimates using a formula where the Surv object "survobj" is the response variable.
@@ -267,7 +265,7 @@ summary(linelistsurv_fit)
 ```
 
 
-While using `summary()` we can add the option `times` and  specify certain times at which we want to see the survival information 
+`summary()` kullanılırken `times` seçeneği eklenebilir ve sağkalım bilgisinin görülmek istendiği zamanlar belirtilebilir.
 
 ```{r print_spec_times}
 
@@ -277,9 +275,9 @@ summary(linelistsurv_fit, times = c(5,10,20,30,60))
 ```
 
 
-We can also use the `print()` function. The `print.rmean = TRUE` argument is used to obtain the mean survival time and its standard error (se).
+`print()` fonksiyonu da kullanılabilir. `print.rmean = TRUE` argümanı, ortalama sağkalım süresini ve standart hatayı (se) elde etmek için kullanılır.
 
-<span style="color: black;">**_NOTE:_** The restricted mean survival time (RMST) is a specific survival measure more and more used in cancer survival analysis and which is often defined as the area under the survival curve, given we observe patients up to restricted time T (more details in Resources section).
+<span style="color: black;">**_NOT:_** Kısıtlı ortalama sağkalım süresi (RMST), kanser sağkalım analizinde giderek daha fazla kullanılan ve kısıtlı T süresine kadar hastaları gözlemlediğimiz, göz önüne alındığında genellikle hayatta kalma eğrisinin altındaki alan olarak tanımlanan spesifik bir hayatta kalma ölçüsüdür. (Daha fazla ayrıntı için kaynaklar bölümüne bakın).
 
 
 ```{r, mean_survtime}
@@ -289,14 +287,14 @@ print(linelistsurv_fit, print.rmean = TRUE)
 ```
 
 
-<span style="color: darkgreen;">**_TIP:_** We can create the *surv object* directly in the `survfit()` function and save a line of code. This will then look like: `linelistsurv_quick <-  survfit(Surv(futime, event) ~ 1, data=linelist_surv)`.</span>
+<span style="color: darkgreen;">**_İPUCU:_** *surv nesnesi* doğrudan `survfit()` işlevinde oluşturulabilir ve bir kod satırı kaydedilebilir. Bu daha sonra şöyle görünecektir: `linelistsurv_quick <-  survfit(Surv(futime, event) ~ 1, data=linelist_surv)`.</span>
 
 
-### Cumulative hazard {.unnumbered}  
+### Kümülatif risk {.unnumbered}  
 
-Besides the `summary()` function, we can also use the `str()` function that gives more details on the structure of the `survfit()` object. It is a list of 16 elements.  
+`summary()` işlevinin yanı sıra, `survfit()` nesnesinin yapısı hakkında daha fazla ayrıntı veren `str()` işlevi de kullanılabilir. Liste 16 unsurdan meydana gelir.  
 
-Among these elements is an important one: `cumhaz`, which is a numeric vector. This could be plotted to allow show the **_cumulative hazard_**, with the **_hazard_** being the **_instantaneous rate of event occurrence_** (see references).
+Bu unsurlardan önemli bir tanesi de sayısal bir vektör olan `cumhaz` 'dır. Bu, **_kümülatif risk_**  in gösterilmesine izin verecek şekilde belirlenebilir, **_risk_** **_olayın anlık meydana gelme oranı_** dır (kaynaklara bakınız).
 
 ```{r fit_struct}
 
@@ -305,13 +303,13 @@ str(linelistsurv_fit)
 ```
 
 <!-- ======================================================= -->
-### Plotting Kaplan-Meir curves  {.unnumbered}
+### Kaplan-Meier eğrilerinin çizilmesi  {.unnumbered}
 
-Once the KM estimates are fitted, we can visualize the probability of being alive through a given time using the basic `plot()` function that draws the "Kaplan-Meier curve". In other words, the curve below is a conventional illustration of the survival experience in the whole patient group.
+KM tahminleri yerleştirildikten sonra, "Kaplan-Meier eğrisi" ni çizen temel `plot()` işlevi kullanılarak belirli bir süre boyunca sağkalım olasılığı görselleştirilebilir. Başka bir deyişle, aşağıdaki eğri, tüm hasta grubunda sağkalım deneyiminin geleneksel bir gösterimidir.
 
-We can quickly verify the follow-up time min and max on the curve.  
+Eğrideki min ve max takip süresi hızlı bir şekilde doğrulanabilir.  
 
-An easy way to interpret is to say that at time zero, all the participants are still alive and survival probability is then 100%. This probability decreases over time as patients die. The proportion of participants surviving past 60 days of follow-up is around 40%.
+Yorumlamanın kolay bir yolu, başlangıçta tüm katılımcıların hala hayatta olduğunu ve sağkalım olasılığının %100 olduğunu söylemektir. Hastalar öldükçe bu olasılık zamanla azalır. 60 günlük izlemden sağ kalanların oranı %40 civarındadır.
 
 ```{r }
 
@@ -323,9 +321,9 @@ plot(linelistsurv_fit,
 
 ```
 
-The confidence interval of the KM survival estimates are also plotted by default and can be dismissed by adding the option `conf.int = FALSE` to the `plot()` command.
+KM sağkalım tahminlerinin güven aralığı da varsayılan olarak çizilir ve `plot()` komutuna `conf.int = FALSE` seçeneği eklenerek reddedilebilir.
 
-Since the event of interest is "death", drawing a curve describing the complements of the survival proportions will lead to drawing the cumulative mortality proportions. This can be done with `lines()`, which adds information to an existing plot.  
+İlgilenilen olay "ölüm" olduğu için, sağkalım oranlarının tamamlayıcılarını tanımlayan bir eğri çizmek, kümülatif ölüm oranlarının çizilmesini sağlayacaktır. Bu, mevcut bir çizime bilgi ekleyen `lines()` ile yapılabilir.  
 
 
 ```{r}
@@ -361,17 +359,17 @@ legend(
 ```
 
 <!-- ======================================================= -->
-## Comparison of survival curves 
+## Sağkalım eğrilerinin karşılaştırılması 
 
-To compare the survival within different groups of our observed participants or patients, we might need to first look at their respective survival curves and then run tests to evaluate the difference between independent groups. This comparison can concern groups based on gender, age, treatment, comorbidity...
+Gözlemlenen katılımcılarımızın veya hastalarımızın farklı gruplar içindeki sağkalımını karşılaştırmak için, önce ilgili sağkalım eğrilerine bakmamız ve ardından bağımsız gruplar arasındaki farkı değerlendirmek için testler yapmamız gerekebilir. Bu karşılaştırma cinsiyet, yaş, tedavi, komorbidite bazında gruplarla ilgili olabilir...
 
-### Log rank test {.unnumbered}
+### Log rank testi {.unnumbered}
 
-The log rank test is a popular test that compares the entire survival experience between two or more *independent* groups and can be thought of as a test of whether the survival curves are identical (overlapping) or not (null hypothesis of no difference in survival between the groups). The `survdiff()` function of the **survival package** allows running the log-rank test when we specify `rho = 0` (which is the default). The test results gives a chi-square statistic along with a p-value since the log rank statistic is approximately distributed as a chi-square test statistic.
+Log rank testi, iki veya daha fazla *bağımsız* grup arasındaki tüm sağkalım deneyimini karşılaştıran popüler bir testtir ve sağkalım eğrilerinin aynı (örtüşen) olup olmadığını gösteren bir test olarak düşünülebilir (gruplar arasında sağkalımda hiçbir farkın olmadığı sıfır hipotezi).  **Hayatta kalma paketi**  nin `survdiff()` işlevi, `rho = 0` (varsayılan) belirttiğimizde log rank testinin çalıştırılmasına izin verir. Log rank istatistiği yaklaşık olarak bir ki-kare test istatistiği şeklinde dağıtıldığından, test sonuçları bir p-değeri ile birlikte bir ki-kare değeri verir.
 
-We first try to compare the survival curves by gender group. For this, we first try to visualize it (check whether the two survival curves are overlapping). A new *survfit object*  will be created with a slightly different formula. Then the *survdiff object* will be created.
+İlk önce sağkalım eğrileri cinsiyet grubuna göre karşılaştırılır. Bunun için eğriler önce görselleştirilmeye çalışılır (iki hayatta kalma eğrisinin örtüşüp örtüşmediğini kontrol edilir). Biraz farklı bir formülle yeni bir *survfit nesnesi* oluşturulup; ardından *survdiff nesnesi* oluşturulur.
 
-By supplying ` ~ gender` as the right side of the formula, we no longer plot the overall survival but instead by gender.  
+Formülün sağ tarafına ` ~ gender` yerleştirilerek, genel sağkalıma göre değil, cinsiyete göre planlama yapılır.  
 
 
 ```{r comp_surv, warning=FALSE}
@@ -380,7 +378,7 @@ By supplying ` ~ gender` as the right side of the formula, we no longer plot the
 linelistsurv_fit_sex <-  survfit(Surv(futime, event) ~ gender, data = linelist_surv)
 ```
 
-Now we can plot the survival curves by gender. Have a look at the *order* of the strata levels in the gender column before defining your colors and legend.  
+Şimdi sağkalım eğrileri cinsiyete göre çizilebilir. Renkler ve açıklamalar tanımlanmadan önce cinsiyet sütunundaki katman düzeylerinin *sıra* sına bakılır.  
 
 ```{r}
 # set colors
@@ -403,7 +401,7 @@ legend(
   bty = "n")
 ```
 
-And now we can compute the test of the difference between the survival curves using `survdiff()`
+Şimdi `survdiff()` kullanılarak sağkalım eğrileri arasındaki fark testi hesaplanabilir.
 
 ```{r}
 #compute the test of the difference between the survival curves
@@ -414,11 +412,11 @@ survival::survdiff(
 
 ```
 
-We see that the survival curve for women and the one for men overlap and the log-rank test does not give evidence of a survival difference between women and men.
+Kadınlar ve erkekler için sağkalım eğrilerinin örtüştüğü ve log-rank testinin kadınlar ve erkekler arasında bir sağkalım farkı olduğuna dair kanıt vermediği görülmektedir.
 
-Some other R packages allow illustrating survival curves for different groups and testing the difference all at once. Using the `ggsurvplot()` function from the **survminer** package, we can also include in our curve the printed risk tables for each group, as well the p-value from the log-rank test. 
+Diğer bazı R paketleri, farklı gruplar için sağkalım eğrilerinin gösterilmesine ve bir defada farkın test edilmesine izin verir. **survminer** paketindeki `ggsurvplot()` işlevi kullanılarak, eğriye her grup için yazdırılmış risk tabloları ve log-rank testinden elde edilen p değeri de eklenebilir. 
 
-<span style="color: orange;">**_CAUTION:_** **survminer** functions require that you specify the survival object *and* again specify the data used to fit the survival object. Remember to do this to avoid non-specific error messages. </span>
+<span style="color: orange;">**_DİKKAT:_** **survminer** işlevleri, sağkalım nesnesini * ve* sağkalım nesnesine sığdırmak için kullanılan verilerin yeniden belirtilmesini gerektirir. Spesifik olmayan hata mesajlarından kaçınmak için bu işlemin yapılması ihmal edilmemelidir. </span>
 
 ```{r, warning=F, message=F}
 
@@ -444,9 +442,9 @@ survminer::ggsurvplot(
 ```
 
 
-We may also want to test for differences in survival by the source of infection (source of contamination).  
+Ayrıca enfeksiyon kaynağına (kontaminasyon kaynağı) göre sağkalım farklılıkları test edilmek istenebilir.  
 
-In this case, the Log rank test gives enough evidence of a difference in the survival probabilities at `alpha= 0.005`. The survival probabilities for patients that were infected at funerals are higher than the survival probabilities for patients that got infected in other places, suggesting a survival benefit.
+Bu durumda, Log rank testi, `alfa= 0,005` değerinde sağkalım olasılıkları arasında bir fark olduğuna dair yeterli kanıt sağlar. Cenazelerde enfekte olan hastaların sağkalım olasılıkları, başka yerlerde enfekte olan hastaların sağkalım olasılıklarından daha yüksektir; bu da sağkalım avantajı olduğunu düşündürür.
 
 ```{r}
 
@@ -479,33 +477,33 @@ ggsurvplot(
 ```
 
 <!-- ======================================================= -->
-## Cox regression analysis {}
+## Cox regresyon analizi {}
 
-Cox proportional hazards regression is one of the most popular regression techniques for survival analysis. Other models  can also be used since the Cox model requires *important assumptions* that need to be verified for an appropriate use such as the proportional hazards assumption: see references. 
+Cox orantılı hazards regresyonu, sağkalım analizi için en popüler regresyon tekniklerinden biridir. Cox modeli, orantılı hazards varsayımı gibi uygun bir kullanım için doğrulanması gereken *önemli varsayımlar* gerektirdiğinden başka modeller de kullanılabilir (kaynaklara bakın). 
 
-In a Cox proportional hazards regression model, the measure of effect is the **_hazard rate_** (HR), which is the risk of failure (or the risk of death in our example), given that the participant has survived up to a specific time.  Usually, we are interested in comparing *independent* groups with respect to their hazards, and we use a hazard ratio, which is analogous to an odds ratio in the setting of multiple logistic regression analysis. The `cox.ph()` function from the **survival** package is used to fit the model. The function `cox.zph()` from **survival** package may be used to test the proportional hazards assumption for a Cox regression model fit. 
+Cox orantılı hazards regresyon modelinde, etkinin ölçüsü, katılımcının belirli bir süreye kadar yaşadığı göz önüne alındığında, başarısızlık riski (veya örneğimizde ölüm riski) olan **_hazard rate_** (HR)'dir. Genellikle, *bağımsız* grupları risklerine göre karşılaştırmakla ilgileniriz ve çoklu lojistik regresyon analizi ortamındaki bir olasılık oranına benzer bir tehlike oranı (HR) kullanırız. **survival** paketindeki `cox.ph()` işlevi modele uyması için kullanılır. **survival** paketindeki `cox.zph()` işlevi ise bir Cox regresyon modeli uyumu için orantılı hazards varsayımını test etmek için kullanılabilir. 
 
-<span style="color: black;">**_NOTE:_** A probability must lie in the range 0 to 1. However, the hazard represents the expected number of events per one unit of time. 
+<span style="color: black;">**_NOT:_** Bir olasılık 0 ile 1 aralığında olmalıdır. Ancak hazard (tehlike/risk), bir zaman birimi başına beklenen olay sayısını temsil eder. 
 
-* If the hazard ratio for a predictor is close to 1 then that predictor does not affect survival,
-* if the HR is less than 1, then the predictor is protective (i.e., associated with improved survival),
-* and if the HR is greater than 1, then the predictor is associated with increased risk (or decreased survival).</span> 
+* Bir prediktör için tehlike oranı 1'e yakınsa, o prediktör sağkalımı etkilemez,
+* HR 1'den küçükse, prediktör koruyucudur (yani, iyileştirilmiş sağkalım ile ilişkilidir),
+* ve HR 1'den büyükse, prediktör risk artışı (veya azalmış sağkalım) ile ilişkilidir.</span> 
 
-### Fitting a Cox model {.unnumbered}
+### Cox modelini uyarlama {.unnumbered}
 
-We can first fit a model to assess the effect of age and gender on the survival. By just printing the model, we have the information on:
+İlk olarak yaş ve cinsiyetin sağkalım üzerindeki etkilerini değerlendirmek için bir model uyarlanabilir. Sadece modeli yazdırarak elde edilen bilgiler:
 
-  + the estimated regression coefficients `coef` which quantifies the association between the predictors and the outcome,
-  + their exponential (for interpretability, `exp(coef)`) which produces the *hazard ratio*,
-  + their standard error `se(coef)`,
-  + the z-score: how many standard errors is the estimated coefficient away from  0,
-  + and the p-value:  the probability that the estimated coefficient could be 0.
+  + prediktörler ile sonuç arasındaki ilişkiyi ölçen tahmini regresyon katsayıları `coef`,
+   + *hazard oranı* nı üreten üstelleri (yorumlanabilirlik için `exp(coef)`),
+   + onların standart hatası `se(coef)`,
+   + z-skoru: 0'dan uzakta tahmin edilen katsayının standart hata miktarı,
+   + ve p değeri: Tahmini katsayının 0 olma olasılığı.
   
-The `summary()` function applied to the cox model object gives more information, such as the confidence interval of the estimated HR and the different test scores.
+Cox model nesnesine uygulanan `summary()` işlevi, tahmini HR'nin güven aralığı ve farklı test puanları gibi daha fazla bilgi verir.
 
-The effect of the first covariate `gender`  is presented in the first row. `genderm` (male) is printed, implying that the first strata level ("f"), i.e the female group, is the reference group for the gender. Thus the interpretation of the test parameter is that of men compared to women. The p-value indicates there was not enough evidence of an effect of the gender on the expected hazard or of an association between gender and all-cause mortality.
+İlk ortak değişken `gender` in etkisi ilk satırda sunulmaktadır. `genderm` (erkek) yazdırılır, bu da ilk katman seviyesinin ("f"), yani kadın grubunun cinsiyet için referans grubu olduğunu gösterir. Bu nedenle, test parametresinin yorumu, kadınlara kıyasla erkeklerinkiyle aynıdır. p değeri, cinsiyetin beklenen tehlike üzerindeki etkisine veya cinsiyet ile tüm nedenlere bağlı ölüm arasındaki ilişkiye dair yeterli kanıt olmadığını gösterir.
 
-The same lack of evidence is noted regarding age-group.
+Aynı kanıt eksikliği, yaş grubuyla ilgili olarak da belirtilmiştir.
 
 ```{r coxmodel_agesex}
 
@@ -526,7 +524,7 @@ summary(linelistsurv_cox_sexage)
 ```
 
 
-It was interesting to run the model and look at the results but a first look to verify whether the proportional hazards assumptions is respected could help saving time.
+Modeli çalıştırmak ve sonuçlara bakmak ilginç olsa da, orantılı hazards varsayımlarına uyulup uyulmadığını doğrulamak için göz atmak zamandan tasarruf etmenize yardımcı olabilir..
 
 ```{r test_assumption}
 
@@ -536,11 +534,11 @@ test_ph_sexage
 ```
 
 
-<span style="color: black;">**_NOTE:_** A second argument called *method* can be specified when computing the cox model, that determines how ties are handled. The *default* is "efron", and the other options are "breslow" and "exact".</span>
+<span style="color: black;">**_NOT:_** Cox modeli hesaplanırken, bağların nasıl ele alınacağını belirleyen *yöntem* adlı ikinci bir argüman belirtilebilir. *varsayılan* "efron" dur ve diğer seçenekler "breslow" ve "exact" dır.</span>
 
-In another model we add more risk factors such as the source of infection and the number of days between date of onset and admission. This time, we first  verify the proportional hazards assumption before going forward.
+Başka bir modelde, enfeksiyonun kaynağı ve başlangıç tarihi ile kabul arasındaki gün sayısı gibi daha fazla risk faktörü eklenir. Bu sefer, ilerlemeden önce orantılı hazards varsayımını doğrularız.
 
-In this model, we have included a continuous predictor (`days_onset_hosp`). In this case we interpret the parameter estimates as the increase in the expected log of the relative hazard for each one unit increase in the predictor, holding other predictors constant. We first verify the proportional hazards assumption.  
+Bu modele sürekli bir prediktör (`days_onset_hosp`) eklendi. Bu durumda, parametre tahminlerini, diğer prediktörleri sabit tutarak, prediktördeki her bir birimlik artış için nispi tehlikenin beklenen logundaki artış olarak yorumlanır. İlk önce orantılı hazards varsayımı doğrulanır.  
 
 ```{r coxmodel_fit_ph,  message=FALSE}
 
@@ -556,7 +554,7 @@ linelistsurv_ph_test <- cox.zph(linelistsurv_cox)
 linelistsurv_ph_test
 ```
 
-The graphical verification of this assumption may be performed with the function `ggcoxzph()` from the **survminer** package. 
+Bu varsayımın grafiksel doğrulaması, **survminer** paketindeki `ggcoxzph()` fonksiyonu ile gerçekleştirilebilir.
 
 ```{r}
 survminer::ggcoxzph(linelistsurv_ph_test)
@@ -564,9 +562,9 @@ survminer::ggcoxzph(linelistsurv_ph_test)
 ```
 
 
-The model results indicate there is a negative association between onset to admission duration and all-cause mortality. The expected hazard is 0.9 times lower in a person who who is one day later admitted than another, holding gender constant. Or in a more straightforward explanation, a one unit increase in the duration of onset to admission is associated with a 10.7% (`coef *100`) decrease in the risk of death.
+Model sonuçları, başlangıçtan hastaneye başvurana kadar olan süre ile tüm nedenlere bağlı mortalite arasında negatif bir ilişki olduğunu göstermektedir. Cinsiyet sabit tutulduğunda, bir gün sonra hastaneye başvuran bir kişide beklenen risk, diğerinden 0,9 kat daha düşüktür. Ya da daha açık bir anlatımla, hastaneye başvuruya başlama süresindeki bir birimlik artış, ölüm riskinde %10,7'lik (`coef *100`) bir azalma ile ilişkilidir.
 
-Results show also a positive association between the source of infection and the all-cause mortality. Which is to say there is an increased risk of death (1.21x) for patients that got a source of infection other than funerals.
+Ayrıca sonuçlar enfeksiyon kaynağı ile tüm nedenlere bağlı ölümler arasında pozitif bir ilişki olduğunu göstermektedir. Yani cenaze dışında bir enfeksiyon kaynağı olan hastalarda ölüm riski (1.21x) artmaktadır.
 
 
 ```{r coxmodel_summary,  message=FALSE}
@@ -577,7 +575,7 @@ summary(linelistsurv_cox)
 ```
 
 
-We can verify this relationship with a table:  
+Bu ilişki bir tablo ile doğrulanabilir:  
 
 
 ```{r}
@@ -589,14 +587,14 @@ linelist_case_data %>%
 ```
 
 
-We would need to consider and investigate why this association exists in the data. One possible explanation could be that patients who live long enough to be admitted later had less severe disease to begin with. Another perhaps more likely explanation is that since we used a simulated fake dataset, this pattern does not reflect reality!  
+Bu ilişkinin verilerde neden var olduğunun düşünülmesi ve araştırılması gerekir. Olası bir açıklama, daha sonra kabul edilecek kadar uzun yaşayan hastaların başlangıçta daha az şiddetli hastalığa sahip olmaları olabilir. Belki de daha olası bir başka açıklama, simüle edilmiş sahte bir veri seti kullanıldığı için bu modelin gerçeği yansıtmamasıdır!  
 
 
 <!-- ======================================================= -->
 
-### Forest plots {.unnumbered}
+### Forest grafikleri {.unnumbered}
 
-We can then visualize the results of the cox model using the practical forest plots with the `ggforest()` function of the **survminer package**.
+Daha sonra, **survminer paketi** nin `ggforest()` işleviyle pratik forest grafikleri kullanılarak cox modelinin sonuçları görselleştirilebilir..
 
 ```{r forestp}
 
@@ -605,56 +603,56 @@ ggforest(linelistsurv_cox, data = linelist_surv)
 ```
 
 <!-- ======================================================= -->
-## Time-dependent covariates in survival models {}
+## Sağkalım modellerinde zamana bağlı değişkenler {}
 
-Some of the following sections have been adapted with permission from an excellent [introduction to survival analysis in R](https://www.emilyzabor.com/tutorials/survival_analysis_in_r_tutorial.html) by [Dr. Emily Zabor](https://www.emilyzabor.com/) 
+Aşağıdaki bölümlerden bazıları, faydalı bir kaynaktan izin alınarak uyarlanmıştır [introduction to survival analysis in R](https://www.emilyzabor.com/tutorials/survival_analysis_in_r_tutorial.html) by [Dr. Emily Zabor](https://www.emilyzabor.com/) 
 
-In the last section we covered using Cox regression to examine associations between covariates of interest and survival outcomes.But these analyses rely on the covariate being measured at baseline, that is, before follow-up time for the event begins.
+Son bölümde, ilgilenilen ortak değişkenler ve sağkalım sonuçları arasındaki ilişkileri incelemek için Cox regresyonunu kullanma ele alındı. Ancak bu analizler, başlangıçta, yani olayın takip süresi başlamadan önce ölçülen ortak değişkene dayanır.
 
-What happens if you are interested in a covariate that is measured **after** follow-up time begins? Or, what if you have a covariate that can change over time?
+Takip süresi başladıktan **sonra** ölçülen bir ortak değişkenle ilgileniyorsanız ne olur? Ya da zamanla değişebilen bir ortak değişkeniniz varsa?
 
-For example, maybe you are working with clinical data where you repeated measures of hospital laboratory values that can change over time. This is an example of a **Time Dependent Covariate**. In order to address this you need a special setup, but fortunately the cox model is very flexible and this type of data can also be modeled with tools from the **survival** package. 
+Örneğin, zaman içinde değişebilen hastane laboratuvar değerleri ölçümlerini tekrarladığınız klinik verilerle çalışıyor olabilirsiniz. Bu, bir **Zaman Bağımlı Ortak Değişken** örneğidir. Bunu ele almak için özel bir kuruluma ihtiyacınız var, ancak neyse ki cox modeli çok esnektir ve bu tür veriler **sağkalım** paketindeki araçlarla da modellenebilir. 
 
-### Time-dependent covariate setup {.unnumbered} 
+### Zaman bağımlı ortak değişken kurulumu {.unnumbered} 
 
-Analysis of time-dependent covariates in R requires setup of a special dataset. If interested, see the more detailed paper on this by the author of the **survival** package [Using Time Dependent Covariates and Time Dependent Coefficients in the Cox Model](https://cran.r-project.org/web/packages/survival/vignettes/timedep.pdf).
+R'daki zaman bağımlı ortak değişkenlerin analizi, özel bir veri setinin kurulmasını gerektirir. İlgileniyorsanız, **sağkalım** paketi yazarının bu konu hakkındaki daha ayrıntılı makalesine bakılabilir [Cox Modelinde Zamana Bağlı Ortak Değişkenleri ve Zamana Bağlı Katsayıları Kullanma](https://cran.r-project.org/web/packages/survival/vignettes/timedep.pdf).
 
-For this, we'll use a new dataset from the `SemiCompRisks` package named `BMT`, which includes data on 137 bone marrow transplant patients. The variables we'll focus on are:  
+Bunun için, 137 kemik iliği nakli hastasının verilerini içeren `BMT` adlı `SemiCompRisks` paketinden yeni bir veri seti kullanılabilir. Odaklanılacak değişkenler şunlardır:  
 
-* `T1`  - time (in days) to death or last follow-up  
-* `delta1` - death indicator; 1-Dead, 0-Alive  
-* `TA` -  time (in days) to acute graft-versus-host disease  
-* `deltaA` -  acute graft-versus-host disease indicator;  
-  * 1 - Developed acute graft-versus-host disease  
-  * 0 - Never developed acute graft-versus-host disease
+* `T1` - ölüme veya son takibe kadar geçen süre (gün olarak)
+* `delta1` - ölüm göstergesi; 1-Ölü, 0-Canlı
+* `TA` - akut graft-versus-host hastalığına kadar geçen süre (gün olarak)
+* `deltaA` - akut graft-versus-host hastalığı göstergesi;
+   * 1 - Gelişmiş akut graft-versus-host hastalığı
+   * 0 - Hiçbir zaman akut graft-versus-host hastalığı geliştirmedi.
 
-We'll load this dataset from the **survival** package using the **base** R command `data()`, which can be used for loading data that is already included in a R package that is loaded. The data frame `BMT` will appear in your R environment.  
+Bu veri seti **sağkalım** paketinden **temel** R komutu `data()` kullanarak yüklenir; bu, zaten yüklü olan bir R paketine dahil olan verileri yüklemek için kullanılabilir. `BMT` veri çerçevesi R ortamında görünecektir.  
 
 ```{r}
 data(BMT, package = "SemiCompRisks")
 ```
 
-#### Add unique patient identifier {.unnumbered}  
+#### Özgün hasta tanımlayıcısı ekleme {.unnumbered}  
 
-There is no unique ID column in the `BMT` data, which is needed to create the type of dataset we want. So we use the function `rowid_to_column()` from the **tidyverse** package **tibble** to create a new id column called `my_id` (adds column at start of data frame with sequential row ids, starting at 1). We name the data frame `bmt`.  
+`BMT` verilerinde, istenilen veri seti çeşidini oluşturmak için gerekli olan özgün bir ID sütunu yoktur. Bu nedenle, **tidyverse** paketinden **tibble** `rowid_to_column()` işlevini `my_id` adlı yeni bir ID sütunu oluşturmak için kullanılır (1'den başlayarak sıralı satır kimlikleriyle veri çerçevesinin başına sütun ekler) . Veri çerçevesi `bmt` olarak adlandırılır.  
 
 ```{r}
 bmt <- rowid_to_column(BMT, "my_id")
 ```
 
-The dataset now looks like this:  
+Veri seti şimdi şöyle görünür:  
 
 ```{r message=FALSE, echo=F}
 DT::datatable(bmt, rownames = FALSE, options = list(pageLength = 5, scrollX=T), class = 'white-space: nowrap' )
 ```
 
-#### Expand patient rows {.unnumbered}  
+#### Hasta dizilerini genişletme {.unnumbered}  
 
-Next, we'll use the `tmerge()` function with the `event()` and `tdc()` helper functions to create the restructured dataset. Our goal is to restructure the dataset to create a separate row for each patient for each time interval where they have a different value for `deltaA`. In this case, each patient can have at most two rows depending on whether they developed acute graft-versus-host disease during the data collection period. We'll call our new indicator for the development of acute graft-versus-host disease `agvhd`.
+Daha sonra, yeniden yapılandırılmış veri setini oluşturmak için `event()` ve `tdc()` yardımcı işlevleriyle `tmerge()` işlevi kullanılır. Amaç; her hasta için, farklı bir `deltaA` değerine sahip oldukları her zaman aralığı için ayrı bir satır oluşturmak üzere veri setini yeniden yapılandırmaktır. Bu durumda, veri toplama döneminde akut graft-versus-host hastalığı geliştirip geliştirmediğine bağlı olarak her hasta en fazla iki sıraya sahip olabilir. Akut graft-versus-host hastalığı gelişimi için yeni göstergeye `agvhd` adı verilir.
 
-- `tmerge()` creates a long dataset with multiple time intervals for the different covariate values for each patient
-- `event()` creates the new event indicator to go with the newly-created time intervals
-- `tdc()` creates the time-dependent covariate column, `agvhd`, to go with the newly created time intervals
+- `tmerge()`, her hasta için tanımlanan farklı ortak değişken değerler için birden fazla zaman aralığı içeren uzun bir veri seti oluşturur
+- `event()`, yeni oluşturulan zaman aralıklarıyla uyumlu olacak yeni olay göstergesini yaratır
+- `tdc()` , yeni oluşturulan zaman aralıklarına uygun olarak zamana bağlı ortak değişken sütunu `agvhd` yi oluşturur
 
 ```{r}
 td_dat <- 
@@ -667,9 +665,7 @@ td_dat <-
     )
 ```
 
-To see what this does, let's look at the data for the first 5 individual patients.
-
-The variables of interest in the original data looked like this:
+Bunun ne işe yaradığını görmek için ilk 5 özgün hastaya ait verilere bakıldığında orijinal verilerdeki ilgili değişkenler bu şekilde görünür:
 
 ```{r}
 bmt %>% 
@@ -677,18 +673,18 @@ bmt %>%
   filter(my_id %in% seq(1, 5))
 ```
 
-The new dataset for these same patients looks like this:
+Aynı hastalar için yeni veri seti şuna benzer:
 
 ```{r}
 td_dat %>% 
   filter(my_id %in% seq(1, 5))
 ```
 
-Now some of our patients have two rows in the dataset corresponding to intervals where they have a different value of our new variable, `agvhd`. For example, Patient 1 now has two rows with a `agvhd` value of zero from time 0 to time 67, and a value of 1 from time 67 to time 2081. 
+Şimdi bazı hastalarımızın veri setinde yeni değişkenimiz `agvhd` için farklı bir değere sahip oldukları aralıklara karşılık gelen iki satırı var. Örneğin, Hasta 1 artık 0 zamanından 67. zamana kadar sıfır `agvhd` değerine ve 67'den 2081'e kadar 1 değerine sahip iki satıra sahiptir. 
 
-### Cox regression with time-dependent covariates {.unnumbered} 
+### Zamana bağlı ortak değişkenlerle cox regresyonu {.unnumbered} 
 
-Now that we've reshaped our data and added the new time-dependent `aghvd` variable, let's fit a simple single variable cox regression model. We can use the same `coxph()` function as before, we just need to change our `Surv()` function to specify both the start and stop time for each interval using the `time1 = ` and `time2 = ` arguments. 
+Veriler yeniden şekillendirildiğine ve yeni zamana bağlı `aghvd` değişkeni eklediğine göre, şimdi basit tek değişkenli bir cox regresyon modeli uygulanabilir. Daha önce olduğu gibi aynı `coxph()` işlevi kullanılabilir; `time1 = ` ve `time2 = ` bağımsız değişkenlerini kullanarak her bir aralık için hem başlangıç hem de bitiş zamanını belirtmek için `Surv()` işlevini değiştirmek yeterlidir. 
 
 
 ```{r}
@@ -700,7 +696,7 @@ bmt_td_model = coxph(
 summary(bmt_td_model)
 ```
 
-Again, we'll visualize our cox model results using the `ggforest()` function from the **survminer package**.:
+Yine, **survminer paketi** 'nden `ggforest()` işlevi kullanılarak cox model sonuçları görselleştirilebilir.:
 
 ```{r}
 
@@ -708,23 +704,23 @@ ggforest(bmt_td_model, data = td_dat)
 
 ```
 
-As you can see from the forest plot, confidence interval, and p-value, there does not appear to be a strong association between death and acute graft-versus-host disease in the context of our simple model. 
+Forest grafiğinden, güven aralığından ve p-değerinden görülebildiği üzere, basit modelimiz bağlamında ölüm ile akut graft-versus-host hastalığı arasında güçlü bir ilişki yok gibi görünmektedir. 
 
 <!-- ======================================================= -->
-## Resources {  }
+## Kaynaklar {  }
 
-[Survival Analysis Part I: Basic concepts and first analyses](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2394262/)
+[Sağkalım Analizi Bölüm I: Temel kavramlar ve ilk analizler](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2394262/)
 
-[Survival Analysis in R](https://www.emilyzabor.com/tutorials/survival_analysis_in_r_tutorial.html)
+[R'da Sağkalım Analizi](https://www.emilyzabor.com/tutorials/survival_analysis_in_r_tutorial.html)
 
-[Survival analysis in infectious disease research: Describing events in time](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2954271/)
+[Bulaşıcı hastalık araştırmalarında sağkalım analizi: Olayları zaman içinde tanımlama](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2954271/)
 
-[Chapter on advanced survival models Princeton](https://data.princeton.edu/wws509/notes/c7.pdf)
+[Gelişmiş sağkalım modelleri Princeton ile ilgili bölüm](https://data.princeton.edu/wws509/notes/c7.pdf)
 
-[Using Time Dependent Covariates and Time Dependent Coefficients in the Cox Model](https://cran.r-project.org/web/packages/survival/vignettes/timedep.pdf)
+[Cox Modelinde Zamana Bağlı Ortak Değişkenleri ve Zamana Bağlı Katsayıları Kullanma](https://cran.r-project.org/web/packages/survival/vignettes/timedep.pdf)
 
-[Survival analysis cheatsheet R](https://publicifsv.sund.ku.dk/~ts/survival/survival-cheat.pdf)
+[R kopya kağıdında sağkalım analizi](https://publicifsv.sund.ku.dk/~ts/survival/survival-cheat.pdf)
 
-[Survminer cheatsheet](https://paulvanderlaken.files.wordpress.com/2017/08/survminer_cheatsheet.pdf)
+[Survminer kopya kağıdı](https://paulvanderlaken.files.wordpress.com/2017/08/survminer_cheatsheet.pdf)
 
-[Paper on different survival measures for cancer registry data with Rcode provided as supplementary materials](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6322561/)
+[Ek materyal olarak sağlanan R Kodu ile kanser kayıt verileri için farklı sağkalım ölçüleri hakkında bir sayfa](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6322561/)

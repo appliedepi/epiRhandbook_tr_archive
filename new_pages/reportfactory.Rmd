@@ -1,121 +1,120 @@
 
-# Organizing routine reports {  }  
+# Rutin raporların düzenlenmesi { }
 
-This page covers the **reportfactory** package, which is an *accompaniment to using R Markdown for reports*. 
+Bu sayfa, raporlar için R Markdown kullanımına eşlik eden **reportfactory** paketini kapsamaktadır.
 
-In scenarios where you run reports routinely (daily, weekly, etc.), it eases the compilation of multiple R Markdown files and the organization of their outputs. In essence, it provides a "factory" from which you can run the R Markdown reports, get automatically date- and time-stamped folders for the outputs, and have "light" version control.  
+Raporları rutin olarak çalıştırdığınız senaryolarda (günlük, haftalık vb.), birden çok R Markdown dosyasının derlenmesini ve çıktılarının organizasyonunu kolaylaştırır. Özünde, R Markdown raporlarını çalıştırabileceğiniz, çıktılar için otomatik olarak tarih ve zaman damgalı klasörler alabileceğiniz ve "hafif" sürüm kontrolüne sahip olabileceğiniz bir "fabrika" sağlar.
 
-**reportfactory** is one of the packages developed by RECON (R Epidemics Consortium). Here is their [website](https://www.repidemicsconsortium.org/) and [Github](https://github.com/reconverse).  
+**reportfactory**, RECON (R Epidemics Consortium) tarafından geliştirilen paketlerden biridir. İşte onların [web sitesi](https://www.repidemicsconsortium.org/) ve [Github](https://github.com/reconverse).
 
 
-## Preparation
+## Hazırlık
 
-### Load packages {.unnumbered}  
+### Paketleri yüklemek {.unnumbered}
 
-From within RStudio, install the latest version of the **reportfactory** package from Github.  
+RStudio içinden, Github'dan **reportfactory** paketinin en son sürümünü yükleyin.
 
-You can do this via the **pacman** package with `p_load_current_gh()` which will force intall of the latest version from Github. Provide the character string "reconverse/reportfactory", which specifies the Github organization (reconverse) and repository (reportfactory). You can also use `install_github()` from the **remotes** package, as an alternative.
+Bunu, Github'dan en son sürümün yüklenmesini zorlayacak olan `p_load_current_gh()` ile **pacman** paketi aracılığıyla yapabilirsiniz. Github organizasyonunu (reconverse) ve veri havuzunu (rapor fabrikası) belirten "reconverse/reportfactory" karakter dizisini sağlayın. Alternatif olarak **remotes** paketinden `install_github()` da kullanabilirsiniz.
 
 ```{r, eval=FALSE}
-# Install and load the latest version of the package from Github
+# Paketin en son sürümünü Github'dan yükleyin ve kurun
 pacman::p_load_current_gh("reconverse/reportfactory")
-#remotes::install_github("reconverse/reportfactory") # alternative
+# remotes::install_github("reconverse/reportfactory") # alternatif yöntem
 ```
 
 
-## New factory  
+## Yeni fabrika
 
-To create a new factory, run the function `new_factory()`. This will create a new self-contained R project folder. By default:  
+Yeni bir fabrika oluşturmak için `new_factory()` fonksiyonunu çalıştırın. Bu, yeni bir bağımsız R proje klasörü oluşturacaktır. Varsayılan olarak:
 
-* The factory will be added to your working directory
-* The name of the factory R project will be called "new_factory.Rproj"  
-* Your RStudio session will "move in" to this R project  
+* Fabrika çalışma dizininize eklenecektir.
+* Fabrika R projesinin adı "new_factory.Rproj" olarak adlandırılacaktır.
+* RStudio oturumunuz bu R projesine "taşınacak"tır
 
 ```{r, eval=F}
-# This will create the factory in the working directory
+# Bu, fabrikayı çalışma dizininde yaratacaktır.
 new_factory()
 ```
 
-Looking inside the factory, you can see that sub-folders and some files were created automatically.  
-
+Fabrikanın içine baktığınızda, alt klasörlerin ve bazı dosyaların otomatik olarak oluşturulduğunu görebilirsiniz.
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "factory_new2.png"))
 ```
 
-* The *report_sources* folder will hold your R Markdown scripts, which generate your reports  
-* The *outputs* folder will hold the report outputs (e.g. HTML, Word, PDF, etc.)  
-* The *scripts* folder can be used to store other R scripts (e.g. that are sourced by your Rmd scripts)  
-* The *data* folder can be used to hold your data ("raw" and "clean" subfolders are included)  
-* A *.here* file, so you can use the **here** package to call files in sub-folders by their relation to this root folder (see [R projects] page for details)  
-* A *gitignore* file was created in case you link this R project to a Github repository (see [Version control and collaboration with Github])  
-* An empty README file, for if you use a Github repository  
+* *report_sources* klasörü, raporlarınızı oluşturan R Markdown komut dosyalarınızı tutacaktır.
+* *outputs* klasörü, rapor çıktılarını tutmak için(ör. HTML, Word, PDF, vb.)
+* *scripts* klasörü, diğer R komut dosyalarını depolamak için kullanılabilir (örneğin, Rmd komut dosyalarınız tarafından sağlananlar)
+* *data* klasörü verilerinizi tutmak için kullanılabilir ("ham" ve "temiz" alt klasörler dahildir)
+* Bir *.here* dosyası, böylece alt klasörlerdeki dosyaları bu kök klasörle ilişkilerine göre çağırmak için **here** paketini kullanabilirsiniz (ayrıntılar için [R projeleri] sayfasına bakabilirsiniz)
+* Bu R projesini bir Github deposuna bağlamanız durumunda bir *gitignore* dosyası oluşturulur (bkz. [Sürüm kontrolü ve Github ile işbirliği])
+* Github deposu kullanıyorsanız, boş bir BENİOKU dosyası oluşur.
 
 
-<span style="color: orange;">**_CAUTION:_** depending on your computer's setting, files such as ".here" may exist but be invisible.</span>  
+<span style="color: orange;">**_UYARI:_** bilgisayarınızın ayarına bağlı olarak, ".here" gibi dosyalar var olabilir ancak görünmez olabilir.</span>
 
-Of the default settings, below are several that you might want to adjust within the `new_factory()` command:  
+Varsayılan ayarlardan, 'new_factory()' komutuyla ayarlamak isteyebileceğiniz birkaç tanesi aşağıdadır:
 
-* `factory = ` - Provide a name for the factory folder (default is "new_factory")  
-* `path = ` - Designate a file path for the new factory (default is the working directory)  
-* `report_sources = ` Provide an alternate name for the subfolder which holds the R Markdown scripts (default is "report_sources")  
-* `outputs = ` Provide an alternate name for the folder which holds the report outputs (default is "outputs")  
+* `factory = ` - Fabrika klasörü için bir ad girin (varsayılan "new_factory")
+* `path = ` - Yeni fabrika için bir dosya yolu belirleyin (varsayılan çalışma dizinidir)
+* `report_sources = ` R Markdown komut dosyalarını içeren alt klasör için alternatif bir ad sağlayın (varsayılan "report_sources")
+* `outputs = ` Rapor çıktılarını tutan klasör için alternatif bir ad sağlayın (varsayılan "outputs")
 
-See `?new_factory` for a complete list of the arguments.  
+Değişkenlerin tam listesi için "?new_factory" konusuna bakabilirsiniz.
 
 
-When you create the new factory, your R session is transferred to the new R project, so you should again load the **reportfactory** package.  
+Yeni fabrika oluşturduğunuzda, R oturumunuz yeni R projesine aktarılır, bu nedenle **reportfactory** paketini tekrar yüklemelisiniz.
 
 ```{r, eval=FALSE}
 pacman::p_load(reportfactory)
 ```
 
-Now you can run a the `factory_overview()` command to see the internal structure (all folders and files) in the factory.  
+Artık fabrikadaki iç yapıyı (tüm klasörler ve dosyalar) görmek için `factory_overview()` komutunu çalıştırabilirsiniz.
 
 ```{r, eval=F}
-factory_overview()            # print overview of the factory to console
+factory_overview()            # fabrikaya genel bakışı konsola yazdır
 ```
 
-The following "tree" of the factory's folders and files is printed to the R console. Note that in the "data" folder there are sub-folders for "raw" and "clean" data, and example CSV data. There is also "example_report.Rmd" in the "report_sources" folder.    
+Fabrika klasörlerinin ve dosyalarının aşağıdaki "ağacı" R konsoluna yazdırılır. "Veri" klasöründe "ham" ve "temiz" veriler ve örnek CSV verileri için alt klasörler bulunduğunu unutmayın. Ayrıca "report_sources" klasöründe "example_report.Rmd" vardır.
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "factory_overview.png"))
 ```
 
 
-## Create a report  
+## Bir rapor oluşturun
 
-From within the factory R project, create a R Markdown report just as you would normally, and save it into the "report_sources" folder. See the [R Markdown][Reports with R Markdown] page for instructions. For purposes of example, we have added the following to the factory:  
+Fabrika R projesinin içinden, normalde yaptığınız gibi bir R Markdown raporu oluşturun ve bunu "report_sources" klasörüne kaydedin. Talimatlar için [R Markdown][R Markdown ile Raporlar] sayfasına bakabilirsiniz. Örnek olması açısından, fabrikaya aşağıdakileri ekledik:
 
-* A new R markdown script entitled "daily_sitrep.Rmd", saved within the "report_sources" folder  
-* Data for the report ("linelist_cleaned.rds"), saved to the "clean" sub-folder within the "data" folder  
+* "report_sources" klasörüne kaydedilen "daily_sitrep.Rmd" başlıklı yeni bir R işaretleme komut dosyası
+* Rapor ("linelist_cleaned.rds") verileri, "data" klasörü içindeki "clean" alt klasörüne kaydedilir
 
-We can see using `factory_overview()` our R Markdown in the "report_sources" folder and the data file in the "clean" data folder (highlighted):
+`factory_overview()` kullanarak "report_sources" klasöründeki R Markdown'ımızı ve "clean" veri klasöründeki (vurgulanan) veri dosyasını görebiliriz:
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "factory_overview2.png"))
 ```
 
-Below is a screenshot of the beginning of the R Markdown "daily_sitrep.Rmd". You can see that the output format is set to be HTML, via the YAML header `output: html_document`. 
+Aşağıda, R Markdown "daily_sitrep.Rmd" başlangıcının bir ekran görüntüsü bulunmaktadır. YAML başlığı "output: html_document" aracılığıyla çıktı biçiminin HTML olarak ayarlandığını görebilirsiniz. 
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "factory_new_rmd.png"))
 ```
 
-In this simple script, there are commands to:  
+Bu basit komut dosyasında şu komutlar vardır:
 
-* Load necessary packages  
-* Import the linelist data using a filepath from the **here** package (read more in the page on [Import and export])  
+* Gerekli paketleri yükleyin
+* **here** paketindeki bir dosya yolunu kullanarak satır listesi verilerini içe aktarın (daha fazlasını [İçe aktarma ve dışa aktarma] sayfasından okuyun)
 
 ```{r, eval=F}
 linelist <- import(here("data", "clean", "linelist_cleaned.rds"))
 ```
 
-* Print a summary table of cases, and export it with `export()` as a .csv file  
-* Print an epicurve, and export it with `ggsave()` as a .png file  
+* Vakaların bir özet tablosunu yazdırın ve bunu bir .csv dosyası olarak `export()` ile dışa aktarın
+* Bir salgın eğrisi yazdırın ve `ggsave()` ile .png dosyası olarak dışa aktarın
 
 
-You can review just the list of R Markdown reports in the "report_sources" folder with this command:  
+Bu komutla "report_sources" klasöründeki yalnızca R Markdown raporlarının listesini inceleyebilirsiniz:
 
 ```{r, eval=F}
 list_reports()
@@ -123,54 +122,54 @@ list_reports()
 
 
 
-## Compile  
+## Derlemek (Compile)
 
-In a report factory, to "compile" a R Markdown report means that the .Rmd script will be run and the output will be produced (as specified in the script YAML e.g. as HTML, Word, PDF, etc).  
+Bir rapor fabrikasında, bir R Markdown raporunu "derlemek", .Rmd komut dosyasının çalıştırılacağı ve çıktının üretileceği anlamına gelir (YAML komut dosyasında belirtildiği gibi, örneğin HTML, Word, PDF, vb. olarak).
 
-*The factory will automatically create a date- and time-stamped folder for the outputs in the "outputs" folder.*  
+*Fabrika, "outputs" klasöründeki çıktılar için otomatik olarak tarih ve zaman damgalı bir klasör oluşturacaktır.*
 
-The report itself and any exported files produced by the script (e.g. csv, png, xlsx) will be saved into this folder. In addition, the Rmd script itself will be saved in this folder, so you have a record of that version of the script.  
+Raporun kendisi ve komut dosyası tarafından üretilen tüm dışa aktarılan dosyalar (örn. csv, png, xlsx) bu klasöre kaydedilecektir. Ek olarak, Rmd betiğinin kendisi bu klasöre kaydedilecektir, böylece betiğin o sürümünün bir kaydı olur.
 
-This contrasts with the normal behavior of a "knitted" R Markdown, which saves outputs to the location of the Rmd script. This default behavior can result in crowded, messy folders. The factory aims to improve organization when one needs to run reports frequently.  
+Bu, çıktıları Rmd komut dosyasının konumuna kaydeden "örülmüş" bir R Markdown'ın normal davranışıyla çelişir. Bu varsayılan davranış, kalabalık, dağınık klasörlere neden olabilir. Fabrika, sık sık rapor çalıştırması gerektiğinde organizasyonu iyileştirmeyi amaçlar.
 
-### Compile by name {.unnumbered}  
+###  Adına göre derleyin {.unnumbered}
 
-You can compile a specific report by running `compile_reports()` and providing the Rmd script name (without .Rmd extension) to `reports = `. For simplicity, you can skip the `reports = ` and just write the R Markdown name in quotes, as below.  
+Belirli bir raporu 'compile_reports()' çalıştırarak ve Rmd komut dosyası adını (.Rmd uzantısı olmadan) 'reports = ' olarak sağlayarak derleyebilirsiniz. Basit olması için, `reports =` kısmını atlayabilir ve R Markdown adını aşağıdaki gibi tırnak işaretleri içinde yazabilirsiniz. 
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "factory_compile1.png"))
 ```
 
 
-This command would compile only the "daily_sitrep.Rmd" report, saving the HTML report, and the .csv table and .png epicurve exports into a date- and time-stamped sub-folder specific to the report, within the "outputs" folder.  
+Bu komut, yalnızca "daily_sitrep.Rmd" raporunu derleyerek, HTML raporunu ve .csv tablosunu ve .png epicurve dışa aktarmalarını, "outputs" klasörü içinde, rapora özel tarih ve zaman damgalı bir alt klasöre kaydeder.
 
-Note that if you choose to provide the .Rmd extension, you must correctly type the extension as it is saved in the file name (.rmd vs. .Rmd).  
+.Rmd uzantısını sağlamayı seçerseniz, uzantıyı dosya adına kaydedilirken doğru şekilde yazmanız gerektiğini unutmayın (.rmd ve .Rmd).
 
-Also note that when you compile, you may see several files temporarily appear in the "report_sources" folder - but they will soon disappear as they are transferred to the correct "outputs" folder. 
+Ayrıca, derlerken, "report_sources" klasöründe geçici olarak birkaç dosyanın görünebileceğini unutmayın - ancak doğru "outputs" klasörüne aktarıldıkları için kısa sürede kaybolacaklardır.
 
-### Compile by number {.unnumbered}
+###  Numarasına göre derleyin {.unnumbered}
 
-You can also specify the Rmd script to compile by providing a number or vector of numbers to `reports = `. The numbers must align with the order the reports appear when you run `list_reports()`.  
+Ayrıca, `reports =` için bir sayı veya sayı vektörü sağlayarak derlenecek Rmd betiğini de belirtebilirsiniz. Rakamlar, `list_reports()` çalıştırdığınızda raporların göründüğü sıraya göre hizalanmalıdır.
 
 ```{r, eval=F}
-# Compile the second and fourth Rmds in the "report_sources" folder
+# İkinci ve dördüncü Rmds'yi "report_sources" klasöründe derleyin
 compile_reports(reports = c(2, 4))
 ```
 
 
 
-### Compile all {.unnumbered}
+### Tümünü Derleyin {.unnumbered}
 
-You can compile *all* the R Markdown reports in the "report_sources" folder by setting the `reports = ` argument to TRUE.  
+"report_sources" klasöründeki *tüm* R Markdown raporlarını, `reports = ` değişkenini TRUE olarak ayarlayarak derleyebilirsiniz.  
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "factory_compile_all.png"))
 ```
 
 
-### Compile from sub-folder {.unnumbered}  
+###  Alt klasöründen derleyin {.unnumbered} 
 
-You can add sub-folders to the "report_sources" folder. To run an R Markdown report from a subfolder, simply provide the name of the folder to `subfolder = `. Below is an example of code to compile a Rmd report that lives in a sub_folder of "report_sources".  
+"report_sources" klasörüne alt klasörler ekleyebilirsiniz. Bir alt klasörden R Markdown raporu çalıştırmak için, klasörün adını `subfolder = ` olarak sağlamanız yeterlidir. Aşağıda, "report_sources" alt_klasöründe yaşayan bir Rmd raporunu derlemek için bir kod örneği verilmiştir.
 
 ```{r, eval=F}
 compile_reports(
@@ -178,16 +177,16 @@ compile_reports(
      subfolder = "for_partners")
 ```
 
-You can compile all Rmd reports within a subfolder by providing the subfolder name to `reports = `, with a slash on the end, as below.  
+Aşağıdaki gibi sonunda bir eğik çizgi ile `reports = ` alt klasör adını sağlayarak bir alt klasör içindeki tüm Rmd raporlarını derleyebilirsiniz.
 
 ```{r, eval=F}
 compile_reports(reports = "for_partners/")
 ```
 
 
-### Parameterization {.unnumbered}
+### Parametrelendirme {.unnumbered}
 
-As noted in the page on [Reports with R Markdown], you can run reports with specified parameters. You can pass these parameters as a list to `compile_reports()` via the `params = ` argument. For example, in this fictional report there are three parameters provided to the R Markdown reports.  
+[R Markdown ile Raporlar] sayfasında belirtildiği gibi, belirtilen parametrelerle raporlar çalıştırabilirsiniz. Bu parametreleri, 'params = ' değişkeni aracılığıyla 'compile_reports()' öğesine bir liste olarak iletebilirsiniz. Örneğin, bu kurgusal raporda, R Markdown raporlarına sağlanan üç parametre vardır.
 
 ```{r, eval=F}
 compile_reports(
@@ -200,73 +199,69 @@ compile_reports(
 ```
 
 
-### Using a "run-file" {.unnumbered}  
+### "Çalışma dosyası" kullanma {.unnumbered}
 
-If you have multiple reports to run, consider creating a R script that contains all the `compile_reports()` commands. A user can simply run all the commands in this R script and all the reports will compile. You can save this "run-file" to the "scripts" folder.  
+Çalıştırılacak birden fazla raporunuz varsa, tüm 'compile_reports()' komutlarını içeren bir R betiği oluşturmayı düşünün. Bir kullanıcı bu R betiğindeki tüm komutları basitçe çalıştırabilir ve tüm raporlar derlenecektir. Bu "run-file" dosyasını "scripts" klasörüne kaydedebilirsiniz.
 
 
 
-## Outputs  
+## Çıktılar
 
-After we have compiled the reports a few times, the "outputs" folder might look like this (highlights added for clarity):  
-
+Raporları birkaç kez derledikten sonra, "outputs" klasörü şöyle görünebilir (açıklık için vurgular eklendi):
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "factory_overview_all.png"))
 ```
 
 
-* Within "outputs", sub-folders have been created for each Rmd report  
-* Within those, further sub-folders have been created for each unique compiling  
-  * These are date- and time-stamped ("2021-04-23_T11-07-36" means 23rd April 2021 at 11:07:36)  
-  * You can edit the date/time-stamp format. See `?compile_reports`
-* Within each date/time compiled folder, the report output is stored (e.g. HTML, PDF, Word) along with the Rmd script (version control!) and any other exported files (e.g. table.csv, epidemic_curve.png)  
+* "Outputs" içerisinde her bir Rmd raporu için alt klasörler oluşturulmuştur.
+* Bunların içinde, her benzersiz derleme için başka alt klasörler oluşturulmuştur.
+   * Bunlar tarih ve zaman damgalıdır ("2021-04-23_T11-07-36", 23 Nisan 2021, 11:07:36 anlamına gelir)
+   * Tarih/zaman damgası biçimini düzenleyebilirsiniz. `?compile_reports` konusuna bakabilirsiniz.
+* Her bir tarih/saat derlenmiş klasöründe, rapor çıktısı (ör. HTML, PDF, Word) Rmd betiği (sürüm kontrolü!) ve dışa aktarılan diğer dosyalar (ör. table.csv, epidemi_curve.png) ile birlikte depolanır.
 
-Here is a view inside one of the date/time-stamped folders, for the "daily_sitrep" report. The file path is highlighted in yellow for emphasis.  
+"daily_sitrep" raporu için tarih/saat damgalı klasörlerden birinin içindeki bir görünüm buradadır. Dosya yolu, vurgu için sarı renkle vurgulanmıştır.  
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "factory_compile_folder.png"))
 ```
 
 
-Finally, below is a screenshot of the HTML report output.  
-
+Son olarak, aşağıda HTML rapor çıktısının bir ekran görüntüsü bulunmaktadır.
 
 ```{r, warning=F, message=F, echo=F}
 knitr::include_graphics(here::here("images", "factory_html.png"))
 ```
 
-You can use `list_outputs()` to review a list of the outputs.  
+Çıktıların listesini gözden geçirmek için `list_outputs()` kullanabilirsiniz.
 
 
 
-
-## Miscellaneous  
+## Muhtelif İçerikler  
 
 ### Knit {.unnumbered} 
 
-You can still "knit" one of your R Markdown reports by pressing the "Knit" button, if you want. If you do this, as by default, the outputs will appear in the folder where the Rmd is saved - the "report_sources" folder. In prior versions of **reportfactory**, having any non-Rmd files in "report_sources" would prevent compiling, but this is no longer the case. You can run `compile_reports()` and no error will occur.  
+İsterseniz "knit" düğmesine basarak R Markdown raporlarınızdan birini hala "örebilirsiniz". Bunu yaparsanız, varsayılan olarak, çıktılar Rmd'nin kaydedildiği klasörde - "report_sources" klasöründe görünecektir. **reportfactory**'nin önceki sürümlerinde, "report_sources" içinde Rmd olmayan dosyaların bulunması derlemeyi engellerdi, ancak artık durum böyle değil. `compile_reports()` komutunu çalıştırabilirsiniz ve herhangi bir hata oluşmaz.
 
-### Scripts {.unnumbered}  
+### Betikler {.unnumbered}  
 
-We encourage you to utilize the "scripts" folder to store "runfiles" or .R scripts that are sourced by your .Rmd scripts. See the page on [R Markdown][Reports with R Markdown] for tips on how to structure your code across several files.  
+.Rmd komut dosyalarınız tarafından sağlanan "runfiles" veya .R komut dosyalarını depolamak için "scripts" klasörünü kullanmanızı öneririz. Kodunuzu birkaç dosyada nasıl yapılandıracağınıza ilişkin ipuçları için [R Markdown][R Markdown ile Raporlar] hakkındaki sayfaya bakabilirsiniz.
 
 
-### Extras {.unnumbered} 
+### Ekstralar {.unnumbered}
 
-* With **reportfactory**, you can use the function `list_deps()` to list all packages required across all the reports in the entire factory.  
+* **reportfactory** ile, tüm fabrikadaki tüm raporlarda gerekli tüm paketleri listelemek için 'list_deps()' fonksiyonunu kullanabilirsiniz.
 
-* There is an accompanying package in development called **rfextras** that offers more helper functions to assist you in building reports, such as:  
-  * `load_scripts()` - sources/loads all .R scripts in a given folder (the "scripts" folder by default)  
-  * `find_latest()` - finds the latest version of a file (e.g. the latest dataset)
-
+* Geliştirme aşamasında, raporların oluşturulmasında size yardımcı olacak daha fazla yardımcı fonksiyon sunan **rfextras** adlı bir paket vardır, örneğin:
+   * `load_scripts()` - belirli bir klasördeki tüm .R komut dosyalarını kaynaklar/yükler (varsayılan olarak "scripts" klasörü)
+   * `find_latest()` - bir dosyanın en son sürümünü bulur (örneğin, en son veri kümesi)
 
 
 
 <!-- ======================================================= -->
-## Resources {  }
+## Kaynaklar {  }
 
-See the **reportfactory** package's [Github page](https://github.com/reconverse/reportfactory)
+ **reportfactory** paketleri [Github sayfası](https://github.com/reconverse/reportfactory)
 
-See the **rfextras** package's [Github page](https://github.com/reconhub/rfextras)  
+ **rfextras** paketleri [Github sayfası](https://github.com/reconhub/rfextras)  
 
