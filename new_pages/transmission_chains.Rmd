@@ -16,7 +16,11 @@ if(
 ) remotes::install_github("reconhub/epicontacts@timeline")
 
 ## paketleri yükleyin ve kurun
-pacman::p_load(tidyverse, epicontacts, magrittr, here, webshot, visNetwork)
+pacman::p_load(tidyverse,
+               #epicontacts,
+               magrittr, here, webshot, visNetwork)
+
+library(epicontacts)
 
 ## satır listesini yükleyin
 linelist <- rio::import(here::here("data", "case_linelists", "linelist_cleaned.rds")) %>%

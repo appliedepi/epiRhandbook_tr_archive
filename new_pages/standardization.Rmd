@@ -79,19 +79,19 @@ El kitabındaki tüm örnek verilerin nasıl indirileceğine ilişkin talimatlar
 
 ```{r, eval=F}
 # A ülkesi için demografik veriyi doğrudan Github'dan içe aktarın
-A_demo <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/country_demographics.csv")
+A_demo <- import("https://github.com/appliedepi/epirhandbook_eng/raw/master/data/standardization/country_demographics.csv")
 
 # A ülkesi için ölümleri doğrudan Github'dan içe aktarın
-A_deaths <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/deaths_countryA.csv")
+A_deaths <- import("https://github.com/appliedepi/epirhandbook_eng/raw/master/data/standardization/deaths_countryA.csv")
 
 # B ülkesi için demografik veriyi doğrudan Github'dan içe aktarın
-B_demo <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/country_demographics_2.csv")
+B_demo <- import("https://github.com/appliedepi/epirhandbook_eng/raw/master/data/standardization/country_demographics_2.csv")
 
 # B ülkesi için ölümleri doğrudan Github'dan içe aktarın
-B_deaths <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/deaths_countryB.csv")
+B_deaths <- import("https://github.com/appliedepi/epirhandbook_eng/raw/master/data/standardization/deaths_countryB.csv")
 
 # B ülkesi için demografik veriyi doğrudan Github'dan içe aktarın
-standard_pop_data <- import("https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/world_standard_population_by_sex.csv")
+standard_pop_data <- import("https://github.com/appliedepi/epirhandbook_eng/raw/master/data/standardization/world_standard_population_by_sex.csv")
 
 ```
 

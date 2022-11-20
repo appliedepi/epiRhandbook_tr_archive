@@ -651,7 +651,7 @@ knitr::include_graphics(here::here("images", "github_fork_2.png"))
 Şimdi yeni bir uzak depo ekleyin:
 
 ```{bash, eval = FALSE}
-git remote add upstream https://github.com/epirhandbook/Epi_R_handbook.git
+git remote add upstream https://github.com/appliedepi/epirhandbook_eng.git
 ```
  
 Burada adres, bir depoyu klonladığınızda Github'un ürettiği adrestir (klonlama ile ilgili bölüme bakın). Şimdi dört uzak işaretçiniz olacak:

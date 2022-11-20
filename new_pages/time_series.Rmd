@@ -50,7 +50,7 @@ pacman::p_load(rio,          # Dosyanın içe aktarılması
 
 Bu el kitabında kullanılan tüm verileri, [el kitabının ve verilerin indirilmesi] sayfasındaki talimatlar aracılığıyla indirebilirsiniz.  
 
-Bu bölümde kullanılan örnek veri seti, 2001 ve 2011 yılları arasında Almanya'da rapor edilen haftalık kampilobakter vaka sayılarıdır. Bu veri dosyasını (.xlsx) indirmek için buraya tıklayabilirsiniz.<a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/time_series/campylobacter_germany.xlsx' class='download-button'>(.xlsx) olarak görülecektir.</span></a> 
+Bu bölümde kullanılan örnek veri seti, 2001 ve 2011 yılları arasında Almanya'da rapor edilen haftalık kampilobakter vaka sayılarıdır. Bu veri dosyasını (.xlsx) indirmek için buraya tıklayabilirsiniz.<a href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/time_series/campylobacter_germany.xlsx' class='download-button'>(.xlsx) olarak görülecektir.</span></a> 
 
 Bu veri seti, surveillance paketinde bulunan veri setinin küçültülmüş bir versiyonudur. (detaylar için surveillance paketini yükleyin ve bkz. ?campyDE) [**surveillance**](https://cran.r-project.org/web/packages/surveillance/)
 
@@ -517,7 +517,7 @@ model <- glm_nb_model(
     fourier)
 
 ## sayım veri tabanını kullanarak modelinize uydurun
-fitted_model <- trending::fit(model, counts)
+fitted_model <- trending::fit(model, data.frame(counts))
 
 ## güven ve tahmin aralıklarını hesaplayın
 observed <- predict(fitted_model, simulate_pi = FALSE)
@@ -638,6 +638,7 @@ counts %>%
   ## verilerinizi uzun formatta değiştirin
   pivot_longer(
     ## anahtar olarak epiweek'i kullanın
+    !epiweek,
     ## sütun adlarını yeni "ölçü" sütununa taşıyın
     names_to = "measure", 
     ## hücre değerlerini yeni "değerler" sütununa taşı
@@ -713,7 +714,7 @@ model <- glm_nb_model(
     )
 
 ## sayım veri tabanını kullanarak uyumlu modelinizi oluşturun
-fitted_model <- trending::fit(model, counts)
+fitted_model <- trending::fit(model, data.frame(counts))
 
 ## güven aralıklarını ve tahmin aralıklarını hesaplayın
 observed <- predict(fitted_model, simulate_pi = FALSE)
@@ -950,7 +951,7 @@ pred_data <- pluck(dat, 1) %>%
   select(case_int, epiweek, fourier)
 
 # modeli uydurun
-fitted_model <- trending::fit(model, fitting_data)
+fitted_model <- trending::fit(model, data.frame(fitting_data))
 
 # Uydurulan veriler için sınır ve tahmin değerleri elde edin
 observed <- fitted_model %>% 
@@ -958,7 +959,7 @@ observed <- fitted_model %>%
 
 # tahmin için kullanılacak veri ile tahmin 
 forecasts <- fitted_model %>% 
-  predict(pred_data, simulate_pi = FALSE)
+  predict(data.frame(pred_data), simulate_pi = FALSE)
 
 ## temel ve tahmin edilmiş veri tabanlarını birleştirin 
 observed <- bind_rows(observed, forecasts)
@@ -1150,7 +1151,7 @@ forecasts <- purrr::map(unique(case_roll$.id),
   
   # istenilen verilerle tahmin 
   forecasts <- fitted_model %>% 
-    predict(pred_data, simulate_pi = FALSE) %>% 
+    predict(data.frame(pred_data), simulate_pi = FALSE) %>% 
     ## sadece hafta ve tahmin değerini tutun 
     select(epiweek, estimate)
     
@@ -1218,7 +1219,6 @@ counts_sts <- sts(observed = counts$case_int[!is.na(counts$case_int)],
 ## dahil etmek istediğiniz hafta aralığını tanımlayın (ör. tahmin dönemi)
 ## not. sts nesnesi yalnızca kendilerine tanımlanmış hafta ya da yılları atamadan gözlemleri sayar 
 ## bu nedenle uygun olanı tanımlamak için verilerimizi kullanırız
-observations
 weekrange <- cut_off - start_date
 
 

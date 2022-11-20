@@ -45,7 +45,7 @@ pacman::p_load(
 ### Verileri yükleme {.unnumbered}  
 
 
-Bu sayfada, simüle edilmiş bir Ebola salgını vakalarının temizlenmiş "satır listesine" ara sıra atıfta bulunulacaktır. Daha fazla bilgi için, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz satır listesi" dosyasını indirmek için tıklayın.</a> (.rds dosyası olarak). **rio** paketinden `import()` işleviyle veriler içe aktarırılır (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe ve dışa aktarma] sayfasına bakın).
+Bu sayfada, simüle edilmiş bir Ebola salgını vakalarının temizlenmiş "satır listesine" ara sıra atıfta bulunulacaktır. Daha fazla bilgi için, <a href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz satır listesi" dosyasını indirmek için tıklayın.</a> (.rds dosyası olarak). **rio** paketinden `import()` işleviyle veriler içe aktarırılır (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe ve dışa aktarma] sayfasına bakın).
 
 ```{r, echo=F}
 # satır listesini R'a yükle
@@ -417,7 +417,9 @@ str_pad(ICD_codes, 7, "right", pad = ".")
 ```{r}
 # İki basamağın başına sıfır ekle (ör. dakika/saat zamanları için)
 str_pad("4", 2, pad = "0") 
+```
 
+```{r, echo=T, eval=F}
 # "saat" adlı sayısal bir sütun kullanan örnek
 hours <- str_pad(hours, 2, pad = "0")
 ```

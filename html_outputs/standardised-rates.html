@@ -185,19 +185,19 @@ Let’s say we would like to the standardize mortality rate by age and sex for c
 <p>See the <a href="download-handbook-and-data.html#download-handbook-and-data">Download handbook and data</a> page for instructions on how to download all the example data in the handbook. You can import the Standardisation page data directly into R from our Github repository by running the following <code><a href="https://rdrr.io/pkg/rio/man/import.html">import()</a></code> commands:</p>
 <div class="sourceCode" id="cb1086"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># import demographics for country A directly from Github</span>
-<span class="va">A_demo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/country_demographics.csv"</span><span class="op">)</span>
+<span class="va">A_demo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"https://github.com/appliedepi/epirhandbook_eng/raw/master/data/standardization/country_demographics.csv"</span><span class="op">)</span>
 
 <span class="co"># import deaths for country A directly from Github</span>
-<span class="va">A_deaths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/deaths_countryA.csv"</span><span class="op">)</span>
+<span class="va">A_deaths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"https://github.com/appliedepi/epirhandbook_eng/raw/master/data/standardization/deaths_countryA.csv"</span><span class="op">)</span>
 
 <span class="co"># import demographics for country B directly from Github</span>
-<span class="va">B_demo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/country_demographics_2.csv"</span><span class="op">)</span>
+<span class="va">B_demo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"https://github.com/appliedepi/epirhandbook_eng/raw/master/data/standardization/country_demographics_2.csv"</span><span class="op">)</span>
 
 <span class="co"># import deaths for country B directly from Github</span>
-<span class="va">B_deaths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/deaths_countryB.csv"</span><span class="op">)</span>
+<span class="va">B_deaths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"https://github.com/appliedepi/epirhandbook_eng/raw/master/data/standardization/deaths_countryB.csv"</span><span class="op">)</span>
 
 <span class="co"># import demographics for country B directly from Github</span>
-<span class="va">standard_pop_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/standardization/world_standard_population_by_sex.csv"</span><span class="op">)</span></code></pre></div>
+<span class="va">standard_pop_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rio/man/import.html">import</a></span><span class="op">(</span><span class="st">"https://github.com/appliedepi/epirhandbook_eng/raw/master/data/standardization/world_standard_population_by_sex.csv"</span><span class="op">)</span></code></pre></div>
 <p>First we load the demographic data (counts of males and females by 5-year age category) for the two countries that we will be comparing, “Country A” and “Country B”.</p>
 <div class="sourceCode" id="cb1087"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Country A</span>

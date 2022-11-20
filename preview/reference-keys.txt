@@ -1,5 +1,6 @@
-önyazı-ve-teknik-notlar
-yaklaşım-ve-stil
-editöryal-kararlar
-büyük-güncellemeler
-oturum-bilgisi-r-rstudio-packages
+filogenetik-ağaçlar
+genel-bakış
+hazırlık
+temel-ağaç-görselleştirmesi
+ağacın-manipülasyonu
+kaynaklar

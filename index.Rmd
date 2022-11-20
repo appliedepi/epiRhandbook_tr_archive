@@ -24,6 +24,11 @@ documentclass: book
 
 #  {-}
 
+```{r, echo=FALSE, eval=TRUE}
+options(knitr.graphics.rel_path = FALSE)
+```
+
+
 ```{r, out.width = "100%", fig.align = "center", echo=F}
 knitr::include_graphics(here::here("images", "Epi R Handbook banner beige 1500x500.png"))
 # library(knitr)
@@ -97,7 +102,7 @@ We are applied epis from around the world, writing in our spare time to offer th
 
 * Structured **[feedback form](https://forms.gle/A5SnRVws7tPD15Js9)**  
 * Email **epiRhandbook@gmail.com** or tweet **[\@epiRhandbook](https://twitter.com/epirhandbook)**  
-* Submit issues to our **[Github repository](https://github.com/epirhandbook/Epi_R_handbook)**  
+* Submit issues to our **[Github repository](https://github.com/appliedepi/epirhandbook_eng)**  
 
 :::
 

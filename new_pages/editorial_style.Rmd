@@ -99,7 +99,7 @@ El kitabında karşılaşabileceğiniz not türleri şunlardır:
 
 ## Editöryal Kararlar  
 
-Aşağıda, paket ve işlev seçimiyle ilgili önemli editoryal kararları sizinle paylaşıyoruz. Bizimle aynı fikirde değilseniz veya değerlendirilmesi için yeni bir araç önermek isterseniz, lütfen [Github sayfamıza](https://github.com/epirhandbook/Epi_R_handbook) katılın ve yeni bir sohbet başlatın.
+Aşağıda, paket ve işlev seçimiyle ilgili önemli editoryal kararları sizinle paylaşıyoruz. Bizimle aynı fikirde değilseniz veya değerlendirilmesi için yeni bir araç önermek isterseniz, lütfen [Github sayfamıza](https://github.com/appliedepi/epirhandbook_eng) katılın ve yeni bir sohbet başlatın.
 
 
 **Paket, fonksiyon ve diğer editoryal kararlar tablosu**  

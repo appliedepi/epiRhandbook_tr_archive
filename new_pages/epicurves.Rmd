@@ -777,7 +777,7 @@ rolling_avg <- incidence(                    # make incidence object
   i2extras::add_rolling_average(before = 6)  # add rolling averages (in this case, by gender)
 
 # plot
-plot(rolling_avg, n.breaks = 3) # faceted automatically because rolling average on groups
+plot(rolling_avg) # faceted automatically because rolling average on groups
 ```
 
 Verilere daha genel olarak yuvarlanan ortalamaların nasıl uygulanacağını öğrenmek için [Hareketli ortalamalar] hakkındaki El Kitabı sayfasına bakın.

@@ -420,9 +420,11 @@ Bunun gibi bir tabloyu nasıl oluşturacağınız, temaslı izleme verilerinizin
 Dinamik olacak ve veriler değiştikçe değişecek bir tablo oluşturacağız. Sonuçları ilginç hale getirmek için, tabloyu belirli bir günde çalıştırmayı simüle etmemize izin verecek bir "rapor_tarihi" ayarlayacağız (10 Haziran 2020'yi seçiyoruz). Veriler o tarihe kadar filtrelenir.
 
 ```{r, warning=F, message=F}
-# Raporun bu tarihten itibaren verilerle çalıştırılmasını simüle etmek için "Rapor tarihi"ni ayarlayınreport_date <- as.Date("2020-06-10")
+# Raporun bu tarihten itibaren verilerle çalıştırılmasını simüle etmek için "Rapor tarihi"ni ayarlayın
+report_date <- as.Date("2020-06-10")
 
-# Rapor tarihini yansıtacak takip verileri oluşturun.table_data <- followups_clean %>% 
+# Rapor tarihini yansıtacak takip verileri oluşturun.
+table_data <- followups_clean %>% 
   filter(date_of_followup <= report_date)
 ```
 

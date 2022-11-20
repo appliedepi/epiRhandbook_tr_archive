@@ -45,7 +45,7 @@ pacman::p_load(
 ### Verileri içe aktar {.unnumbered}
 
 Simüle edilmiş bir Ebola salgınından vakaların veri setini içe aktarıyoruz. Takip etmek isterseniz, <a 
-href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz" vaka listesini indirmek için tıklayınız</a>(.rds dosyası olarak). Verilerinizi **rio** paketinden `import()` fonksiyonuyla içe aktarın (.xlsx, .rds, .csv gibi birçok dosya türünü kabul eder - ayrıntılar için [İçe aktarma ve dışa aktarma] sayfasına bakın).
+href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz" vaka listesini indirmek için tıklayınız</a>(.rds dosyası olarak). Verilerinizi **rio** paketinden `import()` fonksiyonuyla içe aktarın (.xlsx, .rds, .csv gibi birçok dosya türünü kabul eder - ayrıntılar için [İçe aktarma ve dışa aktarma] sayfasına bakın).
 
 
 ```{r, echo=F}

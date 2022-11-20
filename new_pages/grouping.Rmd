@@ -43,7 +43,7 @@ pacman::p_load(
 
 ### Verileri içe aktar {.unnumbered}
 
-Simüle edilmiş bir Ebola salgınından vakaların veri setini içe aktarıyoruz. Takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" dosyasını indirmek için tıklayın</a> (.rds dosyası olarak). Veri kümesi, **rio** paketinden `import()` fonksiyonu kullanılarak içe aktarılır. Verileri içe aktarmanın çeşitli yolları için [İçe ve dışa aktar] hakkındaki sayfaya bakın.
+Simüle edilmiş bir Ebola salgınından vakaların veri setini içe aktarıyoruz. Takip etmek isterseniz, <a href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" dosyasını indirmek için tıklayın</a> (.rds dosyası olarak). Veri kümesi, **rio** paketinden `import()` fonksiyonu kullanılarak içe aktarılır. Verileri içe aktarmanın çeşitli yolları için [İçe ve dışa aktar] hakkındaki sayfaya bakın.
 
 ```{r, echo=F}
 linelist <- rio::import(here("data", "case_linelists", "linelist_cleaned.rds"))
@@ -111,9 +111,10 @@ Ayrıca, "group_by()" ifadesinin *içinde* yeni bir gruplandırma sütunu da olu
 
 ```{r}
 # group_by() komut satırı listesi %>% *içinde* oluşturulan bir ikili sütuna dayalı grup verileri
-  group_by(
-    age_class = ifelse(age >= 18, "adult", "child")) %>% 
-  tally(sort = T)
+linelist %>% 
+     group_by(
+          age_class = ifelse(age >= 18, "adult", "child")) %>% 
+     tally(sort = T)
 ```
 
 ### Gruplandırma sütunlarını ekle/bırak {.unnumbered}

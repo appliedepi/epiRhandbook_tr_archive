@@ -11,7 +11,7 @@ knitr::include_graphics(here::here("images", "likert.png"))
 
 Demografik piramitler, yaş ve cinsiyet dağılımlarını göstermek için kullanışlıdır. Benzer kod, Likert tarzı anket sorularının sonuçlarını görselleştirmek için de kullanılabilir (örneğin, "Kesinlikle katılıyorum", "Katılıyorum", "Nötr", "Katılıyorum", "Kesinlikle katılmıyorum"). Bu sayfada aşağıdaki başlıkları ele alacağız: 
 
-* **apiramit** paketini kullanarak hızlı ve kolay piramit grafiği oluşturma 
+* **apyramid** paketini kullanarak hızlı ve kolay piramit grafiği oluşturma 
 * `ggplot()` kullanarak daha fazla özelleştirilebilir piramit grafiği oluşturma
 * Piramidin arka planında "temel" demografik bilgileri görüntüleme 
 * Diğer veri türlerini görselleştirmek için piramit tarzı grafikler kullanma (ör. **Likert tarzı** anket sorularına verilen yanıtlar)
@@ -36,7 +36,7 @@ pacman::p_load(rio,       # verileri içe aktarmak için
 
 ### Veriyi içe aktarma {.unnumbered}  
 
-Başlamak için, Ebola salgını simulasyonuna ait temizlenmiş vaka listesini içe aktarıyoruz. Takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz satır listesi" dosyasını indirmek için tıklayınız.</a> (.rds dosyası olarak). **rio** paketinden `import()` fonksiyonu ile veriler içe aktarılmalıdır (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe ve dışa aktarma] sayfasına bakınız).
+Başlamak için, Ebola salgını simulasyonuna ait temizlenmiş vaka listesini içe aktarıyoruz. Takip etmek isterseniz, <a href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz satır listesi" dosyasını indirmek için tıklayınız.</a> (.rds dosyası olarak). **rio** paketinden `import()` fonksiyonu ile veriler içe aktarılmalıdır (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe ve dışa aktarma] sayfasına bakınız).
 
 ```{r, echo=F}
 # satır listesini R'a aktar

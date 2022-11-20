@@ -526,9 +526,9 @@ left_join(ag, propcount, by = "age_group", suffix = c("", "_pop")) %>%
 
 ### Demografik piramitler
 
-Demografik (veya yaş-cinsiyet) piramitler, anket popülasyonunuzdaki dağılımı görselleştirmenin kolay bir yoludur. Anket tabaklarına göre yaş ve cinsiyet için [tanımlayıcı tabloları](https://epirhandbook.com/descriptive-tables.html) oluşturmayı da düşünmeye değer. Yukarıda oluşturulan anket tasarım nesnemizi kullanarak ağırlıklı orantılara izin verdiği için **apyramid** paketini kullanmayı göstereceğiz. [Demografik piramitler](https://epirhandbook.com/demographic-pyramids-and-likert-scales.html) oluşturmaya yönelik diğer seçenekler, el kitabının bu bölümünde kapsamlı bir şekilde ele alınmıştır. Ayrıca, orantıları olan bir grafik üretmek için birkaç satır kodlama kaydeden, `plot_age_pyramid()` adlı **sitrep** paketinden bir sarmalayıcı işlevi kullanacağız.
+Demografik (veya yaş-cinsiyet) piramitler, anket popülasyonunuzdaki dağılımı görselleştirmenin kolay bir yoludur. Anket tabaklarına göre yaş ve cinsiyet için [tanımlayıcı tabloları](https://epirhandbook.com/descriptive-tables.html) oluşturmayı da düşünmeye değer. Yukarıda oluşturulan anket tasarım nesnemizi kullanarak ağırlıklı orantılara izin verdiği için **apyramid** paketini kullanmayı göstereceğiz. [Demografik piramitler](https://epirhandbook.com/demographic-pyramids-and-likert-scales.html) oluşturmaya yönelik diğer seçenekler, el kitabının bu bölümünde kapsamlı bir şekilde ele alınmıştır. Ayrıca, orantıları olan bir grafik üretmek için birkaç satır kodlama kaydeden, `age_pyramid()` adlı **sitrep** paketinden bir sarmalayıcı işlevi kullanacağız.
 
-Yukarıda örnekleme yanlılığı bölümünde görülen resmi binom farklılık testinde olduğu gibi, burada örneklenen popülasyonumuzun kaynak popülasyondan önemli ölçüde farklı olup olmadığını ve ağırlıklandırmanın bu farkı düzeltip düzeltmediğini görselleştirmekle ilgileniyoruz. Bunu yapmak için **ggplot** görselleştirmelerimizi yan yana göstermek için **patchwork** paketini kullanacağız; ayrıntılar için el kitabının [ggplot ipuçları](https://epirhandbook.com/ggplot-tips.html?q=patch#combine-plots) bölümündeki grafikleri birleştirme bölümüne bakın. Kaynak popülasyonumuzu, ağırlıksız anket popülasyonumuzu ve ağırlıklı anket popülasyonumuzu görselleştireceğiz. Anketinizin her katmanına göre görselleştirmeyi de düşünebilirsiniz - buradaki örneğimizde bu, `stack_by = "health_district"` argümanını kullanmak olacaktır (ayrıntılar için `?plot_age_pyramid` komutuna bknz.).
+Yukarıda örnekleme yanlılığı bölümünde görülen resmi binom farklılık testinde olduğu gibi, burada örneklenen popülasyonumuzun kaynak popülasyondan önemli ölçüde farklı olup olmadığını ve ağırlıklandırmanın bu farkı düzeltip düzeltmediğini görselleştirmekle ilgileniyoruz. Bunu yapmak için **ggplot** görselleştirmelerimizi yan yana göstermek için **patchwork** paketini kullanacağız; ayrıntılar için el kitabının [ggplot ipuçları](https://epirhandbook.com/ggplot-tips.html?q=patch#combine-plots) bölümündeki grafikleri birleştirme bölümüne bakın. Kaynak popülasyonumuzu, ağırlıksız anket popülasyonumuzu ve ağırlıklı anket popülasyonumuzu görselleştireceğiz. Anketinizin her katmanına göre görselleştirmeyi de düşünebilirsiniz - buradaki örneğimizde bu, `stack_by = "health_district"` argümanını kullanmak olacaktır (ayrıntılar için `?age_pyramid` komutuna bknz.).
 
 <span style="color: black;">**_NOT:_** x ve y eksenleri piramitlerde çevrilir.</span>
 
@@ -593,7 +593,7 @@ source_population <- population %>%
   
   
 ## ağırlıksız örnek popülasyonunu grafiklendir
-sample_population <- plot_age_pyramid(survey_data, 
+sample_population <- age_pyramid(survey_data, 
                  age_group = "age_group", 
                  split_by = "sex",
                  proportion = TRUE) + 
@@ -612,7 +612,7 @@ weighted_population <- survey_design %>%
   ## değişkenlerin faktör olduğundan emin ol
   mutate(age_group = factor(age_group), 
          sex = factor(sex)) %>%
-  plot_age_pyramid(
+  age_pyramid(
     age_group = "age_group",
     split_by = "sex", 
     proportion = TRUE) +
@@ -647,13 +647,8 @@ Bireyler için başlangıç noktalarını ve sonuçları görselleştirmek, gene
 
 ## verileri özetle
 flow_table <- survey_data %>%
-  count(startcause, endcause, sex) %>%                     # sayımları al
-  gather_set_data(x = c("startcause", "endcause")) %>%     # grafiklendirme için formatı değiştir
-  mutate(x = fct_relevel(x, c("startcause", "endcause")),  # startcause'u birinci seviye olarak ayarla
-         x = fct_recode(x, 
-                        "Start \n cause" = "startcause",   # başlangıçtan sonra satır sonu (\n) ekle
-                        "End \n cause"   = "endcause")
-        )
+  count(startcause, endcause, sex) %>%  # sayımları al 
+  gather_set_data(x = c("startcause", "endcause"))     # grafiklendirme için formatı değiştir
 
 
 ## veri kümesini çiz 

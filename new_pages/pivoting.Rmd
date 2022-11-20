@@ -46,7 +46,7 @@ pacman::p_load(
 
 ### Sıtma hastalığı için sayım verisi {-}  
 
-Bu sayfada, kuruluş ve yaş grubuna göre günlük sıtma vakalarını içeren kurgusal bir veri setini inceleyeceğiz. Adımları takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/malaria_facility_count_data.rds' class='download-button'>veri setini indirmek için buraya tıklayın (.rds dosyası formatında)</a>. Verileri **rio** paketinden `import()` fonksiyonuyla içe aktarın (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için İçe Aktarma ve Dışa Aktarma sayfasına bakın).
+Bu sayfada, kuruluş ve yaş grubuna göre günlük sıtma vakalarını içeren kurgusal bir veri setini inceleyeceğiz. Adımları takip etmek isterseniz, <a href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/malaria_facility_count_data.rds' class='download-button'>veri setini indirmek için buraya tıklayın (.rds dosyası formatında)</a>. Verileri **rio** paketinden `import()` fonksiyonuyla içe aktarın (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için İçe Aktarma ve Dışa Aktarma sayfasına bakın).
 
 ```{r, echo=F}
 count_data <- rio::import(here::here("data", "malaria_facility_count_data.rds")) %>% 
@@ -68,7 +68,7 @@ DT::datatable(head(count_data, 50), rownames = FALSE, options = list(pageLength 
 
 ### Satır listesi verisi {-}  
 
-Bu sayfanın sonraki bölümünde, simüle edilmiş bir Ebola salgını vakalarını içeren veri setini de kullanacağız. Devam etmek istiyorsanız, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>“temiz” satır listesini (.rds dosyası olarak) indirmek için tıklayın.</a> Verilerinizi **rio** paketinden `import()` işleviyle içe aktarın (.xlsx, .rds, .csv gibi birçok dosya türünü kabul eder - ayrıntılar için İçe Aktarma ve Dışa Aktarma sayfasına bakın).
+Bu sayfanın sonraki bölümünde, simüle edilmiş bir Ebola salgını vakalarını içeren veri setini de kullanacağız. Devam etmek istiyorsanız, <a href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>“temiz” satır listesini (.rds dosyası olarak) indirmek için tıklayın.</a> Verilerinizi **rio** paketinden `import()` işleviyle içe aktarın (.xlsx, .rds, .csv gibi birçok dosya türünü kabul eder - ayrıntılar için İçe Aktarma ve Dışa Aktarma sayfasına bakın).
 
 ```{r, echo=F}
 # satır listesini R'a aktar
@@ -499,7 +499,7 @@ Ancak bu form tablo halinde sunmak için daha az kullanışlıdır, bu yüzden u
 ```{r}
 df_combined %>% 
   pivot_wider(
-    id_cols = c(Facility, Year, Cases),
+    id_cols = c(Measurement, Facility),
     names_from = "Year",
     values_from = "Cases"
   ) %>% 

@@ -244,32 +244,21 @@ data_cleaned <- data %>%
 <!-- ======================================================= -->
 ## Karışık tarihler  
 
-**linelist** paketindeki `guess_dates()` fonksiyonu, birçok farklı biçimde tarihleri içeren "dağınık" bir tarih sütununu okumaya ve tarihleri standart bir biçime dönüştürmeye çalışır. [`guess_dates()` hakkında daha fazla bilgiyi için bakınız](https://www.repidemicsconsortium.org/linelist/reference/guess_dates.html). R 4.0.2 versiyonu için CRAN'da "guess_dates()" fonksiyonu henüz mevcut değilse, `pacman::p_load_gh("reconhub/linelist")` yoluyla yüklemeyi deneyebilirsiniz.
+**parsedate** paketindeki `parse_dates()` fonksiyonu, birçok farklı biçimde tarihleri içeren "dağınık" bir tarih sütununu okumaya ve tarihleri standart bir biçime dönüştürmeye çalışır. [`parse_date()` hakkında daha fazla bilgiyi için bakınız](https://readr.tidyverse.org/reference/parse_datetime.html).  
 
-Örneğin, `guess_dates()`, "03 Oca 2018", "07/03/1982" ve "08/20/85" karakter tarihlerinin bir vektörünü görür ve bunları Date sınıfına dönüştürür: '2018-01-03 ', '1982-03-07' ve '1985-08-20'.  
+Örneğin, `parse_dates()`, "03 Oca 2018", "07/03/1982" ve "08/20/85" karakter tarihlerinin bir vektörünü görür ve bunları Date sınıfına dönüştürür: '2018-01-03 ', '1982-03-07' ve '1985-08-20'.  
 
 ```{r, }
-linelist::guess_dates(c("03 Jan 2018",
+parsedate::parse_date(c("03 Janry 18",
                         "07/03/1982",
-                        "08/20/85"))
+                        "8-20-1985"))
 ```
-
-`guess_dates()` fonksiyonuna ekleyebileceğiniz bazı argümanlar şunlardır: 
-
-* `error_tolerance` - tolere edilebilecek tarihler olarak tanımlanamayan girişlerin oranı (varsayılan olarak %0,1 veya %10'dur)
-* `last_date` - son geçerli tarih (varsayılan olarak geçerli tarih)
-* `first_date` - ilk geçerli tarih. Last_date tarihinden elli yıl öncesi varsayılan tarih olarak kabul edilmektedir.
 
 
 ```{r eval = FALSE}
-# dater_onset sütununda guess_dates kullanan bir örnek
-linelist <- linelist %>%                 # veri kümesine linelist denir
-  mutate(
-    date_onset = linelist::guess_dates(  # "linelist" paketinden guess_dates() fonksiyonu
-      date_onset,
-      error_tolerance = 0.1,
-      first_date = "2016-01-01"
-    )
+# dater_onset sütununda parse_date() kullanan bir örnek
+linelist <- linelist %>%      
+  mutate(date_onset = parse_date(date_onset))
 ```
 
 

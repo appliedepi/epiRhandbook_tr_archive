@@ -129,7 +129,7 @@ pacman::p_load(
 ```
 <!--discrete mi distcrete mi??? kodun son fonksiyonunda sıkıntı olabilir ======================================================= -->
 	
-Bu bölümdeki tüm analizler için temizlenmiş vaka satır listesini kullanacağız. Takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" dosyasını indirmek için tıklayın. " </a>
+Bu bölümdeki tüm analizler için temizlenmiş vaka satır listesini kullanacağız. Takip etmek isterseniz, <a href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" dosyasını indirmek için tıklayın. " </a>
 (.rds dosyası olarak). Bu el kitabında kullanılan tüm örnek verileri indirmek için [El kitabı ve verileri indir] sayfasına bakınız.
 
 ```{r, echo=F}

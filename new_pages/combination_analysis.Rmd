@@ -15,22 +15,10 @@ linelist_sym <- linelist %>%
          vomit = sample(c("yes", "no"), nrow(linelist), replace = T))
 
 linelist_sym_2 <- linelist_sym %>% 
-  
-  # "evet" ve "hayır" değerlerini semptom adının kendisine dönüştürün
-  mutate(fever = case_when(fever == "yes" ~ 1,          # eski değer "evet" ise yeni değer "ateş"
-                           TRUE           ~ 0),   # eski değer "evet" dışında bir değer ise, yeni değer NA'dır.
-         
-         chills = case_when(chills == "yes" ~ 1,
-                           TRUE           ~ 0),
-         
-         cough = case_when(cough == "yes" ~ 1,
-                           TRUE           ~ 0),
-         
-         aches = case_when(aches == "yes" ~ 1,
-                           TRUE           ~ 0),
-         
-         vomit = case_when(vomit == "yes" ~ 1,
-                           TRUE           ~ 0))
+     
+  #mutate(fever = ifelse(fever == "yes", colnames(linelist)[which(colnames(linelist) == "fever")]))
+   mutate(across(.cols = c(fever, chills, cough, aches, vomit),
+                 .fns = ~+(.x == "yes")))   
 
 # Grafiği çizim
 UpSetR::upset(
@@ -79,7 +67,7 @@ pacman::p_load(
 ### Verileri içe aktar {.unnumbered}
 
 
-Başlamak için, simüle edilmiş bir Ebola salgınından temizlenmiş vaka listesini içe aktarıyoruz. Takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" dosyasını indirmek için tıklayın. </a> (.rds dosyası olarak). **rio** paketinden `import()` fonksiyonuyla verileri içe aktarın (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe aktarma ve dışa aktarma] sayfasına bakın).
+Başlamak için, simüle edilmiş bir Ebola salgınından temizlenmiş vaka listesini içe aktarıyoruz. Takip etmek isterseniz, <a href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" dosyasını indirmek için tıklayın. </a> (.rds dosyası olarak). **rio** paketinden `import()` fonksiyonuyla verileri içe aktarın (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe aktarma ve dışa aktarma] sayfasına bakın).
 
 
 ```{r, echo=F}
@@ -113,27 +101,11 @@ DT::datatable(head(linelist_sym, 50), rownames = FALSE, filter="top", options = 
 linelist_sym_1 <- linelist_sym %>% 
   
   # "evet" ve "hayır" değerlerini semptom adının kendisine dönüştürün
-  mutate(
-    fever = case_when(
-      fever == "yes" ~ "fever",          # eski değer "evet" ise yeni değer "ateş"
-      TRUE           ~ NA_character_),   # eski değer "evet" dışında bir değer ise, yeni değer NA'dır.
-         
-    chills = case_when(
-       chills == "yes" ~ "chills",
-       TRUE           ~ NA_character_),
-    
-    cough = case_when(
-      cough == "yes" ~ "cough",
-      TRUE           ~ NA_character_),
-         
-    aches = case_when(
-      aches == "yes" ~ "aches",
-      TRUE           ~ NA_character_),
-         
-    vomit = case_when(
-      vomit == "yes" ~ "vomit",
-      TRUE           ~ NA_character_)
-    )
+  mutate(fever = ifelse(fever == "yes", "fever", NA), 
+       chills = ifelse(chills == "yes", "chills", NA),
+       cough = ifelse(cough == "yes", "cough", NA),
+       aches = ifelse(aches == "yes", "aches", NA),
+       vomit = ifelse(vomit == "yes", "vomit", NA))
 ```
 
 Şimdi iki son sütun yapıyoruz:
@@ -218,46 +190,42 @@ pacman::p_load(UpSetR)
 linelist_sym_2 <- linelist_sym %>% 
   
   # "evet" ve "hayır" değerlerini semptom adının kendisine dönüştürün
-  mutate(
-    fever = case_when(
-      fever == "yes" ~ 1,    # eski değer "evet" ise yeni değer 1'dir.
-      TRUE           ~ 0),   # eski değer "evet" dışında bir değer ise, yeni değer 0'dır.
-         
-    chills = case_when(
-      chills == "yes" ~ 1,
-      TRUE           ~ 0),
-         
-    cough = case_when(
-      cough == "yes" ~ 1,
-      TRUE           ~ 0),
-         
-    aches = case_when(
-      aches == "yes" ~ 1,
-      TRUE           ~ 0),
-         
-    vomit = case_when(
-      vomit == "yes" ~ 1,
-      TRUE           ~ 0)
-    )
+     mutate(fever = ifelse(fever == "yes", 1, 0), 
+            chills = ifelse(chills == "yes", 1, 0),
+            cough = ifelse(cough == "yes", 1, 0),
+            aches = ifelse(aches == "yes", 1, 0),
+            vomit = ifelse(vomit == "yes", 1, 0))
 ```
+
+Daha verimli bir komutla ilgileniyorsanız, mantıksal bir ifadeye dayalı olarak 1'lere ve 0'lara dönüştüren `+()` işlevinden yararlanabilirsiniz. Bu komut, aynı anda birden fazla sütunu değiştirmek için `across()` fonksiyonunu kullanır (daha fazla bilgi için [Veri temizleme ve temel fonksiyonlar](#clean_across)).  
+
+
+```{r, eval=F, echo=T}
+# Efficiently convert "yes" to 1 and 0
+linelist_sym_2 <- linelist_sym %>% 
+  
+  # convert the "yes" and "no" values into 1s and 0s
+  mutate(across(c(fever, chills, cough, aches, vomit), .fns = ~+(.x == "yes")))
+```
+
 
 Şimdi 'upset()' özel fonksiyonunu kullanarak grafiği yapın - yalnızca belirtiler sütunlarını kullanarak. Hangi "kümelerin" karşılaştırılacağını belirlemelisiniz (semptom sütunlarının adları). Alternatif olarak, yalnızca en iyi X kombinasyonlarını göstermek için `nsets = ` ve `order.by = "freq"` kullanın.
 
 ```{r, warning=F, message=F}
 
 # Grafiği çizin
-UpSetR::upset(
-  select(linelist_sym_2, fever, chills, cough, aches, vomit),
-  sets = c("fever", "chills", "cough", "aches", "vomit"),
-  order.by = "freq",
-  sets.bar.color = c("blue", "red", "yellow", "darkgreen", "orange"), # optional colors
-  empty.intersections = "on",
-  # nsets = 3,
-  number.angles = 0,
-  point.size = 3.5,
-  line.size = 2, 
-  mainbar.y.label = "Symptoms Combinations",
-  sets.x.label = "Patients with Symptom")
+linelist_sym_2 %>% 
+     UpSetR::upset(
+       sets = c("fever", "chills", "cough", "aches", "vomit"),
+       order.by = "freq",
+       sets.bar.color = c("blue", "red", "yellow", "darkgreen", "orange"), # optional colors
+       empty.intersections = "on",
+       # nsets = 3,
+       number.angles = 0,
+       point.size = 3.5,
+       line.size = 2, 
+       mainbar.y.label = "Symptoms Combinations",
+       sets.x.label = "Patients with Symptom")
 
 ```
 

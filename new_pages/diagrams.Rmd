@@ -34,7 +34,7 @@ pacman::p_load(
 
 ### Verileri içe aktarma {.unnumbered}  
 
-Bu sayfadaki içeriğin çoğu bir veri seti gerektirmez. Ancak, Sankey diyagramı bölümünde, simüle edilmiş bir Ebola salgınından vaka satır listesini kullanacağız. Bu bölümü takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz satır listesini" indirmek (.rds dosyası olarak) için tıklayabilirsiniz.</a> **rio** paketinden `import()` fonksiyonuyla verileri içe aktarabilirsiniz (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe ve Dışa Aktarma] sayfasına bakınız).  
+Bu sayfadaki içeriğin çoğu bir veri seti gerektirmez. Ancak, Sankey diyagramı bölümünde, simüle edilmiş bir Ebola salgınından vaka satır listesini kullanacağız. Bu bölümü takip etmek isterseniz, <a href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"temiz satır listesini" indirmek (.rds dosyası olarak) için tıklayabilirsiniz.</a> **rio** paketinden `import()` fonksiyonuyla verileri içe aktarabilirsiniz (.xlsx, .csv, .rds gibi birçok dosya türünü işler - ayrıntılar için [İçe ve Dışa Aktarma] sayfasına bakınız).  
 
 ```{r, echo=F}
 # satır listesini R'a aktar

@@ -144,7 +144,7 @@ pacman::p_load(
 
 ### Örnek vaka verileri {.unnumbered}
 
-Gösteri amacıyla, simüle edilmiş Ebola salgını "satır listesi" veri çerçevesinden rastgele 1000 vakalık bir örneklemle çalışacağız (hesaplamalı olarak, daha az vakayla çalışmak bu el kitabında daha kolaydır). Takip etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" dosyasını indirmek için tıklayın.</a> (.rds dosyası olarak).
+Gösteri amacıyla, simüle edilmiş Ebola salgını "satır listesi" veri çerçevesinden rastgele 1000 vakalık bir örneklemle çalışacağız (hesaplamalı olarak, daha az vakayla çalışmak bu el kitabında daha kolaydır). Takip etmek isterseniz, <a href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_cleaned.rds' class='download-button'>"clean" dosyasını indirmek için tıklayın.</a> (.rds dosyası olarak).
 
 Vakaların rastgele bir örneğini aldığımız için, kodları kendi başınıza çalıştırdığınızda sonuçlarınız burada gösterilenden biraz farklı görünebilir.
 
@@ -210,7 +210,7 @@ Daha sonra, şekil dosyasının sütun adlarını standartlaştırmak için **ja
 ```{r}
 # ADM3 seviyesi temizlik 
 sle_adm3 <- sle_adm3_raw %>%
-  clean_names() %>% # sütun isimlerini standardize etmek
+  janitor::clean_names() %>% # sütun isimlerini standardize etmek
   filter(admin2name %in% c("Western Area Urban", "Western Area Rural")) # belirli alanları tutmak için filtrelemek
 ```
 
@@ -611,6 +611,7 @@ case_adm3_sf <- case_adm3 %>%                 #vakalarla başlayın ve yönetici
          admin2name, admin1name,
          cases, total, case_10kpop,
          geometry) %>%                        # geometriyi koru, böylece çokgenler çizilebilir
+  drop_na(objectid) %>%                       # drop empty rows
   st_as_sf()                                  # şekil dosyasına çevir
 
 ```

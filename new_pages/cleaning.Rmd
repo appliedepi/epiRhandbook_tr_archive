@@ -45,7 +45,7 @@ Fonksiyon      | Kullanımı                             | Paket
 `case_when()`|Sütundaki değerlerin daha kompleks mantık kriterleri ile yeniden kodlanması|**dplyr** 
 `replace_na()`, `na_if()`, `coalesce()`|Yeniden kodlama için özel fonksiyonlar |**tidyr**  
 `age_categories()` ve `cut()`|Sayısal değerler içeren bir sütundan kategorik gruplar oluşturma|**epikit** ve **base** R
-`clean_variable_spelling()`|Veri sözlüğü kullanarak değerlerin yeniden kodlanması ve temizliği|**linelist**
+`match_df()`|Veri sözlüğü kullanarak değerlerin yeniden kodlanması ve temizliği|**matchmaker**
 `which()`|Mantık kriterlerinin uygulanması, endekslerin elde edilmesi |**base** R
 
 Bu komutların Stata ya da SAS komutları ile karşılaştırılmasını görmek için R’a geçiş sayfasını inceleyin. 
@@ -116,7 +116,7 @@ pacman::p_load(
 
 Burada, rio paketinden import() fonksiyonunu kullanarak “ham” vaka satır listesi formundaki  Excel dosyasını içe aktarıyoruz. rio paketi birçok dosya türünü esnek bir şekilde işler (örn. .xlsx, .csv, .tsv, .rds. Satırları atlama, eksik değerleri ayarlama, Google sayfalarını içe aktarma gibi diğer durumlar hakkında daha fazla bilgi ve ipucu için İçe Aktarma ve Dışa Aktarma sayfasına bakın.  
 
-Eşlik etmek isterseniz, <a href='https://github.com/epirhandbook/Epi_R_handbook/raw/master/data/case_linelists/linelist_raw.xlsx' class='download-button'>ham satır listesini indirmek için tıklayınız</a> (.xlsx dosyası olarak).  
+Eşlik etmek isterseniz, <a href='https://github.com/appliedepi/epirhandbook_eng/raw/master/data/case_linelists/linelist_raw.xlsx' class='download-button'>ham satır listesini indirmek için tıklayınız</a> (.xlsx dosyası olarak).  
 
 Veri tabanınız büyükse ve içe aktarılması uzun sürüyorsa, içe aktarma komutunun tünel zincirinden ayrı olması ve ham verinin ayrı bir dosya olarak kaydedilmesi yararlı olabilir. Bu aynı zamanda orijinal ve temizlenmiş sürümler arasında kolay karşılaştırma sağlar.
 
@@ -928,7 +928,7 @@ linelist$gender[linelist$case_id == "2195"] <- "Female"
 
 #### `ifelse()` ve `if_else()` {.unnumbered}  
 
-ABasit mantık için başka bir araç ifelse() ve if_else()'dir. Bununla birlikte, çoğu durumda yeniden kodlama için case_When() kullanmak daha kolaydır (aşağıda ayrıntılı olarak açıklanmıştır). Bu “if else” komutları, if ve else programlama ifadelerinin basitleştirilmiş versiyonlarıdır. Genel sözdizimi şöyledir:
+ABasit mantık için başka bir araç ifelse() ve if_else()'dir. Bununla birlikte, çoğu durumda yeniden kodlama için case_when() kullanmak daha kolaydır (aşağıda ayrıntılı olarak açıklanmıştır). Bu “if else” komutları, if ve else programlama ifadelerinin basitleştirilmiş versiyonlarıdır. Genel sözdizimi şöyledir:
 `ifelse(condition, value to return if condition evaluates to TRUE, value to return if condition evaluates to FALSE)` 
 
 Aşağıda, source_known sütunu tanımlanmıştır. Sütun kaynağındaki satırın değeri eksik değilse, belirli bir satırdaki değeri "bilinen" olarak ayarlanır. Kaynaktaki değer eksikse, kaynak_bilinen içindeki değer “bilinmeyen” olarak ayarlanır.  
@@ -973,8 +973,8 @@ linelist <- linelist %>%
   mutate(age_years = case_when(
             age_unit == "years"  ~ age,       # yaş yıl olarak verildiyse
             age_unit == "months" ~ age/12,    # yaş ay olarak verildiyse
-            is.na(age_unit)      ~ age,       # yaş birimi eksikse, yıl varsayın
-            TRUE                 ~ NA_real_)) # başka bir durum, eksik olarak atama
+            is.na(age_unit)      ~ age))      # yaş birimi eksikse, yıl varsayın
+                                              # Başka herhangi bir senaryo NA olarak atanır
 
 ```
 
@@ -985,9 +985,7 @@ Bu satırlar boyunca, son ifadenizde, önceki kriterlerden herhangi birini karş
 
 
 
-<span style="color: red;">**_TEHLİKE:_** **Sağ taraftaki değerlerin tümü aynı sınıfta olmalıdır** - sayısal, karakter, tarih, mantıksal vb. Eksik (NA) atamak için NA_character_, NA_real_ (sayısal veya POSIX) ve as.Date(NA) gibi NA'nın özel varyasyonlarını kullanmanız gerekebilir. [Tarihlerle çalışma] bölümünden daha fazlasını okuyabilirsiniz.</span>  
-
-
+<span style="color: red;">**_TEHLİKE:_** **Sağ taraftaki değerlerin tümü aynı sınıfta olmalıdır** - sayısal, karakter, tarih, mantıksal vb. Eksik (NA) ya senaryoyu ele almadan bırakın ya da NA_character_, NA_real_ (sayısal veya POSIX) ve as.Date(NA) gibi NA'nın özel varyasyonlarını kullanmanız gerekebilir. [Tarihlerle çalışma] bölümünden daha fazlasını okuyabilirsiniz.</span>  
 
 
 ### Eksik değerler {.unnumbered} 
@@ -1051,7 +1049,7 @@ linelist <- linelist %>%
 
 ### Sözlüğün temizlenmesi  {.unnumbered}
 
-Bir veri çerçevesini bir temizleme sözlüğü ile temizlemek için R paketi satır listesini ve clean_variable_spelling() fonksiyonunu kullanın. linelist, RECON - the R Epidemics Consortium tarafından geliştirilen bir pakettir. [RECON](https://github.com/reconhub/linelist) - the R Epidemics konsorsiyum  
+Bir veri çerçevesini bir temizleme sözlüğü ile temizlemek için R paketi satır **matchmaker** ve match_df() fonksiyonunu kullanın.  
 
 1. 3 sütunlu bir temizleme sözlüğü oluşturun:
 • Bir "-den" sütunu (yanlış değer)
@@ -1076,13 +1074,18 @@ cleaning_dict <- rio::import(here("data", "case_linelists", "cleaning_dict.csv")
 cleaning_dict <- import("cleaning_dict.csv")
 ```
 
-3. Ham satır listesini, wordlists = temizleme sözlüğü veri çerçevesini belirterek clean_variable_spelling() öğesine iletin. Yazım_vars = argümanı, sözlükteki hangi sütunun hangi sütuna (varsayılan olarak 3.) atandığını belirtmek için kullanılabilir veya sözlüğün tüm karakter ve faktör sütunlarına uygulanması için NULL olarak ayarlanabilir. Bu fonksiyonun çalışmasının uzun zaman alabileceğini unutmayın.
+3. Ham satır listesini, dictionary = temizleme sözlüğü veri çerçevesini belirterek match_df() öğesine iletin. `from = ` argümanı "eski" değerleri içeren sözlük sütununun adı olmalıdır, `by = ` argümanı karşılık gelen "yeni" değerleri içeren sözlük sütunu olmalıdır ve üçüncü sütun değişikliğin yapılacağı sütunu listeler. Bir değişikliği tüm sütunlara uygulamak için `by = ` sütununda `.global` kullanın. Dördüncü bir sözlük sütunu olan `order` yeni değerlerin faktör sırasını belirtmek için kullanılabilir.  Bu fonksiyonun çalışmasının uzun zaman alabileceğini unutmayın.  
+
+Daha fazla ayrıntıyı `?match_df` komutunu çalıştırarak [paket dokümantasyonu](https://cran.r-project.org/web/packages/matchmaker/vignettes/intro.html) adresinden okuyabilirsiniz.  
+
 
 ```{r}
-linelist <- linelist %>% 
-  linelist::clean_variable_spelling(
-    wordlists = cleaning_dict,
-    spelling_vars = "col",        # sütun adlarını içeren dict sütunu, varsayılan olarak dict'te 3. sütuna
+linelist <- linelist %>%               # veri setinizi sağlayın veya borulayın
+     matchmaker::match_df(
+          dictionary = cleaning_dict,  # sözlüğünüzün adı
+          from = "from",               # değiştirilecek değerlerin bulunduğu sütun (varsayılan değer col 1'dir)
+          to = "to",                   # nihai değerleri içeren sütun (varsayılan değer 2. sütundur)
+          by = "col"                   # sütun adları ile sütun (varsayılan col 3'tür)
   )
 ```
 
@@ -1095,7 +1098,7 @@ DT::datatable(head(linelist,50), rownames = FALSE, filter="top", options = list(
 ```
 
 
-Temizleme sözlüğündeki sütun adlarınızın, temizleme komut dosyanızın bu noktasındaki adlara karşılık gelmesi gerektiğini unutmayın. Daha fazla ayrıntı için [satır listesi paketi için bu çevrimiçi referansa](https://www.repidemicsconsortium.org/linelist/reference/clean_data.html) bakabilirsiniz.
+Temizleme sözlüğündeki sütun adlarınızın, temizleme komut dosyanızın bu noktasındaki adlara karşılık gelmesi gerektiğini unutmayın.  
 
 
 
@@ -1158,8 +1161,7 @@ linelist <- linelist_raw %>%
     mutate(age_years = case_when(
           age_unit == "years" ~ age,
           age_unit == "months" ~ age/12,
-          is.na(age_unit) ~ age,
-          TRUE ~ NA_real_))
+          is.na(age_unit) ~ age))
 ```
 
 
@@ -1519,8 +1521,7 @@ linelist <- linelist_raw %>%
     mutate(age_years = case_when(
           age_unit == "years" ~ age,
           age_unit == "months" ~ age/12,
-          is.na(age_unit) ~ age,
-          TRUE ~ NA_real_)) %>% 
+          is.na(age_unit) ~ age)) %>% 
   
     # YUKARIDAKİ TEMİZLİK ADIMLARI ZATEN TARTIŞILMIŞTIR
     ###################################################   
@@ -1837,8 +1838,7 @@ linelist <- linelist_raw %>%
     mutate(age_years = case_when(
           age_unit == "years" ~ age,
           age_unit == "months" ~ age/12,
-          is.na(age_unit) ~ age,
-          TRUE ~ NA_real_)) %>% 
+          is.na(age_unit) ~ age)) %>% 
   
     mutate(
           # yaş kategorileri: özel
